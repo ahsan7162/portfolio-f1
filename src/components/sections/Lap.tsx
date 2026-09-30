@@ -76,7 +76,7 @@ export function Lap() {
 
           <ol className="lap-stages mt-10 grid gap-10">
             {timeline.map(t => (
-              <li key={t.company} data-stage className="lap-stage max-w-[560px] border border-line bg-carbon/75 p-6 backdrop-blur-sm md:p-8">
+              <li key={t.company} data-stage className="lap-stage max-w-[560px] border border-line bg-carbon/90 p-6 md:p-8">
                 <div className="flex items-center justify-between font-mono text-xs uppercase tracking-[0.14em] text-mute">
                   <span className="text-ac">{t.sector}</span><span>{t.years}</span>
                 </div>

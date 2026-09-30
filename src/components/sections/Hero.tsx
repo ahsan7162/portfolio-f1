@@ -66,7 +66,7 @@ export function Hero() {
         {/* Lando's "next race" card: the one live fact, clickable into the full breakdown. */}
         <button type="button" onClick={e => { if (current) openDetails(current, originOf(e)); }}
           aria-label={`Now at ${current?.company}: ${profile.now} Open details`}
-          className="group relative w-full max-w-[420px] overflow-hidden border border-line bg-graphite/90 p-5 text-left backdrop-blur-sm transition-colors duration-500 hover:border-ac md:p-6">
+          className="group relative w-full max-w-[420px] overflow-hidden border border-line bg-graphite/95 p-5 text-left transition-colors duration-500 hover:border-ac md:p-6">
           <span aria-hidden="true" className="absolute inset-y-0 left-0 w-[3px] bg-ac" />
           <span className="flex items-center justify-between font-mono text-[11px] uppercase tracking-[0.14em]">
             <span className="flex items-center gap-2 text-ac">
