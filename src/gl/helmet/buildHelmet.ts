@@ -44,13 +44,13 @@ export async function buildHelmet(opts: { lowDetail: boolean; anisotropy: number
   const disposables: Array<{ dispose: () => void }> = [];
   const keep = <T extends { dispose: () => void }>(x: T) => { disposables.push(x); return x; };
 
-  const { map, roughnessMap } = await liveryTextures(opts.anisotropy);
-  keep(map); keep(roughnessMap);
+  const { map } = await liveryTextures(opts.anisotropy);
+  keep(map);
 
-  // Shell: glossy lacquer over carbon.
-  const shellMat = keep(withReveal(new THREE.MeshPhysicalMaterial({
-    map, roughnessMap, roughness: 1, metalness: 0.15, clearcoat: 1, clearcoatRoughness: 0.08,
-    side: THREE.DoubleSide, envMapIntensity: 1.1,
+  // Matte satin shell over carbon (no clear coat); the glossy visor contrasts with it.
+  const shellMat = keep(withReveal(new THREE.MeshStandardMaterial({
+    map, roughness: 0.75, metalness: 0.1,
+    side: THREE.DoubleSide, envMapIntensity: 1.5,
   }), reveal));
   const shell = new THREE.Mesh(keep(shellGeometry(seg)), shellMat);
   group.add(shell);

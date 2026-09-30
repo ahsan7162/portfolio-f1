@@ -93,15 +93,13 @@ function canvas() {
 
 export async function liveryTextures(anisotropy: number) {
   try { await document.fonts.load('italic 800 100px "Mona Sans Variable"'); } catch { /* fallback font */ }
-  const color = canvas(), rough = canvas();
+  // Colour only: the matte shell has uniform roughness, so no roughness map is painted.
+  const color = canvas();
   paint(color.getContext('2d')!, false);
-  paint(rough.getContext('2d')!, true);
   const map = new THREE.CanvasTexture(color);
   map.colorSpace = THREE.SRGBColorSpace;
   map.anisotropy = anisotropy;
-  const roughnessMap = new THREE.CanvasTexture(rough);
-  roughnessMap.anisotropy = anisotropy;
-  return { map, roughnessMap };
+  return { map };
 }
 
 /** Rounded-rectangle alpha mask for the visor and its seal. */
