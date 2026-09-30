@@ -38,7 +38,7 @@ totalEmissiveRadiance += vec3(1.0, 0.14, 0.22) * smoothstep(uReveal - 0.035, uRe
 
 export async function buildHelmet(opts: { lowDetail: boolean; anisotropy: number }): Promise<Helmet> {
   // Shell resolution: smooth shading and the livery texture carry the detail, so this is plenty.
-  const seg = opts.lowDetail ? { w: 48, h: 32 } : { w: 64, h: 40 };
+  const seg = opts.lowDetail ? { w: 36, h: 24 } : { w: 44, h: 28 };
   const reveal = { value: 0 };
   const group = new THREE.Group();
   const disposables: Array<{ dispose: () => void }> = [];
@@ -58,7 +58,7 @@ export async function buildHelmet(opts: { lowDetail: boolean; anisotropy: number
   // Visor seal (rubber) and smoked visor on top of it.
   const mask = keep(roundedMask());
   const patch = (margin: number, offset: number) => keep(shellGeometry({
-    w: 28, h: 12, offset,
+    w: 16, h: 7, offset,
     phiStart: FRONT_PHI - VISOR.halfWidth - margin, phiLength: (VISOR.halfWidth + margin) * 2,
     thetaStart: VISOR.top - margin, thetaLength: VISOR.bottom - VISOR.top + margin * 2,
   }));
@@ -92,7 +92,7 @@ export async function buildHelmet(opts: { lowDetail: boolean; anisotropy: number
     const prof = new THREE.Shape();
     prof.moveTo(0, 0); prof.bezierCurveTo(0.06, 0.02, 0.16, 0.05, 0.22, 0.1); prof.lineTo(0.23, 0.13);
     prof.bezierCurveTo(0.15, 0.09, 0.06, 0.05, 0, 0.035); prof.closePath();
-    const geo = keep(new THREE.ExtrudeGeometry(prof, { depth: 0.7, bevelEnabled: true, bevelSize: 0.01, bevelThickness: 0.01, bevelSegments: 2, curveSegments: 10 }));
+    const geo = keep(new THREE.ExtrudeGeometry(prof, { depth: 0.7, bevelEnabled: true, bevelSize: 0.01, bevelThickness: 0.01, bevelSegments: 2, curveSegments: 6 }));
     geo.translate(0, 0, -0.35);
     const theta = Math.PI * 0.3, phi = PHI_START; // back of the head
     const p = shellPoint(phi, theta), n = shellNormal(phi, theta);
@@ -113,7 +113,7 @@ export async function buildHelmet(opts: { lowDetail: boolean; anisotropy: number
     s.moveTo(-w + r, -d); s.lineTo(w - r, -d); s.quadraticCurveTo(w, -d, w, -d + r); s.lineTo(w, d - r);
     s.quadraticCurveTo(w, d, w - r, d); s.lineTo(-w + r, d); s.quadraticCurveTo(-w, d, -w, d - r);
     s.lineTo(-w, -d + r); s.quadraticCurveTo(-w, -d, -w + r, -d);
-    const geo = keep(new THREE.ExtrudeGeometry(s, { depth: 0.04, bevelEnabled: true, bevelSize: 0.012, bevelThickness: 0.012, bevelSegments: 2 }));
+    const geo = keep(new THREE.ExtrudeGeometry(s, { depth: 0.04, bevelEnabled: true, bevelSize: 0.012, bevelThickness: 0.012, bevelSegments: 2, curveSegments: 4 }));
     const phi = FRONT_PHI, theta = Math.PI * 0.2;
     const p = shellPoint(phi, theta), n = shellNormal(phi, theta);
     const scoop = new THREE.Mesh(geo, carbonMat);
@@ -129,7 +129,7 @@ export async function buildHelmet(opts: { lowDetail: boolean; anisotropy: number
   // Chin vent below the visor.
   {
     const vent = new THREE.Mesh(keep(shellGeometry({
-      w: 24, h: 8, offset: 0.012,
+      w: 12, h: 4, offset: 0.012,
       phiStart: FRONT_PHI - 0.22, phiLength: 0.44, thetaStart: Math.PI * 0.63, thetaLength: Math.PI * 0.05,
     })), keep(withReveal(new THREE.MeshStandardMaterial({ color: '#060607', roughness: 0.9, metalness: 0.2 }), reveal)));
     group.add(vent);
@@ -140,7 +140,7 @@ export async function buildHelmet(opts: { lowDetail: boolean; anisotropy: number
     const pts: THREE.Vector3[] = [];
     for (let i = 0; i < 96; i++) pts.push(shellPoint(PHI_START + (i / 96) * Math.PI * 2, THETA_LEN).multiplyScalar(0.985));
     const curve = new THREE.CatmullRomCurve3(pts, true);
-    const neck = new THREE.Mesh(keep(new THREE.TubeGeometry(curve, 64, 0.045, 6, true)),
+    const neck = new THREE.Mesh(keep(new THREE.TubeGeometry(curve, 40, 0.045, 5, true)),
       keep(withReveal(new THREE.MeshStandardMaterial({ color: '#0a0a0b', roughness: 0.85 }), reveal)));
     group.add(neck);
   }

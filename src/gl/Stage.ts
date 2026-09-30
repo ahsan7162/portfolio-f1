@@ -55,13 +55,8 @@ export class Stage {
     pmrem.dispose();
     this.cleanups.push(() => env.dispose());
 
-    // Accent rim light from behind, soft key from the top front.
-    const rim = new THREE.DirectionalLight('#ff2438', 3.2);
-    rim.position.set(-4, 2, -5);
-    const key = new THREE.DirectionalLight('#ffffff', 1.4);
-    key.position.set(3, 4, 6);
-    // No ambient light: the room environment map already lights the shadow side.
-    this.scene.add(rim, key);
+    // No scene lights: the helmet is lit only by the room environment map
+    // (image-based reflections), which keeps shading cheap.
     this.camera.position.set(0, 0, CAM_Z);
 
     this.resize();
