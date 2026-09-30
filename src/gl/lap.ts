@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { CIRCUIT_PATH } from '@/art/circuit';
+import { NOISE_GLSL } from './field';
 
 // 3D lap: the same circuit as the SVG lines, turned into a track ribbon with
 // red/white kerbs and trackside lights. An aerial "broadcast" camera looks down
@@ -114,11 +115,38 @@ export function createLap() {
   halo.rotation.x = -Math.PI / 2;
   scene.add(car, halo);
 
-  // Ground grid far below the track.
-  const grid = new THREE.GridHelper(60, 120, '#44444c', '#26262c');
-  grid.position.y = -1.1;
-  scene.add(grid);
-  keep(grid.geometry); keep(grid.material as THREE.Material);
+  // Contour ground far below the track: the same isolines as the page
+  // background, laid flat in world space, fading out towards the edges.
+  const ground = new THREE.Mesh(keep(new THREE.PlaneGeometry(70, 70)), keep(new THREE.ShaderMaterial({
+    glslVersion: THREE.GLSL3,
+    uniforms: { uCentre: { value: new THREE.Vector2() } },
+    vertexShader: /* glsl */ `
+      out vec2 vP;
+      void main() { vec4 w = modelMatrix * vec4(position, 1.0); vP = w.xz; gl_Position = projectionMatrix * viewMatrix * w; }`,
+    fragmentShader: /* glsl */ `
+      precision highp float;
+      in vec2 vP;
+      out vec4 outColor;
+      uniform vec2 uCentre;
+      ${NOISE_GLSL}
+      void main() {
+        vec2 p = vP * 0.045;
+        vec2 q = vec2(fbm(p), fbm(p + vec2(5.2, 1.3)));
+        float f = fbm(p + 1.4 * q) * 14.0;
+        float w = max(fwidth(f), 1e-4);
+        float line = clamp(1.0 - abs(fract(f + 0.5) - 0.5) / w * 0.9, 0.0, 1.0);
+        float index = 1.0 - step(0.5, mod(floor(f + 0.5), 5.0));
+        float racing = clamp(1.0 - abs(f - 3.5) / w * 0.55, 0.0, 1.0);
+        float fade = smoothstep(26.0, 6.0, length(vP - uCentre));
+        vec3 col = vec3(0.027, 0.027, 0.031);
+        col = mix(col, vec3(0.957, 0.957, 0.929), line * 0.13 * (0.55 + index * 0.9) * fade);
+        col = mix(col, vec3(1.0, 0.141, 0.22), racing * 0.2 * fade);
+        outColor = vec4(col, 1.0);
+      }`,
+  })));
+  ground.rotation.x = -Math.PI / 2;
+  ground.position.y = -1.1;
+  scene.add(ground);
 
   scene.add(new THREE.HemisphereLight('#f4f4ed', '#1a1a20', 2.2));
   const key = new THREE.DirectionalLight('#ffffff', 2.4);
@@ -128,6 +156,8 @@ export function createLap() {
   const box = new THREE.Box3().setFromPoints(curve.getSpacedPoints(200));
   const centre = box.getCenter(new THREE.Vector3()), size = box.getSize(new THREE.Vector3());
   const R = Math.max(size.x, size.z);
+  ground.position.x = centre.x; ground.position.z = centre.z;
+  (ground.material as THREE.ShaderMaterial).uniforms.uCentre.value.set(centre.x, centre.z);
   const START = 0.02, LAP = 0.96;
   const eye = new THREE.Vector3(), carPos = new THREE.Vector3();
   return {
