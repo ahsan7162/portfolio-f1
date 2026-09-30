@@ -1,5 +1,6 @@
 import { CIRCUIT_PATH, CIRCUIT_VIEWBOX } from '@/art/circuit';
-import { CV_FILE, profile } from '@/content/data';
+import { CV_FILE, jobs, profile, timeline } from '@/content/data';
+import { originOf, useDialogs } from '@/components/dialog-context';
 import { cvHref } from '@/components/Nav';
 import { gsap } from '@/motion/gsap';
 import { introTimeline } from '@/motion/intro';
@@ -8,6 +9,9 @@ import { DUR, EASE, STAGGER } from '@/motion/tokens';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 
 export function Hero() {
+  const { openDetails } = useDialogs();
+  const current = jobs.find(j => j.id === 'careem');
+  const stat = timeline.find(t => t.job === 'careem');
   const ref = useSectionMotion<HTMLElement>(({ root, q, qa }) => {
     const tl = introTimeline();
     // Entrance: joins the loader's master timeline so it lands as the lights go out.
@@ -59,10 +63,28 @@ export function Hero() {
       </div>
 
       <div data-hfade className="mx-auto mb-6 flex w-full max-w-[1400px] items-end justify-between gap-6">
-        <div className="max-w-[300px] border border-line bg-carbon/60 p-4">
-          <div className="label mb-2 text-ac">Now</div>
-          <p className="text-sm leading-snug text-fg">{profile.now}</p>
-        </div>
+        {/* Lando's "next race" card: the one live fact, clickable into the full breakdown. */}
+        <button type="button" onClick={e => { if (current) openDetails(current, originOf(e)); }}
+          aria-label={`Now at ${current?.company}: ${profile.now} Open details`}
+          className="group relative w-full max-w-[420px] overflow-hidden border border-line bg-graphite/90 p-5 text-left backdrop-blur-sm transition-colors duration-500 hover:border-ac md:p-6">
+          <span aria-hidden="true" className="absolute inset-y-0 left-0 w-[3px] bg-ac" />
+          <span className="flex items-center justify-between font-mono text-[11px] uppercase tracking-[0.14em]">
+            <span className="flex items-center gap-2 text-ac">
+              <span aria-hidden="true" className="relative flex size-2">
+                <span className="absolute inline-flex size-full animate-ping rounded-full bg-ac opacity-60" />
+                <span className="relative inline-flex size-2 rounded-full bg-ac" />
+              </span>
+              Now
+            </span>
+            <span className="text-mute">{current?.years}</span>
+          </span>
+          <span className="display mt-4 block text-4xl md:text-5xl">{current?.company}</span>
+          <span className="mt-3 block leading-snug text-fg">{profile.now}</span>
+          <span className="mt-5 flex items-center justify-between gap-4 border-t border-line pt-4">
+            <span className="font-mono text-sm font-semibold text-ac">{stat?.stat} {stat?.statLabel}</span>
+            <span aria-hidden="true" className="grid size-10 shrink-0 place-items-center rounded-full bg-ac text-lg text-carbon transition-transform duration-500 ease-out-expo group-hover:-rotate-45">→</span>
+          </span>
+        </button>
         <div aria-hidden="true" className="checker hidden w-40 md:block" />
       </div>
     </section>
