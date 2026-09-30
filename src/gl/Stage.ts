@@ -18,7 +18,7 @@ const IDLE_SLOW_MS = 5000; // after this long without movement, idle drift drops
  * The single WebGL renderer for the page. Draw order per frame:
  *   1. contour background  2. helmet  (or the lap scene while it is pinned)
  * It renders only when something changes: scrolling, a tween, the pointer, or
- * a 30fps idle drift for 5s after the last movement, then 10fps. It stops entirely
+ * an idle drift (30fps for 5s with the helmet on screen, then 10fps). It stops entirely
  * when the tab is hidden or a dialog has locked scrolling.
  */
 export class Stage {
@@ -156,9 +156,10 @@ export class Stage {
     const moving = Math.abs(scrollState.velocity) > 0.01 || this.busy > 0 || lapEasing || now - this.lastInput < 1500;
     const helmetOnScreen = !!this.helmet && this.helmet.group.visible && !lapState.active;
     if (moving) this.lastActive = now;
-    // Idle: 30fps drift for 5s, then 10fps while the helmet is on screen; otherwise no frames.
-    const idleGap = now - this.lastActive < IDLE_SLOW_MS ? 33 : 100;
-    if (!moving && (!helmetOnScreen || now - this.lastRender < idleGap)) return;
+    // Idle: the contour lines (and the helmet, when on screen) keep drifting, at 30fps
+    // for 5s after the last movement and 10fps after that. The lap scene has no drift.
+    const idleGap = helmetOnScreen && now - this.lastActive < IDLE_SLOW_MS ? 33 : 100;
+    if (!moving && (lapState.active || now - this.lastRender < idleGap)) return;
     this.clock += Math.min(now - this.lastRender, 120) / 1000;
     this.lastRender = now;
 
