@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { disciplines } from '@/content/data';
-import { gsap } from '@/motion/gsap';
+import { gsap, ScrollTrigger } from '@/motion/gsap';
 import { clipReveal, splitReveal } from '@/motion/patterns';
 import { EASE } from '@/motion/tokens';
 import { useSectionMotion } from '@/motion/useSectionMotion';
@@ -8,28 +8,45 @@ import { cn } from '@/lib/utils';
 
 type Id = (typeof disciplines)[number]['id'];
 
-/** Lando's ON TRACK / OFF TRACK split, as FRONTEND / BACKEND. */
+/**
+ * Lando's ON TRACK / OFF TRACK split, as FRONTEND / BACKEND. With motion the
+ * section pins for two short steps: the first scroll shows Frontend, the next
+ * Backend. Hover, focus and tap still switch it directly.
+ */
 export function Disciplines() {
   const [active, setActive] = useState<Id>('frontend');
-
-  const ref = useSectionMotion<HTMLElement>(({ q, qa }) => {
-    splitReveal(q('h2'), { type: 'words' });
-    qa('[data-dword]').forEach((w, i) => splitReveal(w, { type: 'chars', delay: i * 0.1 }));
-    clipReveal(q('[data-dpanels]'), { trigger: q('[data-dpanels]')!, from: 'inset(0% 100% 0% 0%)' });
-  });
+  const activeRef = useRef<Id>('frontend');
 
   const pick = (id: Id) => {
-    if (id === active) return;
+    if (id === activeRef.current) return;
+    activeRef.current = id;
     setActive(id);
     const panel = document.getElementById(`disc-${id}`);
     if (panel && window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
-      gsap.fromTo(panel.querySelectorAll('[data-pitem]'), { y: 18, autoAlpha: 0 }, { y: 0, autoAlpha: 1, stagger: 0.04, duration: 0.6, ease: EASE.soft });
+      gsap.fromTo(panel.querySelectorAll('[data-pitem]'), { y: 18, autoAlpha: 0 }, { y: 0, autoAlpha: 1, stagger: 0.04, duration: 0.6, ease: EASE.soft, overwrite: true });
     }
   };
 
+  const ref = useSectionMotion<HTMLElement>(({ q, qa, markers }) => {
+    splitReveal(q('h2'), { type: 'words' });
+    qa('[data-dword]').forEach((w, i) => splitReveal(w, { type: 'chars', delay: i * 0.1 }));
+    clipReveal(q('[data-dpanels]'), { trigger: q('[data-dpanels]')!, from: 'inset(0% 100% 0% 0%)' });
+
+    // Two steps, one short scroll each (same feel as the career timeline).
+    const n = disciplines.length;
+    const at = (p: number) => disciplines[Math.min(n - 1, Math.floor(p * n))].id;
+    ScrollTrigger.create({
+      trigger: q('[data-dpin]'), start: 'top top', end: `+=${n * 35}%`, pin: true, markers,
+      onUpdate: self => pick(at(self.progress)),
+      onEnter: self => pick(at(self.progress)),
+      onEnterBack: self => pick(at(self.progress)),
+    });
+  });
+
   return (
-    <section ref={ref} id="skills-overview" tabIndex={-1} data-bg="#0d1013,#0b0b0c" className="relative px-4 py-24 md:px-8 md:py-32">
-      <div className="mx-auto max-w-[1400px]">
+    <section ref={ref} id="skills-overview" tabIndex={-1} data-bg="#0d1013,#0b0b0c" className="relative">
+      <div data-dpin className="flex min-h-[100dvh] items-center px-4 py-24 md:px-8">
+      <div className="mx-auto w-full max-w-[1400px]">
         <h2 className="mb-12 max-w-[24ch] text-2xl font-semibold tracking-tight [font-stretch:110%] md:text-4xl">
           Frontend and backend development
         </h2>
@@ -70,6 +87,7 @@ export function Disciplines() {
             ))}
           </div>
         </div>
+      </div>
       </div>
     </section>
   );
