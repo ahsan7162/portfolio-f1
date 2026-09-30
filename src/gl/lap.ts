@@ -56,7 +56,7 @@ function offsetCurve(curve: THREE.CatmullRomCurve3, off: number) {
 export function createLap() {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color('#070708');
-  scene.fog = new THREE.FogExp2('#070708', 0.035);
+  scene.fog = new THREE.FogExp2('#070708', 0.012);
   const camera = new THREE.PerspectiveCamera(38, 1, 0.5, 80);
   const curve = circuitCurve();
   const disposables: Array<{ dispose: () => void }> = [];
@@ -64,7 +64,7 @@ export function createLap() {
 
   // Asphalt.
   const road = new THREE.Mesh(keep(ribbon(curve, WIDTH, 0, 700)),
-    keep(new THREE.MeshStandardMaterial({ color: '#17171b', roughness: 0.85, metalness: 0.1 })));
+    keep(new THREE.MeshStandardMaterial({ color: '#34343c', roughness: 0.7, metalness: 0.1 })));
   scene.add(road);
 
   // Kerbs: alternating red and white blocks on both edges.
@@ -76,14 +76,14 @@ export function createLap() {
   }
 
   // Centre line.
-  const dashMat = keep(new THREE.MeshBasicMaterial({ color: '#f4f4ed', transparent: true, opacity: 0.35, fog: true }));
+  const dashMat = keep(new THREE.MeshBasicMaterial({ color: '#f4f4ed', transparent: true, opacity: 0.7, fog: true }));
   const dashGeo = keep(ribbon(curve, 0.008, 0.003, 700));
   scene.add(new THREE.Mesh(dashGeo, dashMat));
 
   // Trackside light posts for a sense of speed.
   const postGeo = keep(new THREE.BoxGeometry(0.02, 0.5, 0.02));
   const capGeo = keep(new THREE.BoxGeometry(0.07, 0.03, 0.07));
-  const postMat = keep(new THREE.MeshStandardMaterial({ color: '#26262b', roughness: 0.6 }));
+  const postMat = keep(new THREE.MeshStandardMaterial({ color: '#55555e', roughness: 0.6 }));
   const capA = keep(new THREE.MeshBasicMaterial({ color: '#ff2438', fog: true }));
   const capB = keep(new THREE.MeshBasicMaterial({ color: '#f4f4ed', fog: true }));
   // Instanced: two draw calls for all 90 posts and caps, not 180.
@@ -115,13 +115,13 @@ export function createLap() {
   scene.add(car, halo);
 
   // Ground grid far below the track.
-  const grid = new THREE.GridHelper(60, 120, '#2a2a30', '#18181c');
+  const grid = new THREE.GridHelper(60, 120, '#44444c', '#26262c');
   grid.position.y = -1.1;
   scene.add(grid);
   keep(grid.geometry); keep(grid.material as THREE.Material);
 
-  scene.add(new THREE.HemisphereLight('#f4f4ed', '#070708', 0.9));
-  const key = new THREE.DirectionalLight('#ffffff', 1.2);
+  scene.add(new THREE.HemisphereLight('#f4f4ed', '#1a1a20', 2.2));
+  const key = new THREE.DirectionalLight('#ffffff', 2.4);
   key.position.set(3, 6, 2);
   scene.add(key);
 
