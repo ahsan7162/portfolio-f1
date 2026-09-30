@@ -3,7 +3,8 @@ import { MagicCard } from '@/components/ui/magic-card';
 import { BorderBeam } from '@/components/ui/border-beam';
 import { ProjectVisual } from '@/components/ProjectVisuals';
 import { originOf, useDialogs } from '@/components/dialog-context';
-import { archive, projects } from '@/content/data';
+import { CrawlableDetails } from '@/components/CrawlableDetails';
+import { archive, archiveBreakdown, projects, type Breakdown } from '@/content/data';
 import { gsap } from '@/motion/gsap';
 import { clipReveal, splitReveal } from '@/motion/patterns';
 import { useSectionMotion } from '@/motion/useSectionMotion';
@@ -16,6 +17,9 @@ const LAYOUT = [
   { col: 'md:col-span-5', offset: 'md:mt-40', speed: 8 },
   { col: 'md:col-span-6 md:col-start-4', offset: 'md:-mt-10', speed: -3 },
 ];
+
+// Featured projects and the archive, prerendered for search engines (see CrawlableDetails).
+const CRAWL: Breakdown[] = [...projects, ...archive.map(archiveBreakdown)];
 
 export function Projects() {
   const { openDetails, openArchive } = useDialogs();
@@ -92,6 +96,7 @@ export function Projects() {
             </span>
           </span>
         </button>
+        <CrawlableDetails items={CRAWL} />
       </div>
     </section>
   );

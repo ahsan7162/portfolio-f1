@@ -14,6 +14,8 @@ Status and plan for search visibility of the portfolio. Audited against the buil
 
 ## 1. Biggest gap: detailed content is not in the HTML
 
+> **Status: 1b done.** `src/components/CrawlableDetails.tsx` prerenders all 16 breakdowns (3 jobs, 3 projects, 10 archive items) as `hidden="until-found"` blocks in the Work experience and Projects sections. All 52 long descriptions are now in `dist/index.html`. Find-in-page on that text opens the matching dialog. 1a (separate pages) is still the bigger long-term win.
+
 44 of the 52 longer descriptions are not in the prerendered HTML:
 
 - job breakdowns
@@ -81,7 +83,7 @@ Matching profiles help Google treat them as one person and help you own searches
 
 ## Suggested order
 
-1. 1a or 1b (make the content crawlable)
+1. ~~1b (make the content crawlable)~~ done; 1a optional later
 2. Section 2 (launch essentials, once the domain exists)
 3. Section 3 (content and structured data)
 4. Section 4 (backlinks)

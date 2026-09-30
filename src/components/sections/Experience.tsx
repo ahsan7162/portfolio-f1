@@ -1,4 +1,5 @@
 import { jobs } from '@/content/data';
+import { CrawlableDetails } from '@/components/CrawlableDetails';
 import { originOf, useDialogs } from '@/components/dialog-context';
 import { clipReveal, splitReveal } from '@/motion/patterns';
 import { STAGGER } from '@/motion/tokens';
@@ -49,6 +50,7 @@ export function Experience() {
             ))}
           </tbody>
         </table>
+        <CrawlableDetails items={jobs} />
       </div>
     </section>
   );
