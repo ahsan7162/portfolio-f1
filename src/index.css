@@ -1,0 +1,183 @@
+@import "tailwindcss";
+@import "lenis/dist/lenis.css";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  color-scheme: dark;
+  --carbon: #0b0b0c;
+  --graphite: #111113;
+  --asphalt: #0d1013;
+  --paddock: #ecebe6;
+  --paddock-ink: #141416;
+  --fg: #f4f4ed;
+  --mute: #a3a39c;
+  --dim: #85857e;
+  --line: rgb(244 244 237 / 0.12);
+  --ac: #ff2438;
+  --navh: 64px;
+
+  /* shadcn / Magic UI names, pointed at the tokens above */
+  --background: var(--carbon);
+  --foreground: var(--fg);
+  --primary: var(--ac);
+  --primary-foreground: var(--carbon);
+  --card: var(--graphite);
+  --card-foreground: var(--fg);
+  --muted: #1a1a1d;
+  --muted-foreground: var(--mute);
+  --border: var(--line);
+  --input: var(--line);
+  --ring: var(--ac);
+  --radius: 0px;
+}
+
+@theme inline {
+  --color-carbon: var(--carbon);
+  --color-graphite: var(--graphite);
+  --color-asphalt: var(--asphalt);
+  --color-paddock: var(--paddock);
+  --color-paddock-ink: var(--paddock-ink);
+  --color-fg: var(--fg);
+  --color-mute: var(--mute);
+  --color-dim: var(--dim);
+  --color-line: var(--line);
+  --color-ac: var(--ac);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --font-sans: "Mona Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+
+  --radius-lg: var(--radius);
+  --radius-md: var(--radius);
+  --radius-sm: var(--radius);
+}
+
+@layer base {
+  html {
+    background: var(--carbon);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    background: transparent;
+    min-height: 100dvh;
+    overflow-x: clip;
+  }
+  ::selection {
+    background: var(--ac);
+    color: var(--carbon);
+  }
+  :focus-visible {
+    outline: 2px solid var(--ac);
+    outline-offset: 3px;
+  }
+  section[id] {
+    scroll-margin-top: var(--navh);
+  }
+}
+
+@layer components {
+  /* Expanded all-caps display type, the F1-poster voice. */
+  .display {
+    font-family: var(--font-sans);
+    font-stretch: 125%;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: -0.035em;
+    line-height: 0.88;
+  }
+  .display-em {
+    font-style: italic;
+    font-stretch: 125%;
+    color: var(--ac);
+  }
+  .label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--mute);
+  }
+  .checker {
+    height: 10px;
+    background-image: conic-gradient(var(--fg) 25%, transparent 0 50%, var(--fg) 0 75%, transparent 0);
+    background-size: 10px 10px;
+    opacity: 0.85;
+  }
+  .hairline {
+    height: 1px;
+    background: var(--line);
+    transform-origin: left center;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+    border-radius: 999px;
+    padding: 0.7rem 1.25rem;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: transform 0.35s var(--ease-out-expo), background-color 0.35s var(--ease-out-expo), color 0.35s var(--ease-out-expo);
+  }
+  .btn:active {
+    transform: scale(0.98);
+  }
+  .btn-primary {
+    background: var(--ac);
+    color: var(--carbon);
+  }
+  .btn-primary:hover {
+    background: var(--fg);
+  }
+  .btn-ghost {
+    border: 1px solid var(--line);
+    color: var(--fg);
+  }
+  .btn-ghost:hover {
+    border-color: var(--fg);
+  }
+  /* SplitText mask wrappers keep descenders */
+  .split-mask {
+    padding-bottom: 0.08em;
+    margin-bottom: -0.08em;
+  }
+}
+
+/* Paddock (light) section: the one deliberate theme switch. */
+.theme-paddock {
+  --fg: var(--paddock-ink);
+  --mute: #55554f;
+  --dim: #6a6a64;
+  --line: rgb(20 20 22 / 0.14);
+  color: var(--paddock-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
