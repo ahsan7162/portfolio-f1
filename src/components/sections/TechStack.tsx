@@ -4,7 +4,7 @@ import {
 } from 'simple-icons';
 import { ScrollVelocityContainer, ScrollVelocityRow } from '@/components/ui/scroll-based-velocity';
 import { skills } from '@/content/data';
-import { batchReveal } from '@/motion/patterns';
+import { batchReveal, splitReveal } from '@/motion/patterns';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 
 const LOGOS: SimpleIcon[] = [
@@ -13,11 +13,14 @@ const LOGOS: SimpleIcon[] = [
 
 /** Lando's partner wall, as a tech-stack logo row (the page's one marquee). */
 export function TechStack() {
-  const ref = useSectionMotion<HTMLElement>(({ qa }) => { batchReveal(qa('[data-group]')); });
+  const ref = useSectionMotion<HTMLElement>(({ q, qa }) => {
+    splitReveal(q('h2'), { type: 'chars' });
+    batchReveal(qa('[data-group]'));
+  });
   return (
     <section ref={ref} id="skills" tabIndex={-1} data-bg="#0b0b0c,#111113" className="relative py-24 md:py-32">
       <div className="mx-auto max-w-[1400px] px-4 md:px-8">
-        <h2 className="label mb-10">Tech stack</h2>
+        <h2 className="display mb-14 text-[clamp(2.4rem,7vw,6.5rem)]">Tech stack</h2>
       </div>
       <ScrollVelocityContainer className="border-y border-line py-8">
         <ScrollVelocityRow baseVelocity={2.5}>
