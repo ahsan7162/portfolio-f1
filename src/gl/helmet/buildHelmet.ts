@@ -38,7 +38,7 @@ totalEmissiveRadiance += vec3(1.0, 0.14, 0.22) * smoothstep(uReveal - 0.035, uRe
 
 export async function buildHelmet(opts: { lowDetail: boolean; anisotropy: number }): Promise<Helmet> {
   // Shell resolution: smooth shading and the livery texture carry the detail, so this is plenty.
-  const seg = opts.lowDetail ? { w: 64, h: 40 } : { w: 88, h: 56 };
+  const seg = opts.lowDetail ? { w: 48, h: 32 } : { w: 64, h: 40 };
   const reveal = { value: 0 };
   const group = new THREE.Group();
   const disposables: Array<{ dispose: () => void }> = [];
@@ -58,7 +58,7 @@ export async function buildHelmet(opts: { lowDetail: boolean; anisotropy: number
   // Visor seal (rubber) and smoked visor on top of it.
   const mask = keep(roundedMask());
   const patch = (margin: number, offset: number) => keep(shellGeometry({
-    w: 36, h: 14, offset,
+    w: 28, h: 12, offset,
     phiStart: FRONT_PHI - VISOR.halfWidth - margin, phiLength: (VISOR.halfWidth + margin) * 2,
     thetaStart: VISOR.top - margin, thetaLength: VISOR.bottom - VISOR.top + margin * 2,
   }));
@@ -140,7 +140,7 @@ export async function buildHelmet(opts: { lowDetail: boolean; anisotropy: number
     const pts: THREE.Vector3[] = [];
     for (let i = 0; i < 96; i++) pts.push(shellPoint(PHI_START + (i / 96) * Math.PI * 2, THETA_LEN).multiplyScalar(0.985));
     const curve = new THREE.CatmullRomCurve3(pts, true);
-    const neck = new THREE.Mesh(keep(new THREE.TubeGeometry(curve, 72, 0.045, 6, true)),
+    const neck = new THREE.Mesh(keep(new THREE.TubeGeometry(curve, 64, 0.045, 6, true)),
       keep(withReveal(new THREE.MeshStandardMaterial({ color: '#0a0a0b', roughness: 0.85 }), reveal)));
     group.add(neck);
   }
