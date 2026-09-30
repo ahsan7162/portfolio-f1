@@ -38,7 +38,7 @@ totalEmissiveRadiance += vec3(1.0, 0.14, 0.22) * smoothstep(uReveal - 0.035, uRe
 
 export async function buildHelmet(opts: { lowDetail: boolean; anisotropy: number }): Promise<Helmet> {
   // Shell resolution: smooth shading and the livery texture carry the detail, so this is plenty.
-  const seg = opts.lowDetail ? { w: 72, h: 48 } : { w: 120, h: 80 };
+  const seg = opts.lowDetail ? { w: 64, h: 40 } : { w: 88, h: 56 };
   const reveal = { value: 0 };
   const group = new THREE.Group();
   const disposables: Array<{ dispose: () => void }> = [];
@@ -58,7 +58,7 @@ export async function buildHelmet(opts: { lowDetail: boolean; anisotropy: number
   // Visor seal (rubber) and smoked visor on top of it.
   const mask = keep(roundedMask());
   const patch = (margin: number, offset: number) => keep(shellGeometry({
-    w: 48, h: 18, offset,
+    w: 36, h: 14, offset,
     phiStart: FRONT_PHI - VISOR.halfWidth - margin, phiLength: (VISOR.halfWidth + margin) * 2,
     thetaStart: VISOR.top - margin, thetaLength: VISOR.bottom - VISOR.top + margin * 2,
   }));
@@ -74,7 +74,7 @@ export async function buildHelmet(opts: { lowDetail: boolean; anisotropy: number
 
   // Visor pivots on each side.
   const metal = keep(withReveal(new THREE.MeshStandardMaterial({ color: '#2a2a2e', metalness: 0.9, roughness: 0.3 }), reveal));
-  const pivotGeo = keep(new THREE.CylinderGeometry(0.075, 0.075, 0.035, 20));
+  const pivotGeo = keep(new THREE.CylinderGeometry(0.075, 0.075, 0.035, 16));
   for (const side of [-1, 1]) {
     const phi = FRONT_PHI + side * (VISOR.halfWidth + 0.06);
     const theta = (VISOR.top + VISOR.bottom) / 2;
@@ -140,7 +140,7 @@ export async function buildHelmet(opts: { lowDetail: boolean; anisotropy: number
     const pts: THREE.Vector3[] = [];
     for (let i = 0; i < 96; i++) pts.push(shellPoint(PHI_START + (i / 96) * Math.PI * 2, THETA_LEN).multiplyScalar(0.985));
     const curve = new THREE.CatmullRomCurve3(pts, true);
-    const neck = new THREE.Mesh(keep(new THREE.TubeGeometry(curve, 96, 0.045, 8, true)),
+    const neck = new THREE.Mesh(keep(new THREE.TubeGeometry(curve, 72, 0.045, 6, true)),
       keep(withReveal(new THREE.MeshStandardMaterial({ color: '#0a0a0b', roughness: 0.85 }), reveal)));
     group.add(neck);
   }
