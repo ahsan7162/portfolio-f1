@@ -1,4 +1,6 @@
+import { useRef } from 'react';
 import { CIRCUIT_PATH, CIRCUIT_VIEWBOX } from '@/art/circuit';
+import { useOnScreen } from '@/lib/useOnScreen';
 import { CV_FILE, jobs, profile, timeline } from '@/content/data';
 import { originOf, useDialogs } from '@/components/dialog-context';
 import { cvHref } from '@/components/Nav';
@@ -12,6 +14,8 @@ export function Hero() {
   const { openDetails } = useDialogs();
   const current = jobs.find(j => j.id === 'careem');
   const stat = timeline.find(t => t.job === 'careem');
+  const nowCard = useRef<HTMLButtonElement>(null);
+  const nowOn = useOnScreen(nowCard, '0px'); // the ping loops forever: pause it off screen
   const ref = useSectionMotion<HTMLElement>(({ root, q, qa }) => {
     const tl = introTimeline();
     // Entrance: joins the loader's master timeline so it lands as the lights go out.
@@ -64,14 +68,14 @@ export function Hero() {
 
       <div data-hfade className="mx-auto mb-6 flex w-full max-w-[1400px] items-end justify-between gap-6">
         {/* Lando's "next race" card: the one live fact, clickable into the full breakdown. */}
-        <button type="button" onClick={e => { if (current) openDetails(current, originOf(e)); }}
+        <button ref={nowCard} type="button" onClick={e => { if (current) openDetails(current, originOf(e)); }}
           aria-label={`Now at ${current?.company}: ${profile.now} Open details`}
           className="group relative w-full max-w-[420px] overflow-hidden border border-line bg-graphite/95 p-5 text-left transition-colors duration-500 hover:border-ac md:p-6">
           <span aria-hidden="true" className="absolute inset-y-0 left-0 w-[3px] bg-ac" />
           <span className="flex items-center justify-between font-mono text-[11px] uppercase tracking-[0.14em]">
             <span className="flex items-center gap-2 text-ac">
               <span aria-hidden="true" className="relative flex size-2">
-                <span className="absolute inline-flex size-full animate-ping rounded-full bg-ac opacity-60" />
+                <span className={`absolute inline-flex size-full rounded-full bg-ac opacity-60 ${nowOn ? 'animate-ping' : ''}`} />
                 <span className="relative inline-flex size-2 rounded-full bg-ac" />
               </span>
               Now

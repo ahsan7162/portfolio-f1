@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from "react"
 import {
   motion,
-  useAnimationFrame,
   useMotionValue,
   useScroll,
   useSpring,
@@ -86,8 +85,28 @@ function ScrollVelocityRowImpl({
   const currentDirectionRef = useRef<number>(direction >= 0 ? 1 : -1)
   const unitWidth = useMotionValue(0)
 
-  const isInViewRef = useRef(true)
+  const isInViewRef = useRef(false)
   const isPageVisibleRef = useRef(true)
+  // Portfolio change: our own rAF loop that only runs while the row is on screen
+  // and the tab is visible (Motion's useAnimationFrame would tick forever).
+  const rafRef = useRef(0)
+  const lastRef = useRef(0)
+  const stepRef = useRef<(delta: number) => void>(() => {})
+  const syncLoop = () => {
+    const run = isInViewRef.current && isPageVisibleRef.current
+    if (run && !rafRef.current) {
+      lastRef.current = performance.now()
+      const loop = (now: number) => {
+        stepRef.current(now - lastRef.current)
+        lastRef.current = now
+        rafRef.current = requestAnimationFrame(loop)
+      }
+      rafRef.current = requestAnimationFrame(loop)
+    } else if (!run && rafRef.current) {
+      cancelAnimationFrame(rafRef.current)
+      rafRef.current = 0
+    }
+  }
   const prefersReducedMotionRef = useRef(false)
 
   useEffect(() => {
@@ -98,6 +117,7 @@ function ScrollVelocityRowImpl({
     let mq: MediaQueryList | null = null
     const handleVisibility = () => {
       isPageVisibleRef.current = document.visibilityState === "visible"
+      syncLoop()
     }
     const handlePRM = () => {
       if (mq) {
@@ -122,6 +142,7 @@ function ScrollVelocityRowImpl({
 
       io = new IntersectionObserver(([entry]) => {
         isInViewRef.current = entry.isIntersecting
+        syncLoop()
       })
       io.observe(container)
 
@@ -136,6 +157,8 @@ function ScrollVelocityRowImpl({
     }
 
     return () => {
+      cancelAnimationFrame(rafRef.current)
+      rafRef.current = 0
       if (ro) {
         ro.disconnect()
       }
@@ -155,8 +178,7 @@ function ScrollVelocityRowImpl({
     return `${-wrap(0, width, offset)}px`
   })
 
-  useAnimationFrame((_, delta) => {
-    if (!isInViewRef.current || !isPageVisibleRef.current) return
+  stepRef.current = (delta) => {
     const dt = delta / 1000
     const vf = scrollReactivity ? velocityFactor.get() : 0
     const absVf = Math.min(5, Math.abs(vf))
@@ -173,7 +195,7 @@ function ScrollVelocityRowImpl({
     const moveBy =
       currentDirectionRef.current * pixelsPerSecond * speedMultiplier * dt
     baseX.set(baseX.get() + moveBy)
-  })
+  }
 
   return (
     <div

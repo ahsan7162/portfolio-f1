@@ -1,3 +1,4 @@
+import { createContext, useContext, useState, type ReactNode } from 'react';
 import { MagicCard } from '@/components/ui/magic-card';
 import { BorderBeam } from '@/components/ui/border-beam';
 import { ProjectVisual } from '@/components/ProjectVisuals';
@@ -43,14 +44,14 @@ export function Projects() {
 
         <div className="grid grid-cols-1 gap-16 md:grid-cols-12 md:gap-x-8">
           {projects.map((p, i) => (
-            <article key={p.id} data-card className={cn(LAYOUT[i].col, LAYOUT[i].offset)}>
+            <ProjectCard key={p.id} className={cn(LAYOUT[i].col, LAYOUT[i].offset)}>
               <MagicCard gradientFrom="#ff2438" gradientTo="#141416" gradientColor="rgb(255 36 56 / 0.08)" className="p-0">
                 <div data-cardvis className="relative aspect-[16/10] overflow-hidden bg-carbon">
                   <div data-cardin className="h-full w-full"><ProjectVisual project={p} /></div>
                   <span aria-hidden="true" className="absolute left-3 top-3 font-mono text-[10px] uppercase tracking-[0.14em] text-[#a3a39c]">
                     {String(i + 1).padStart(2, '0')}
                   </span>
-                  <BorderBeam size={120} duration={9} colorFrom="#ff2438" colorTo="#f4f4ed" className="opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                  <HoverBeam />
                 </div>
                 <div className="p-6 md:p-8">
                   <h3 data-cardtxt className="display text-3xl md:text-4xl">{p.title}</h3>
@@ -64,7 +65,7 @@ export function Projects() {
                   </div>
                 </div>
               </MagicCard>
-            </article>
+            </ProjectCard>
           ))}
         </div>
 
@@ -94,4 +95,23 @@ export function Projects() {
       </div>
     </section>
   );
+}
+
+// The border beam loops forever, so it only exists while the card is hovered or focused.
+const BeamOn = createContext(false);
+
+function ProjectCard({ className, children }: { className: string; children: ReactNode }) {
+  const [on, setOn] = useState(false);
+  return (
+    <article data-card className={className}
+      onPointerEnter={() => setOn(true)} onPointerLeave={() => setOn(false)}
+      onFocus={() => setOn(true)} onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setOn(false); }}>
+      <BeamOn.Provider value={on}>{children}</BeamOn.Provider>
+    </article>
+  );
+}
+
+function HoverBeam() {
+  if (!useContext(BeamOn)) return null;
+  return <BorderBeam size={120} duration={9} colorFrom="#ff2438" colorTo="#f4f4ed" className="animate-[fade-in_0.5s_ease-out]" />;
 }

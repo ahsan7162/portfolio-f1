@@ -3,9 +3,11 @@ import { siAnthropic, siApachekafka, siFastapi, siHuggingface, siOpensearch, siR
 import { AnimatedBeam } from '@/components/ui/animated-beam';
 import { AnimatedSpan, Terminal, TypingAnimation } from '@/components/ui/terminal';
 import type { Project } from '@/content/data';
+import { useOnScreen } from '@/lib/useOnScreen';
 
 // Live "component previews" that stand in for photography (Magic UI leaves).
 // They animate on in-view only; GSAP never targets anything inside them.
+// The beams loop forever, so they are only mounted while the preview is on screen.
 
 function Logo({ icon }: { icon: SimpleIcon }) {
   return (
@@ -31,6 +33,7 @@ const Txt = ({ t }: { t: string }) => <span className="font-mono text-[10px] fon
 
 function BeamPipeline() {
   const box = useRef<HTMLDivElement>(null);
+  const on = useOnScreen(box);
   const kafka = useRef<HTMLDivElement>(null), dynamo = useRef<HTMLDivElement>(null);
   const search = useRef<HTMLDivElement>(null), mfe = useRef<HTMLDivElement>(null), ops = useRef<HTMLDivElement>(null);
   const beam = { containerRef: box, gradientStartColor: '#ff2438', gradientStopColor: '#f4f4ed', pathColor: '#f4f4ed', pathOpacity: 0.12, duration: 3.2 };
@@ -40,16 +43,19 @@ function BeamPipeline() {
       <div className="flex justify-center"><Node ref={search} label="OpenSearch"><Logo icon={siOpensearch} /></Node></div>
       <div className="flex justify-center"><Node ref={mfe} label="React MFE" accent><Logo icon={siReact} /></Node></div>
       <div className="flex justify-end"><Node ref={ops} label="Ops teams"><Txt t="OPS" /></Node></div>
-      <AnimatedBeam {...beam} fromRef={kafka} toRef={search} curvature={-30} />
-      <AnimatedBeam {...beam} fromRef={dynamo} toRef={search} curvature={30} delay={0.6} />
-      <AnimatedBeam {...beam} fromRef={search} toRef={mfe} delay={1.1} />
-      <AnimatedBeam {...beam} fromRef={mfe} toRef={ops} delay={1.6} />
+      {on && <>
+        <AnimatedBeam {...beam} fromRef={kafka} toRef={search} curvature={-30} />
+        <AnimatedBeam {...beam} fromRef={dynamo} toRef={search} curvature={30} delay={0.6} />
+        <AnimatedBeam {...beam} fromRef={search} toRef={mfe} delay={1.1} />
+        <AnimatedBeam {...beam} fromRef={mfe} toRef={ops} delay={1.6} />
+      </>}
     </div>
   );
 }
 
 function BeamHub() {
   const box = useRef<HTMLDivElement>(null), hub = useRef<HTMLDivElement>(null), client = useRef<HTMLDivElement>(null);
+  const on = useOnScreen(box);
   const p0 = useRef<HTMLDivElement>(null), p1 = useRef<HTMLDivElement>(null), p2 = useRef<HTMLDivElement>(null), p3 = useRef<HTMLDivElement>(null);
   const beam = { containerRef: box, gradientStartColor: '#ff2438', gradientStopColor: '#f4f4ed', pathColor: '#f4f4ed', pathOpacity: 0.12, duration: 3 };
   return (
@@ -62,8 +68,8 @@ function BeamHub() {
       </div>
       <div className="flex justify-center"><Node ref={hub} label="FastAPI" accent><Logo icon={siFastapi} /></Node></div>
       <div className="flex justify-end"><Node ref={client} label="Client"><Txt t="SSE" /></Node></div>
-      {[p0, p1, p2, p3].map((p, i) => <AnimatedBeam key={i} {...beam} fromRef={p} toRef={hub} curvature={(1.5 - i) * 28} delay={i * 0.3} />)}
-      <AnimatedBeam {...beam} fromRef={hub} toRef={client} delay={1.4} reverse />
+      {on && [p0, p1, p2, p3].map((p, i) => <AnimatedBeam key={i} {...beam} fromRef={p} toRef={hub} curvature={(1.5 - i) * 28} delay={i * 0.3} />)}
+      {on && <AnimatedBeam {...beam} fromRef={hub} toRef={client} delay={1.4} reverse />}
     </div>
   );
 }

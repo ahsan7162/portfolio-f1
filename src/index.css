@@ -202,3 +202,6 @@ html.gl-on .contour-fallback { opacity: 0; transition: opacity 1s; }
 @media (min-width: 768px) {
   .lap-live .lap-stage { left: auto; right: 0; bottom: 8%; }
 }
+
+/* Hover-mounted decorations (border beam) fade in rather than pop. */
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
