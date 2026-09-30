@@ -43,17 +43,20 @@ export function Lap() {
       gsap.fromTo(next, { autoAlpha: 0, y: 50 * dir }, { autoAlpha: 1, y: 0, duration: 0.7, delay: prev ? 0.15 : 0, ease: EASE.out, overwrite: true });
       gsap.fromTo(next.querySelectorAll('[data-stat]'), { yPercent: 100 }, { yPercent: 0, duration: 0.7, delay: prev ? 0.25 : 0.1, ease: EASE.out, overwrite: true });
       sectorEls.forEach((el, k) => el.classList.toggle('text-ac', k === i));
-      lapState.progress = n > 1 ? i / (n - 1) : 0;
+      // Fixed-duration glide to the stage's sector: same pace however fast you scroll.
+      gsap.to(lapState, { progress: n > 1 ? i / (n - 1) : 0, duration: 2.2, ease: 'power2.inOut', overwrite: true });
       if (flat) gsap.to(svgPath, { drawSVG: `${((i + 1) / n) * 100}%`, duration: 1.2, ease: EASE.inOut, overwrite: true });
       cur = i;
     };
 
+    const at = (p: number) => Math.min(n - 1, Math.floor(p * n));
     ScrollTrigger.create({
       trigger: pin, start: 'top top', end: `+=${n * 35}%`, pin: true, markers,
       onToggle: self => { lapState.active = self.isActive; },
-      onEnter: () => { gsap.to(q('[data-laphead]'), { autoAlpha: 1, y: 0, duration: 0.6, ease: EASE.out }); show(0); },
-      onEnterBack: () => show(n - 1),
-      onUpdate: self => show(Math.min(n - 1, Math.floor(self.progress * n))),
+      // Enter callbacks run after onUpdate, so they must use the real progress too.
+      onEnter: self => { gsap.to(q('[data-laphead]'), { autoAlpha: 1, y: 0, duration: 0.6, ease: EASE.out }); show(at(self.progress)); },
+      onEnterBack: self => show(at(self.progress)),
+      onUpdate: self => show(at(self.progress)),
     });
   });
 

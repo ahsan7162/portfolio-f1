@@ -147,7 +147,7 @@ export class Stage {
   private frame() {
     if (this.dead || document.hidden || scrollState.locked) return;
     const now = performance.now();
-    const lapEasing = lapState.active && Math.abs(lapState.progress - this.lapP) > 1e-4;
+    const lapEasing = lapState.active && lapState.progress !== this.lapP;
     const moving = Math.abs(scrollState.velocity) > 0.01 || this.busy > 0 || lapEasing || now - this.lastInput < 1500;
     const helmetOnScreen = !!this.helmet && this.helmet.group.visible && !lapState.active;
     // Idle: slow 30fps drift while the helmet is visible, otherwise no frames at all.
@@ -163,8 +163,8 @@ export class Stage {
     r.clear();
     if (lapState.active) {
       const { scene, camera, update } = this.lap;
-      this.lapP += (lapState.progress - this.lapP) * 0.03; // slow glide between stages
-      update(this.lapP, innerWidth / innerHeight);
+      this.lapP = lapState.progress; // tweened on a fixed clock by the Lap section
+      update(this.lapP, innerWidth, innerHeight);
       r.render(scene, camera);
       return;
     }
