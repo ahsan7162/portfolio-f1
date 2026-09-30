@@ -60,7 +60,8 @@ export class Stage {
     rim.position.set(-4, 2, -5);
     const key = new THREE.DirectionalLight('#ffffff', 1.4);
     key.position.set(3, 4, 6);
-    this.scene.add(rim, key, new THREE.AmbientLight('#ffffff', 0.15));
+    // No ambient light: the room environment map already lights the shadow side.
+    this.scene.add(rim, key);
     this.camera.position.set(0, 0, CAM_Z);
 
     this.resize();
