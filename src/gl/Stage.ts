@@ -34,6 +34,8 @@ export class Stage {
   private lastRender = 0;
   private lastInput = 0;
   private dead = false;
+  /** Eased copy of the lap progress, so the camera glides instead of stepping. */
+  private lapP = 0;
 
   constructor(canvas: HTMLCanvasElement) {
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
@@ -135,7 +137,7 @@ export class Stage {
     document.querySelectorAll<HTMLElement>('[data-bg]').forEach(sec => {
       const [a, b] = sec.dataset.bg!.split(',');
       const st = ScrollTrigger.create({
-        trigger: sec, start: 'top 55%', end: 'bottom 55%',
+        trigger: sec, start: 'top 55%', end: 'bottom 55%', refreshPriority: -1,
         onEnter: () => to(a, b), onEnterBack: () => to(a, b),
       });
       this.cleanups.push(() => st.kill());
@@ -145,7 +147,8 @@ export class Stage {
   private frame() {
     if (this.dead || document.hidden || scrollState.locked) return;
     const now = performance.now();
-    const moving = Math.abs(scrollState.velocity) > 0.01 || this.busy > 0 || now - this.lastInput < 1500;
+    const lapEasing = lapState.active && Math.abs(lapState.progress - this.lapP) > 1e-4;
+    const moving = Math.abs(scrollState.velocity) > 0.01 || this.busy > 0 || lapEasing || now - this.lastInput < 1500;
     const helmetOnScreen = !!this.helmet && this.helmet.group.visible && !lapState.active;
     // Idle: slow 30fps drift while the helmet is visible, otherwise no frames at all.
     if (!moving && (!helmetOnScreen || now - this.lastRender < 33)) return;
@@ -160,7 +163,8 @@ export class Stage {
     r.clear();
     if (lapState.active) {
       const { scene, camera, update } = this.lap;
-      update(lapState.progress, innerWidth / innerHeight);
+      this.lapP += (lapState.progress - this.lapP) * 0.07;
+      update(this.lapP, innerWidth / innerHeight);
       r.render(scene, camera);
       return;
     }

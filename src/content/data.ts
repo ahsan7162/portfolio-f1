@@ -216,13 +216,13 @@ export const education = {
 
 /** One lap through the career: each sector of the 3D lap is one stage. */
 export const timeline = [
-  { sector: 'S1', years: '2022 to 2024', company: 'Astera', role: 'Associate to Software Engineer II',
+  { sector: 'S1', job: 'astera', years: '2022 to 2024', company: 'Astera', role: 'Associate to Software Engineer II',
     stat: '3 in 30', statLabel: 'promotions in 30 months',
     text: 'Built a multi-LLM FastAPI server, an enterprise catalog on .NET 6 and an ETL workflow marketplace.' },
-  { sector: 'S2', years: '2025', company: 'Xtel', role: 'Senior Software Engineer',
+  { sector: 'S2', job: 'xtel', years: '2025', company: 'Xtel', role: 'Senior Software Engineer',
     stat: '8×', statLabel: 'faster document loads',
     text: 'Performance work on a .NET Core and React product: 250 s loads down to 30 s, 30 s field checks down to 100 ms.' },
-  { sector: 'S3', years: '2025 to now', company: 'Careem', role: 'Software Engineer',
+  { sector: 'S3', job: 'careem', years: '2025 to now', company: 'Careem', role: 'Software Engineer',
     stat: '450+', statLabel: 'AI agents shipped',
     text: 'An AI agent platform used company-wide, and a real-time partner dashboard on Kafka, OpenSearch and React.' },
 ];

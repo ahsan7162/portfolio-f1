@@ -1,5 +1,6 @@
 import { CIRCUIT_PATH, CIRCUIT_VIEWBOX } from '@/art/circuit';
-import { timeline } from '@/content/data';
+import { jobs, timeline } from '@/content/data';
+import { originOf, useDialogs } from '@/components/dialog-context';
 import { lapState } from '@/gl/state';
 import { glEnabled } from '@/motion/prefs';
 import { gsap } from '@/motion/gsap';
@@ -12,6 +13,7 @@ import { useSectionMotion } from '@/motion/useSectionMotion';
  * stages are simply listed, so the content always reads (and is prerendered).
  */
 export function Lap() {
+  const { openDetails } = useDialogs();
   const ref = useSectionMotion<HTMLElement>(({ root, q, qa, markers, onRevert }) => {
     const pin = q('[data-lappin]')!;
     const stages = qa('[data-stage]');
@@ -29,7 +31,7 @@ export function Lap() {
     const tl = gsap.timeline({
       defaults: { ease: EASE.soft },
       scrollTrigger: {
-        trigger: pin, start: 'top top', end: `+=${n * 110}%`, pin: true, scrub: 0.6, markers,
+        trigger: pin, start: 'top top', end: `+=${n * 55}%`, pin: true, scrub: 0.6, markers,
         onToggle: self => { lapState.active = self.isActive; },
         onUpdate: self => {
           lapState.progress = self.progress;
@@ -42,9 +44,9 @@ export function Lap() {
     tl.from(q('[data-laphead]'), { autoAlpha: 0, y: 30, duration: 0.3 }, 0);
     // Each stage owns one sector (1 unit): rise in, hold, leave (the last one stays).
     stages.forEach((stage, i) => {
-      tl.to(stage, { autoAlpha: 1, y: 0, duration: 0.25 }, i + 0.05);
-      tl.from(stage.querySelectorAll('[data-stat]'), { yPercent: 100, duration: 0.3, ease: EASE.out }, i + 0.1);
-      if (i < n - 1) tl.to(stage, { autoAlpha: 0, y: -60, duration: 0.2 }, i + 0.8);
+      tl.to(stage, { autoAlpha: 1, y: 0, duration: 0.15 }, i + 0.02);
+      tl.from(stage.querySelectorAll('[data-stat]'), { yPercent: 100, duration: 0.2, ease: EASE.out }, i + 0.05);
+      if (i < n - 1) tl.to(stage, { autoAlpha: 0, y: -60, duration: 0.12 }, i + 0.88);
     });
     tl.to({}, { duration: 0.05 }, n); // hold at the finish
   });
@@ -76,6 +78,11 @@ export function Lap() {
                   <span data-stat className="inline-block pb-2 font-mono text-xs uppercase tracking-[0.12em] text-mute">{t.statLabel}</span>
                 </div>
                 <p className="mt-5 leading-relaxed">{t.text}</p>
+                <button type="button" aria-label={`${t.company} details`}
+                  onClick={e => { const j = jobs.find(x => x.id === t.job); if (j) openDetails(j, originOf(e)); }}
+                  className="btn btn-primary mt-6">
+                  Details <span aria-hidden="true">→</span>
+                </button>
               </li>
             ))}
           </ol>

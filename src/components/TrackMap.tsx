@@ -28,7 +28,7 @@ export function TrackMap() {
     if (contact) gsap.to(q('[data-map]'), { autoAlpha: 0, y: 20, ease: 'none', scrollTrigger: { trigger: contact, start: 'top 60%', end: 'top 30%', scrub: true } });
     SECTIONS.forEach(([id, label]) => {
       const el = document.getElementById(id);
-      if (el) ScrollTrigger.create({ trigger: el, start: 'top 50%', end: 'bottom 50%', onToggle: s => { if (s.isActive) setName(label); } });
+      if (el) ScrollTrigger.create({ trigger: el, start: 'top 50%', end: 'bottom 50%', refreshPriority: -1, onToggle: s => { if (s.isActive) setName(label); } });
     });
   });
 

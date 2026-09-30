@@ -35,13 +35,18 @@ export function Nav() {
       if (!a) { gsap.to(bar, { autoAlpha: 0, duration: 0.3 }); return; }
       gsap.to(bar, { autoAlpha: 1, x: a.offsetLeft, scaleX: a.offsetWidth / 100, duration: 0.6, ease: EASE.out });
     };
+    // refreshPriority -1: measure after the pins inside sections add their height.
+    let current: HTMLAnchorElement | null = null;
     NAV.forEach(n => {
       const sec = document.getElementById(n.id);
+      const link = links.find(l => l.dataset.navlink === n.id) ?? null;
       if (!sec) return;
       ScrollTrigger.create({
-        trigger: sec, start: 'top 55%', end: 'bottom 55%',
-        onToggle: self => { if (self.isActive) moveTo(links.find(l => l.dataset.navlink === n.id) ?? null); },
-        onLeaveBack: () => { if (n.id === NAV[0].id) moveTo(null); },
+        trigger: sec, start: 'top 55%', end: 'bottom 55%', refreshPriority: -1,
+        onToggle: self => {
+          if (self.isActive) { current = link; moveTo(link); }
+          else if (current === link) { current = null; moveTo(null); }
+        },
       });
     });
   });
