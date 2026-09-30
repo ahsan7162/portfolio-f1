@@ -12,13 +12,13 @@ import { createLap } from './lap';
 import { lapState } from './state';
 
 const FOV = 30, CAM_Z = 8;
-const IDLE_STOP_MS = 5000;
+const IDLE_SLOW_MS = 5000; // after this long without movement, idle drift drops from 30fps to 10fps
 
 /**
  * The single WebGL renderer for the page. Draw order per frame:
  *   1. contour background  2. helmet  (or the lap scene while it is pinned)
  * It renders only when something changes: scrolling, a tween, the pointer, or
- * a slow 30fps idle drift for 5s after the last movement. It stops entirely
+ * a 30fps idle drift for 5s after the last movement, then 10fps. It stops entirely
  * when the tab is hidden or a dialog has locked scrolling.
  */
 export class Stage {
@@ -33,7 +33,7 @@ export class Stage {
   private cleanups: Array<() => void> = [];
   private busy = 0;
   private lastRender = 0;
-  /** Last time anything moved (scroll, tween, pointer): idle drift stops 5s after it. */
+  /** Last time anything moved (scroll, tween, pointer): idle drift slows to 10fps 5s after it. */
   private lastActive = 0;
   /** Animation clock that only advances while frames render, so drift resumes without a jump. */
   private clock = 0;
@@ -156,10 +156,10 @@ export class Stage {
     const moving = Math.abs(scrollState.velocity) > 0.01 || this.busy > 0 || lapEasing || now - this.lastInput < 1500;
     const helmetOnScreen = !!this.helmet && this.helmet.group.visible && !lapState.active;
     if (moving) this.lastActive = now;
-    const drifting = helmetOnScreen && now - this.lastActive < IDLE_STOP_MS;
-    // Idle: slow 30fps drift for 5s, then no frames at all until something moves.
-    if (!moving && (!drifting || now - this.lastRender < 33)) return;
-    this.clock += Math.min(now - this.lastRender, 50) / 1000;
+    // Idle: 30fps drift for 5s, then 10fps while the helmet is on screen; otherwise no frames.
+    const idleGap = now - this.lastActive < IDLE_SLOW_MS ? 33 : 100;
+    if (!moving && (!helmetOnScreen || now - this.lastRender < idleGap)) return;
+    this.clock += Math.min(now - this.lastRender, 120) / 1000;
     this.lastRender = now;
 
     const r = this.renderer, t = this.clock;
