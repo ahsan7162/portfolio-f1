@@ -116,7 +116,7 @@ export function createLap() {
       camera.aspect = aspect;
       camera.updateProjectionMatrix();
       // Drive about half the circuit over the whole timeline: a calmer camera speed.
-      const t = (0.02 + progress * 0.45) % 1;
+      const t = (0.02 + progress * 0.3) % 1;
       curve.getPointAt(t, eye);
       curve.getPointAt((t + 0.012) % 1, look);
       eye.y += 0.2;

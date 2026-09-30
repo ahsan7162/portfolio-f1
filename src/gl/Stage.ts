@@ -163,7 +163,7 @@ export class Stage {
     r.clear();
     if (lapState.active) {
       const { scene, camera, update } = this.lap;
-      this.lapP += (lapState.progress - this.lapP) * 0.07;
+      this.lapP += (lapState.progress - this.lapP) * 0.03; // slow glide between stages
       update(this.lapP, innerWidth / innerHeight);
       r.render(scene, camera);
       return;

@@ -3,7 +3,7 @@ import { jobs, timeline } from '@/content/data';
 import { originOf, useDialogs } from '@/components/dialog-context';
 import { lapState } from '@/gl/state';
 import { glEnabled } from '@/motion/prefs';
-import { gsap } from '@/motion/gsap';
+import { gsap, ScrollTrigger } from '@/motion/gsap';
 import { EASE } from '@/motion/tokens';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 
@@ -27,28 +27,34 @@ export function Lap() {
     onRevert(() => root.classList.remove('lap-live'));
     if (flat) gsap.set(svgPath, { drawSVG: '0%' });
     gsap.set(stages, { autoAlpha: 0, y: 60 });
+    gsap.set(q('[data-laphead]'), { autoAlpha: 0, y: 30 });
 
-    const tl = gsap.timeline({
-      defaults: { ease: EASE.soft },
-      scrollTrigger: {
-        trigger: pin, start: 'top top', end: `+=${n * 55}%`, pin: true, scrub: 0.6, markers,
-        onToggle: self => { lapState.active = self.isActive; },
-        onUpdate: self => {
-          lapState.progress = self.progress;
-          const s = Math.min(n - 1, Math.floor(self.progress * n));
-          sectorEls.forEach((el, i) => el.classList.toggle('text-ac', i === s));
-          if (flat) gsap.set(svgPath, { drawSVG: `${(self.progress * 100).toFixed(1)}%` });
-        },
-      },
+    // Stages switch as whole steps, not scrubbed: a short scroll past a threshold
+    // plays the full change on its own clock, so one flick moves one season.
+    // The camera target moves with the stage too, so the track glides at a fixed
+    // pace no matter how fast you scroll.
+    let cur = -1;
+    const show = (i: number) => {
+      if (i === cur) return;
+      const dir = i > cur ? 1 : -1;
+      const prev = stages[cur];
+      if (prev) gsap.to(prev, { autoAlpha: 0, y: -40 * dir, duration: 0.35, ease: EASE.soft, overwrite: true });
+      const next = stages[i];
+      gsap.fromTo(next, { autoAlpha: 0, y: 50 * dir }, { autoAlpha: 1, y: 0, duration: 0.7, delay: prev ? 0.15 : 0, ease: EASE.out, overwrite: true });
+      gsap.fromTo(next.querySelectorAll('[data-stat]'), { yPercent: 100 }, { yPercent: 0, duration: 0.7, delay: prev ? 0.25 : 0.1, ease: EASE.out, overwrite: true });
+      sectorEls.forEach((el, k) => el.classList.toggle('text-ac', k === i));
+      lapState.progress = n > 1 ? i / (n - 1) : 0;
+      if (flat) gsap.to(svgPath, { drawSVG: `${((i + 1) / n) * 100}%`, duration: 1.2, ease: EASE.inOut, overwrite: true });
+      cur = i;
+    };
+
+    ScrollTrigger.create({
+      trigger: pin, start: 'top top', end: `+=${n * 35}%`, pin: true, markers,
+      onToggle: self => { lapState.active = self.isActive; },
+      onEnter: () => { gsap.to(q('[data-laphead]'), { autoAlpha: 1, y: 0, duration: 0.6, ease: EASE.out }); show(0); },
+      onEnterBack: () => show(n - 1),
+      onUpdate: self => show(Math.min(n - 1, Math.floor(self.progress * n))),
     });
-    tl.from(q('[data-laphead]'), { autoAlpha: 0, y: 30, duration: 0.3 }, 0);
-    // Each stage owns one sector (1 unit): rise in, hold, leave (the last one stays).
-    stages.forEach((stage, i) => {
-      tl.to(stage, { autoAlpha: 1, y: 0, duration: 0.15 }, i + 0.02);
-      tl.from(stage.querySelectorAll('[data-stat]'), { yPercent: 100, duration: 0.2, ease: EASE.out }, i + 0.05);
-      if (i < n - 1) tl.to(stage, { autoAlpha: 0, y: -60, duration: 0.12 }, i + 0.88);
-    });
-    tl.to({}, { duration: 0.05 }, n); // hold at the finish
   });
 
   return (
