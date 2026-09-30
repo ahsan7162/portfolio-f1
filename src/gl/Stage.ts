@@ -12,12 +12,13 @@ import { createLap } from './lap';
 import { lapState } from './state';
 
 const FOV = 30, CAM_Z = 8;
+const IDLE_STOP_MS = 5000;
 
 /**
  * The single WebGL renderer for the page. Draw order per frame:
  *   1. contour background  2. helmet  (or the lap scene while it is pinned)
  * It renders only when something changes: scrolling, a tween, the pointer, or
- * a slow 30fps idle drift while the helmet is on screen. It stops entirely
+ * a slow 30fps idle drift for 5s after the last movement. It stops entirely
  * when the tab is hidden or a dialog has locked scrolling.
  */
 export class Stage {
@@ -32,6 +33,10 @@ export class Stage {
   private cleanups: Array<() => void> = [];
   private busy = 0;
   private lastRender = 0;
+  /** Last time anything moved (scroll, tween, pointer): idle drift stops 5s after it. */
+  private lastActive = 0;
+  /** Animation clock that only advances while frames render, so drift resumes without a jump. */
+  private clock = 0;
   private lastInput = 0;
   private dead = false;
   /** Eased copy of the lap progress, so the camera glides instead of stepping. */
@@ -150,11 +155,14 @@ export class Stage {
     const lapEasing = lapState.active && lapState.progress !== this.lapP;
     const moving = Math.abs(scrollState.velocity) > 0.01 || this.busy > 0 || lapEasing || now - this.lastInput < 1500;
     const helmetOnScreen = !!this.helmet && this.helmet.group.visible && !lapState.active;
-    // Idle: slow 30fps drift while the helmet is visible, otherwise no frames at all.
-    if (!moving && (!helmetOnScreen || now - this.lastRender < 33)) return;
+    if (moving) this.lastActive = now;
+    const drifting = helmetOnScreen && now - this.lastActive < IDLE_STOP_MS;
+    // Idle: slow 30fps drift for 5s, then no frames at all until something moves.
+    if (!moving && (!drifting || now - this.lastRender < 33)) return;
+    this.clock += Math.min(now - this.lastRender, 50) / 1000;
     this.lastRender = now;
 
-    const r = this.renderer, t = now / 1000;
+    const r = this.renderer, t = this.clock;
     const u = this.field.uniforms;
     u.uTime.value = t;
     u.uScroll.value = scrollState.progress;
