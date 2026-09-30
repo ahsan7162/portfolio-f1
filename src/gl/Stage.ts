@@ -34,6 +34,8 @@ export class Stage {
   private lastRender = 0;
   /** Animation clock that only advances while frames render, so drift resumes without a jump. */
   private clock = 0;
+  /** The helmet's float clock: only advances while something moves, so it holds still when idle. */
+  private helmetClock = 0;
   private lastInput = 0;
   private dead = false;
   /** Eased copy of the lap progress, so the camera glides instead of stepping. */
@@ -151,10 +153,12 @@ export class Stage {
     const now = performance.now();
     const lapEasing = lapState.active && lapState.progress !== this.lapP;
     const moving = Math.abs(scrollState.velocity) > 0.01 || this.busy > 0 || lapEasing || now - this.lastInput < 1500;
-    // Idle: the contour lines (and the helmet, when on screen) keep a steady 30fps drift.
-    // The lap scene has no drift, so it draws nothing while idle.
+    // Idle: the contour lines keep a steady 30fps drift; the helmet holds still until
+    // something moves. The lap scene has no drift, so it draws nothing while idle.
     if (!moving && (lapState.active || now - this.lastRender < 33)) return;
-    this.clock += Math.min(now - this.lastRender, 50) / 1000;
+    const dt = Math.min(now - this.lastRender, 50) / 1000;
+    this.clock += dt;
+    if (moving) this.helmetClock += dt;
     this.lastRender = now;
 
     const r = this.renderer, t = this.clock;
@@ -173,7 +177,7 @@ export class Stage {
     }
     r.render(this.field.scene, this.camera);
     if (this.helmet) {
-      this.applyPose(t);
+      this.applyPose(this.helmetClock);
       r.clearDepth();
       r.render(this.scene, this.camera);
     }
