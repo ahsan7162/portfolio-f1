@@ -23,6 +23,9 @@ export function TrackMap() {
       gsap.to(q('[data-dot]'), { ease: 'none', scrollTrigger: whole, motionPath: { path: track, align: track, alignOrigin: [0.5, 0.5] } });
     }
     gsap.fromTo(q('[data-bar]'), { scaleX: 0 }, { scaleX: 1, ease: 'none', scrollTrigger: whole });
+    // Hidden over the hero (it would sit on the "Now" card); slides in once the hero scrolls away.
+    const hero = document.getElementById('top');
+    if (hero) gsap.fromTo(q('[data-mapin]'), { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, ease: 'none', scrollTrigger: { trigger: hero, start: 'bottom 85%', end: 'bottom 55%', scrub: true } });
     // Step aside at the finish so it never covers the footer.
     const contact = document.getElementById('contact');
     if (contact) gsap.to(q('[data-map]'), { autoAlpha: 0, y: 20, ease: 'none', scrollTrigger: { trigger: contact, start: 'top 60%', end: 'top 30%', scrub: true } });
@@ -36,6 +39,8 @@ export function TrackMap() {
     <div ref={ref} aria-hidden="true" className="pointer-events-none">
       <div data-bar className="fixed inset-x-0 top-0 z-[60] h-[2px] origin-left bg-ac md:hidden" />
       <div data-map className="fixed bottom-5 left-5 z-40 hidden w-[132px] md:block">
+        {/* Starts hidden; motion reveals it. With reduced motion it stays out of the way. */}
+        <div data-mapin className="invisible opacity-0">
         <svg viewBox={CIRCUIT_VIEWBOX} fill="none" className="w-full overflow-visible">
           <path data-track d={CIRCUIT_PATH} stroke="rgb(244 244 237 / 0.35)" strokeWidth="6" strokeLinejoin="round" />
           <circle data-dot r="10" fill="var(--ac)" />
@@ -43,6 +48,7 @@ export function TrackMap() {
         {/* Re-keying replays the scramble whenever the section changes. */}
         <HyperText key={name} as="span" duration={450} animateOnHover={false}
           className="mt-2 block p-0 font-mono text-[10px] font-normal uppercase tracking-[0.14em] text-mute">{name}</HyperText>
+        </div>
       </div>
     </div>
   );
