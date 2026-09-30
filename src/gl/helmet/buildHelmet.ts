@@ -65,9 +65,10 @@ export async function buildHelmet(opts: { lowDetail: boolean; anisotropy: number
   const seal = new THREE.Mesh(patch(0.03, 0.006), keep(withReveal(new THREE.MeshStandardMaterial({
     color: '#050506', roughness: 0.7, alphaMap: mask, alphaTest: 0.5,
   }), reveal)));
-  const visor = new THREE.Mesh(patch(0, 0.02), keep(withReveal(new THREE.MeshPhysicalMaterial({
-    color: '#08080a', roughness: 0.04, metalness: 0.6, clearcoat: 1, clearcoatRoughness: 0.02,
-    alphaMap: mask, alphaTest: 0.5, envMapIntensity: 2.2, iridescence: 0.35, iridescenceIOR: 1.6,
+  // Glossy black visor: plain standard material (no clear coat or rainbow sheen), still reflective.
+  const visor = new THREE.Mesh(patch(0, 0.02), keep(withReveal(new THREE.MeshStandardMaterial({
+    color: '#050506', roughness: 0.05, metalness: 0.7,
+    alphaMap: mask, alphaTest: 0.5, envMapIntensity: 1.8,
   }), reveal)));
   group.add(seal, visor);
 
