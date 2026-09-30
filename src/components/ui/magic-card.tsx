@@ -69,8 +69,7 @@ export function MagicCard(props: MagicCardProps) {
   const glowSize = isOrbMode(props) ? (props.glowSize ?? 420) : 420
   const glowBlur = isOrbMode(props) ? (props.glowBlur ?? 60) : 60
   const glowOpacity = isOrbMode(props) ? (props.glowOpacity ?? 0.9) : 0.9
-  // v2 edit: next-themes removed. Dark by default; the light Paddock section
-  // passes blend="multiply" via className-scoped styles instead.
+  // v2 edit: next-themes removed; the site is dark-only.
   const isDarkTheme = true
 
   const mouseX = useMotionValue(-gradientSize)
