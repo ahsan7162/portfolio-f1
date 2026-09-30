@@ -1,0 +1,49 @@
+import { useState } from 'react';
+import { CIRCUIT_PATH, CIRCUIT_VIEWBOX } from '@/art/circuit';
+import { HyperText } from '@/components/ui/hyper-text';
+import { gsap, ScrollTrigger } from '@/motion/gsap';
+import { useSectionMotion } from '@/motion/useSectionMotion';
+
+const SECTIONS = [
+  ['top', 'Start'], ['about', 'About'], ['skills-overview', 'Full stack'], ['results', 'Results'],
+  ['experience', 'Experience'], ['performance', 'Performance'], ['projects', 'Projects'],
+  ['skills', 'Tech stack'], ['education', 'Education'], ['contact', 'Finish'],
+] as const;
+
+/**
+ * Decorative page-progress map: a dot laps the circuit as you scroll the page
+ * (desktop), a thin bar on phones. Transform-only, scrubbed to scroll.
+ */
+export function TrackMap() {
+  const [name, setName] = useState('Start');
+  const ref = useSectionMotion<HTMLDivElement>(({ q, desktop }) => {
+    const whole = { trigger: document.body, start: 'top top', end: 'bottom bottom', scrub: true } as const;
+    if (desktop) {
+      const track = q<SVGPathElement>('[data-track]')!;
+      gsap.to(q('[data-dot]'), { ease: 'none', scrollTrigger: whole, motionPath: { path: track, align: track, alignOrigin: [0.5, 0.5] } });
+    }
+    gsap.fromTo(q('[data-bar]'), { scaleX: 0 }, { scaleX: 1, ease: 'none', scrollTrigger: whole });
+    // Step aside at the finish so it never covers the footer.
+    const contact = document.getElementById('contact');
+    if (contact) gsap.to(q('[data-map]'), { autoAlpha: 0, y: 20, ease: 'none', scrollTrigger: { trigger: contact, start: 'top 60%', end: 'top 30%', scrub: true } });
+    SECTIONS.forEach(([id, label]) => {
+      const el = document.getElementById(id);
+      if (el) ScrollTrigger.create({ trigger: el, start: 'top 50%', end: 'bottom 50%', onToggle: s => { if (s.isActive) setName(label); } });
+    });
+  });
+
+  return (
+    <div ref={ref} aria-hidden="true" className="pointer-events-none">
+      <div data-bar className="fixed inset-x-0 top-0 z-[60] h-[2px] origin-left bg-ac md:hidden" />
+      <div data-map className="fixed bottom-5 left-5 z-40 hidden w-[132px] md:block">
+        <svg viewBox={CIRCUIT_VIEWBOX} fill="none" className="w-full overflow-visible">
+          <path data-track d={CIRCUIT_PATH} stroke="rgb(244 244 237 / 0.35)" strokeWidth="6" strokeLinejoin="round" />
+          <circle data-dot r="10" fill="var(--ac)" />
+        </svg>
+        {/* Re-keying replays the scramble whenever the section changes. */}
+        <HyperText key={name} as="span" duration={450} animateOnHover={false}
+          className="mt-2 block p-0 font-mono text-[10px] font-normal uppercase tracking-[0.14em] text-mute">{name}</HyperText>
+      </div>
+    </div>
+  );
+}

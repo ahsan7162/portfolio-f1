@@ -16,6 +16,7 @@ export function ensureGsap() {
   gsap.defaults({ ease: EASE.out, duration: DUR.m });
   gsap.ticker.lagSmoothing(0);
   ScrollTrigger.config({ ignoreMobileResize: true });
+  if (import.meta.env.DEV) Object.assign(window, { __gsap: gsap, __ST: ScrollTrigger });
 }
 
 export { gsap, ScrollTrigger, SplitText, useGSAP };

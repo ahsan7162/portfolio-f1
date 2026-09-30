@@ -1,0 +1,92 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
+import { DialogCtx, type Origin } from '@/components/dialog-context';
+import { ArchiveDialog, closeWithWipe, DetailsDialog } from '@/components/Dialogs';
+import { Intro } from '@/components/Intro';
+import { Nav } from '@/components/Nav';
+import { TrackMap } from '@/components/TrackMap';
+import { About } from '@/components/sections/About';
+import { Contact } from '@/components/sections/Contact';
+import { Disciplines } from '@/components/sections/Disciplines';
+import { Education } from '@/components/sections/Education';
+import { Experience } from '@/components/sections/Experience';
+import { Hero } from '@/components/sections/Hero';
+import { Lap } from '@/components/sections/Lap';
+import { Performance } from '@/components/sections/Performance';
+import { Projects } from '@/components/sections/Projects';
+import { Results } from '@/components/sections/Results';
+import { TechStack } from '@/components/sections/TechStack';
+import type { Breakdown } from '@/content/data';
+import { GLCanvas } from '@/gl/GLCanvas';
+import { SmoothScroll, useSmoothScroll } from '@/motion/SmoothScroll';
+import { useAnchorNav } from '@/motion/useAnchorNav';
+
+type Open = { sel: { b: Breakdown; o?: Origin } | null; arch: { o?: Origin } | null };
+
+function Page() {
+  const { lock, unlock } = useSmoothScroll();
+  useAnchorNav();
+  const [open, setOpen] = useState<Open>({ sel: null, arch: null });
+  const selRef = useRef<HTMLDivElement>(null), archRef = useRef<HTMLDivElement>(null);
+  const returns = useRef<(HTMLElement | null)[]>([]);
+  const anyOpen = !!(open.sel || open.arch);
+
+  const push = () => returns.current.push(document.activeElement as HTMLElement | null);
+  // Commit the close synchronously so `inert` is gone, then return focus.
+  const finishClose = (update: (s: Open) => Open) => {
+    flushSync(() => setOpen(update));
+    unlock();
+    returns.current.pop()?.focus({ preventScroll: true });
+  };
+
+  const openDetails = useCallback((b: Breakdown, o?: Origin) => { push(); lock(); setOpen(s => ({ ...s, sel: { b, o } })); }, [lock]);
+  const openArchive = useCallback((o?: Origin) => { push(); lock(); setOpen(s => ({ ...s, arch: { o } })); }, [lock]);
+  const closeSel = useCallback(() => closeWithWipe(selRef.current, open.sel?.o, () => finishClose(s => ({ ...s, sel: null }))), [open.sel]); // eslint-disable-line react-hooks/exhaustive-deps
+  const closeArch = useCallback(() => closeWithWipe(archRef.current, open.arch?.o, () => finishClose(s => ({ ...s, arch: null }))), [open.arch]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      if (open.sel) closeSel(); else if (open.arch) closeArch();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open, closeSel, closeArch]);
+
+  const api = useMemo(() => ({ openDetails, openArchive }), [openDetails, openArchive]);
+
+  return (
+    <DialogCtx.Provider value={api}>
+      <div aria-hidden="true" className="contour-fallback pointer-events-none fixed inset-0 -z-20" />
+      <GLCanvas />
+      <div inert={anyOpen || undefined}>
+        <Nav />
+        <main>
+          <Hero />
+          <About />
+          <Disciplines />
+          <Results />
+          <Lap />
+          <Experience />
+          <Performance />
+          <Projects />
+          <TechStack />
+          <Education />
+        </main>
+        <Contact />
+        <TrackMap />
+      </div>
+      <Intro />
+      {open.arch && <ArchiveDialog dref={archRef} origin={open.arch.o} onClose={closeArch} onOpenItem={openDetails} />}
+      {open.sel && <DetailsDialog dref={selRef} sel={open.sel.b} origin={open.sel.o} onClose={closeSel} />}
+    </DialogCtx.Provider>
+  );
+}
+
+export default function App() {
+  return (
+    <SmoothScroll>
+      <Page />
+    </SmoothScroll>
+  );
+}
