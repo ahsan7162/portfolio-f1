@@ -213,3 +213,16 @@ export const education = {
   deansList: "Dean's list, semesters five to eight",
   award: { place: 3, of: 2520, name: 'Alibaba Cloud Global Challenge', text: 'Third place with a weather-forecasting solution.' },
 };
+
+/** One lap through the career: each sector of the 3D lap is one stage. */
+export const timeline = [
+  { sector: 'S1', years: '2022 to 2024', company: 'Astera', role: 'Associate to Software Engineer II',
+    stat: '3 in 30', statLabel: 'promotions in 30 months',
+    text: 'Built a multi-LLM FastAPI server, an enterprise catalog on .NET 6 and an ETL workflow marketplace.' },
+  { sector: 'S2', years: '2025', company: 'Xtel', role: 'Senior Software Engineer',
+    stat: '8×', statLabel: 'faster document loads',
+    text: 'Performance work on a .NET Core and React product: 250 s loads down to 30 s, 30 s field checks down to 100 ms.' },
+  { sector: 'S3', years: '2025 to now', company: 'Careem', role: 'Software Engineer',
+    stat: '450+', statLabel: 'AI agents shipped',
+    text: 'An AI agent platform used company-wide, and a real-time partner dashboard on Kafka, OpenSearch and React.' },
+];

@@ -18,6 +18,7 @@ import { Results } from '@/components/sections/Results';
 import { TechStack } from '@/components/sections/TechStack';
 import type { Breakdown } from '@/content/data';
 import { GLCanvas } from '@/gl/GLCanvas';
+import { ensureGsap, ScrollTrigger } from '@/motion/gsap';
 import { SmoothScroll, useSmoothScroll } from '@/motion/SmoothScroll';
 import { useAnchorNav } from '@/motion/useAnchorNav';
 
@@ -52,6 +53,14 @@ function Page() {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [open, closeSel, closeArch]);
+
+  // Nav and track-map triggers are created before the sections' pins; once every
+  // section has mounted, re-sort all triggers by page position and re-measure.
+  useEffect(() => {
+    ensureGsap();
+    ScrollTrigger.sort();
+    ScrollTrigger.refresh();
+  }, []);
 
   const api = useMemo(() => ({ openDetails, openArchive }), [openDetails, openArchive]);
 

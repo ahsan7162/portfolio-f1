@@ -5,7 +5,7 @@ import { gsap, ScrollTrigger } from '@/motion/gsap';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 
 const SECTIONS = [
-  ['top', 'Start'], ['about', 'About'], ['skills-overview', 'Full stack'], ['results', 'Results'],
+  ['top', 'Start'], ['about', 'About'], ['skills-overview', 'Full stack'], ['results', 'Results'], ['timeline', 'Timeline'],
   ['experience', 'Experience'], ['performance', 'Performance'], ['projects', 'Projects'],
   ['skills', 'Tech stack'], ['education', 'Education'], ['contact', 'Finish'],
 ] as const;

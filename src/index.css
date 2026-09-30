@@ -206,3 +206,14 @@ html.gl-on .gl-canvas { opacity: 1; }
   opacity: 0.5;
 }
 html.gl-on .contour-fallback { opacity: 0; transition: opacity 1s; }
+
+/* Career timeline: static list by default; with motion it becomes one pinned
+   screen where the stages replace each other over the 3D lap. */
+.lap-live .lap-pin { height: 100dvh; padding-top: calc(var(--navh) + 2rem); padding-bottom: 5rem; overflow: hidden; }
+.lap-live .lap-inner { height: 100%; }
+.lap-live .lap-stages { position: relative; flex: 1; display: block; }
+.lap-live .lap-stage { position: absolute; left: 0; bottom: 0; }
+.lap-live .lap-meta { display: flex; }
+@media (min-width: 768px) {
+  .lap-live .lap-stage { left: auto; right: 0; bottom: 8%; }
+}
