@@ -12,6 +12,8 @@ import { createLap } from './lap';
 import { lapState } from './state';
 
 const FOV = 30, CAM_Z = 8;
+/** Pixel ratio ceiling, and a drawing-buffer budget so big screens don't fill 8M+ pixels a frame. */
+const MAX_DPR = 1.5, MAX_PIXELS = 3.2e6, MIN_SCALE = 0.55;
 
 /**
  * The single WebGL renderer for the page. Draw order per frame:
@@ -40,10 +42,11 @@ export class Stage {
   private dead = false;
   /** Eased copy of the lap progress, so the camera glides instead of stepping. */
   private lapP = 0;
+  /** Adaptive resolution: drops when frames miss vsync while moving, recovers slowly. */
+  private quality = { scale: 1, vsync: 1000 / 60, slow: 0, fast: 0, cooldown: 0 };
 
   constructor(canvas: HTMLCanvasElement) {
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
-    this.renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.NeutralToneMapping;
     this.renderer.toneMappingExposure = 1.0;
@@ -93,6 +96,8 @@ export class Stage {
 
   private resize() {
     const w = innerWidth, h = innerHeight;
+    const dpr = Math.min(devicePixelRatio, MAX_DPR, Math.sqrt(MAX_PIXELS / (w * h)));
+    this.renderer.setPixelRatio(Math.max(0.5, dpr * this.quality.scale));
     this.renderer.setSize(w, h, false);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
@@ -152,6 +157,7 @@ export class Stage {
     // Idle: the contour lines keep a steady 30fps drift; the helmet holds still until
     // something moves. The lap scene has no drift, so it draws nothing while idle.
     if (!moving && (lapState.active || now - this.lastRender < 33)) return;
+    if (moving) this.adapt(now - this.lastRender);
     const dt = Math.min(now - this.lastRender, 50) / 1000;
     this.clock += dt;
     if (moving) this.helmetClock += dt;
@@ -176,6 +182,29 @@ export class Stage {
       this.applyPose(this.helmetClock);
       r.clearDepth();
       r.render(this.scene, this.camera);
+    }
+  }
+
+  /**
+   * Watch frame intervals while rendering continuously. Sustained misses
+   * (mostly GPU fill on large or weak screens) lower the render scale; a long
+   * run of on-time frames raises it again. The page itself keeps scrolling at
+   * full rate; only the canvas resolution changes.
+   */
+  private adapt(delta: number) {
+    const q = this.quality;
+    if (delta <= 0 || delta > 100) return; // first frame after idle, or a tab switch
+    q.vsync = Math.min(q.vsync * 1.002, Math.max(delta, 1000 / 240)); // tracks the display refresh
+    if (q.cooldown > 0) { q.cooldown--; return; }
+    if (delta > q.vsync * 1.5) { q.slow++; q.fast = 0; } else { q.fast++; q.slow = Math.max(0, q.slow - 0.25); }
+    if (q.slow >= 8 && q.scale > MIN_SCALE) {
+      q.scale = Math.max(MIN_SCALE, q.scale - 0.15);
+      this.resize();
+      q.slow = q.fast = 0; q.cooldown = 30;
+    } else if (q.fast >= 600 && q.scale < 1) {
+      q.scale = Math.min(1, q.scale + 0.1);
+      this.resize();
+      q.slow = q.fast = 0; q.cooldown = 30;
     }
   }
 
