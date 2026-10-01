@@ -37,8 +37,8 @@ export function TrackMap() {
 
   return (
     <div ref={ref} aria-hidden="true" className="pointer-events-none">
-      <div data-bar className="fixed inset-x-0 top-0 z-[60] h-[2px] origin-left bg-ac md:hidden" />
-      <div data-map className="fixed bottom-5 left-5 z-40 hidden w-[132px] md:block">
+      <div data-bar className="fixed inset-x-0 top-0 z-[60] h-[2px] origin-left bg-ac lg:hidden" />
+      <div data-map className="fixed bottom-5 left-5 z-40 hidden w-[132px] lg:block">
         {/* Starts hidden; motion reveals it. With reduced motion it stays out of the way. */}
         <div data-mapin className="invisible opacity-0">
         <svg viewBox={CIRCUIT_VIEWBOX} fill="none" className="w-full overflow-visible">

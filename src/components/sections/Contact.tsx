@@ -5,12 +5,6 @@ import { CV_FILE, EMAIL, GITHUB, LINKEDIN, PHONE, PHONE_DISPLAY, profile } from 
 import { batchReveal, clipReveal, splitReveal } from '@/motion/patterns';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 
-const MARKERS = [
-  { lat: 24.86, lng: 67.0, size: 1.4, pulse: true }, // Karachi
-  { lat: 25.2, lng: 55.27, size: 1 },               // Dubai (Careem)
-  { lat: 45.46, lng: 9.19, size: 1 },               // Milan (Xtel, remote)
-];
-
 function CopyPhone() {
   const [state, setState] = useState<'idle' | 'copied' | 'shown'>('idle');
   const t = useRef(0);
@@ -48,7 +42,8 @@ export function Contact() {
             </a>
           </p>
           <div aria-hidden="true" className="text-fg/25">
-            <LazyMap markers={MARKERS} markerColor="#ff2438" dotRadius={0.25} mapSamples={3000} className="w-full" />
+            {/* Karachi, Dubai (Careem), Milan (Xtel): set in scripts/world-dots.ts */}
+            <LazyMap markerColor="#ff2438" />
           </div>
         </div>
 

@@ -173,13 +173,24 @@ html.gl-on .lap-flat { opacity: 0; }
   }
 }
 
-/* Timing-sheet tables collapse to stacked rows on phones. */
+/* Timing-sheet tables collapse to stacked rows on phones. Every row shares one
+   template (task and speed-up on top, before/after under it, a full-width bar
+   last), so bars start at the same edge and read as one scale. */
 @media (max-width: 767px) {
   .timing thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-  .timing tr { display: grid; grid-template-columns: auto 1fr; column-gap: 1rem; padding: 1.25rem 0; }
+  .timing tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "task factor" "delta factor" "bar bar";
+    column-gap: 1rem;
+    row-gap: 0.35rem;
+    padding: 1.25rem 0;
+  }
   .timing td, .timing th { padding: 0 !important; }
-  .timing td:first-child { grid-row: span 5; }
-  .timing td:last-child { text-align: left; margin-top: 0.75rem; }
+  .timing tr > :nth-child(1) { grid-area: task; }
+  .timing tr > :nth-child(2) { grid-area: bar; margin-top: 0.65rem; }
+  .timing tr > :nth-child(3) { grid-area: delta; }
+  .timing tr > :nth-child(4) { grid-area: factor; align-self: center; text-align: right; }
 }
 
 /* WebGL stage fades in once ready. Without it, a static contour pattern shows. */
@@ -194,13 +205,95 @@ html.gl-on .contour-fallback { opacity: 0; transition: opacity 1s; }
 
 /* Career timeline: static list by default; with motion it becomes one pinned
    screen where the stages replace each other over the 3D lap. */
-.lap-live .lap-pin { height: 100dvh; padding-top: calc(var(--navh) + 2rem); padding-bottom: 5rem; overflow: hidden; }
+.lap-live .lap-pin { height: 100dvh; padding-top: calc(var(--navh) + 1.5rem); padding-bottom: 1.5rem; overflow: hidden; }
 .lap-live .lap-inner { height: 100%; }
 .lap-live .lap-stages { position: relative; flex: 1; display: block; }
 .lap-live .lap-stage { position: absolute; left: 0; bottom: 0; }
 .lap-live .lap-meta { display: flex; }
 @media (min-width: 768px) {
+  .lap-live .lap-pin { padding-top: calc(var(--navh) + 2rem); padding-bottom: 5rem; }
   .lap-live .lap-stage { left: auto; right: 0; bottom: 8%; }
+}
+
+/* Bento grids (work, stack): v1's touching blocks in v2's material. Tiles are
+   see-through panels over the contour background, split by hairlines; a cursor
+   spotlight crosses the grid and the tile under the pointer lifts (see
+   useBentoPointer). Layered so Tailwind col-span utilities override the phone default. */
+@layer components {
+  .bento {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    border-top: 1px solid var(--line);
+    border-left: 1px solid var(--line);
+  }
+  .bento::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    opacity: var(--spot, 0);
+    transition: opacity 0.45s var(--ease-out-expo);
+    background: radial-gradient(320px circle at var(--mx, -999px) var(--my, -999px), rgb(255 36 56 / 0.14), rgb(255 36 56 / 0.03) 40%, transparent 70%);
+  }
+  .tile {
+    position: relative;
+    grid-column: span 6;
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    background: rgb(17 17 19 / 0.55);
+    transition: transform 0.55s var(--ease-out-expo), background-color 0.3s, box-shadow 0.4s;
+  }
+  .tile-lead { background: rgb(26 26 30 / 0.7); }
+  .tile[data-tilting] {
+    z-index: 2;
+    background: rgb(24 24 28 / 0.94);
+    box-shadow: 0 30px 60px -22px rgb(0 0 0 / 0.85);
+    transition: transform 0.12s linear, background-color 0.3s, box-shadow 0.3s;
+  }
+  /* Accent rule that draws across the top of a hovered tile. */
+  .tile::before {
+    content: "";
+    position: absolute;
+    inset: -1px 0 auto;
+    height: 2px;
+    background: var(--ac);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.6s var(--ease-out-expo);
+  }
+  .tile:hover::before { transform: scaleX(1); }
+  .pill {
+    display: inline-block;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0.25rem 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    transition: border-color 0.3s, color 0.3s;
+  }
+  .tile:hover .pill { border-color: rgb(244 244 237 / 0.25); }
+}
+
+/* Scrollbar: thin carbon track with a hairline edge, a dim graphite thumb that
+   turns accent red on hover and drag. Chrome, Edge and Safari use the WebKit
+   pseudo-elements (Chrome ignores them once scrollbar-color is set, so the
+   standard properties are only for browsers without them, i.e. Firefox, which
+   has no thumb hover state). Phones keep their own overlay scrollbars. */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--carbon); border-left: 1px solid var(--line); }
+::-webkit-scrollbar-thumb {
+  min-height: 48px;
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background: rgb(244 244 237 / 0.18) padding-box;
+}
+::-webkit-scrollbar-thumb:hover,
+::-webkit-scrollbar-thumb:active { background-color: var(--ac); }
+::-webkit-scrollbar-corner { background: var(--carbon); }
+@supports not selector(::-webkit-scrollbar) {
+  html { scrollbar-width: thin; scrollbar-color: rgb(244 244 237 / 0.22) var(--carbon); }
 }
 
 /* Hover-mounted decorations (border beam) fade in rather than pop. */

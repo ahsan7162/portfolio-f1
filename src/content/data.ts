@@ -13,7 +13,7 @@ export type Breakdown = {
   highlights: Highlight[];
 };
 
-export type Job = Breakdown & { id: string; years: string; result: string };
+export type Job = Breakdown & { id: string; years: string; result: string; place: string; summary: string };
 
 export type Delta = {
   name: string;
@@ -102,7 +102,8 @@ export const deltas: Delta[] = [
 ];
 
 export const jobs: Job[] = [
-  { id: 'careem', company: 'Careem', role: 'Software Engineer', dates: 'October 2025 to present', years: '2025 to now', loc: 'Karachi, Pakistan',
+  { id: 'careem', company: 'Careem', role: 'Software Engineer', dates: 'October 2025 to present', years: '2025 to now', loc: 'Karachi, Pakistan', place: 'Karachi',
+    summary: 'Software engineer. AI agent platform used company-wide, partner ops dashboard, booking concurrency, Go notification service.',
     result: '450+ AI agents, 35% dashboard adoption', highlights: [
     { stat: '450+', title: 'AI agent platform, company-wide', text: 'Internal platform in Go, Python and React with chat, semantic search and Slack integration. Teams create, version and deploy custom AI assistants self-service, with deployment to CI/CD pipelines, Slack channels and threads, and Jira automation. Agent build time fell from 2 to 3 days to 10 minutes.' },
     { stat: '35%', title: 'Partner operations dashboard', text: 'Real-time booking and walk-in visibility on DynamoDB, Kafka and OpenSearch through a React microfrontend, with CSV and Excel export. Launched during a 2026 campaign of 50K bookings: adoption rose from under 2% to 35%, support chat groups fell from 500+ to under 20, and email queries dropped 70%.' },
@@ -110,14 +111,16 @@ export const jobs: Job[] = [
     { stat: '500+', title: 'In-platform notifications', text: 'Go service (Gin, PostgreSQL) with AWS S3 and CloudFront media, delivered to 500+ partners.' },
     { stat: 'R19', title: 'Frontend modernization', text: 'Upgraded to React 19, migrated tooling, replaced hand-written fetch clients with OpenAPI-generated ones, and added the first automated unit tests.' },
   ] },
-  { id: 'xtel', company: 'Xtel', role: 'Senior Software Engineer', dates: 'January 2025 to October 2025', years: '2025', loc: 'Remote, Italy',
+  { id: 'xtel', company: 'Xtel', role: 'Senior Software Engineer', dates: 'January 2025 to October 2025', years: '2025', loc: 'Remote, Italy', place: 'Remote, Italy',
+    summary: 'Senior engineer. 250 s loads to 30 s, 30 s field checks to 100 ms.',
     result: 'Document loads 8× faster', highlights: [
     { stat: '8×', title: 'Document load: 250 s to 30 s', text: 'Optimized MARS usage and database access patterns across the document pipeline.' },
     { stat: '2×', title: 'Anomaly evaluation: 40 s to 20 s', text: 'Removed unnecessary save-and-rollback transactions in document anomaly evaluation.' },
     { stat: '~150×', title: 'UI field visibility: 30 s to 100 ms', text: 'Removed unnecessary GUI initialization and optimized visibility calculations.' },
     { stat: '4×', title: 'A 2-minute operation in 30 seconds', text: 'Azure SQL Server indexing, pagination and on-demand loading, plus high-impact bug fixes across the .NET Core and React application.' },
   ] },
-  { id: 'astera', company: 'Astera', role: 'Associate to Software Engineer II', dates: 'June 2022 to December 2024', years: '2022 to 2024', loc: 'Karachi, Pakistan',
+  { id: 'astera', company: 'Astera', role: 'Associate to Software Engineer II', dates: 'June 2022 to December 2024', years: '2022 to 2024', loc: 'Karachi, Pakistan', place: 'Karachi',
+    summary: 'ASE → SE I → SE II. Multi-LLM API server, enterprise catalog, ETL marketplace.',
     result: '3 promotions, multi-LLM API server', highlights: [
     { stat: '3 in 30', title: 'Three promotions in thirty months', text: 'Associate Software Engineer to Software Engineer I to Software Engineer II, ending on AI infrastructure for the flagship product.' },
     { stat: '4 LLMs', title: 'Multi-provider LLM server', text: 'Python FastAPI server integrating OpenAI, Anthropic, Llama and HuggingFace: streaming responses, image I/O, Pydantic-structured requests, Jinja2 prompt generation, LangChain and LangGraph agents, and an optimized RAG pipeline.' },
@@ -126,6 +129,12 @@ export const jobs: Job[] = [
     { stat: 'ETL', title: 'Workflow marketplace', text: 'Scalable ETL workflow marketplace on .NET 8 and React with JWT and OAuth. Also a WinForms to WPF modernization and product localization.' },
   ] },
 ];
+
+/** The red tile in the work grid. */
+export const promotions = {
+  value: 3,
+  text: 'promotions in thirty months at Astera — associate to SE II, ending on AI infrastructure for the flagship product.',
+};
 
 export const projects: Project[] = [
   { id: 'agents', company: 'AI agent platform', title: 'AI agent platform', role: 'Go, Python, React, Slack API', dates: '2025 to present', loc: 'Careem, in production',
@@ -195,14 +204,15 @@ export const archiveBreakdown = (a: ArchiveItem): Breakdown => ({
 });
 
 export const skills = {
-  groups: [
-    { name: 'Languages', items: ['Go', 'Python', 'C#', 'JavaScript'] },
-    { name: 'Frontend', items: ['React', 'Next.js', 'Microfrontends', 'Vite'] },
-    { name: 'Backend', items: ['.NET 6 / 8', 'Node.js', 'FastAPI', 'Gin'] },
-    { name: 'AI and LLMs', items: ['OpenAI', 'Anthropic', 'Llama', 'HuggingFace', 'LangChain', 'LangGraph', 'RAG'] },
-    { name: 'Data', items: ['PostgreSQL', 'MySQL', 'SQL Server', 'DynamoDB', 'OpenSearch', 'Kafka'] },
-    { name: 'Cloud and tooling', items: ['AWS S3 / CloudFront', 'Azure DevOps', 'Azure Monitor', 'CI/CD', 'GitHub', 'Jira'] },
-  ],
+  core: ['Go', 'Python', 'C#', 'JS'],
+  ai: {
+    providers: ['OpenAI', 'Anthropic', 'Llama', 'HuggingFace'],
+    items: ['LangChain', 'LangGraph', 'Pydantic', 'Jinja2', 'RAG pipelines'],
+  },
+  frameworks: ['.NET 6 / 8 / Core', 'Node.js', 'React', 'Next.js', 'FastAPI', 'Gin', 'Pandas'],
+  data: ['PostgreSQL', 'MySQL', 'SQL Server', 'DynamoDB', 'OpenSearch', 'Kafka'],
+  infra: ['AWS S3 / CloudFront', 'Azure DevOps', 'Azure Monitor', 'CI/CD'],
+  tooling: ['GitHub', 'Jira', 'Vite', 'Matplotlib', 'Scrapy', 'BeautifulSoup'],
 };
 
 export const education = {

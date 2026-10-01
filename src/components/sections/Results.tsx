@@ -34,7 +34,7 @@ export function Results() {
           {stats.grid.map(s => (
             <div key={s.label} data-stat className="border-t border-line pt-5">
               <dt className="label mb-3">{s.label}</dt>
-              <dd className="display whitespace-nowrap text-4xl sm:text-5xl lg:text-7xl">
+              <dd className="display whitespace-nowrap text-4xl sm:text-5xl md:text-[clamp(2.5rem,5.4vw,4.5rem)]">
                 {s.prefix}<NumberTicker value={s.value} className="tracking-tight text-fg dark:text-fg" />{s.suffix}
               </dd>
             </div>

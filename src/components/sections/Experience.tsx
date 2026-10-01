@@ -1,55 +1,74 @@
-import { jobs } from '@/content/data';
+import { jobs, promotions, timeline, type Job } from '@/content/data';
 import { CrawlableDetails } from '@/components/CrawlableDetails';
 import { originOf, useDialogs } from '@/components/dialog-context';
-import { clipReveal, splitReveal } from '@/motion/patterns';
-import { STAGGER } from '@/motion/tokens';
+import { gsap } from '@/motion/gsap';
+import { digitRoll, splitReveal } from '@/motion/patterns';
+import { EASE, STAGGER } from '@/motion/tokens';
+import { useBentoPointer } from '@/motion/useBentoPointer';
 import { useSectionMotion } from '@/motion/useSectionMotion';
+import { cn } from '@/lib/utils';
 
-/** Work history as an F1 timing sheet (a real <table>). */
+// Bento layout per job, on a 6-column grid. Phones stack every tile; tablets show
+// Careem full width over Xtel and Astera, with the promotions tile below.
+const LAYOUT: Record<string, { col: string; lead?: boolean }> = {
+  careem: { col: 'md:col-span-6 lg:col-span-4', lead: true },
+  xtel: { col: 'md:col-span-3 lg:col-span-2' },
+  astera: { col: 'md:col-span-3' },
+};
+
+const span = (j: Job) => `${j.years.replace(' to ', ' — ')} / ${j.place}`;
+const sector = (j: Job) => timeline.find(t => t.job === j.id)?.sector;
+
+/** Work history as a bento grid: one block per company (sectors from the lap), plus the promotions tile. */
 export function Experience() {
   const { openDetails } = useDialogs();
-  const ref = useSectionMotion<HTMLElement>(({ q, qa }) => {
+  const grid = useBentoPointer<HTMLDivElement>();
+  const ref = useSectionMotion<HTMLElement>(({ q, qa, onRevert }) => {
     splitReveal(q('h2'), { type: 'chars' });
-    qa('tbody tr').forEach((tr, i) => clipReveal(tr, {
-      from: 'inset(0% 100% 0% 0%)', duration: 1,
-      scrollTrigger: { trigger: q('table')!, start: 'top 80%', once: true },
-    }).delay(i * STAGGER.line));
+    // Tiles wipe in left to right; the clip is cleared after so hover shadows aren't cut off.
+    gsap.fromTo(qa('[data-tile]'), { clipPath: 'inset(0% 100% 0% 0%)' }, {
+      clipPath: 'inset(0% 0% 0% 0%)', duration: 1.1, ease: EASE.wipe, stagger: STAGGER.line, clearProps: 'clipPath',
+      scrollTrigger: { trigger: q('.bento')!, start: 'top 80%', once: true },
+    });
+    onRevert(digitRoll(q('[data-promo]'), { scrollTrigger: { trigger: q('[data-promo]')!, start: 'top 85%', once: true } }));
   });
 
   return (
     <section ref={ref} id="experience" tabIndex={-1} data-bg="#0b0b0c,#0d1013" className="relative px-4 py-24 md:px-8 md:py-32">
       <div className="mx-auto max-w-[1400px]">
         <h2 className="display mb-14 text-[clamp(2.6rem,8vw,7.5rem)]">Work experience</h2>
-        <table className="timing w-full border-collapse text-left">
-          <caption className="sr-only">Companies, roles, dates and key results</caption>
-          <thead>
-            <tr className="label border-b border-line [&>th]:pb-3 [&>th]:font-normal">
-              <th scope="col" className="w-14">Pos</th>
-              <th scope="col">Company</th>
-              <th scope="col">Role</th>
-              <th scope="col">Dates</th>
-              <th scope="col">Key result</th>
-              <th scope="col"><span className="sr-only">Details</span></th>
-            </tr>
-          </thead>
-          <tbody>
-            {jobs.map((j, i) => (
-              <tr key={j.id} className="group border-b border-line transition-colors duration-300 hover:bg-fg/[0.03]">
-                <td className="py-6 font-mono text-sm text-mute group-hover:text-ac">{String(i + 1).padStart(2, '0')}</td>
-                <th scope="row" className="display py-6 pr-6 text-3xl font-extrabold md:text-5xl">{j.company}</th>
-                <td className="py-6 pr-6 text-mute">{j.role}</td>
-                <td className="py-6 pr-6 font-mono text-sm text-mute">{j.years}</td>
-                <td className="py-6 pr-6">{j.result}</td>
-                <td className="py-6 text-right">
-                  <button type="button" onClick={e => openDetails(j, originOf(e))}
-                    className="btn btn-ghost group-hover:border-ac group-hover:text-ac" aria-label={`${j.company} details`}>
-                    Details
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div ref={grid} className="bento">
+          {jobs.map(j => {
+            const { col, lead } = LAYOUT[j.id] ?? { col: 'md:col-span-3' };
+            return (
+              <article key={j.id} data-tile data-tilt
+                className={cn('tile flex cursor-pointer flex-col justify-between gap-12 p-6 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-ac md:p-9',
+                  lead ? 'tile-lead md:min-h-[340px] lg:p-11' : 'md:min-h-[300px]', col)}>
+                <div className="flex items-baseline justify-between gap-4">
+                  <span className="label">{span(j)}</span>
+                  <span className="font-mono text-xs font-semibold text-ac">{sector(j)}</span>
+                </div>
+                <div>
+                  <h3 className={cn('display', lead ? 'text-[clamp(2.75rem,6.4vw,6.5rem)]' : 'text-[clamp(2.25rem,4vw,4.25rem)]')}>{j.company}</h3>
+                  <p className={cn('mt-5 leading-relaxed text-mute', lead ? 'max-w-[52ch] md:text-lg' : 'max-w-[40ch]')}>{j.summary}</p>
+                  <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-5">
+                    <span className="font-mono text-sm font-semibold text-ac">{j.result}</span>
+                    {/* The button's ::after covers the block, so the whole tile opens the breakdown. */}
+                    <button type="button" onClick={e => openDetails(j, originOf(e))} aria-label={`${j.company} breakdown`}
+                      className="btn btn-ghost outline-none after:absolute after:inset-0 after:content-[''] [.tile:hover_&]:border-ac [.tile:hover_&]:text-ac">
+                      Breakdown <span aria-hidden="true">→</span>
+                    </button>
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+          <div data-tile data-tilt className="tile flex flex-col justify-center gap-6 overflow-hidden !bg-ac p-6 text-carbon before:!bg-carbon md:col-span-6 md:min-h-[300px] lg:col-span-3 md:p-9">
+            <div data-promo className="display text-[clamp(4.5rem,8vw,8.5rem)] !leading-[0.82]">{promotions.value}</div>
+            <p className="max-w-[34ch] font-medium leading-relaxed md:text-lg">{promotions.text}</p>
+            <div aria-hidden="true" className="checker absolute inset-x-0 bottom-0 opacity-40" />
+          </div>
+        </div>
         <CrawlableDetails items={jobs} />
       </div>
     </section>

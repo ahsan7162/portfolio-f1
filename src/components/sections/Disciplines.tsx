@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { disciplines } from '@/content/data';
 import { gsap, ScrollTrigger } from '@/motion/gsap';
-import { clipReveal, splitReveal } from '@/motion/patterns';
+import { clipReveal, fitsViewport, splitReveal } from '@/motion/patterns';
 import { EASE } from '@/motion/tokens';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 import { cn } from '@/lib/utils';
@@ -33,31 +33,31 @@ export function Disciplines() {
     clipReveal(q('[data-dpanels]'), { trigger: q('[data-dpanels]')!, from: 'inset(0% 100% 0% 0%)' });
 
     // Two steps, one short scroll each (same feel as the career timeline).
+    // Too tall to pin (small phones): the steps still follow the scroll as the
+    // section passes through the middle of the screen, just without the pin.
+    const pin = q('[data-dpin]')!;
     const n = disciplines.length;
     const at = (p: number) => disciplines[Math.min(n - 1, Math.floor(p * n))].id;
-    ScrollTrigger.create({
-      trigger: q('[data-dpin]'), start: 'top top', end: `+=${n * 35}%`, pin: true, markers,
-      onUpdate: self => pick(at(self.progress)),
-      onEnter: self => pick(at(self.progress)),
-      onEnterBack: self => pick(at(self.progress)),
-    });
-  });
+    const follow = { onUpdate: (self: ScrollTrigger) => pick(at(self.progress)), onEnter: (self: ScrollTrigger) => pick(at(self.progress)), onEnterBack: (self: ScrollTrigger) => pick(at(self.progress)) };
+    if (fitsViewport(pin)) ScrollTrigger.create({ trigger: pin, start: 'top top', end: `+=${n * 35}%`, pin: true, markers, ...follow });
+    else ScrollTrigger.create({ trigger: q('[data-dpanels]')!, start: 'top 75%', end: 'bottom 45%', markers, ...follow });
+  }, [], { fit: true });
 
   return (
     <section ref={ref} id="skills-overview" tabIndex={-1} data-bg="#0d1013,#0b0b0c" className="relative">
-      <div data-dpin className="flex min-h-[100dvh] items-center px-4 py-24 md:px-8">
+      <div data-dpin className="flex min-h-[100dvh] items-center px-4 pb-6 pt-[calc(var(--navh)+1.5rem)] md:px-8 md:py-24">
       <div className="mx-auto w-full max-w-[1400px]">
-        <h2 className="mb-12 max-w-[24ch] text-2xl font-semibold tracking-tight [font-stretch:110%] md:text-4xl">
+        <h2 className="mb-8 max-w-[24ch] md:mb-12 text-2xl font-semibold tracking-tight [font-stretch:110%] md:text-4xl">
           Frontend and backend development
         </h2>
-        <div className="grid gap-10 md:grid-cols-[1.25fr_1fr] md:items-center">
+        <div className="grid gap-8 md:grid-cols-[1.25fr_1fr] md:items-center md:gap-10">
           <div className="flex flex-col">
             {disciplines.map(d => (
               <h3 key={d.id} className="m-0">
                 <button type="button"
                   aria-expanded={active === d.id} aria-controls={`disc-${d.id}`}
                   onMouseEnter={() => pick(d.id)} onFocus={() => pick(d.id)} onClick={() => pick(d.id)}
-                  className={cn('group flex w-full items-baseline gap-4 text-left transition-[opacity,transform] duration-500 ease-out-expo',
+                  className={cn('group flex w-full items-baseline gap-4 py-1 text-left transition-[opacity,transform] duration-500 ease-out-expo',
                     active === d.id ? 'opacity-100' : 'opacity-30 hover:opacity-60')}>
                   <span data-dword className={cn('display whitespace-nowrap text-[clamp(2.4rem,7.4vw,7.5rem)] transition-colors duration-500',
                     active === d.id && 'text-ac')}>{d.name}</span>

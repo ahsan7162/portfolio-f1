@@ -11,13 +11,18 @@ const FACTS = [
 ];
 
 export function About() {
-  const ref = useSectionMotion<HTMLElement>(({ q, qa, markers }) => {
+  const ref = useSectionMotion<HTMLElement>(({ q, qa, short, markers }) => {
     const text = q('[data-statement]')!;
     const pin = q('[data-pin]')!;
     // Pinned statement: words light up as you scroll (Lando's manifesto).
     const split = SplitText.create(text, { type: 'words', aria: 'auto' });
+    // The helmet's About move is timed against this pin (helmetPath), so it pins on
+    // every screen but landscape phones, and the statement's size also follows the
+    // screen height so it fits. Short screens light the words up as it scrolls past.
     const tl = gsap.timeline({
-      scrollTrigger: { trigger: pin, start: 'top top', end: '+=120%', pin: true, scrub: true, markers },
+      scrollTrigger: short
+        ? { trigger: text, start: 'top 80%', end: 'bottom 40%', scrub: true, markers }
+        : { trigger: pin, start: 'top top', end: '+=120%', pin: true, scrub: true, markers },
     });
     tl.fromTo(split.words, { opacity: 0.14 }, { opacity: 1, stagger: 0.1, ease: 'none', duration: 1 });
     drawPath(q('[data-swoosh] path'), { timeline: tl, at: '>-0.2', duration: 0.6 });
@@ -29,7 +34,7 @@ export function About() {
     <section ref={ref} id="about" tabIndex={-1} data-bg="#111113,#0b0b0c" className="relative px-4 md:px-8">
       <div data-pin className="mx-auto flex min-h-[100dvh] max-w-[1400px] flex-col justify-center py-24">
         <h2 className="label mb-8">About me</h2>
-        <p data-statement className="display max-w-[20ch] text-[clamp(2.2rem,6.2vw,6rem)] !leading-[0.95]">
+        <p data-statement className="display max-w-[20ch] text-[clamp(2.2rem,min(6.2vw,calc(15svh_-_45px)),6rem)] !leading-[0.95]">
           {words.map((w, i) => (
             <span key={i}>
               {profile.aboutAccent.includes(w) ? <em className="display-em">{w}</em> : w}

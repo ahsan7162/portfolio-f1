@@ -24,5 +24,11 @@ export function glEnabled() {
   }
 }
 
+/**
+ * Screens too short for pinned sections (landscape phones). A plain media query, so
+ * the About pin and the helmet path timed against it always agree, whatever the fonts.
+ */
+export const SHORT_SCREEN = '(max-height: 499px)';
+
 export const isTouch = () => isBrowser() && window.matchMedia('(hover: none)').matches;
 export const isMobile = () => isBrowser() && window.matchMedia('(max-width: 767px)').matches;

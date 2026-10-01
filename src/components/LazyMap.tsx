@@ -1,20 +1,22 @@
 import { useEffect, useRef, useState, type ComponentType } from 'react';
-import type { DottedMapProps } from '@/components/ui/dotted-map';
+
+type Props = { markerColor: string };
 
 /**
- * The dotted world map carries a large geo dataset, so it is kept out of the
- * main bundle and the prerendered HTML. It loads when Contact nears the viewport.
+ * The dotted world map's data (15 KB of dots) stays out of the main bundle and
+ * the prerendered HTML; it loads when Contact nears the viewport. The dots are
+ * precomputed, so showing it costs one SVG path, not a computation.
  */
-export function LazyMap(props: DottedMapProps) {
+export function LazyMap(props: Props) {
   const box = useRef<HTMLDivElement>(null);
-  const [Map, setMap] = useState<ComponentType<DottedMapProps> | null>(null);
+  const [Map, setMap] = useState<ComponentType<Props> | null>(null);
   useEffect(() => {
     const el = box.current;
     if (!el) return;
     const io = new IntersectionObserver(([e]) => {
       if (!e.isIntersecting) return;
       io.disconnect();
-      import('@/components/ui/dotted-map').then(m => setMap(() => m.DottedMap));
+      import('@/components/WorldMap').then(m => setMap(() => m.WorldMap));
     }, { rootMargin: '800px 0px' });
     io.observe(el);
     return () => io.disconnect();

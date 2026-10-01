@@ -22,8 +22,11 @@ export function Lap() {
     const flat = !glEnabled();
     const n = stages.length;
 
-    // Live mode: stages stack on top of each other over the track.
+    // Live mode: stages stack on top of each other over the track. If the tallest
+    // stage doesn't fit under the heading (short screens), keep the static list.
     root.classList.add('lap-live');
+    const room = q('.lap-stages')!.clientHeight;
+    if (Math.max(...stages.map(s => s.offsetHeight)) > room) { root.classList.remove('lap-live'); return; }
     onRevert(() => root.classList.remove('lap-live'));
     if (flat) gsap.set(svgPath, { drawSVG: '0%' });
     gsap.set(stages, { autoAlpha: 0, y: 60 });
@@ -58,7 +61,7 @@ export function Lap() {
       onEnterBack: self => show(at(self.progress)),
       onUpdate: self => show(at(self.progress)),
     });
-  });
+  }, [], { fit: true });
 
   return (
     <section ref={ref} id="timeline" tabIndex={-1} data-bg="#070708,#0b0b0c" data-lap className="relative">
@@ -76,20 +79,20 @@ export function Lap() {
 
           <ol className="lap-stages mt-10 grid gap-10">
             {timeline.map(t => (
-              <li key={t.company} data-stage className="lap-stage max-w-[560px] border border-line bg-carbon/90 p-6 md:p-8">
+              <li key={t.company} data-stage className="lap-stage max-w-[560px] border border-line bg-carbon/90 p-5 md:p-8">
                 <div className="flex items-center justify-between font-mono text-xs uppercase tracking-[0.14em] text-mute">
                   <span className="text-ac">{t.sector}</span><span>{t.years}</span>
                 </div>
-                <h3 className="display mt-4 text-5xl md:text-7xl">{t.company}</h3>
+                <h3 className="display mt-4 text-4xl md:text-7xl">{t.company}</h3>
                 <p className="mt-2 text-mute">{t.role}</p>
-                <div className="mt-6 flex items-end gap-4 overflow-hidden border-t border-line pt-6">
-                  <span data-stat className="display inline-block text-5xl text-ac md:text-6xl">{t.stat}</span>
+                <div className="mt-5 flex items-end gap-4 overflow-hidden border-t border-line pt-5 md:mt-6 md:pt-6">
+                  <span data-stat className="display inline-block whitespace-nowrap text-4xl text-ac md:text-6xl">{t.stat}</span>
                   <span data-stat className="inline-block pb-2 font-mono text-xs uppercase tracking-[0.12em] text-mute">{t.statLabel}</span>
                 </div>
-                <p className="mt-5 leading-relaxed">{t.text}</p>
+                <p className="mt-4 leading-relaxed md:mt-5">{t.text}</p>
                 <button type="button" aria-label={`${t.company} details`}
                   onClick={e => { const j = jobs.find(x => x.id === t.job); if (j) openDetails(j, originOf(e)); }}
-                  className="btn btn-primary mt-6">
+                  className="btn btn-primary mt-5 md:mt-6">
                   Details <span aria-hidden="true">→</span>
                 </button>
               </li>
@@ -97,7 +100,7 @@ export function Lap() {
           </ol>
         </div>
 
-        <div aria-hidden="true" className="lap-meta absolute inset-x-4 bottom-8 mx-auto hidden max-w-[1400px] items-end justify-end font-mono text-xs uppercase tracking-[0.14em] text-mute md:inset-x-8">
+        <div aria-hidden="true" className="lap-meta absolute inset-x-4 top-[calc(var(--navh)+1.5rem)] mx-auto hidden max-w-[1400px] items-end justify-end font-mono text-xs uppercase tracking-[0.14em] text-mute md:inset-x-8 md:top-auto md:bottom-8">
           <span className="flex gap-4">{timeline.map(t => <span key={t.sector} data-sector className="transition-colors duration-300">{t.sector}</span>)}</span>
         </div>
       </div>

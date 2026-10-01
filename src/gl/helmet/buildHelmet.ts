@@ -36,9 +36,10 @@ totalEmissiveRadiance += vec3(1.0, 0.14, 0.22) * smoothstep(uReveal - 0.035, uRe
   return mat;
 }
 
-export async function buildHelmet(opts: { lowDetail: boolean; anisotropy: number }): Promise<Helmet> {
+export async function buildHelmet(opts: { anisotropy: number }): Promise<Helmet> {
   // Shell resolution: smooth shading and the livery texture carry the detail, so this is plenty.
-  const seg = opts.lowDetail ? { w: 36, h: 24 } : { w: 44, h: 28 };
+  // Same on phones: the helmet fills more of a small screen, so a coarser shell shows its facets.
+  const seg = { w: 44, h: 28 };
   const reveal = { value: 0 };
   const group = new THREE.Group();
   const disposables: Array<{ dispose: () => void }> = [];

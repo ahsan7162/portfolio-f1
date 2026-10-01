@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { loaded } from '@/motion/loading';
 import { glEnabled } from '@/motion/prefs';
 import { glState } from './state';
 
@@ -10,13 +11,14 @@ import { glState } from './state';
 export function GLCanvas() {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
-    if (!glEnabled()) return;
+    if (!glEnabled()) { loaded('engine'); loaded('helmet'); return; }
     glState.enabled = true;
     let stop: (() => void) | undefined;
     let cancelled = false;
     const idle = (cb: () => void) => ('requestIdleCallback' in window ? requestIdleCallback(cb, { timeout: 1500 }) : setTimeout(cb, 300));
     idle(async () => {
       const { Stage } = await import('./Stage');
+      loaded('engine');
       if (cancelled || !ref.current) return;
       try {
         const stage = new Stage(ref.current);
@@ -25,6 +27,7 @@ export function GLCanvas() {
         glState.ready = true;
       } catch (err) {
         console.warn('[gl] disabled', err);
+        loaded('helmet');
       }
     });
     return () => {

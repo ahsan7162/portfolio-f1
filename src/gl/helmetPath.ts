@@ -1,5 +1,5 @@
 import { gsap, ScrollTrigger } from '@/motion/gsap';
-import { debug } from '@/motion/prefs';
+import { debug, SHORT_SCREEN } from '@/motion/prefs';
 
 // Where the helmet sits in each section, in viewport terms:
 //   x, y: -1..1 of half the viewport (0 = centre), s: scale, rx/ry/rz: radians.
@@ -35,10 +35,16 @@ const SEGMENTS: Array<{ from: string; to: string; trigger: string; start: string
 
 export function bindHelmetPath(pose: Pose) {
   const mm = gsap.matchMedia();
-  mm.add({ desktop: '(min-width: 768px)', mobile: '(max-width: 767px)' }, ctx => {
+  // Tablets use the phone poses: their text runs the full width, so the side-by-side poses would cover it.
+  mm.add({ desktop: '(min-width: 1024px)', mobile: '(max-width: 1023px)', short: SHORT_SCREEN }, ctx => {
     const P = ctx.conditions?.desktop ? DESKTOP : MOBILE;
+    // Short screens don't pin About (see About.tsx): spin while the statement passes the top
+    // instead, between the hero-to-About move and the next one so they never overlap.
+    const segments = ctx.conditions?.short
+      ? SEGMENTS.map(s => (s.to === 'about2' ? { ...s, trigger: '#about [data-statement]', start: 'top 20%', end: 'bottom 35%' } : s))
+      : SEGMENTS;
     Object.assign(pose, P.hero);
-    SEGMENTS.forEach((seg, i) => {
+    segments.forEach((seg, i) => {
       if (!document.querySelector(seg.trigger)) return;
       gsap.fromTo(pose, { ...P[seg.from] }, {
         ...P[seg.to], ease: 'power1.inOut', immediateRender: i === 0,

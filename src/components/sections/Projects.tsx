@@ -13,9 +13,9 @@ import { cn } from '@/lib/utils';
 // Staggered offsets, like Lando's helmet grid: each card sits at its own height
 // and moves at its own scroll speed.
 const LAYOUT = [
-  { col: 'md:col-span-7', offset: 'md:mt-0', speed: -6 },
-  { col: 'md:col-span-5', offset: 'md:mt-40', speed: 8 },
-  { col: 'md:col-span-6 md:col-start-4', offset: 'md:-mt-10', speed: -3 },
+  { col: 'lg:col-span-7', offset: 'lg:mt-0', speed: -6 },
+  { col: 'lg:col-span-5', offset: 'lg:mt-40', speed: 8 },
+  { col: 'md:col-span-2 lg:col-span-6 lg:col-start-4', offset: 'lg:-mt-10', speed: -3 },
 ];
 
 // Featured projects and the archive, prerendered for search engines (see CrawlableDetails).
@@ -46,7 +46,7 @@ export function Projects() {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 gap-16 md:grid-cols-12 md:gap-x-8">
+        <div className="grid grid-cols-1 gap-16 md:grid-cols-2 md:gap-x-8 lg:grid-cols-12">
           {projects.map((p, i) => (
             <ProjectCard key={p.id} className={cn(LAYOUT[i].col, LAYOUT[i].offset)}>
               <MagicCard gradientFrom="#ff2438" gradientTo="#141416" gradientColor="rgb(255 36 56 / 0.08)" className="p-0">

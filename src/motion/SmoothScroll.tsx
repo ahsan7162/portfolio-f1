@@ -55,6 +55,9 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
       update(l.scroll, l.limit, l.velocity, l.direction);
       ScrollTrigger.update();
     });
+    // A lock taken before Lenis existed (the loader locks in a layout effect, before this
+    // runs) used the overflow fallback: move it over to Lenis, or touch scrolling stays blocked.
+    if (locks.current > 0) { lenis.stop(); document.documentElement.style.overflow = ''; }
     const tick = (t: number) => lenis.raf(t * 1000);
     gsap.ticker.add(tick);
     document.fonts?.ready.then(() => ScrollTrigger.refresh());
@@ -87,8 +90,8 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     unlock() {
       if (locks.current === 0 || --locks.current > 0) return;
       scrollState.locked = false;
-      if (lenisRef.current) lenisRef.current.start();
-      else document.documentElement.style.overflow = '';
+      lenisRef.current?.start();
+      document.documentElement.style.overflow = ''; // always: the lock may have used the fallback
     },
   }), []);
 

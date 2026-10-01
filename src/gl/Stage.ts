@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { gsap, ScrollTrigger } from '@/motion/gsap';
 import { onIntroDone } from '@/motion/intro';
+import { loaded } from '@/motion/loading';
 import { isMobile, isTouch } from '@/motion/prefs';
 import { scrollState } from '@/motion/SmoothScroll';
 import { EASE } from '@/motion/tokens';
@@ -12,8 +13,12 @@ import { createLap } from './lap';
 import { lapState } from './state';
 
 const FOV = 30, CAM_Z = 8;
-/** Pixel ratio ceiling, and a drawing-buffer budget so big screens don't fill 8M+ pixels a frame. */
-const MAX_DPR = 1.5, MAX_PIXELS = 3.2e6, MIN_SCALE = 0.55;
+/**
+ * Pixel ratio ceiling, and a drawing-buffer budget so big screens don't fill 8M+ pixels a frame.
+ * Phones get a higher ceiling: their screens are small (about 0.4M CSS pixels), so even 2x stays
+ * well inside the budget, and at 1.5x on a 3x screen the lines and the helmet edge go soft.
+ */
+const MAX_DPR = 1.5, MAX_DPR_PHONE = 2, MAX_PIXELS = 3.2e6, MIN_SCALE = 0.55;
 
 /**
  * The single WebGL renderer for the page. Draw order per frame:
@@ -44,6 +49,9 @@ export class Stage {
   private lapP = 0;
   /** Adaptive resolution: drops when frames miss vsync while moving, recovers slowly. */
   private quality = { scale: 1, vsync: 1000 / 60, slow: 0, fast: 0, cooldown: 0 };
+  private size = { w: 0, h: 0, scale: 0 };
+  /** Touchscreens keep the contour background still while scrolling (no scroll parallax or stretch). */
+  private still = isTouch();
 
   constructor(canvas: HTMLCanvasElement) {
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
@@ -87,7 +95,8 @@ export class Stage {
     this.cleanups.push(() => gsap.ticker.remove(tick));
 
     this.lastInput = performance.now();
-    void this.loadHelmet();
+    // The loader counts the helmet in once it is built and compiled (or failed).
+    void this.loadHelmet().finally(() => loaded('helmet'));
     if (import.meta.env.DEV) (window as unknown as { __stage: Stage }).__stage = this;
   }
 
@@ -95,9 +104,15 @@ export class Stage {
   private kick(ms = 600) { this.lastInput = Math.max(this.lastInput, performance.now() + ms - 1500); }
 
   private resize() {
-    const w = innerWidth, h = innerHeight;
-    const dpr = Math.min(devicePixelRatio, MAX_DPR, Math.sqrt(MAX_PIXELS / (w * h)));
-    this.renderer.setPixelRatio(Math.max(0.5, dpr * this.quality.scale));
+    // The canvas's own size (100lvh), not the window's: on phones innerHeight changes as the
+    // address bar slides, and sizing to it stretched the whole scene for a moment.
+    const c = this.renderer.domElement;
+    const w = c.clientWidth || innerWidth, h = c.clientHeight || innerHeight;
+    if (w === this.size.w && h === this.size.h && this.size.scale === this.quality.scale) return;
+    this.size = { w, h, scale: this.quality.scale };
+    const dpr = Math.min(devicePixelRatio, isMobile() ? MAX_DPR_PHONE : MAX_DPR, Math.sqrt(MAX_PIXELS / (w * h)));
+    // Adaptive scaling never takes the canvas below 1x CSS pixels (unless the budget already does).
+    this.renderer.setPixelRatio(Math.max(Math.min(1, dpr), dpr * this.quality.scale));
     this.renderer.setSize(w, h, false);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
@@ -105,7 +120,7 @@ export class Stage {
   }
 
   private async loadHelmet() {
-    const helmet = await buildHelmet({ lowDetail: isMobile(), anisotropy: Math.min(8, this.renderer.capabilities.getMaxAnisotropy()) });
+    const helmet = await buildHelmet({ anisotropy: Math.min(8, this.renderer.capabilities.getMaxAnisotropy()) });
     if (this.dead) { helmet.dispose(); return; }
     this.helmet = helmet;
     this.scene.add(helmet.group);
@@ -166,14 +181,16 @@ export class Stage {
     const r = this.renderer, t = this.clock;
     const u = this.field.uniforms;
     u.uTime.value = t;
-    u.uScroll.value = scrollState.progress;
-    u.uVel.value += (scrollState.velocity - u.uVel.value) * 0.15;
+    if (!this.still) {
+      u.uScroll.value = scrollState.progress;
+      u.uVel.value += (scrollState.velocity - u.uVel.value) * 0.15;
+    }
 
     r.clear();
     if (lapState.active) {
       const { scene, camera, update } = this.lap;
       this.lapP = lapState.progress; // tweened on a fixed clock by the Lap section
-      update(this.lapP, innerWidth, innerHeight);
+      update(this.lapP, this.size.w, this.size.h);
       r.render(scene, camera);
       return;
     }
@@ -196,7 +213,9 @@ export class Stage {
     if (delta <= 0 || delta > 100) return; // first frame after idle, or a tab switch
     q.vsync = Math.min(q.vsync * 1.002, Math.max(delta, 1000 / 240)); // tracks the display refresh
     if (q.cooldown > 0) { q.cooldown--; return; }
-    if (delta > q.vsync * 1.5) { q.slow++; q.fast = 0; } else { q.fast++; q.slow = Math.max(0, q.slow - 0.25); }
+    // Slow means a real drop (under ~45fps), not 60fps on a 120Hz phone, where the
+    // browser often halves the frame rate while scrolling.
+    if (delta > Math.max(q.vsync * 1.5, 1000 / 45)) { q.slow++; q.fast = 0; } else { q.fast++; q.slow = Math.max(0, q.slow - 0.25); }
     if (q.slow >= 8 && q.scale > MIN_SCALE) {
       q.scale = Math.max(MIN_SCALE, q.scale - 0.15);
       this.resize();

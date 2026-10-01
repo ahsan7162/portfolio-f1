@@ -181,7 +181,7 @@ export function Nav() {
       </div>
 
       <nav aria-label="Primary" className="relative mx-auto flex h-16 max-w-[1400px] items-center justify-between gap-6 px-4 md:px-8">
-        <a href="#top" onClick={go} className="font-sans text-sm font-extrabold uppercase tracking-tight [font-stretch:125%]" aria-label="Muhammad Ahsan, back to top">
+        <a href="#top" onClick={go} className="inline-flex min-h-11 items-center font-sans text-sm font-extrabold uppercase tracking-tight [font-stretch:125%]" aria-label="Muhammad Ahsan, back to top">
           <HyperText as="span" className="py-0 text-sm font-extrabold" duration={600} startOnView={false} animateOnHover>AHSAN</HyperText>
           <span className="sr-only">Muhammad Ahsan</span>
         </a>
@@ -189,7 +189,7 @@ export function Nav() {
           <a href={cvHref()} download={CV_FILE} className={cn('btn btn-primary !px-4 !py-2 max-sm:hidden transition-opacity', open && 'pointer-events-none opacity-0')} tabIndex={open ? -1 : 0}>Download CV</a>
           <button ref={btn} type="button" onClick={() => (open ? hide() : show())}
             aria-expanded={open} aria-controls="site-menu"
-            className="btn btn-ghost group !gap-3 !px-4 !py-2">
+            className="btn btn-ghost group min-h-11 !gap-3 !px-4 !py-2">
             <span className="font-mono text-[11px] uppercase tracking-[0.14em]">{open ? 'Close' : 'Menu'}</span>
             <span aria-hidden="true" className="relative block h-2.5 w-5">
               <span className={cn('absolute left-0 top-0 h-[2px] w-full bg-current transition-transform duration-500 ease-out-expo', open && 'translate-y-[4px] rotate-45 bg-ac')} />
