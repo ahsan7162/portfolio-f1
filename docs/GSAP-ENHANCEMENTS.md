@@ -1,6 +1,40 @@
 # GSAP enhancement and cleanup plan (v2, reviewed with genjutsu `cast`)
 
-Status: **proposal only, no code changed.** Branch: `gsap-enhancements-plan`.
+Status: **implemented** on branch `gsap-enhancements-plan` (`main` untouched). Every item below
+is done, changed on your call, or skipped with a reason; see **Implementation status** right below.
+The rest of the doc is the plan as agreed, kept for the reasoning.
+
+## Implementation status (2 Oct 2026)
+
+| Item | Status | Commit |
+|---|---|---|
+| 1.3 Content C1–C7 (hero pill, Performance and Frontend/Backend removed, promotions stat removed, Results last, data-driven bento, helmet path, menu, track map) | Done | `ceab427` |
+| Section 0 tokens (5 durations, 4 eases, `--dur-hit/split/wipe` in CSS) | Done | `3ce6983` |
+| 2.3 anchor-jump fix · 2.1 quickTo tilt · 2.4 UI under 0.5 s · 2.5 submenu Flip · 2.11 tap targets | Done. Measured: menu open 0.49 s, close 0.28 s; dialog open 0.5 s, close 0.35 s; menu links 44 px | `e13e361` |
+| 2.2 Lap snap | Done, **through Lenis** on `scrollEnd` (ScrollTrigger's own snap scrolled the window and Lenis undid it); never interrupts a scroll in progress | `ab863f6`, `1d77f3f` |
+| 2.10 section openers | Done (Experience heading wipes with its tiles, Projects heading wipes up, Tech stack has none; hero keeps the char rise) | `06d0ab5` |
+| 1.1 drop Motion | Done. `motion` uninstalled; main chunk **174 → 127 KB gzip**, GSAP chunk 63 → 73.5 KB (Flip, ScrambleText), about **37 KB gzip less** overall | `1ccf1b9` |
+| 1.1 terminal | **Replaced by an architecture diagram** (your call): React chat → Go core → Python runtime (CPU icon) → OpenAI, Anthropic, + more; Slack, Jira and CI/CD deploy from the Go core. Semantic search left out | `1ccf1b9` |
+| 1.1 beams | One-shot DrawSVG lines on all three diagrams; hover sends one dot along the request path, **0.45 s per line** (slowed after review) | `1ccf1b9`, `ab863f6` |
+| 2.7 hover sector line | Done (DrawSVG rect, retracts quicker on leave) | `1ccf1b9` |
+| Marquee | Scroll-velocity only, coasts to a stop. Two copies, the second reuses the first's paths (`<use>`), so the prerendered HTML stays at ~123 KB | `1ccf1b9`, `744b34c` |
+| 1.4 tells | Tile numbers and both em dashes gone. **Mono on buttons and pills: kept** as a deliberate pit-wall UI (added to the allowed patterns below) | `f4ecf3b` |
+| 1.5 small removals | `ignoreMobileResize` removed (the installed GSAP 3.15 source already defaults it on for touch); Projects `lg:mt-40` → `lg:mt-24` | `f4ecf3b` |
+| C8 + 2.6 Results and education | Done, **then redesigned on your review**: one row in order **education → 3rd place award → ~300× → 4+**, then the 450+ finale. **No P2,520 → P3 counter, no field bar, no Details button**: the podium is the award visual (steps rise 2nd, 1st, 3rd; P3 fills red; its 3 rises in). Helmet "nod" dropped | `1d77f3f`, `63371dc` |
+| 2.12 helmet on the P3 step | Done, **as the main design rather than an optional last commit** (your call): the Stage reads the step's rect every frame and blends the helmet onto it with a scrubbed weight `perch.k`. It lands as the section arrives, sits at about the step's width with its measured bottom edge on the step, and glides to the finale pose as 450+ lands. Desktop and phones | `63371dc`, `933e731` |
+| 2.8 shared title | Done: card title flies into the dialog heading (FLIP, one uniform scale so text never stretches) | `933e731` |
+| Magnetic arrows | Done: hero pill arrow and See all projects arrow (fine pointers only) | `933e731` |
+| 2.9 footer reveal | **Skipped.** Sections are transparent over the WebGL background, so Contact can't show "from underneath" without making Results opaque and hiding the contour background | — |
+| Extra (your call) | About's Now / Before / Education strip removed | `63371dc` |
+
+**Bugs found and fixed on the way:**
+- `splitReveal` with a `timeline` returned the whole timeline from `onSplit`; SplitText reverts that on re-split (fonts, resize), which killed the podium timeline. It now returns its own tween (the hero intro had the same latent bug).
+- In dev (StrictMode), opening the page on a `#hash` and scrolling up left the hero pill and name hidden. `skipIntro()` now renders 0 → 1, and the intro timeline is created outside any section's context.
+
+**Verified:** `tsc` and `vite build` pass; console clean; `?nomotion` shows all text and loads no three.js; no horizontal scroll at phone width; menu and dialog timings measured from the live timelines; Lap snap lands on 0.5; headless 1440×900 and phone screenshots of the diagrams, podium, helmet perch and finale.
+**Still for you to check** (I can't measure these): frame time in DevTools during a full scroll, OS "Reduce motion", and a real iPhone and Android pass over the pins, snap and helmet perch.
+
+---
 
 How this was put together:
 - v1: I ran the dev server, scrolled every section at 1440×900 and 375×812, checked the ScrollTrigger setup
@@ -26,7 +60,8 @@ How this was put together:
 **Allowed patterns** (deliberate devices, so the tells audit doesn't flag them): mono timing labels
 (sector, years, stat labels), the chequered strips, the
 "04" ghost number and "Grid slot 04" (driver number), the red glow on the lights-out line in the intro only,
-the 01–10 numbers in the full-screen menu (they navigate), and the red accent on one word per heading.
+the 01–07 numbers in the full-screen menu (they navigate), the red accent on one word per heading, and
+**mono buttons and tags** (pit-wall UI; decided 2 Oct 2026).
 
 Every item below is checked against this sentence. Anything that doesn't follow it is cut or changed.
 
