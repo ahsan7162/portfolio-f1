@@ -4,6 +4,7 @@ import { DialogCtx, type Origin } from '@/components/dialog-context';
 import { ArchiveDialog, closeWithWipe, DetailsDialog } from '@/components/Dialogs';
 import { Intro } from '@/components/Intro';
 import { Nav } from '@/components/Nav';
+import { ScrollRail } from '@/components/ScrollRail';
 import { TrackMap } from '@/components/TrackMap';
 import { About } from '@/components/sections/About';
 import { Contact } from '@/components/sections/Contact';
@@ -77,6 +78,7 @@ function Page() {
       </main>
       <Contact />
       <TrackMap />
+      <ScrollRail />
     </>
   ), []);
   const gl = useMemo(() => <GLCanvas />, []), intro = useMemo(() => <Intro />, []);

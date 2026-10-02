@@ -312,4 +312,40 @@ html.gl-on .contour-fallback { opacity: 0; transition: opacity 1s; }
   html { scrollbar-width: thin; scrollbar-color: rgb(244 244 237 / 0.22) var(--carbon); }
 }
 
+/* Custom scrollbar (ScrollRail): desktop with JS and motion only; the native
+   bar above stays everywhere else. The pill stretches with scroll speed (GSAP). */
+html.has-rail { scrollbar-width: none; }
+html.has-rail::-webkit-scrollbar { display: none; }
+.rail { display: none; }
+html.has-rail .rail {
+  display: block; position: fixed; z-index: 60; top: 10px; bottom: 10px; right: 4px; width: 16px;
+  cursor: pointer; touch-action: none; transition: opacity var(--dur-wipe);
+}
+html.intro .rail { opacity: 0; pointer-events: none; }
+.rail-line { position: absolute; top: 0; bottom: 0; left: 50%; width: 1px; background: var(--line); }
+.rail-mark {
+  position: absolute; left: 50%; width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px; border-radius: 999px;
+  background: rgb(244 244 237 / 0.25); transition: background-color var(--dur-hit), transform var(--dur-hit);
+}
+.rail-mark[data-passed] { background: var(--ac); }
+.rail-mark:hover { transform: scale(1.6); }
+.rail-label {
+  position: absolute; right: 14px; top: 50%; translate: 4px -50%; white-space: nowrap; pointer-events: none;
+  font: 600 10px/1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--mute);
+  background: var(--carbon); padding: 4px 6px; border-radius: 3px; opacity: 0;
+  transition: opacity var(--dur-hit), translate var(--dur-hit);
+}
+.rail:hover .rail-label { opacity: 1; translate: 0 -50%; }
+.rail-mark:hover .rail-label { color: var(--fg); }
+.rail-thumb {
+  position: absolute; top: 0; left: 50%; width: 6px; margin-left: -3px; border-radius: 999px;
+  background: var(--ac); box-shadow: 0 0 0 2px var(--carbon); pointer-events: none;
+  transition: width var(--dur-hit), margin-left var(--dur-hit); will-change: transform;
+}
+.rail:hover .rail-thumb, .rail.dragging .rail-thumb { width: 10px; margin-left: -5px; }
+.rail-flag {
+  position: absolute; left: 0; right: 0; top: 50%; height: 10px; margin-top: -5px;
+  background: conic-gradient(var(--carbon) 25%, transparent 0 50%, var(--carbon) 0 75%, transparent 0) 0 0 / 5px 5px;
+}
+
 /* Hover-mounted decorations (border beam) fade in rather than pop. */

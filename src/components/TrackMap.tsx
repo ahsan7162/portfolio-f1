@@ -4,7 +4,7 @@ import { Scramble } from '@/components/Scramble';
 import { gsap, ScrollTrigger } from '@/motion/gsap';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 
-const SECTIONS = [
+export const SECTIONS = [
   ['top', 'Start'], ['about', 'About'], ['timeline', 'Timeline'], ['experience', 'Experience'],
   ['projects', 'Projects'], ['skills', 'Tech stack'], ['results', 'Results'],
   ['contact', 'Finish'],
