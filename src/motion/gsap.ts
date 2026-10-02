@@ -13,7 +13,7 @@ export function ensureGsap() {
   if (ready || typeof window === 'undefined') return;
   ready = true;
   gsap.registerPlugin(ScrollTrigger, SplitText, DrawSVGPlugin, MotionPathPlugin, useGSAP);
-  gsap.defaults({ ease: EASE.out, duration: DUR.m });
+  gsap.defaults({ ease: EASE.out, duration: DUR.reveal });
   gsap.ticker.lagSmoothing(0);
   ScrollTrigger.config({ ignoreMobileResize: true });
   if (import.meta.env.DEV) Object.assign(window, { __gsap: gsap, __ST: ScrollTrigger });

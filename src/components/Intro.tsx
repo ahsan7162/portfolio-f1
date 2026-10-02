@@ -47,13 +47,13 @@ export function Intro() {
     const enter = gsap.timeline({ paused: true })
       .from(q('[data-ibeam]'), { scaleX: 0, duration: 0.6, ease: EASE.wipe })
       .from(q('[data-ipod]'), { yPercent: -60, autoAlpha: 0, duration: 0.55, stagger: 0.05, ease: EASE.out }, 0.1)
-      .from(q('[data-iframe]'), { autoAlpha: 0, y: 14, duration: 0.5, stagger: 0.06, ease: EASE.soft }, 0.15);
+      .from(q('[data-iframe]'), { autoAlpha: 0, y: 14, duration: 0.5, stagger: 0.06, ease: EASE.out }, 0.15);
 
     // One small timeline per light, started when its fifth of the load is in.
     const lights = [...q('[data-ipod]')].map((pod, i) => gsap.timeline({ paused: true })
       .to(pod.querySelector('[data-light]'), { opacity: 1, duration: 0.06, ease: 'none' })
       .fromTo(pod.querySelector('[data-halo]'), { opacity: 0, scale: 0.6 }, { opacity: 0.75, scale: 1, duration: 0.35, ease: EASE.out }, 0)
-      .to(q('[data-iglow]'), { opacity: (i + 1) / LIGHTS, duration: 0.3, ease: EASE.soft }, 0));
+      .to(q('[data-iglow]'), { opacity: (i + 1) / LIGHTS, duration: 0.3, ease: EASE.out }, 0));
 
     // Lights out, after the hold.
     const exit = gsap.timeline({ paused: true })
@@ -62,13 +62,13 @@ export function Intro() {
       .to(q('[data-iglow]'), { opacity: 0, duration: 0.25 }, 'out')
       .to(q('[data-istatus]'), { yPercent: -50, duration: 0.45, ease: EASE.out }, 'out')
       // Frame clears, a red line draws across the middle, the screen splits on it.
-      .to(q('[data-icontent]'), { autoAlpha: 0, scale: 0.97, duration: 0.35, ease: EASE.soft }, 'out+=0.45')
+      .to(q('[data-icontent]'), { autoAlpha: 0, scale: 0.97, duration: 0.35, ease: EASE.out }, 'out+=0.45')
       .fromTo(q('[data-iline]'), { scaleX: 0 }, { scaleX: 1, duration: 0.45, ease: EASE.wipe }, 'out+=0.5')
       .addLabel('split', 'out+=0.85')
       .add(() => playIntro(), 'split')
       .to(q('[data-ihalf="top"]'), { yPercent: -100, duration: 0.9, ease: EASE.wipe }, 'split')
       .to(q('[data-ihalf="bottom"]'), { yPercent: 100, duration: 0.9, ease: EASE.wipe }, 'split')
-      .to(q('[data-iline]'), { autoAlpha: 0, scaleY: 6, duration: 0.5, ease: EASE.soft }, 'split')
+      .to(q('[data-iline]'), { autoAlpha: 0, scaleY: 6, duration: 0.5, ease: EASE.out }, 'split')
       .add(() => { stopSkip(); unlock(); document.documentElement.classList.remove('intro'); setShow(false); });
 
     // Any input stops waiting on the load and fast-forwards.

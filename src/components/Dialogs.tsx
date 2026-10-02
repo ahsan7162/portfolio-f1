@@ -54,7 +54,7 @@ function useDialogIn(ref: React.RefObject<HTMLDivElement | null>, origin: Origin
         state.tl = gsap.timeline({ onComplete: () => { el.style.background = ''; gsap.set(circle, { visibility: 'hidden', willChange: 'auto' }); } })
           // Fast-start ease: the circle's area grows with scale squared, so an ease-in would look stuck.
           .to(circle, { scale: 1, duration: 0.8, ease: EASE.out })
-          .to(items, { autoAlpha: 1, y: 0, stagger: 0.05, duration: 0.6, ease: EASE.soft }, 0.18);
+          .to(items, { autoAlpha: 1, y: 0, stagger: 0.05, duration: 0.6, ease: EASE.out }, 0.18);
       });
     }, el);
     return () => { cancelAnimationFrame(raf); ctx.revert(); };

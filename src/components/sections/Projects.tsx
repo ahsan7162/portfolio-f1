@@ -7,6 +7,7 @@ import { CrawlableDetails } from '@/components/CrawlableDetails';
 import { archive, archiveBreakdown, projects, type Breakdown } from '@/content/data';
 import { gsap } from '@/motion/gsap';
 import { clipReveal, splitReveal } from '@/motion/patterns';
+import { EASE } from '@/motion/tokens';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 import { cn } from '@/lib/utils';
 
@@ -26,10 +27,10 @@ export function Projects() {
   const ref = useSectionMotion<HTMLElement>(({ q, qa, desktop }) => {
     splitReveal(q('h2'), { type: 'chars' });
     const more = q('[data-more]')!;
-    clipReveal(more, { trigger: more, from: 'inset(0% 100% 0% 0%)', duration: 1.3 });
+    clipReveal(more, { trigger: more, from: 'inset(0% 100% 0% 0%)' });
     qa<HTMLElement>('[data-card]').forEach((card, i) => {
       clipReveal(card.querySelector('[data-cardvis]'), { trigger: card });
-      gsap.from(card.querySelectorAll('[data-cardtxt]'), { autoAlpha: 0, y: 24, stagger: 0.06, ease: 'power3.out', scrollTrigger: { trigger: card, start: 'top 80%', once: true } });
+      gsap.from(card.querySelectorAll('[data-cardtxt]'), { autoAlpha: 0, y: 24, stagger: 0.06, ease: EASE.out, scrollTrigger: { trigger: card, start: 'top 80%', once: true } });
       if (!desktop) return;
       gsap.fromTo(card, { yPercent: 0 }, { yPercent: LAYOUT[i].speed, ease: 'none', scrollTrigger: { trigger: card, start: 'top bottom', end: 'bottom top', scrub: true } });
       gsap.fromTo(card.querySelector('[data-cardin]'), { yPercent: -6, scale: 1.08 }, { yPercent: 6, scale: 1.08, ease: 'none', scrollTrigger: { trigger: card, start: 'top bottom', end: 'bottom top', scrub: true } });
@@ -75,23 +76,23 @@ export function Projects() {
 
         {/* The archive, as a proper call to action (Lando's "see more helmets" row). */}
         <button type="button" data-more onClick={e => openArchive(originOf(e))}
-          className="group relative mt-24 block w-full overflow-hidden border border-line bg-graphite/70 p-6 text-left transition-colors duration-500 hover:border-ac md:mt-32 md:p-10">
-          <span aria-hidden="true" className="absolute inset-0 origin-left scale-x-0 bg-ac transition-transform duration-700 ease-out-expo group-hover:scale-x-100" />
+          className="group relative mt-24 block w-full overflow-hidden border border-line bg-graphite/70 p-6 text-left transition-colors duration-(--dur-hit) hover:border-ac md:mt-32 md:p-10">
+          <span aria-hidden="true" className="absolute inset-0 origin-left scale-x-0 bg-ac transition-transform duration-(--dur-wipe) ease-out-expo group-hover:scale-x-100" />
           <span className="relative flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
             <span>
-              <span className="label block transition-colors duration-500 group-hover:text-carbon">{archive.length} more projects, 2021 to now</span>
-              <span className="display mt-4 block text-[clamp(2.6rem,7vw,6.5rem)] transition-colors duration-500 group-hover:text-carbon">
+              <span className="label block transition-colors duration-(--dur-hit) group-hover:text-carbon">{archive.length} more projects, 2021 to now</span>
+              <span className="display mt-4 block text-[clamp(2.6rem,7vw,6.5rem)] transition-colors duration-(--dur-hit) group-hover:text-carbon">
                 See all projects
               </span>
               <span className="mt-6 flex flex-wrap gap-2">
                 {archive.slice(0, 5).map(a => (
-                  <span key={a.name} className="rounded-full border border-line px-3 py-1 font-mono text-xs text-mute transition-colors duration-500 group-hover:border-carbon/30 group-hover:text-carbon">{a.name}</span>
+                  <span key={a.name} className="rounded-full border border-line px-3 py-1 font-mono text-xs text-mute transition-colors duration-(--dur-hit) group-hover:border-carbon/30 group-hover:text-carbon">{a.name}</span>
                 ))}
-                <span className="rounded-full px-3 py-1 font-mono text-xs text-mute transition-colors duration-500 group-hover:text-carbon">+{archive.length - 5} more</span>
+                <span className="rounded-full px-3 py-1 font-mono text-xs text-mute transition-colors duration-(--dur-hit) group-hover:text-carbon">+{archive.length - 5} more</span>
               </span>
             </span>
             <span aria-hidden="true"
-              className="grid size-20 shrink-0 place-items-center rounded-full bg-ac text-3xl text-carbon transition-[transform,background-color,color] duration-500 ease-out-expo group-hover:rotate-[-45deg] group-hover:bg-carbon group-hover:text-ac md:size-28 md:text-4xl">
+              className="grid size-20 shrink-0 place-items-center rounded-full bg-ac text-3xl text-carbon transition-[transform,background-color,color] duration-(--dur-hit) ease-out-expo group-hover:rotate-[-45deg] group-hover:bg-carbon group-hover:text-ac md:size-28 md:text-4xl">
               →
             </span>
           </span>

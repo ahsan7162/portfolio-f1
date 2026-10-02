@@ -41,14 +41,14 @@ export function Lap() {
       if (i === cur) return;
       const dir = i > cur ? 1 : -1;
       const prev = stages[cur];
-      if (prev) gsap.to(prev, { autoAlpha: 0, y: -40 * dir, duration: 0.35, ease: EASE.soft, overwrite: true });
+      if (prev) gsap.to(prev, { autoAlpha: 0, y: -40 * dir, duration: 0.35, ease: EASE.out, overwrite: true });
       const next = stages[i];
       gsap.fromTo(next, { autoAlpha: 0, y: 50 * dir }, { autoAlpha: 1, y: 0, duration: 0.7, delay: prev ? 0.15 : 0, ease: EASE.out, overwrite: true });
       gsap.fromTo(next.querySelectorAll('[data-stat]'), { yPercent: 100 }, { yPercent: 0, duration: 0.7, delay: prev ? 0.25 : 0.1, ease: EASE.out, overwrite: true });
       sectorEls.forEach((el, k) => el.classList.toggle('text-ac', k === i));
       // Fixed-duration glide to the stage's sector: same pace however fast you scroll.
       gsap.to(lapState, { progress: n > 1 ? i / (n - 1) : 0, duration: 2.2, ease: 'power2.inOut', overwrite: true });
-      if (flat) gsap.to(svgPath, { drawSVG: `${((i + 1) / n) * 100}%`, duration: 1.2, ease: EASE.inOut, overwrite: true });
+      if (flat) gsap.to(svgPath, { drawSVG: `${((i + 1) / n) * 100}%`, duration: 1.2, ease: EASE.wipe, overwrite: true });
       cur = i;
     };
 
@@ -101,7 +101,7 @@ export function Lap() {
         </div>
 
         <div aria-hidden="true" className="lap-meta absolute inset-x-4 top-[calc(var(--navh)+1.5rem)] mx-auto hidden max-w-[1400px] items-end justify-end font-mono text-xs uppercase tracking-[0.14em] text-mute md:inset-x-8 md:top-auto md:bottom-8">
-          <span className="flex gap-4">{timeline.map(t => <span key={t.sector} data-sector className="transition-colors duration-300">{t.sector}</span>)}</span>
+          <span className="flex gap-4">{timeline.map(t => <span key={t.sector} data-sector className="transition-colors duration-(--dur-split)">{t.sector}</span>)}</span>
         </div>
       </div>
     </section>

@@ -135,7 +135,7 @@ export class Stage {
     const h = this.helmet!;
     this.busy++;
     gsap.timeline({ onComplete: () => { this.busy--; } })
-      .fromTo(h.wire, { draw: 0 }, { draw: 1, duration: 1.3, ease: EASE.inOut })
+      .fromTo(h.wire, { draw: 0 }, { draw: 1, duration: 1.3, ease: EASE.wipe })
       .fromTo(h.reveal, { value: 0 }, { value: 1.05, duration: 1.6, ease: 'power2.inOut' }, 0.7)
       .to(h.wire, { opacity: 0, duration: 0.8, ease: 'power2.out' }, 1.8);
   }
@@ -149,9 +149,9 @@ export class Stage {
       this.busy++;
       const L = isLight ? dark : light;
       gsap.timeline({ onComplete: () => { this.busy--; } })
-        .to(u.uColA.value, { r: A.r, g: A.g, b: A.b, duration: 0.9, ease: EASE.inOut }, 0)
-        .to(u.uColB.value, { r: B.r, g: B.g, b: B.b, duration: 0.9, ease: EASE.inOut }, 0)
-        .to(u.uLine.value, { r: L.r, g: L.g, b: L.b, duration: 0.9, ease: EASE.inOut }, 0)
+        .to(u.uColA.value, { r: A.r, g: A.g, b: A.b, duration: 0.9, ease: EASE.wipe }, 0)
+        .to(u.uColB.value, { r: B.r, g: B.g, b: B.b, duration: 0.9, ease: EASE.wipe }, 0)
+        .to(u.uLine.value, { r: L.r, g: L.g, b: L.b, duration: 0.9, ease: EASE.wipe }, 0)
         .to(u.uLineAlpha, { value: isLight ? 0.13 : 0.09, duration: 0.9 }, 0);
     };
     document.querySelectorAll<HTMLElement>('[data-bg]').forEach(sec => {

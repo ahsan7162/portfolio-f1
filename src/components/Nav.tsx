@@ -63,7 +63,7 @@ export function Nav() {
         .set(p, { autoAlpha: 1 })
         .fromTo(p, { clipPath: 'inset(0% 0% 100% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 0.7, ease: EASE.wipe })
         .from(p.querySelectorAll('[data-mrow]'), { yPercent: 110, duration: 0.7, stagger: 0.035, ease: EASE.out }, 0.3)
-        .from(p.querySelectorAll('[data-mside]'), { autoAlpha: 0, y: 20, duration: 0.5, stagger: 0.06, ease: EASE.soft }, 0.5);
+        .from(p.querySelectorAll('[data-mside]'), { autoAlpha: 0, y: 20, duration: 0.5, stagger: 0.06, ease: EASE.out }, 0.5);
     }
     if (open) tl.current.timeScale(1).play();
     else tl.current.timeScale(1.8).reverse();
@@ -74,7 +74,7 @@ export function Nav() {
   useEffect(() => {
     const ul = subRef.current!;
     if (!motionEnabled()) { gsap.set(ul, { height: expOpen ? 'auto' : 0 }); return; }
-    gsap.to(ul, { height: expOpen ? 'auto' : 0, duration: 0.5, ease: EASE.soft, overwrite: true });
+    gsap.to(ul, { height: expOpen ? 'auto' : 0, duration: 0.5, ease: EASE.out, overwrite: true });
   }, [expOpen]);
 
   const show = () => { lock(); setOpen(true); requestAnimationFrame(() => panel.current?.querySelector<HTMLElement>(FOCUSABLE)?.focus({ preventScroll: true })); };
@@ -99,10 +99,10 @@ export function Nav() {
   // Section links: unlock first so the page-wide anchor handler can scroll.
   const go = () => hide(false);
 
-  const rowText = 'display block text-[clamp(1.9rem,4.6vw,3.9rem)] transition-[color,transform] duration-500 ease-out-expo group-hover:translate-x-3 group-hover:text-ac group-focus-visible:translate-x-3 group-focus-visible:text-ac';
+  const rowText = 'display block text-[clamp(1.9rem,4.6vw,3.9rem)] transition-[color,transform] duration-(--dur-hit) ease-out-expo group-hover:translate-x-3 group-hover:text-ac group-focus-visible:translate-x-3 group-focus-visible:text-ac';
 
   return (
-    <header ref={ref} onKeyDown={onKey} className={cn('fixed inset-x-0 top-0 z-50 transition-colors duration-500', open ? 'bg-carbon' : 'bg-carbon/85')}>
+    <header ref={ref} onKeyDown={onKey} className={cn('fixed inset-x-0 top-0 z-50 transition-colors duration-(--dur-hit)', open ? 'bg-carbon' : 'bg-carbon/85')}>
       {/* Full-screen menu. Behind the bar, so the bar's button also closes it. */}
       <div ref={panel} id="site-menu" data-lenis-prevent role="dialog" aria-modal="true" aria-label="Site menu"
         className="invisible fixed inset-0 overflow-y-auto bg-carbon opacity-0">
@@ -138,7 +138,7 @@ export function Nav() {
                           <button type="button" onClick={() => setExpOpen(v => !v)} aria-expanded={expOpen} aria-controls="menu-jobs"
                             aria-label={`${expOpen ? 'Hide' : 'Show'} each work experience`}
                             className="grid w-14 shrink-0 place-items-center border-l border-line text-2xl text-mute transition-colors hover:text-ac md:w-20">
-                            <span aria-hidden="true" className={cn('transition-transform duration-500 ease-out-expo', expOpen && 'rotate-45 text-ac')}>+</span>
+                            <span aria-hidden="true" className={cn('transition-transform duration-(--dur-hit) ease-out-expo', expOpen && 'rotate-45 text-ac')}>+</span>
                           </button>
                         )}
                       </div>
@@ -190,8 +190,8 @@ export function Nav() {
             className="btn btn-ghost group min-h-11 !gap-3 !px-4 !py-2">
             <span className="font-mono text-[11px] uppercase tracking-[0.14em]">{open ? 'Close' : 'Menu'}</span>
             <span aria-hidden="true" className="relative block h-2.5 w-5">
-              <span className={cn('absolute left-0 top-0 h-[2px] w-full bg-current transition-transform duration-500 ease-out-expo', open && 'translate-y-[4px] rotate-45 bg-ac')} />
-              <span className={cn('absolute bottom-0 left-0 h-[2px] w-full bg-current transition-transform duration-500 ease-out-expo', open && '-translate-y-[4px] -rotate-45 bg-ac')} />
+              <span className={cn('absolute left-0 top-0 h-[2px] w-full bg-current transition-transform duration-(--dur-hit) ease-out-expo', open && 'translate-y-[4px] rotate-45 bg-ac')} />
+              <span className={cn('absolute bottom-0 left-0 h-[2px] w-full bg-current transition-transform duration-(--dur-hit) ease-out-expo', open && '-translate-y-[4px] -rotate-45 bg-ac')} />
             </span>
           </button>
         </div>

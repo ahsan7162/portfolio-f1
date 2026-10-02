@@ -44,7 +44,7 @@ export function splitReveal(
     aria: 'auto',
     onSplit(self) {
       const parts = type === 'chars' ? self.chars : type === 'words' ? self.words : self.lines;
-      const vars: gsap.TweenVars = { yPercent: 115, duration: opts.duration ?? DUR.l, ease: EASE.out, stagger, delay: opts.delay ?? 0 };
+      const vars: gsap.TweenVars = { yPercent: 115, duration: opts.duration ?? DUR.reveal, ease: EASE.out, stagger, delay: opts.delay ?? 0 };
       if (opts.timeline) return opts.timeline.from(parts, vars, opts.at ?? 0);
       if (opts.scrollTrigger !== false) vars.scrollTrigger = inView(el, opts.scrollTrigger || undefined);
       return gsap.from(parts, vars);
@@ -60,7 +60,7 @@ export function batchReveal(targets: string | Element[], opts: { y?: number; sta
   ScrollTrigger.batch(els, {
     start: 'top 88%',
     once: true,
-    onEnter: batch => gsap.to(batch, { autoAlpha: 1, y: 0, stagger: opts.stagger ?? STAGGER.card, duration: DUR.m, ease: EASE.soft, overwrite: true }),
+    onEnter: batch => gsap.to(batch, { autoAlpha: 1, y: 0, stagger: opts.stagger ?? STAGGER.card, duration: DUR.reveal, ease: EASE.out, overwrite: true }),
   });
 }
 
@@ -68,7 +68,7 @@ export function batchReveal(targets: string | Element[], opts: { y?: number; sta
 export function clipReveal(el: Target, opts: { from?: string; trigger?: Element; scrollTrigger?: ST; duration?: number } = {}) {
   return gsap.fromTo(el,
     { clipPath: opts.from ?? 'inset(100% 0% 0% 0%)' },
-    { clipPath: 'inset(0% 0% 0% 0%)', duration: opts.duration ?? DUR.l, ease: EASE.wipe,
+    { clipPath: 'inset(0% 0% 0% 0%)', duration: opts.duration ?? DUR.reveal, ease: EASE.wipe,
       scrollTrigger: opts.scrollTrigger ?? (opts.trigger ? inView(opts.trigger) : undefined) });
 }
 
@@ -107,7 +107,7 @@ export function digitRoll(el: HTMLElement | null, opts: { delay?: number; timeli
     }
     el.appendChild(win);
   }
-  const vars = (i: number): gsap.TweenVars => ({ yPercent: -(strips[i].to * 100) / 20, duration: DUR.xl, ease: EASE.out });
+  const vars = (i: number): gsap.TweenVars => ({ yPercent: -(strips[i].to * 100) / 20, duration: DUR.reveal, ease: EASE.out });
   if (opts.timeline) {
     strips.forEach((s, i) => opts.timeline!.to(s.strip, vars(i), typeof opts.at === 'number' ? opts.at + i * 0.08 : opts.at));
     return;
@@ -120,7 +120,7 @@ export function digitRoll(el: HTMLElement | null, opts: { delay?: number; timeli
 
 /** Draw an SVG stroke (Lando's scribble lines). */
 export function drawPath(path: Target, opts: { scrollTrigger?: ST; duration?: number; timeline?: gsap.core.Timeline; at?: gsap.Position } = {}) {
-  const from = { drawSVG: '0%' }, to = { drawSVG: '100%', duration: opts.duration ?? DUR.xl, ease: EASE.wipe };
+  const from = { drawSVG: '0%' }, to = { drawSVG: '100%', duration: opts.duration ?? DUR.show, ease: EASE.wipe };
   if (opts.timeline) return opts.timeline.fromTo(path, from, to, opts.at);
   return gsap.fromTo(path, from, { ...to, scrollTrigger: opts.scrollTrigger, ease: opts.scrollTrigger?.scrub ? EASE.none : EASE.wipe });
 }

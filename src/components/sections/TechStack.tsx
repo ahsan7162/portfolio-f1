@@ -7,7 +7,7 @@ import { ScrollVelocityContainer, ScrollVelocityRow } from '@/components/ui/scro
 import { skills } from '@/content/data';
 import { gsap } from '@/motion/gsap';
 import { splitReveal } from '@/motion/patterns';
-import { EASE, STAGGER } from '@/motion/tokens';
+import { DUR, EASE, STAGGER } from '@/motion/tokens';
 import { useBentoPointer } from '@/motion/useBentoPointer';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 import { cn } from '@/lib/utils';
@@ -42,7 +42,7 @@ export function TechStack() {
   const ref = useSectionMotion<HTMLElement>(({ q, qa }) => {
     splitReveal(q('h2'), { type: 'chars' });
     gsap.fromTo(qa('[data-tile]'), { clipPath: 'inset(0% 100% 0% 0%)' }, {
-      clipPath: 'inset(0% 0% 0% 0%)', duration: 1.1, ease: EASE.wipe, stagger: STAGGER.line, clearProps: 'clipPath',
+      clipPath: 'inset(0% 0% 0% 0%)', duration: DUR.reveal, ease: EASE.wipe, stagger: STAGGER.line, clearProps: 'clipPath',
       scrollTrigger: { trigger: q('.bento')!, start: 'top 80%', once: true },
     });
   });

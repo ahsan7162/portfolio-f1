@@ -58,6 +58,11 @@
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
 
+  /* Same values as DUR in src/motion/tokens.ts, so CSS and GSAP share timing. */
+  --dur-hit: 150ms;
+  --dur-split: 300ms;
+  --dur-wipe: 450ms;
+
   --radius-lg: var(--radius);
   --radius-md: var(--radius);
   --radius-sm: var(--radius);
@@ -135,7 +140,7 @@
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    transition: transform 0.35s var(--ease-out-expo), background-color 0.35s var(--ease-out-expo), color 0.35s var(--ease-out-expo);
+    transition: transform var(--dur-hit) var(--ease-out-expo), background-color var(--dur-hit) var(--ease-out-expo), color var(--dur-hit) var(--ease-out-expo);
   }
   .btn:active {
     transform: scale(0.98);
@@ -234,7 +239,7 @@ html.gl-on .contour-fallback { opacity: 0; transition: opacity 1s; }
     z-index: 3;
     pointer-events: none;
     opacity: var(--spot, 0);
-    transition: opacity 0.45s var(--ease-out-expo);
+    transition: opacity var(--dur-split) var(--ease-out-expo);
     background: radial-gradient(320px circle at var(--mx, -999px) var(--my, -999px), rgb(255 36 56 / 0.14), rgb(255 36 56 / 0.03) 40%, transparent 70%);
   }
   .tile {
@@ -243,14 +248,14 @@ html.gl-on .contour-fallback { opacity: 0; transition: opacity 1s; }
     border-right: 1px solid var(--line);
     border-bottom: 1px solid var(--line);
     background: rgb(17 17 19 / 0.55);
-    transition: transform 0.55s var(--ease-out-expo), background-color 0.3s, box-shadow 0.4s;
+    transition: transform var(--dur-wipe) var(--ease-out-expo), background-color var(--dur-split), box-shadow var(--dur-split);
   }
   .tile-lead { background: rgb(26 26 30 / 0.7); }
   .tile[data-tilting] {
     z-index: 2;
     background: rgb(24 24 28 / 0.94);
     box-shadow: 0 30px 60px -22px rgb(0 0 0 / 0.85);
-    transition: transform 0.12s linear, background-color 0.3s, box-shadow 0.3s;
+    transition: transform 0.12s linear, background-color var(--dur-split), box-shadow var(--dur-split);
   }
   /* Accent rule that draws across the top of a hovered tile. */
   .tile::before {
@@ -261,7 +266,7 @@ html.gl-on .contour-fallback { opacity: 0; transition: opacity 1s; }
     background: var(--ac);
     transform: scaleX(0);
     transform-origin: left center;
-    transition: transform 0.6s var(--ease-out-expo);
+    transition: transform var(--dur-wipe) var(--ease-out-expo);
   }
   .tile:hover::before { transform: scaleX(1); }
   .pill {
