@@ -248,14 +248,14 @@ html.gl-on .contour-fallback { opacity: 0; transition: opacity 1s; }
     border-right: 1px solid var(--line);
     border-bottom: 1px solid var(--line);
     background: rgb(17 17 19 / 0.55);
-    transition: transform var(--dur-wipe) var(--ease-out-expo), background-color var(--dur-split), box-shadow var(--dur-split);
+    transition: background-color var(--dur-split), box-shadow var(--dur-split);
   }
   .tile-lead { background: rgb(26 26 30 / 0.7); }
   .tile[data-tilting] {
     z-index: 2;
     background: rgb(24 24 28 / 0.94);
     box-shadow: 0 30px 60px -22px rgb(0 0 0 / 0.85);
-    transition: transform 0.12s linear, background-color var(--dur-split), box-shadow var(--dur-split);
+    transition: background-color var(--dur-split), box-shadow var(--dur-split);
   }
   /* Accent rule that draws across the top of a hovered tile. */
   .tile::before {

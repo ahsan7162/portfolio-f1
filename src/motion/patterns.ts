@@ -61,6 +61,22 @@ export function batchReveal(targets: string | Element[], opts: { y?: number; sta
     start: 'top 88%',
     once: true,
     onEnter: batch => gsap.to(batch, { autoAlpha: 1, y: 0, stagger: opts.stagger ?? STAGGER.card, duration: DUR.reveal, ease: EASE.out, overwrite: true }),
+  }).forEach(t => batchTriggers.add(t));
+}
+
+const batchTriggers = new WeakSet<ScrollTrigger>();
+
+/**
+ * Finish every one-off reveal that starts above `y` (plus what will be on
+ * screen on landing), so a menu or anchor jump lands on a fully drawn section
+ * instead of watching its reveals play after arriving.
+ */
+export function finishRevealsAbove(y: number) {
+  const limit = y + window.innerHeight * 0.2;
+  ScrollTrigger.getAll().forEach(t => {
+    if (!t.vars.once || t.start > limit) return;
+    if (t.animation) t.animation.progress(1);
+    else if (batchTriggers.has(t)) { gsap.set(t.trigger!, { autoAlpha: 1, y: 0, overwrite: true }); t.kill(); }
   });
 }
 

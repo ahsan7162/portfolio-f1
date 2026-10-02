@@ -4,7 +4,7 @@ import { originOf, useDialogs } from '@/components/dialog-context';
 import { lapState } from '@/gl/state';
 import { glEnabled } from '@/motion/prefs';
 import { gsap, ScrollTrigger } from '@/motion/gsap';
-import { EASE } from '@/motion/tokens';
+import { DUR, EASE } from '@/motion/tokens';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 
 /**
@@ -41,10 +41,10 @@ export function Lap() {
       if (i === cur) return;
       const dir = i > cur ? 1 : -1;
       const prev = stages[cur];
-      if (prev) gsap.to(prev, { autoAlpha: 0, y: -40 * dir, duration: 0.35, ease: EASE.out, overwrite: true });
+      if (prev) gsap.to(prev, { autoAlpha: 0, y: -40 * dir, duration: DUR.hit, ease: EASE.in, overwrite: true });
       const next = stages[i];
-      gsap.fromTo(next, { autoAlpha: 0, y: 50 * dir }, { autoAlpha: 1, y: 0, duration: 0.7, delay: prev ? 0.15 : 0, ease: EASE.out, overwrite: true });
-      gsap.fromTo(next.querySelectorAll('[data-stat]'), { yPercent: 100 }, { yPercent: 0, duration: 0.7, delay: prev ? 0.25 : 0.1, ease: EASE.out, overwrite: true });
+      gsap.fromTo(next, { autoAlpha: 0, y: 50 * dir }, { autoAlpha: 1, y: 0, duration: DUR.split, delay: prev ? 0.1 : 0, ease: EASE.out, overwrite: true });
+      gsap.fromTo(next.querySelectorAll('[data-stat]'), { yPercent: 100 }, { yPercent: 0, duration: DUR.split, delay: prev ? 0.15 : 0.05, ease: EASE.out, overwrite: true });
       sectorEls.forEach((el, k) => el.classList.toggle('text-ac', k === i));
       // Fixed-duration glide to the stage's sector: same pace however fast you scroll.
       gsap.to(lapState, { progress: n > 1 ? i / (n - 1) : 0, duration: 2.2, ease: 'power2.inOut', overwrite: true });
@@ -55,9 +55,11 @@ export function Lap() {
     const at = (p: number) => Math.min(n - 1, Math.floor(p * n));
     ScrollTrigger.create({
       trigger: pin, start: 'top top', end: `+=${n * 35}%`, pin: true, markers,
+      // Every stop lands on a stage (the middle of its band), or on either end.
+      snap: { snapTo: [0, ...stages.map((_, k) => (k + 0.5) / n), 1], duration: { min: 0.2, max: 0.45 }, ease: EASE.wipe, delay: 0.05 },
       onToggle: self => { lapState.active = self.isActive; },
       // Enter callbacks run after onUpdate, so they must use the real progress too.
-      onEnter: self => { gsap.to(q('[data-laphead]'), { autoAlpha: 1, y: 0, duration: 0.6, ease: EASE.out }); show(at(self.progress)); },
+      onEnter: self => { gsap.to(q('[data-laphead]'), { autoAlpha: 1, y: 0, duration: DUR.split, ease: EASE.out }); show(at(self.progress)); },
       onEnterBack: self => show(at(self.progress)),
       onUpdate: self => show(at(self.progress)),
     });

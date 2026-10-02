@@ -3,7 +3,7 @@ import { archive, archiveBreakdown, type Breakdown } from '@/content/data';
 import type { Origin } from '@/components/dialog-context';
 import { gsap } from '@/motion/gsap';
 import { motionEnabled } from '@/motion/prefs';
-import { EASE } from '@/motion/tokens';
+import { DUR, EASE } from '@/motion/tokens';
 
 /** Keep Tab focus inside the open dialog. */
 function trapTab(e: KeyboardEvent<HTMLDivElement>) {
@@ -53,8 +53,8 @@ function useDialogIn(ref: React.RefObject<HTMLDivElement | null>, origin: Origin
         if (state.cancelled) return;
         state.tl = gsap.timeline({ onComplete: () => { el.style.background = ''; gsap.set(circle, { visibility: 'hidden', willChange: 'auto' }); } })
           // Fast-start ease: the circle's area grows with scale squared, so an ease-in would look stuck.
-          .to(circle, { scale: 1, duration: 0.8, ease: EASE.out })
-          .to(items, { autoAlpha: 1, y: 0, stagger: 0.05, duration: 0.6, ease: EASE.out }, 0.18);
+          .to(circle, { scale: 1, duration: DUR.wipe, ease: EASE.out })
+          .to(items, { autoAlpha: 1, y: 0, stagger: { amount: 0.08 }, duration: DUR.split, ease: EASE.out }, 0.12);
       });
     }, el);
     return () => { cancelAnimationFrame(raf); ctx.revert(); };
@@ -72,8 +72,8 @@ export function closeWithWipe(el: HTMLElement | null, origin: Origin | undefined
   const circle = placeWipe(el, o);
   gsap.set(circle, { scale: from, willChange: 'transform' });
   gsap.timeline({ onComplete: done })
-    .to(el.querySelectorAll('[data-din], [data-dhead]'), { autoAlpha: 0, y: -16, duration: 0.2, ease: 'power2.in', overwrite: true })
-    .to(circle, { scale: 0, duration: 0.5, ease: 'power3.inOut' }, 0.1);
+    .to(el.querySelectorAll('[data-din], [data-dhead]'), { autoAlpha: 0, y: -16, duration: DUR.hit, ease: EASE.in, overwrite: true })
+    .to(circle, { scale: 0, duration: DUR.split, ease: EASE.wipe }, 0.05);
 }
 
 /** The wipe circle: sits behind the dialog content, coloured like the dialog. */

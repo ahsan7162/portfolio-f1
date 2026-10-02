@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { ScrollTrigger } from './gsap';
+import { finishRevealsAbove } from './patterns';
 import { useSmoothScroll } from './SmoothScroll';
 
 /** In-page links scroll with Lenis, then move focus to the section for keyboard users. */
@@ -13,6 +14,7 @@ export function useAnchorNav() {
       const el = id ? document.getElementById(id) : document.body;
       if (!el) return;
       e.preventDefault();
+      if (id) finishRevealsAbove(el.getBoundingClientRect().top + window.scrollY);
       scrollTo(id ? el : 0);
       history.replaceState(null, '', id ? `#${id}` : location.pathname);
       window.setTimeout(() => el.focus({ preventScroll: true }), 900);
@@ -23,7 +25,7 @@ export function useAnchorNav() {
     let off = () => {};
     const el = location.hash ? document.getElementById(location.hash.slice(1)) : null;
     if (el) {
-      const jump = () => scrollTo(el, { immediate: true });
+      const jump = () => { finishRevealsAbove(el.getBoundingClientRect().top + window.scrollY); scrollTo(el, { immediate: true }); };
       requestAnimationFrame(jump);
       const onRefresh = () => { jump(); off(); };
       ScrollTrigger.addEventListener('refresh', onRefresh);

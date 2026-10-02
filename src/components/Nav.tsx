@@ -2,10 +2,10 @@ import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent }
 import { HyperText } from '@/components/ui/hyper-text';
 import { originOf, useDialogs } from '@/components/dialog-context';
 import { archive, CV_FILE, EMAIL, GITHUB, jobs, LINKEDIN, projects } from '@/content/data';
-import { gsap, ScrollTrigger } from '@/motion/gsap';
+import { Flip, gsap, ScrollTrigger } from '@/motion/gsap';
 import { motionEnabled } from '@/motion/prefs';
 import { useSmoothScroll } from '@/motion/SmoothScroll';
-import { EASE } from '@/motion/tokens';
+import { DUR, EASE } from '@/motion/tokens';
 import { useNavHeight } from '@/motion/useNavHeight';
 import { cn } from '@/lib/utils';
 
@@ -54,27 +54,48 @@ export function Nav() {
     return () => triggers.forEach(t => t.kill());
   }, []);
 
-  // Open: the panel wipes down from the top, then the rows rise in. Close plays it back.
+  // Open: the panel wipes down from the top, then the rows rise in (under 0.5 s).
+  // Close is its own quicker move: rows and side drop out, then the wipe closes.
   useEffect(() => {
     const p = panel.current!;
     if (!motionEnabled()) { gsap.set(p, { autoAlpha: open ? 1 : 0 }); return; }
-    if (!tl.current) {
-      tl.current = gsap.timeline({ paused: true })
+    if (!open && !tl.current) return; // first render: the menu starts closed
+    const rows = p.querySelectorAll('[data-mrow]'), side = p.querySelectorAll('[data-mside]');
+    tl.current?.kill();
+    tl.current = open
+      ? gsap.timeline()
         .set(p, { autoAlpha: 1 })
-        .fromTo(p, { clipPath: 'inset(0% 0% 100% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 0.7, ease: EASE.wipe })
-        .from(p.querySelectorAll('[data-mrow]'), { yPercent: 110, duration: 0.7, stagger: 0.035, ease: EASE.out }, 0.3)
-        .from(p.querySelectorAll('[data-mside]'), { autoAlpha: 0, y: 20, duration: 0.5, stagger: 0.06, ease: EASE.out }, 0.5);
-    }
-    if (open) tl.current.timeScale(1).play();
-    else tl.current.timeScale(1.8).reverse();
+        .fromTo(p, { clipPath: 'inset(0% 0% 100% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: DUR.wipe, ease: EASE.wipe })
+        .fromTo(rows, { yPercent: 110 }, { yPercent: 0, duration: DUR.split, stagger: 0.015, ease: EASE.out }, 0.08)
+        .fromTo(side, { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: DUR.split, stagger: 0.02, ease: EASE.out }, 0.12)
+      : gsap.timeline()
+        .to(rows, { yPercent: 110, duration: DUR.hit, ease: EASE.in })
+        .to(side, { autoAlpha: 0, duration: DUR.hit, ease: EASE.in }, 0)
+        .to(p, { clipPath: 'inset(0% 0% 100% 0%)', duration: 0.2, ease: EASE.in }, 0.08)
+        .set(p, { autoAlpha: 0 });
   }, [open]);
   useEffect(() => () => { tl.current?.kill(); }, []);
 
-  // Expanding the work experience children animates their height.
+  // Work experience children: the rows below slide with Flip (transforms only, no
+  // height tween), and the job rows rise in. Closing is quicker than opening.
+  const subReady = useRef(false);
   useEffect(() => {
     const ul = subRef.current!;
-    if (!motionEnabled()) { gsap.set(ul, { height: expOpen ? 'auto' : 0 }); return; }
-    gsap.to(ul, { height: expOpen ? 'auto' : 0, duration: 0.5, ease: EASE.out, overwrite: true });
+    if (!subReady.current) { subReady.current = true; return; }
+    const set = () => gsap.set(ul, { height: expOpen ? 'auto' : 0 });
+    if (!motionEnabled()) { set(); return; }
+    const items = ul.querySelectorAll('li');
+    const flip = (duration: number) => {
+      const state = Flip.getState(panel.current!.querySelectorAll('[data-mflip]'));
+      set();
+      Flip.from(state, { duration, ease: EASE.out });
+    };
+    if (expOpen) {
+      flip(DUR.split);
+      gsap.fromTo(items, { autoAlpha: 0, yPercent: 60 }, { autoAlpha: 1, yPercent: 0, duration: DUR.split, stagger: 0.03, ease: EASE.out, overwrite: true });
+    } else {
+      gsap.to(items, { autoAlpha: 0, duration: 0.1, ease: EASE.in, overwrite: true, onComplete: () => flip(0.2) });
+    }
   }, [expOpen]);
 
   const show = () => { lock(); setOpen(true); requestAnimationFrame(() => panel.current?.querySelector<HTMLElement>(FOCUSABLE)?.focus({ preventScroll: true })); };
@@ -114,7 +135,7 @@ export function Nav() {
                 const n = <span aria-hidden="true" className="w-8 shrink-0 pt-[0.6em] font-mono text-xs text-mute md:w-12">{String(i + 1).padStart(2, '0')}</span>;
                 const dot = current === m.id && <span aria-hidden="true" className="ml-3 inline-block size-2 shrink-0 self-center rounded-full bg-ac" />;
                 return (
-                  <li key={m.id} className="border-b border-line">
+                  <li key={m.id} data-mflip className="border-b border-line">
                     <div className="overflow-hidden">
                       <div data-mrow className="flex items-stretch">
                         {'archive' in m ? (
@@ -164,14 +185,14 @@ export function Nav() {
             </ol>
           </nav>
 
-          <aside className="flex flex-col gap-8 md:pt-2">
+          <aside data-mflip className="flex flex-col gap-8 md:pt-2">
             <div data-mside>
               <div className="label mb-3">Get in touch</div>
-              <a href={`mailto:${EMAIL}`} className="text-lg transition-colors hover:text-ac">{EMAIL}</a>
+              <a href={`mailto:${EMAIL}`} className="inline-flex min-h-11 items-center text-lg transition-colors hover:text-ac">{EMAIL}</a>
             </div>
             <div data-mside className="flex gap-6 font-mono text-xs uppercase tracking-[0.14em]">
-              <a href={GITHUB} target="_blank" rel="noreferrer" className="transition-colors hover:text-ac">GitHub</a>
-              <a href={LINKEDIN} target="_blank" rel="noreferrer" className="transition-colors hover:text-ac">LinkedIn</a>
+              <a href={GITHUB} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center transition-colors hover:text-ac">GitHub</a>
+              <a href={LINKEDIN} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center transition-colors hover:text-ac">LinkedIn</a>
             </div>
             <a data-mside href={cvHref()} download={CV_FILE} className="btn btn-primary self-start">Download CV</a>
           </aside>
