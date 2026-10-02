@@ -133,71 +133,79 @@ const Toggle = ({ y }: { y: number }) => (
 
 function buildAgents({ tl, q, qa, type, count, click }: Fx) {
   const cur = q('[data-cursor]'), tog = qa('[data-tog]'), lines = qa('[data-reply]');
+  // Name, prompt, pick the tools, post. Then the agent answers in Slack and the live count ticks to 450.
   tl.fromTo(q('[data-form]'), { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0 }, 0);
-  type(q('[data-name]'), 0.3, 0.8);
-  tl.fromTo(cur, { autoAlpha: 0, x: 150, y: 196 }, { autoAlpha: 1, x: 132, y: 97, duration: 0.45, ease: 'power2.inOut' }, 1.0);
+  type(q('[data-name]'), 0.3, 0.6);
+  qa('[data-prompt]').forEach((l, i) => type(l, 1.0 + i * 0.6, 0.55));
+  tl.fromTo(cur, { autoAlpha: 0, x: 150, y: 200 }, { autoAlpha: 1, x: 132, y: 128, duration: 0.45, ease: 'power2.inOut' }, 2.0);
   tog.forEach((g, i) => {
-    const at = 1.5 + i * 0.6;
-    if (i) tl.to(cur, { y: 117, duration: 0.35, ease: 'power2.inOut' }, at - 0.4);
+    const at = 2.5 + i * 0.55;
+    if (i) tl.to(cur, { y: 128 + i * 16, duration: 0.3, ease: 'power2.inOut' }, at - 0.35);
     click(cur, at);
     tl.fromTo(g.querySelector('[data-pill]'), { fill: DIM }, { fill: AC, duration: 0.15 }, at + 0.05)
       .fromTo(g.querySelector('[data-knob]'), { x: -10 }, { x: 0, duration: 0.2 }, at + 0.05);
   });
-  tl.to(cur, { x: 92, y: 145, duration: 0.4, ease: 'power2.inOut' }, 2.45);
-  click(cur, 2.9);
-  tl.to(q('[data-btn]'), { scale: 0.96, transformOrigin: '50% 50%', duration: 0.08, yoyo: true, repeat: 1, ease: EASE.in }, 2.95)
-    .fromTo(q('[data-strike]'), { drawSVG: '0%' }, { drawSVG: '100%', duration: 0.3 }, 3.05)
-    .fromTo(q('[data-ten]'), { autoAlpha: 0, x: -4 }, { autoAlpha: 1, x: 0, duration: 0.3 }, 3.15)
-    .to(cur, { autoAlpha: 0, duration: 0.2 }, 3.2)
-    .fromTo(q('[data-msg1]'), { autoAlpha: 0, y: 6 }, { autoAlpha: 1, y: 0 }, 3.4)
-    .fromTo(q('[data-msg2]'), { autoAlpha: 0, y: 6 }, { autoAlpha: 1, y: 0 }, 3.9);
-  lines.forEach((l, i) => type(l, 4.15 + i * 0.45, 0.4));
-  count(q('[data-live]'), 446, 5.5, 0.7);
+  tl.to(cur, { x: 92, y: 167, duration: 0.4, ease: 'power2.inOut' }, 3.4);
+  click(cur, 3.85);
+  tl.to(q('[data-btn]'), { scale: 0.96, transformOrigin: '50% 50%', duration: 0.08, yoyo: true, repeat: 1, ease: EASE.in }, 3.9)
+    .fromTo(q('[data-strike]'), { drawSVG: '0%' }, { drawSVG: '100%', duration: 0.3 }, 4.0)
+    .fromTo(q('[data-ten]'), { autoAlpha: 0, x: -4 }, { autoAlpha: 1, x: 0, duration: 0.3 }, 4.1)
+    .to(cur, { autoAlpha: 0, duration: 0.2 }, 4.15)
+    .fromTo(q('[data-msg1]'), { autoAlpha: 0, y: 6 }, { autoAlpha: 1, y: 0 }, 4.35)
+    .fromTo(q('[data-msg2]'), { autoAlpha: 0, y: 6 }, { autoAlpha: 1, y: 0 }, 4.85);
+  lines.forEach((l, i) => type(l, 5.1 + i * 0.45, 0.4));
+  count(q('[data-live]'), 449, 6.5, 0.3);
+  tl.fromTo(q('[data-live]'), { scale: 1 }, { scale: 1.12, transformOrigin: '100% 50%', duration: 0.12, yoyo: true, repeat: 1, ease: EASE.out }, 6.5);
 }
 
 function AgentsScene() {
   return (
     <Scene build={buildAgents}>
       <g data-form>
-        <rect x="14" y="20" width="138" height="160" rx="4" fill={PANEL} stroke={LINE} />
-        <text x="26" y="37" {...label()}>NEW AGENT</text>
-        <text x="26" y="56" {...t(6, MUTE)}>Name</text>
-        <rect x="24" y="61" width="118" height="18" rx="2" fill={CARBON} stroke={LINE} />
-        <text data-name x="30" y="73" {...t(7.5)}>Release notes bot</text>
-        <text x="26" y="99" {...t(7)}>Post to Slack</text>
-        <Toggle y={91} />
-        <text x="26" y="119" {...t(7)}>Jira automation</text>
-        <Toggle y={111} />
+        <rect x="14" y="8" width="138" height="184" rx="4" fill={PANEL} stroke={LINE} />
+        <text x="26" y="24" {...label()}>NEW AGENT</text>
+        <text x="26" y="40" {...t(6, MUTE)}>Name</text>
+        <rect x="24" y="44" width="118" height="16" rx="2" fill={CARBON} stroke={LINE} />
+        <text data-name x="30" y="55" {...t(7.2)}>Release notes bot</text>
+        <text x="26" y="72" {...t(6, MUTE)}>Prompt</text>
+        <rect x="24" y="76" width="118" height="26" rx="2" fill={CARBON} stroke={LINE} />
+        <text data-prompt x="30" y="87" {...t(6.4)}>Summarize merged PRs</text>
+        <text data-prompt x="30" y="96.5" {...t(6.4)}>for the weekly release</text>
+        <text x="26" y="116" {...t(6, MUTE)}>Tools</text>
+        <text x="26" y="131" {...t(7)}>Jira automation</text>
+        <Toggle y={123} />
+        <text x="26" y="147" {...t(7)}>Slack</text>
+        <Toggle y={139} />
         <g data-btn>
-          <rect x="24" y="132" width="118" height="22" rx="2" fill={AC} />
-          <text x="83" y="145.5" textAnchor="middle" {...t(7, CARBON, 700)} letterSpacing="0.8">DEPLOY</text>
+          <rect x="24" y="157" width="118" height="18" rx="2" fill={AC} />
+          <text x="83" y="168.5" textAnchor="middle" {...t(7, CARBON, 700)} letterSpacing="0.8">POST</text>
         </g>
-        <text x="26" y="170" {...t(6.5, MUTE)}>2–3 days</text>
-        <line data-strike x1="25" y1="167.8" x2="58" y2="167.8" stroke={MUTE} strokeWidth="0.8" />
-        <text data-ten x="142" y="170" textAnchor="end" {...t(7.5, AC, 700)}>10 min</text>
+        <text x="26" y="186" {...t(6.2, MUTE)}>2–3 days</text>
+        <line data-strike x1="25" y1="183.8" x2="56" y2="183.8" stroke={MUTE} strokeWidth="0.8" />
+        <text data-ten x="142" y="186" textAnchor="end" {...t(7, AC, 700)}>10 min</text>
       </g>
 
-      <rect x="162" y="20" width="144" height="160" rx="4" fill={PANEL} stroke={LINE} />
-      <text x="174" y="37" {...label()}># RELEASE-TEAM</text>
+      <rect x="162" y="8" width="144" height="184" rx="4" fill={PANEL} stroke={LINE} />
+      <text x="174" y="24" {...label()}># RELEASE-TEAM</text>
       <g data-msg1>
-        <circle cx="180" cy="57" r="6" fill={DIM} />
-        <text x="192" y="56" {...t(7, FG, 700)}>Sara</text>
-        <text x="192" y="66" {...t(6.8)}><tspan fill={AC}>@release-bot</tspan> what</text>
-        <text x="192" y="75" {...t(6.8)}>shipped this week?</text>
+        <circle cx="180" cy="47" r="6" fill={DIM} />
+        <text x="192" y="46" {...t(7, FG, 700)}>Sara</text>
+        <text x="192" y="56" {...t(6.8)}><tspan fill={AC}>@release-bot</tspan> what</text>
+        <text x="192" y="65" {...t(6.8)}>shipped this week?</text>
       </g>
       <g data-msg2>
-        <rect x="174" y="91" width="12" height="12" rx="3" fill={AC} />
-        <text x="180" y="99.5" textAnchor="middle" {...t(7, CARBON, 700)}>R</text>
-        <text x="192" y="97" {...t(7, FG, 700)}>Release notes bot</text>
-        <rect x="267" y="91.5" width="16" height="7.5" rx="1.5" fill={DIM} />
-        <text x="275" y="97" textAnchor="middle" {...t(4.8, MUTE, 700)}>APP</text>
+        <rect x="174" y="83" width="12" height="12" rx="3" fill={AC} />
+        <text x="180" y="91.5" textAnchor="middle" {...t(7, CARBON, 700)}>R</text>
+        <text x="192" y="89" {...t(7, FG, 700)}>Release notes bot</text>
+        <rect x="267" y="83.5" width="16" height="7.5" rx="1.5" fill={DIM} />
+        <text x="275" y="89" textAnchor="middle" {...t(4.8, MUTE, 700)}>APP</text>
       </g>
-      <text data-reply x="192" y="108" {...t(6.8)}>3 features, 12 fixes:</text>
-      <text data-reply x="192" y="118" {...t(6.8, MUTE)}>· Partner CSV export</text>
-      <text data-reply x="192" y="128" {...t(6.8, MUTE)}>· Faster booking search</text>
-      <line x1="172" y1="146" x2="296" y2="146" stroke={LINE} />
-      <text x="174" y="166" {...label()}>AGENTS LIVE</text>
-      <text data-live x="296" y="168" textAnchor="end" {...t(14, AC, 700)}>450+</text>
+      <text data-reply x="192" y="100" {...t(6.8)}>3 features, 12 fixes:</text>
+      <text data-reply x="192" y="110" {...t(6.8, MUTE)}>· Partner CSV export</text>
+      <text data-reply x="192" y="120" {...t(6.8, MUTE)}>· Faster booking search</text>
+      <line x1="172" y1="158" x2="296" y2="158" stroke={LINE} />
+      <text x="174" y="178" {...label()}>AGENTS LIVE</text>
+      <text data-live x="296" y="180" textAnchor="end" {...t(14, AC, 700)}>450+</text>
       <Cursor />
     </Scene>
   );
