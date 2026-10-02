@@ -7,7 +7,7 @@ import { isMobile, isTouch } from '@/motion/prefs';
 import { scrollState } from '@/motion/SmoothScroll';
 import { EASE } from '@/motion/tokens';
 import { createField } from './field';
-import { bindHelmetPath, type Pose } from './helmetPath';
+import { bindHelmetPath, perch, type Pose } from './helmetPath';
 import { buildHelmet, type Helmet } from './helmet/buildHelmet';
 import { createLap } from './lap';
 import { lapState } from './state';
@@ -34,6 +34,8 @@ export class Stage {
   private field = createField();
   private lap = createLap();
   private helmet: Helmet | null = null;
+  /** The helmet's size at scale 1, in world units (for perching it on a DOM element). */
+  private base = { w: 1, cx: 0, minY: 0 };
   private pose: Pose = { x: 0.5, y: 0, s: 1, rx: 0, ry: -0.65, rz: 0 };
   private pointer = { x: 0, y: 0, tx: 0, ty: 0 };
   private cleanups: Array<() => void> = [];
@@ -124,6 +126,8 @@ export class Stage {
     if (this.dead) { helmet.dispose(); return; }
     this.helmet = helmet;
     this.scene.add(helmet.group);
+    const box = new THREE.Box3().setFromObject(helmet.group), dims = box.getSize(new THREE.Vector3());
+    this.base = { w: dims.x || 1, cx: (box.min.x + box.max.x) / 2, minY: box.min.y };
     this.cleanups.push(bindHelmetPath(this.pose), () => helmet.dispose());
     // Compile shaders before the reveal so the first frames don't stutter.
     this.renderer.compile(this.scene, this.camera);
@@ -234,10 +238,29 @@ export class Stage {
     // Gentle pointer follow (desktop), eased every frame.
     this.pointer.x += (this.pointer.tx - this.pointer.x) * 0.06;
     this.pointer.y += (this.pointer.ty - this.pointer.y) * 0.06;
-    g.position.set(p.x * halfW, p.y * halfH + Math.sin(t * 0.9) * 0.03, 0);
-    g.rotation.set(p.rx + this.pointer.y * 0.14, p.ry + this.pointer.x * 0.2 + Math.sin(t * 0.6) * 0.03, p.rz);
-    g.scale.setScalar(p.s * Math.min(1.25, halfH / 2.14));
-    g.visible = p.y > -1.6;
+    const fit = Math.min(1.25, halfH / 2.14);
+    let { x, y, s, rx, ry, rz } = p;
+    // Perched: sit on the element's top edge, about its width, facing the page.
+    const k = perch.el ? perch.k : 0;
+    if (k > 0.001) {
+      const r = perch.el!.getBoundingClientRect(), W = this.size.w, H = this.size.h;
+      // Scale so the helmet is about the step's width, then place its measured bottom
+      // edge on the step's top edge and its centre over the step's centre.
+      const as = ((r.width * 0.95) / W) * 2 * halfW / (this.base.w * fit), world = as * fit;
+      const at = {
+        x: (((r.left + r.width / 2) / W) * 2 - 1 - (this.base.cx * world) / halfW),
+        y: (1 - (r.top / H) * 2) - (this.base.minY * world) / halfH,
+        s: as,
+        rx: 0.12, ry: -7.55, rz: 0,
+      };
+      const mix = (a: number, b: number) => a + (b - a) * k;
+      x = mix(x, at.x); y = mix(y, at.y); s = mix(s, at.s); rx = mix(rx, at.rx); ry = mix(ry, at.ry); rz = mix(rz, at.rz);
+    }
+    const loose = 1 - k; // no float or pointer follow while it sits on the step
+    g.position.set(x * halfW, y * halfH + Math.sin(t * 0.9) * 0.03 * loose, 0);
+    g.rotation.set(rx + this.pointer.y * 0.14 * loose, ry + (this.pointer.x * 0.2 + Math.sin(t * 0.6) * 0.03) * loose, rz);
+    g.scale.setScalar(s * fit);
+    g.visible = y > -1.6;
     h.update();
   }
 

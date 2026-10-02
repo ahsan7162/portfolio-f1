@@ -1,17 +1,11 @@
 import { SWOOSH_PATH } from '@/art/circuit';
 import { profile } from '@/content/data';
 import { gsap, SplitText } from '@/motion/gsap';
-import { batchReveal, drawPath } from '@/motion/patterns';
+import { drawPath } from '@/motion/patterns';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 
-const FACTS = [
-  { k: 'Now', v: 'Careem, AI agent platform and partner tools' },
-  { k: 'Before', v: 'Xtel (performance) and Astera (AI infrastructure)' },
-  { k: 'Education', v: 'BS Computer Science, FAST-NUCES' },
-];
-
 export function About() {
-  const ref = useSectionMotion<HTMLElement>(({ q, qa, short, markers }) => {
+  const ref = useSectionMotion<HTMLElement>(({ q, short, markers }) => {
     const text = q('[data-statement]')!;
     const pin = q('[data-pin]')!;
     // Pinned statement: words light up as you scroll (Lando's manifesto).
@@ -26,7 +20,6 @@ export function About() {
     });
     tl.fromTo(split.words, { opacity: 0.14 }, { opacity: 1, stagger: 0.1, ease: 'none', duration: 1 });
     drawPath(q('[data-swoosh] path'), { timeline: tl, at: '>-0.2', duration: 0.6 });
-    batchReveal(qa('[data-fact]'));
   });
 
   const words = profile.about.split(' ');
@@ -45,14 +38,6 @@ export function About() {
         <svg data-swoosh aria-hidden="true" viewBox="0 0 344 36" fill="none" className="mt-6 w-[min(420px,70vw)]">
           <path d={SWOOSH_PATH} stroke="var(--ac)" strokeWidth="3" strokeLinecap="round" />
         </svg>
-      </div>
-      <div className="mx-auto grid max-w-[1400px] gap-px border-y border-line pb-0 md:grid-cols-3">
-        {FACTS.map(f => (
-          <div key={f.k} data-fact className="py-6 md:px-6 md:first:pl-0">
-            <div className="label mb-2">{f.k}</div>
-            <p className="text-lg leading-snug">{f.v}</p>
-          </div>
-        ))}
       </div>
     </section>
   );
