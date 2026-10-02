@@ -91,7 +91,7 @@ export function Results() {
           ))}
         </div>
 
-        <div className="mt-24 md:mt-32">
+        <div className="mt-32 md:mt-72">
           <div data-bignum aria-label={`${stats.headline.value}${stats.headline.suffix}`}
             className="display whitespace-nowrap text-[clamp(7rem,30vw,26rem)] !leading-[0.8]">
             {stats.headline.value}{stats.headline.suffix}

@@ -33,7 +33,7 @@ const SEGMENTS: Array<{ from: string; to: string; trigger: string; start: string
   { from: 'about2', to: 'away', trigger: '#timeline', start: 'top 85%', end: 'top 20%' },
   // Results and education: the base path turns toward the finale pose across the
   // section; on the way the helmet perches on the P3 step (see `perch` below).
-  { from: 'away', to: 'results', trigger: '#results', start: 'top bottom', endTrigger: '#results [data-bignum]', end: 'center 60%' },
+  { from: 'away', to: 'results', trigger: '#results', start: 'top bottom', endTrigger: '#results [data-bignum]', end: 'center 25%' },
   { from: 'results', to: 'exit', trigger: '#results', start: 'bottom 85%', end: 'bottom top' },
 ];
 
@@ -69,8 +69,9 @@ export function bindHelmetPath(pose: Pose) {
       const st = { trigger: perch.el, scrub: 1.2, markers: debug() };
       // Land as the section arrives, so it is already seated when the row is on screen.
       gsap.fromTo(perch, { k: 0 }, { k: 1, ease: EASE.none, immediateRender: false, scrollTrigger: { ...st, trigger: '#results', start: 'top bottom', endTrigger: perch.el, end: 'top 75%' } });
-      // Lift off slowly: glide from the step to the finale pose, landing as 450+ does.
-      gsap.fromTo(perch, { k: 1 }, { k: 0, ease: EASE.none, immediateRender: false, scrollTrigger: { ...st, start: 'top 25%', endTrigger: '#results [data-bignum]', end: 'center 60%' } });
+      // Lift off slowly: a long glide (about 700 px of scroll) from the step to the
+      // finale pose, arriving as 450+ settles.
+      gsap.fromTo(perch, { k: 1 }, { k: 0, ease: EASE.none, immediateRender: false, scrollTrigger: { ...st, scrub: 1.5, start: 'top 40%', endTrigger: '#results [data-bignum]', end: 'center 25%' } });
     }
     // These triggers were created after the sections' own pins: re-sort by page position.
     ScrollTrigger.sort();
