@@ -1,12 +1,11 @@
-import { NumberTicker } from '@/components/ui/number-ticker';
 import { stats } from '@/content/data';
 import { gsap, SplitText } from '@/motion/gsap';
-import { batchReveal, splitReveal } from '@/motion/patterns';
+import { batchReveal, digitRoll, splitReveal } from '@/motion/patterns';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 
 /** Lando's giant "40 PODIUMS" numeral, then a stat grid. */
 export function Results() {
-  const ref = useSectionMotion<HTMLElement>(({ q, qa }) => {
+  const ref = useSectionMotion<HTMLElement>(({ q, qa, onRevert }) => {
     const big = q('[data-bignum]')!;
     const split = SplitText.create(big, { type: 'chars', mask: 'chars', aria: 'auto' });
     gsap.fromTo(split.chars, { yPercent: 105 }, {
@@ -16,6 +15,7 @@ export function Results() {
     gsap.fromTo(big, { xPercent: -3 }, { xPercent: 4, ease: 'none', scrollTrigger: { trigger: big, start: 'top bottom', end: 'bottom top', scrub: true } });
     splitReveal(q('[data-biglabel]'), { type: 'words' });
     batchReveal(qa('[data-stat]'));
+    qa('[data-roll]').forEach(el => onRevert(digitRoll(el)));
   });
 
   return (
@@ -35,7 +35,7 @@ export function Results() {
             <div key={s.label} data-stat className="border-t border-line pt-5">
               <dt className="label mb-3">{s.label}</dt>
               <dd className="display whitespace-nowrap text-4xl sm:text-5xl md:text-[clamp(2.5rem,5.4vw,4.5rem)]">
-                {s.prefix}<NumberTicker value={s.value} className="tracking-tight text-fg dark:text-fg" />{s.suffix}
+                {s.prefix}<span data-roll className="tracking-tight">{s.value}</span>{s.suffix}
               </dd>
             </div>
           ))}

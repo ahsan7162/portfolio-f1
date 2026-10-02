@@ -1,11 +1,11 @@
-import { createContext, useContext, useState, type ReactNode } from 'react';
-import { MagicCard } from '@/components/ui/magic-card';
-import { BorderBeam } from '@/components/ui/border-beam';
+import { useRef, type ReactNode } from 'react';
 import { ProjectVisual } from '@/components/ProjectVisuals';
 import { originOf, useDialogs } from '@/components/dialog-context';
 import { CrawlableDetails } from '@/components/CrawlableDetails';
 import { archive, archiveBreakdown, projects, type Breakdown } from '@/content/data';
 import { gsap } from '@/motion/gsap';
+import { isTouch, motionEnabled } from '@/motion/prefs';
+import { useBentoPointer } from '@/motion/useBentoPointer';
 import { clipReveal } from '@/motion/patterns';
 import { DUR, EASE } from '@/motion/tokens';
 import { useSectionMotion } from '@/motion/useSectionMotion';
@@ -24,6 +24,7 @@ const CRAWL: Breakdown[] = [...projects, ...archive.map(archiveBreakdown)];
 
 export function Projects() {
   const { openDetails, openArchive } = useDialogs();
+  const grid = useBentoPointer<HTMLDivElement>();
   const ref = useSectionMotion<HTMLElement>(({ q, qa, desktop }) => {
     // The heading wipes up like the card visuals below it.
     // Cleared after, so the tight display leading doesn't clip the glyphs.
@@ -50,16 +51,14 @@ export function Projects() {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 gap-16 md:grid-cols-2 md:gap-x-8 lg:grid-cols-12">
+        <div ref={grid} className="grid grid-cols-1 gap-16 md:grid-cols-2 md:gap-x-8 lg:grid-cols-12">
           {projects.map((p, i) => (
             <ProjectCard key={p.id} className={cn(LAYOUT[i].col, LAYOUT[i].offset)}>
-              <MagicCard gradientFrom="#ff2438" gradientTo="#141416" gradientColor="rgb(255 36 56 / 0.08)" className="p-0">
                 <div data-cardvis className="relative aspect-[16/10] overflow-hidden bg-carbon">
                   <div data-cardin className="h-full w-full"><ProjectVisual project={p} /></div>
                   <span aria-hidden="true" className="absolute left-3 top-3 font-mono text-[10px] uppercase tracking-[0.14em] text-[#a3a39c]">
                     {String(i + 1).padStart(2, '0')}
                   </span>
-                  <HoverBeam />
                 </div>
                 <div className="p-6 md:p-8">
                   <h3 data-cardtxt className="display text-3xl md:text-4xl">{p.title}</h3>
@@ -72,7 +71,6 @@ export function Projects() {
                     <button type="button" onClick={e => openDetails(p, originOf(e))} className="btn btn-ghost" aria-label={`${p.title} details`}>Details</button>
                   </div>
                 </div>
-              </MagicCard>
             </ProjectCard>
           ))}
         </div>
@@ -106,21 +104,35 @@ export function Projects() {
   );
 }
 
-// The border beam loops forever, so it only exists while the card is hovered or focused.
-const BeamOn = createContext(false);
-
+/**
+ * Project card. Desktop hover (or keyboard focus) draws one red sector line
+ * around the card with DrawSVG, and it retracts, quicker, on leave. The tilt
+ * and the local spotlight come from useBentoPointer on the grid.
+ */
 function ProjectCard({ className, children }: { className: string; children: ReactNode }) {
-  const [on, setOn] = useState(false);
+  const box = useRef<HTMLDivElement>(null), line = useRef<SVGRectElement>(null);
+  const draw = (on: boolean) => {
+    const el = box.current, r = line.current;
+    if (!el || !r || !motionEnabled()) return;
+    if (on) {
+      r.setAttribute('width', String(el.offsetWidth - 1));
+      r.setAttribute('height', String(el.offsetHeight - 1));
+      gsap.fromTo(r, { drawSVG: '0%' }, { drawSVG: '100%', duration: DUR.wipe, ease: EASE.out, overwrite: true });
+    } else {
+      gsap.to(r, { drawSVG: '100% 100%', duration: DUR.split, ease: EASE.in, overwrite: true });
+    }
+  };
   return (
     <article data-card className={className}
-      onPointerEnter={() => setOn(true)} onPointerLeave={() => setOn(false)}
-      onFocus={() => setOn(true)} onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setOn(false); }}>
-      <BeamOn.Provider value={on}>{children}</BeamOn.Provider>
+      onPointerEnter={() => { if (!isTouch()) draw(true); }} onPointerLeave={() => { if (!isTouch()) draw(false); }}
+      onFocus={() => draw(true)} onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) draw(false); }}>
+      <div ref={box} data-tilt className="card relative isolate overflow-hidden border border-line bg-graphite">
+        <span aria-hidden="true" className="card-spot" />
+        {children}
+        <svg aria-hidden="true" className="pointer-events-none absolute inset-0 z-10 size-full overflow-visible">
+          <rect ref={line} x="0.5" y="0.5" width="0" height="0" fill="none" stroke="var(--ac)" strokeWidth="2" style={{ strokeDasharray: '0 1' }} />
+        </svg>
+      </div>
     </article>
   );
-}
-
-function HoverBeam() {
-  if (!useContext(BeamOn)) return null;
-  return <BorderBeam size={120} duration={9} colorFrom="#ff2438" colorTo="#f4f4ed" className="animate-[fade-in_0.5s_ease-out]" />;
 }

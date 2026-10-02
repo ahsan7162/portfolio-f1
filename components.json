@@ -5,6 +5,5 @@
   "tsx": true,
   "tailwind": { "config": "", "css": "src/index.css", "baseColor": "neutral", "cssVariables": true, "prefix": "" },
   "aliases": { "components": "@/components", "ui": "@/components/ui", "utils": "@/lib/utils", "lib": "@/lib", "hooks": "@/hooks" },
-  "iconLibrary": "phosphor",
-  "registries": { "@magicui": "https://magicui.design/r/{name}.json" }
+  "iconLibrary": "phosphor"
 }

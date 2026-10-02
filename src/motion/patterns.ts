@@ -1,9 +1,6 @@
 // Reusable GSAP moves. Call them inside useSectionMotion (a gsap.context), so
 // every tween, ScrollTrigger and SplitText is reverted on unmount.
 //
-// Boundary rule: GSAP owns section wrappers and scroll-scrubbed motion. Magic UI
-// (Motion) components are leaves: GSAP never targets them or their children.
-//
 // Only transform and opacity are animated, plus two cheap exceptions:
 // clip-path masks and stroke-dashoffset on single SVG paths (DrawSVG).
 import { gsap, ScrollTrigger, SplitText } from './gsap';

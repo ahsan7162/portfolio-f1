@@ -4,6 +4,7 @@ import { SplitText } from 'gsap/SplitText';
 import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin';
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 import { Flip } from 'gsap/Flip';
+import { ScrambleTextPlugin } from 'gsap/ScrambleTextPlugin';
 import { useGSAP } from '@gsap/react';
 import { DUR, EASE } from './tokens';
 
@@ -13,7 +14,7 @@ let ready = false;
 export function ensureGsap() {
   if (ready || typeof window === 'undefined') return;
   ready = true;
-  gsap.registerPlugin(ScrollTrigger, SplitText, DrawSVGPlugin, MotionPathPlugin, Flip, useGSAP);
+  gsap.registerPlugin(ScrollTrigger, SplitText, DrawSVGPlugin, MotionPathPlugin, Flip, ScrambleTextPlugin, useGSAP);
   gsap.defaults({ ease: EASE.out, duration: DUR.reveal });
   gsap.ticker.lagSmoothing(0);
   ScrollTrigger.config({ ignoreMobileResize: true });

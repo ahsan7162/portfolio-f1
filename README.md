@@ -23,8 +23,11 @@ npm run preview    # http://localhost:4174
   background, the procedural helmet (`src/gl/helmet/`, built entirely in code) and the 3D lap.
   It only renders while something moves and pauses when the tab is hidden or a dialog is open.
   The helmet's per-section poses are in `src/gl/helmetPath.ts`.
-- **Magic UI:** leaf components in `src/components/ui/` (number ticker, hyper text, magic card,
-  terminal, animated beam, border beam, scroll velocity, dotted map). GSAP never targets them.
+- **One animation engine:** every JS animation is GSAP (plus Lenis on its ticker). Counters use
+  `digitRoll`, scrambled labels `ScrambleTextPlugin` (`src/components/Scramble.tsx`), project
+  diagrams draw once with DrawSVG and pulse on hover with MotionPath, and the logo marquee moves
+  only with scroll velocity. Durations and eases come from `src/motion/tokens.ts`; CSS hover
+  transitions share them through `--dur-hit`, `--dur-split` and `--dur-wipe`.
 - **SEO:** the page is prerendered to static HTML (`scripts/prerender.ts`) and hydrated.
   Headings and copy use plain developer terms; F1 details are decorative and `aria-hidden`.
 

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { CIRCUIT_PATH, CIRCUIT_VIEWBOX } from '@/art/circuit';
-import { HyperText } from '@/components/ui/hyper-text';
+import { Scramble } from '@/components/Scramble';
 import { gsap, ScrollTrigger } from '@/motion/gsap';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 
@@ -45,9 +45,8 @@ export function TrackMap() {
           <path data-track d={CIRCUIT_PATH} stroke="rgb(244 244 237 / 0.35)" strokeWidth="6" strokeLinejoin="round" />
           <circle data-dot r="10" fill="var(--ac)" />
         </svg>
-        {/* Re-keying replays the scramble whenever the section changes. */}
-        <HyperText key={name} as="span" duration={450} animateOnHover={false}
-          className="mt-2 block p-0 font-mono text-[10px] font-normal uppercase tracking-[0.14em] text-mute">{name}</HyperText>
+        {/* Scrambles into the new name whenever the section changes. */}
+        <Scramble text={name} className="mt-2 block font-mono text-[10px] uppercase tracking-[0.14em] text-mute" />
         </div>
       </div>
     </div>

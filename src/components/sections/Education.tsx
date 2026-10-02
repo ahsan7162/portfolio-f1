@@ -1,7 +1,6 @@
-import { NumberTicker } from '@/components/ui/number-ticker';
 import { education } from '@/content/data';
 import { gsap } from '@/motion/gsap';
-import { batchReveal, scrubParallax, splitReveal } from '@/motion/patterns';
+import { batchReveal, digitRoll, scrubParallax, splitReveal } from '@/motion/patterns';
 import { DUR, EASE } from '@/motion/tokens';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 
@@ -9,12 +8,13 @@ import { useSectionMotion } from '@/motion/useSectionMotion';
 const STEPS = [{ p: 2, h: 'h-24' }, { p: 1, h: 'h-36' }, { p: 3, h: 'h-16' }];
 
 export function Education() {
-  const ref = useSectionMotion<HTMLElement>(({ root, q, qa }) => {
+  const ref = useSectionMotion<HTMLElement>(({ root, q, qa, onRevert }) => {
     splitReveal(q('h2'), { type: 'chars' });
     scrubParallax(q('[data-p3]'), root, { from: { yPercent: 20 }, to: { yPercent: -20 } });
     gsap.from(qa('[data-step]'), { scaleY: 0, transformOrigin: '50% 100%', stagger: 0.12, duration: DUR.reveal, ease: EASE.settle,
       scrollTrigger: { trigger: q('[data-podium]')!, start: 'top 85%', once: true } });
     batchReveal(qa('[data-edu]'));
+    onRevert(digitRoll(q('[data-roll]')));
   });
 
   return (
@@ -32,7 +32,7 @@ export function Education() {
           <div data-edu className="border-t border-line pt-6">
             <h3 className="text-2xl font-semibold [font-stretch:110%]">3rd place, {education.award.name}</h3>
             <p className="mt-3 text-mute">
-              Out of <NumberTicker value={education.award.of} className="font-mono text-fg" /> teams worldwide. {education.award.text}
+              Out of <span data-roll className="font-mono text-fg">{education.award.of.toLocaleString('en-US')}</span> teams worldwide. {education.award.text}
             </p>
             <div data-podium aria-hidden="true" className="mt-10 flex items-end gap-2">
               {STEPS.map(s => (

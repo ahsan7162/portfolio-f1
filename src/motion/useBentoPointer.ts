@@ -55,6 +55,9 @@ export function useBentoPointer<T extends HTMLElement>() {
       }
       if (!t) return;
       const b = t.getBoundingClientRect();
+      // The cursor in the tile's own space, for per-tile spotlights (.card-spot).
+      t.style.setProperty('--tx', `${(e.clientX - b.left).toFixed(0)}px`);
+      t.style.setProperty('--ty', `${(e.clientY - b.top).toFixed(0)}px`);
       const px = (e.clientX - b.left) / b.width - 0.5, py = (e.clientY - b.top) / b.height - 0.5;
       const q = tiltOf(t);
       q.rx(-py * 4); q.ry(px * 4); q.s(1.015);

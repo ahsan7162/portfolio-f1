@@ -1,89 +1,147 @@
-import { forwardRef, useRef, type ReactNode } from 'react';
-import { siAnthropic, siApachekafka, siFastapi, siHuggingface, siOpensearch, siReact, type SimpleIcon } from 'simple-icons';
-import { AnimatedBeam } from '@/components/ui/animated-beam';
-import { AnimatedSpan, Terminal, TypingAnimation } from '@/components/ui/terminal';
+import { useEffect, useRef, type ReactNode } from 'react';
+import { CpuIcon } from '@phosphor-icons/react/dist/ssr/Cpu';
+import { SlackLogoIcon } from '@phosphor-icons/react/dist/ssr/SlackLogo';
+import { siAnthropic, siApachekafka, siFastapi, siGo, siHuggingface, siJira, siOpensearch, siReact, type SimpleIcon } from 'simple-icons';
 import type { Project } from '@/content/data';
-import { useOnScreen } from '@/lib/useOnScreen';
+import { ensureGsap, gsap } from '@/motion/gsap';
+import { isTouch, motionEnabled } from '@/motion/prefs';
+import { DUR, EASE } from '@/motion/tokens';
 
-// Live "component previews" that stand in for photography (Magic UI leaves).
-// They animate on in-view only; GSAP never targets anything inside them.
-// The beams loop forever, so they are only mounted while the preview is on screen.
+// Architecture diagrams that stand in for photography, drawn as one SVG on a
+// fixed 320×200 grid so they scale with the card without measuring the DOM.
+// Motion (GSAP only): each line draws once as the card comes into view, then
+// stays still. On hover, one red dot runs the request path. Nothing loops.
 
-function Logo({ icon }: { icon: SimpleIcon }) {
+type Node = { id: string; x: number; y: number; label: string; icon?: SimpleIcon; glyph?: ReactNode; txt?: string; accent?: boolean };
+/** from, to, bend (perpendicular offset of the curve), draw order. */
+type Edge = { from: string; to: string; bend?: number; order: number };
+type Spec = { nodes: Node[]; edges: Edge[]; /** Edge indices per hover stage; a stage's dots run together. */ pulse: number[][] };
+
+const SPECS: Record<Project['id'], Spec> = {
+  // A chat goes React → Go core → Python runtime → the model providers; agents deploy from the Go core.
+  agents: {
+    nodes: [
+      { id: 'ui', x: 38, y: 78, label: 'React chat', icon: siReact },
+      { id: 'go', x: 128, y: 78, label: 'Go core', icon: siGo, accent: true },
+      { id: 'py', x: 218, y: 78, label: 'Python runtime', glyph: <CpuIcon size={15} x={-7.5} y={-7.5} weight="bold" /> },
+      { id: 'oai', x: 292, y: 30, label: 'OpenAI', txt: 'OAI' },
+      { id: 'ant', x: 292, y: 78, label: 'Anthropic', icon: siAnthropic },
+      { id: 'more', x: 292, y: 126, label: 'More', txt: '+' },
+      { id: 'slack', x: 83, y: 160, label: 'Slack', glyph: <SlackLogoIcon size={15} x={-7.5} y={-7.5} weight="bold" /> },
+      { id: 'jira', x: 128, y: 160, label: 'Jira', icon: siJira },
+      { id: 'ci', x: 173, y: 160, label: 'CI/CD', txt: 'CI' },
+    ],
+    edges: [
+      { from: 'ui', to: 'go', order: 0 },
+      { from: 'go', to: 'py', order: 1 },
+      { from: 'py', to: 'oai', bend: -10, order: 2 },
+      { from: 'py', to: 'ant', order: 2 },
+      { from: 'py', to: 'more', bend: 10, order: 2 },
+      { from: 'go', to: 'slack', bend: 8, order: 3 },
+      { from: 'go', to: 'jira', order: 3 },
+      { from: 'go', to: 'ci', bend: -8, order: 3 },
+    ],
+    pulse: [[0], [1], [2, 3, 4]],
+  },
+  // Kafka streams into OpenSearch, DynamoDB is the source of truth, a React microfrontend serves it.
+  'partner-ops': {
+    nodes: [
+      { id: 'kafka', x: 40, y: 58, label: 'Kafka', icon: siApachekafka },
+      { id: 'ddb', x: 40, y: 142, label: 'DynamoDB', txt: 'DDB' },
+      { id: 'os', x: 130, y: 100, label: 'OpenSearch', icon: siOpensearch },
+      { id: 'mfe', x: 210, y: 100, label: 'React MFE', icon: siReact, accent: true },
+      { id: 'ops', x: 285, y: 100, label: 'Ops teams', txt: 'OPS' },
+    ],
+    edges: [
+      { from: 'kafka', to: 'os', bend: -12, order: 0 },
+      { from: 'ddb', to: 'os', bend: 12, order: 0 },
+      { from: 'os', to: 'mfe', order: 1 },
+      { from: 'mfe', to: 'ops', order: 2 },
+    ],
+    pulse: [[0, 1], [2], [3]],
+  },
+  // Four providers behind one FastAPI server, streaming to the client.
+  'llm-server': {
+    nodes: [
+      { id: 'oai', x: 40, y: 28, label: 'OpenAI', txt: 'OAI' },
+      { id: 'ant', x: 40, y: 76, label: 'Anthropic', icon: siAnthropic },
+      { id: 'llama', x: 40, y: 124, label: 'Llama', txt: 'LLM' },
+      { id: 'hf', x: 40, y: 172, label: 'HuggingFace', icon: siHuggingface },
+      { id: 'api', x: 160, y: 100, label: 'FastAPI', icon: siFastapi, accent: true },
+      { id: 'client', x: 282, y: 100, label: 'Client', txt: 'SSE' },
+    ],
+    edges: [
+      { from: 'oai', to: 'api', bend: -14, order: 0 },
+      { from: 'ant', to: 'api', bend: -6, order: 0 },
+      { from: 'llama', to: 'api', bend: 6, order: 0 },
+      { from: 'hf', to: 'api', bend: 14, order: 0 },
+      { from: 'api', to: 'client', order: 1 },
+    ],
+    pulse: [[0, 1, 2, 3], [4]],
+  },
+};
+
+const R = 13; // node radius
+
+function pathOf(a: Node, b: Node, bend = 0) {
+  const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+  const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy) || 1;
+  const cx = mx - (dy / len) * bend * 2, cy = my + (dx / len) * bend * 2;
+  return `M${a.x},${a.y} Q${cx.toFixed(1)},${cy.toFixed(1)} ${b.x},${b.y}`;
+}
+
+function Diagram({ spec }: { spec: Spec }) {
+  const ref = useRef<SVGSVGElement>(null);
+  const byId = Object.fromEntries(spec.nodes.map(n => [n.id, n]));
+
+  useEffect(() => {
+    const svg = ref.current;
+    if (!svg || !motionEnabled()) return;
+    ensureGsap();
+    const lines = [...svg.querySelectorAll<SVGPathElement>('[data-edge]')];
+    const dots = [...svg.querySelectorAll<SVGCircleElement>('[data-dot]')];
+    const card = svg.closest('[data-card]');
+    let running: gsap.core.Timeline | null = null;
+    const ctx = gsap.context(() => {
+      // Draw once, in the order of the flow.
+      const draw = gsap.timeline({ scrollTrigger: { trigger: svg, start: 'top 80%', once: true } });
+      lines.forEach((l, i) => draw.fromTo(l, { drawSVG: '0%' }, { drawSVG: '100%', duration: DUR.reveal * 0.6, ease: EASE.out }, spec.edges[i].order * 0.18));
+      gsap.set(dots, { autoAlpha: 0 });
+    }, svg);
+    // One pulse per hover: each stage's dots run their lines together.
+    const pulse = () => ctx.add(() => {
+      if (running?.isActive()) return;
+      const stage = DUR.wipe / spec.pulse.length;
+      running = gsap.timeline();
+      spec.pulse.forEach((edges, s) => edges.forEach(i => {
+        running!.set(dots[i], { autoAlpha: 1 }, s * stage)
+          .to(dots[i], { duration: stage, ease: EASE.none, motionPath: { path: lines[i], align: lines[i], alignOrigin: [0.5, 0.5] } }, s * stage)
+          .set(dots[i], { autoAlpha: 0 }, (s + 1) * stage);
+      }));
+    });
+    const hover = !isTouch() && card;
+    if (hover) card.addEventListener('pointerenter', pulse);
+    return () => { if (hover) card.removeEventListener('pointerenter', pulse); ctx.revert(); };
+  }, [spec]);
+
   return (
-    <svg role="img" aria-label={icon.title} viewBox="0 0 24 24" className="size-5 fill-current">
-      <path d={icon.path} />
+    <svg ref={ref} viewBox="0 0 320 200" className="h-full w-full" fill="none">
+      {spec.edges.map((e, i) => (
+        <path key={i} data-edge d={pathOf(byId[e.from], byId[e.to], e.bend)} stroke="#f4f4ed" strokeOpacity="0.28" strokeWidth="1" />
+      ))}
+      {spec.edges.map((_, i) => <circle key={i} data-dot r="2.6" fill="#ff2438" />)}
+      {spec.nodes.map(n => (
+        <g key={n.id} transform={`translate(${n.x} ${n.y})`}>
+          <circle r={R} fill="#0b0b0c" stroke={n.accent ? '#ff2438' : 'rgb(255 255 255 / 0.15)'} />
+          <g className={n.accent ? 'text-ac' : 'text-[#f4f4ed]'} fill="currentColor">
+            {n.icon && <path d={n.icon.path} transform="translate(-7 -7) scale(0.5833)" />}
+            {n.glyph}
+            {n.txt && <text textAnchor="middle" dominantBaseline="central" className="font-mono" fontSize="6.5" fontWeight="700">{n.txt}</text>}
+          </g>
+          <text y={R + 9} textAnchor="middle" className="font-mono uppercase" fontSize="6" letterSpacing="0.6" fill="#a3a39c">{n.label}</text>
+        </g>
+      ))}
     </svg>
-  );
-}
-
-const Node = forwardRef<HTMLDivElement, { children: ReactNode; label: string; accent?: boolean }>(
-  function Node({ children, label, accent }, ref) {
-    return (
-      <div className="flex flex-col items-center gap-1.5">
-        <div ref={ref} className={`z-10 grid size-11 place-items-center rounded-full border bg-carbon text-[#f4f4ed] ${accent ? 'border-ac text-ac' : 'border-white/15'}`}>
-          {children}
-        </div>
-        <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-[#a3a39c]">{label}</span>
-      </div>
-    );
-  });
-
-const Txt = ({ t }: { t: string }) => <span className="font-mono text-[10px] font-bold">{t}</span>;
-
-function BeamPipeline() {
-  const box = useRef<HTMLDivElement>(null);
-  const on = useOnScreen(box);
-  const kafka = useRef<HTMLDivElement>(null), dynamo = useRef<HTMLDivElement>(null);
-  const search = useRef<HTMLDivElement>(null), mfe = useRef<HTMLDivElement>(null), ops = useRef<HTMLDivElement>(null);
-  const beam = { containerRef: box, gradientStartColor: '#ff2438', gradientStopColor: '#f4f4ed', pathColor: '#f4f4ed', pathOpacity: 0.12, duration: 3.2 };
-  return (
-    <div ref={box} className="relative grid h-full w-full grid-cols-4 items-center px-6">
-      <div className="flex flex-col gap-8"><Node ref={kafka} label="Kafka"><Logo icon={siApachekafka} /></Node><Node ref={dynamo} label="DynamoDB"><Txt t="DDB" /></Node></div>
-      <div className="flex justify-center"><Node ref={search} label="OpenSearch"><Logo icon={siOpensearch} /></Node></div>
-      <div className="flex justify-center"><Node ref={mfe} label="React MFE" accent><Logo icon={siReact} /></Node></div>
-      <div className="flex justify-end"><Node ref={ops} label="Ops teams"><Txt t="OPS" /></Node></div>
-      {on && <>
-        <AnimatedBeam {...beam} fromRef={kafka} toRef={search} curvature={-30} />
-        <AnimatedBeam {...beam} fromRef={dynamo} toRef={search} curvature={30} delay={0.6} />
-        <AnimatedBeam {...beam} fromRef={search} toRef={mfe} delay={1.1} />
-        <AnimatedBeam {...beam} fromRef={mfe} toRef={ops} delay={1.6} />
-      </>}
-    </div>
-  );
-}
-
-function BeamHub() {
-  const box = useRef<HTMLDivElement>(null), hub = useRef<HTMLDivElement>(null), client = useRef<HTMLDivElement>(null);
-  const on = useOnScreen(box);
-  const p0 = useRef<HTMLDivElement>(null), p1 = useRef<HTMLDivElement>(null), p2 = useRef<HTMLDivElement>(null), p3 = useRef<HTMLDivElement>(null);
-  const beam = { containerRef: box, gradientStartColor: '#ff2438', gradientStopColor: '#f4f4ed', pathColor: '#f4f4ed', pathOpacity: 0.12, duration: 3 };
-  return (
-    <div ref={box} className="relative grid h-full w-full grid-cols-3 items-center px-6">
-      <div className="flex flex-col gap-3">
-        <Node ref={p0} label="OpenAI"><Txt t="OAI" /></Node>
-        <Node ref={p1} label="Anthropic"><Logo icon={siAnthropic} /></Node>
-        <Node ref={p2} label="Llama"><Txt t="LLM" /></Node>
-        <Node ref={p3} label="HuggingFace"><Logo icon={siHuggingface} /></Node>
-      </div>
-      <div className="flex justify-center"><Node ref={hub} label="FastAPI" accent><Logo icon={siFastapi} /></Node></div>
-      <div className="flex justify-end"><Node ref={client} label="Client"><Txt t="SSE" /></Node></div>
-      {on && [p0, p1, p2, p3].map((p, i) => <AnimatedBeam key={i} {...beam} fromRef={p} toRef={hub} curvature={(1.5 - i) * 28} delay={i * 0.3} />)}
-      {on && <AnimatedBeam {...beam} fromRef={hub} toRef={client} delay={1.4} reverse />}
-    </div>
-  );
-}
-
-function AgentTerminal() {
-  return (
-    <Terminal className="h-full max-h-none w-full max-w-none rounded-none border-0 bg-transparent font-mono text-[12px] text-[#f4f4ed]">
-      <TypingAnimation>$ agents create support-triage</TypingAnimation>
-      <AnimatedSpan className="text-[#a3a39c]">✔ Semantic search index attached</AnimatedSpan>
-      <AnimatedSpan className="text-[#a3a39c]">✔ Version v3 saved</AnimatedSpan>
-      <TypingAnimation>$ agents deploy --slack --jira --ci</TypingAnimation>
-      <AnimatedSpan className="text-[#ff2438]">✔ Live in 3 targets, 10 min end to end</AnimatedSpan>
-      <AnimatedSpan className="text-[#a3a39c]">450+ agents running company-wide</AnimatedSpan>
-    </Terminal>
   );
 }
 
@@ -96,10 +154,8 @@ export function ProjectVisual({ project }: { project: Project }) {
   }
   // TODO(screenshots): add real screenshots to src/assets/projects and set `image` in content/data.ts.
   return (
-    <div aria-hidden="true" className="h-full w-full">
-      {project.id === 'agents' && <AgentTerminal />}
-      {project.id === 'partner-ops' && <BeamPipeline />}
-      {project.id === 'llm-server' && <BeamHub />}
+    <div aria-hidden="true" className="grid h-full w-full place-items-center px-4 py-3">
+      <Diagram spec={SPECS[project.id]} />
     </div>
   );
 }

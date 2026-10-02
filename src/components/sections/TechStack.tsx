@@ -3,9 +3,8 @@ import {
   siGo, siPython, siDotnet, siReact, siNextdotjs, siJavascript, siNodedotjs, siFastapi, siGin, siPostgresql, siMysql, siApachekafka, siOpensearch, siLangchain, siAnthropic, siHuggingface, siPandas, siVite, siGithub, siJira,
   type SimpleIcon,
 } from 'simple-icons';
-import { ScrollVelocityContainer, ScrollVelocityRow } from '@/components/ui/scroll-based-velocity';
 import { skills } from '@/content/data';
-import { gsap } from '@/motion/gsap';
+import { gsap, ScrollTrigger } from '@/motion/gsap';
 import { DUR, EASE, STAGGER } from '@/motion/tokens';
 import { useBentoPointer } from '@/motion/useBentoPointer';
 import { useSectionMotion } from '@/motion/useSectionMotion';
@@ -40,6 +39,19 @@ export function TechStack() {
   const grid = useBentoPointer<HTMLDivElement>();
   const ref = useSectionMotion<HTMLElement>(({ q, qa }) => {
     // No heading animation: the logo marquee coming in is the entrance.
+    // The marquee only moves while you scroll, at the scroll's speed and
+    // direction, then coasts to a stop: like a car, it only moves while racing.
+    const loop = gsap.to(q('[data-marquee]'), { xPercent: -50, ease: EASE.none, duration: 40, repeat: -1 });
+    loop.totalTime(loop.duration() * 1000).timeScale(0); // far from 0, so it can run backwards too
+    const coast = () => gsap.to(loop, { timeScale: 0, duration: DUR.show, ease: EASE.out, overwrite: true });
+    ScrollTrigger.create({
+      trigger: q('[data-marqueebox]')!, start: 'top bottom', end: 'bottom top',
+      onUpdate: self => {
+        const v = gsap.utils.clamp(-8, 8, self.getVelocity() / 250);
+        gsap.to(loop, { timeScale: v, duration: DUR.split, ease: EASE.out, overwrite: true, onComplete: coast });
+      },
+      onToggle: self => { if (!self.isActive) loop.timeScale(0); },
+    });
     gsap.fromTo(qa('[data-tile]'), { clipPath: 'inset(0% 100% 0% 0%)' }, {
       clipPath: 'inset(0% 0% 0% 0%)', duration: DUR.reveal, ease: EASE.wipe, stagger: STAGGER.line, clearProps: 'clipPath',
       scrollTrigger: { trigger: q('.bento')!, start: 'top 80%', once: true },
@@ -50,15 +62,20 @@ export function TechStack() {
       <div className="mx-auto max-w-[1400px] px-4 md:px-8">
         <h2 className="display mb-14 text-[clamp(2.4rem,7vw,6.5rem)]">Tech stack</h2>
       </div>
-      <ScrollVelocityContainer className="border-y border-line py-8">
-        <ScrollVelocityRow baseVelocity={2.5}>
-          {LOGOS.map(l => (
-            <span key={l.slug} className="mx-8 inline-flex items-center gap-3 text-fg/80 md:mx-12">
-              <svg role="img" aria-label={l.title} viewBox="0 0 24 24" className="size-9 fill-current md:size-11"><path d={l.path} /></svg>
-            </span>
+      <div data-marqueebox className="overflow-hidden border-y border-line py-8">
+        {/* Two identical halves (each lists the logos twice to cover wide screens), so -50% loops seamlessly. */}
+        <div data-marquee className="flex w-max">
+          {[0, 1, 2, 3].map(copy => (
+            <div key={copy} aria-hidden={copy > 0 || undefined} className="flex shrink-0">
+              {LOGOS.map(l => (
+                <span key={l.slug} className="mx-8 inline-flex items-center gap-3 text-fg/80 md:mx-12">
+                  <svg role={copy ? undefined : 'img'} aria-label={copy ? undefined : l.title} viewBox="0 0 24 24" className="size-9 fill-current md:size-11"><path d={l.path} /></svg>
+                </span>
+              ))}
+            </div>
           ))}
-        </ScrollVelocityRow>
-      </ScrollVelocityContainer>
+        </div>
+      </div>
       <div className="mx-auto mt-16 max-w-[1400px] px-4 md:px-8">
         <div ref={grid} className="bento">
           <Tile n={1} name="Core languages" accent className="tile-lead md:flex-row md:flex-wrap md:items-center md:justify-between md:gap-6 md:p-10 md:pr-16">

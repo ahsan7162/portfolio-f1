@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react';
-import { HyperText } from '@/components/ui/hyper-text';
+import { Scramble } from '@/components/Scramble';
 import { originOf, useDialogs } from '@/components/dialog-context';
 import { archive, CV_FILE, EMAIL, GITHUB, jobs, LINKEDIN, projects } from '@/content/data';
 import { Flip, gsap, ScrollTrigger } from '@/motion/gsap';
@@ -201,7 +201,7 @@ export function Nav() {
 
       <nav aria-label="Primary" className="relative mx-auto flex h-16 max-w-[1400px] items-center justify-between gap-6 px-4 md:px-8">
         <a href="#top" onClick={go} className="inline-flex min-h-11 items-center font-sans text-sm font-extrabold uppercase tracking-tight [font-stretch:125%]" aria-label="Muhammad Ahsan, back to top">
-          <HyperText as="span" className="py-0 text-sm font-extrabold" duration={600} startOnView={false} animateOnHover>AHSAN</HyperText>
+          <Scramble text="AHSAN" on="hover" />
           <span className="sr-only">Muhammad Ahsan</span>
         </a>
         <div className="flex items-center gap-3">
