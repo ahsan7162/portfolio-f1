@@ -42,19 +42,31 @@ export function Lap() {
       if (i === cur) return;
       const dir = i > cur ? 1 : -1;
       const prev = stages[cur];
-      if (prev) gsap.to(prev, { autoAlpha: 0, y: -40 * dir, duration: DUR.hit, ease: EASE.in, overwrite: true });
+      // Crossfade with no gap: the old card drops out quietly while the new one rises in.
+      if (prev) gsap.to(prev, { autoAlpha: 0, y: -12 * dir, duration: DUR.hit, ease: EASE.in, overwrite: true });
       const next = stages[i];
-      gsap.fromTo(next, { autoAlpha: 0, y: 50 * dir }, { autoAlpha: 1, y: 0, duration: DUR.split, delay: prev ? 0.1 : 0, ease: EASE.out, overwrite: true });
-      gsap.fromTo(next.querySelectorAll('[data-stat]'), { yPercent: 100 }, { yPercent: 0, duration: DUR.split, delay: prev ? 0.15 : 0.05, ease: EASE.out, overwrite: true });
+      gsap.fromTo(next, { autoAlpha: 0, y: 24 * dir }, { autoAlpha: 1, y: 0, duration: DUR.split, ease: EASE.out, overwrite: true });
+      gsap.fromTo(next.querySelectorAll('[data-stat]'), { yPercent: 100 }, { yPercent: 0, duration: DUR.split, delay: 0.05, ease: EASE.out, overwrite: true });
       sectorEls.forEach((el, k) => el.classList.toggle('text-ac', k === i));
       cur = i;
     };
 
     const at = (p: number) => Math.min(n - 1, Math.floor(p * n));
+    // Switch on intent: a short scroll away from the current stage's middle (18% of
+    // its band), in the direction you are scrolling, moves to the next stage at once
+    // instead of waiting for the halfway line. Fast scrolls still skip straight through.
+    const mid = (i: number) => (i + 0.5) / n, nudge = 0.18 / n;
+    const pick = (p: number, dir: number) => {
+      if (cur < 0) return at(p);
+      let i = cur;
+      if (dir > 0) while (i < n - 1 && p > mid(i) + nudge) i++;
+      else if (dir < 0) while (i > 0 && p < mid(i) - nudge) i--;
+      return i;
+    };
     const st = ScrollTrigger.create({
       trigger: pin, start: 'top top', end: `+=${n * 35}%`, pin: true, markers,
-      onUpdate: self => show(at(self.progress)),
-      onEnterBack: self => show(at(self.progress)),
+      onUpdate: self => show(pick(self.progress, self.direction)),
+      onEnterBack: self => show(pick(self.progress, self.direction)),
     });
     const lap = { trigger: pin, start: 'top top', end: () => st.end, scrub: 0.5 };
     gsap.fromTo(lapState, { progress: 0 }, { progress: 1, ease: EASE.none, scrollTrigger: lap });
@@ -74,14 +86,15 @@ export function Lap() {
       scrollTrigger: { trigger: pin, start: () => st.end - innerHeight * 0.25, end: () => st.end, scrub: true } });
     onRevert(() => { lapState.active = false; lapState.veil = 1; lapState.progress = 0; });
 
-    // Snap: when scrolling settles inside the pin, glide to the middle of the
-    // nearest stage (or either end). Done through Lenis, since ScrollTrigger's
+    // Snap: when scrolling settles inside the pin, glide to the middle of the stage
+    // the card shows (so the snap never contradicts the card), or let the first and
+    // last stage settle on the pin's ends. Done through Lenis, since ScrollTrigger's
     // own snap scrolls the window directly and Lenis would fight it.
-    const points = [0, ...stages.map((_, k) => (k + 0.5) / n), 1];
     const settle = () => {
       const l = lenis();
-      if (!l || l.isScrolling || !st.isActive) return; // never interrupt a scroll in progress (menu jumps included)
+      if (!l || l.isScrolling || !st.isActive || cur < 0) return; // never interrupt a scroll in progress (menu jumps included)
       const p = st.progress;
+      const points = cur === 0 ? [0, mid(0)] : cur === n - 1 ? [mid(n - 1), 1] : [mid(cur)];
       const to = points.reduce((a, b) => (Math.abs(b - p) < Math.abs(a - p) ? b : a));
       if (Math.abs(to - p) * (st.end - st.start) < 2) return;
       l.scrollTo(st.start + to * (st.end - st.start), { duration: DUR.wipe, easing: gsap.parseEase(EASE.wipe) });
