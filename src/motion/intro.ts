@@ -18,7 +18,13 @@ export function loaderWanted() {
 
 export function introTimeline() {
   if (!tl) {
-    tl = gsap.timeline({ paused: true, onComplete: () => { done = true; waiters.splice(0).forEach(f => f()); } });
+    // Created outside any section's gsap.context, so a section's cleanup (React
+    // StrictMode runs effects twice in dev) never reverts the shared timeline.
+    let made!: gsap.core.Timeline;
+    gsap.context(() => {}).ignore(() => {
+      made = gsap.timeline({ paused: true, onComplete: () => { done = true; waiters.splice(0).forEach(f => f()); } });
+    });
+    tl = made;
     tl.addLabel('reveal', 0);
   }
   return tl;
@@ -37,5 +43,7 @@ export function playIntro(speed = 1) {
 /** Repeat visit or no loader: jump every intro tween to its end state. */
 export function skipIntro() {
   const t = introTimeline();
-  t.progress(1);
+  // Render from the start, then the end: tweens added after an earlier skip
+  // (StrictMode re-runs effects) would otherwise keep their hidden from-state.
+  t.progress(0, true).progress(1);
 }
