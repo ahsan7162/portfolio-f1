@@ -60,13 +60,16 @@ export function TechStack() {
         <h2 className="display mb-14 text-[clamp(2.4rem,7vw,6.5rem)]">Tech stack</h2>
       </div>
       <div data-marqueebox className="overflow-hidden border-y border-line py-8">
-        {/* Two identical halves (each lists the logos twice to cover wide screens), so -50% loops seamlessly. */}
+        {/* Two identical halves, so -50% loops seamlessly. One list is wider than any screen;
+            the copy reuses the first half's paths (<use>), so the page HTML carries each logo once. */}
         <div data-marquee className="flex w-max">
-          {[0, 1, 2, 3].map(copy => (
+          {[0, 1].map(copy => (
             <div key={copy} aria-hidden={copy > 0 || undefined} className="flex shrink-0">
               {LOGOS.map(l => (
                 <span key={l.slug} className="mx-8 inline-flex items-center gap-3 text-fg/80 md:mx-12">
-                  <svg role={copy ? undefined : 'img'} aria-label={copy ? undefined : l.title} viewBox="0 0 24 24" className="size-9 fill-current md:size-11"><path d={l.path} /></svg>
+                  {copy
+                    ? <svg viewBox="0 0 24 24" className="size-9 fill-current md:size-11"><use href={`#logo-${l.slug}`} /></svg>
+                    : <svg role="img" aria-label={l.title} viewBox="0 0 24 24" className="size-9 fill-current md:size-11"><path id={`logo-${l.slug}`} d={l.path} /></svg>}
                 </span>
               ))}
             </div>
