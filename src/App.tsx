@@ -60,26 +60,33 @@ function Page() {
   }, []);
 
   const api = useMemo(() => ({ openDetails, openArchive }), [openDetails, openArchive]);
+  // The page itself never depends on which dialog is open: keep the same elements,
+  // so opening or closing a dialog doesn't re-render the whole site (that cost a
+  // 40 to 50 ms frame at the start of every open and the end of every close).
+  const page = useMemo(() => (
+    <>
+      <Nav />
+      <main>
+        <Hero />
+        <About />
+        <Lap />
+        <Experience />
+        <Projects />
+        <TechStack />
+        <Results />
+      </main>
+      <Contact />
+      <TrackMap />
+    </>
+  ), []);
+  const gl = useMemo(() => <GLCanvas />, []), intro = useMemo(() => <Intro />, []);
 
   return (
     <DialogCtx.Provider value={api}>
       <div aria-hidden="true" className="contour-fallback pointer-events-none fixed inset-0 -z-20" />
-      <GLCanvas />
-      <div inert={anyOpen || undefined}>
-        <Nav />
-        <main>
-          <Hero />
-          <About />
-          <Lap />
-          <Experience />
-          <Projects />
-          <TechStack />
-          <Results />
-        </main>
-        <Contact />
-        <TrackMap />
-      </div>
-      <Intro />
+      {gl}
+      <div inert={anyOpen || undefined}>{page}</div>
+      {intro}
       {open.arch && <ArchiveDialog dref={archRef} origin={open.arch.o} onClose={closeArch} onOpenItem={openDetails} />}
       {open.sel && <DetailsDialog dref={selRef} sel={open.sel.b} origin={open.sel.o} onClose={closeSel} />}
     </DialogCtx.Provider>

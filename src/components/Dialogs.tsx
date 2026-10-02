@@ -15,23 +15,16 @@ function trapTab(e: KeyboardEvent<HTMLDivElement>) {
   else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
 }
 
-// Circular wipe from the click point. A solid circle in the dialog's own colour
-// scales up behind the content (transform only, so the compositor animates it
-// without repainting the page), then the content rises in. Its radius is the
-// exact distance to the farthest screen corner, so the wipe has no dead time at
-// either end. While it runs the dialog's own background is cleared; afterwards
-// the background is restored and the circle hidden, so resizes can't uncover it.
+// Circular wipe from the click point: the dialog itself is clipped to a circle
+// that grows from the click (clip-path), then the content rises in. Its radius is
+// the exact distance to the farthest screen corner, so the wipe has no dead time at
+// either end. (It used to scale a solid circle as wide as the screen diagonal on its
+// own layer: a ~46M-pixel texture at 2x, which the GPU had to raster and upload.)
 const reach = (o: Origin) => Math.hypot(Math.max(o.x, innerWidth - o.x), Math.max(o.y, innerHeight - o.y));
+const clip = (o: Origin, r: number) => `circle(${r.toFixed(1)}px at ${o.x.toFixed(1)}px ${o.y.toFixed(1)}px)`;
 
 /** The running open animation per dialog, so a close that starts mid-open can cancel it. */
 const opening = new WeakMap<HTMLElement, { tl?: gsap.core.Timeline; cancelled?: boolean }>();
-
-function placeWipe(el: HTMLElement, o: Origin) {
-  const c = el.querySelector<HTMLElement>('[data-dwipe]')!, r = reach(o);
-  Object.assign(c.style, { width: `${2 * r}px`, height: `${2 * r}px`, left: `${o.x - r}px`, top: `${o.y - r}px`, visibility: 'visible' });
-  el.style.background = 'transparent';
-  return c;
-}
 
 /** Wipe in from the click point, then content rises in. */
 function useDialogIn(ref: React.RefObject<HTMLDivElement | null>, origin: Origin | undefined, focusId: string) {
@@ -40,7 +33,6 @@ function useDialogIn(ref: React.RefObject<HTMLDivElement | null>, origin: Origin
     document.getElementById(focusId)?.focus({ preventScroll: true });
     if (!motionEnabled()) return;
     const o = origin ?? { x: innerWidth / 2, y: innerHeight / 2 };
-    const circle = placeWipe(el, o);
     // Shared title: the card's title flies into the dialog heading (FLIP with one
     // uniform scale, so the text never stretches), alongside the circle wipe.
     const head = origin?.title ? el.querySelector<HTMLElement>('h2[data-din]') : null;
@@ -49,7 +41,7 @@ function useDialogIn(ref: React.RefObject<HTMLDivElement | null>, origin: Origin
     const state: { tl?: gsap.core.Timeline; cancelled?: boolean } = {};
     opening.set(el, state);
     const ctx = gsap.context(() => {
-      gsap.set(circle, { scale: 0, willChange: 'transform' });
+      gsap.set(el, { clipPath: clip(o, 0) });
       gsap.set(items, { autoAlpha: 0, y: 30 });
       if (head && origin?.title) {
         const to = head.getBoundingClientRect(), from = origin.title;
@@ -58,9 +50,9 @@ function useDialogIn(ref: React.RefObject<HTMLDivElement | null>, origin: Origin
       // Start a frame after mount, so the cost of rendering the dialog isn't eaten by the tween.
       raf = requestAnimationFrame(() => {
         if (state.cancelled) return;
-        state.tl = gsap.timeline({ onComplete: () => { el.style.background = ''; gsap.set(circle, { visibility: 'hidden', willChange: 'auto' }); } })
-          // Fast-start ease: the circle's area grows with scale squared, so an ease-in would look stuck.
-          .to(circle, { scale: 1, duration: DUR.wipe, ease: EASE.out })
+        state.tl = gsap.timeline({ onComplete: () => { gsap.set(el, { clearProps: 'clipPath' }); } })
+          // Fast-start ease: the circle's area grows with its radius squared, so an ease-in would look stuck.
+          .to(el, { clipPath: clip(o, reach(o)), duration: DUR.wipe, ease: EASE.out })
           .to(items, { autoAlpha: 1, y: 0, stagger: { amount: 0.08 }, duration: DUR.split, ease: EASE.out }, 0.12);
         if (head) state.tl.to(head, { x: 0, y: 0, scale: 1, duration: DUR.wipe, ease: EASE.out }, 0);
       });
@@ -75,19 +67,13 @@ export function closeWithWipe(el: HTMLElement | null, origin: Origin | undefined
   const o = origin ?? { x: innerWidth / 2, y: innerHeight / 2 };
   // Closing mid-open: stop the open wipe and shrink from wherever it got to.
   const open = opening.get(el);
-  const from = open?.tl?.isActive() || (open && !open.tl) ? gsap.getProperty(el.querySelector('[data-dwipe]')!, 'scale') as number : 1;
+  const mid = open?.tl?.isActive() || (open && !open.tl);
+  const r = mid ? parseFloat(String(el.style.clipPath).replace('circle(', '')) || 0 : reach(o);
   if (open) { open.cancelled = true; open.tl?.kill(); }
-  const circle = placeWipe(el, o);
-  gsap.set(circle, { scale: from, willChange: 'transform' });
   gsap.timeline({ onComplete: done })
     .to(el.querySelectorAll('[data-din], [data-dhead]'), { autoAlpha: 0, y: -16, duration: DUR.hit, ease: EASE.in, overwrite: true })
-    .to(circle, { scale: 0, duration: DUR.split, ease: EASE.wipe }, 0.05);
+    .fromTo(el, { clipPath: clip(o, r) }, { clipPath: clip(o, 0), duration: DUR.split, ease: EASE.wipe }, 0.05);
 }
-
-/** The wipe circle: sits behind the dialog content, coloured like the dialog. */
-const Wipe = ({ className }: { className: string }) => (
-  <div data-dwipe aria-hidden="true" className={`pointer-events-none invisible fixed -z-10 rounded-full ${className}`} />
-);
 
 const shell = 'fixed inset-0 z-[70] isolate overflow-y-auto overscroll-contain bg-graphite text-fg';
 
@@ -97,7 +83,6 @@ export function ArchiveDialog({ origin, onClose, onOpenItem, dref }: {
   useDialogIn(dref, origin, 'archClose');
   return (
     <div ref={dref} role="dialog" aria-modal="true" aria-labelledby="archTitle" onKeyDown={trapTab} data-lenis-prevent className={shell}>
-      <Wipe className="bg-graphite" />
       <div data-dhead className="sticky top-0 z-10 flex items-center justify-between border-b border-line bg-graphite/95 px-4 py-4 md:px-8">
         <span className="label">All projects</span>
         <button type="button" id="archClose" onClick={onClose} className="btn btn-ghost">Close</button>
@@ -130,7 +115,6 @@ export function DetailsDialog({ sel, origin, onClose, dref }: { sel: Breakdown; 
   useDialogIn(dref, origin, 'selClose');
   return (
     <div ref={dref} role="dialog" aria-modal="true" aria-labelledby="selTitle" onKeyDown={trapTab} data-lenis-prevent className={`${shell} z-[75] bg-carbon`}>
-      <Wipe className="bg-carbon" />
       <div data-dhead className="sticky top-0 z-10 flex items-center justify-between border-b border-line bg-carbon/95 px-4 py-4 md:px-8">
         <span className="label">Details</span>
         <button type="button" id="selClose" onClick={onClose} className="btn btn-ghost">Close</button>
