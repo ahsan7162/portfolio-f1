@@ -34,10 +34,9 @@ export function Lap() {
     gsap.set(stages, { autoAlpha: 0, y: 60 });
     gsap.set(q('[data-laphead]'), { autoAlpha: 0, y: 30 });
 
-    // Stages switch as whole steps, not scrubbed: a short scroll past a threshold
-    // plays the full change on its own clock, so one flick moves one season.
-    // The camera target moves with the stage too, so the track glides at a fixed
-    // pace no matter how fast you scroll.
+    // The track is scroll: the camera and the car are scrubbed to the pin (1:1 with a
+    // short catch-up), so the lap stops when you stop. The stage cards are the
+    // discrete events: each switch lands once, quickly (DUR.split in, DUR.hit out).
     let cur = -1;
     const show = (i: number) => {
       if (i === cur) return;
@@ -48,21 +47,32 @@ export function Lap() {
       gsap.fromTo(next, { autoAlpha: 0, y: 50 * dir }, { autoAlpha: 1, y: 0, duration: DUR.split, delay: prev ? 0.1 : 0, ease: EASE.out, overwrite: true });
       gsap.fromTo(next.querySelectorAll('[data-stat]'), { yPercent: 100 }, { yPercent: 0, duration: DUR.split, delay: prev ? 0.15 : 0.05, ease: EASE.out, overwrite: true });
       sectorEls.forEach((el, k) => el.classList.toggle('text-ac', k === i));
-      // Fixed-duration glide to the stage's sector: same pace however fast you scroll.
-      gsap.to(lapState, { progress: n > 1 ? i / (n - 1) : 0, duration: 2.2, ease: 'power2.inOut', overwrite: true });
-      if (flat) gsap.to(svgPath, { drawSVG: `${((i + 1) / n) * 100}%`, duration: 1.2, ease: EASE.wipe, overwrite: true });
       cur = i;
     };
 
     const at = (p: number) => Math.min(n - 1, Math.floor(p * n));
     const st = ScrollTrigger.create({
       trigger: pin, start: 'top top', end: `+=${n * 35}%`, pin: true, markers,
-      onToggle: self => { lapState.active = self.isActive; },
-      // Enter callbacks run after onUpdate, so they must use the real progress too.
-      onEnter: self => { gsap.to(q('[data-laphead]'), { autoAlpha: 1, y: 0, duration: DUR.split, ease: EASE.out }); show(at(self.progress)); },
-      onEnterBack: self => show(at(self.progress)),
       onUpdate: self => show(at(self.progress)),
+      onEnterBack: self => show(at(self.progress)),
     });
+    const lap = { trigger: pin, start: 'top top', end: () => st.end, scrub: 0.5 };
+    gsap.fromTo(lapState, { progress: 0 }, { progress: 1, ease: EASE.none, scrollTrigger: lap });
+    if (flat) gsap.fromTo(svgPath, { drawSVG: '0%' }, { drawSVG: '100%', ease: EASE.none, scrollTrigger: lap });
+
+    // Arrival and exit. The 3D scene takes over the canvas before the pin, behind a
+    // veil in its own background colour that clears as the section scrolls up, and the
+    // veil closes over the last quarter screen of the pin, so it never cuts in or out.
+    // The heading and the first stage arrive with it, not after the pin starts.
+    ScrollTrigger.create({
+      trigger: pin, start: 'top 35%', end: () => st.end,
+      onToggle: self => { lapState.active = self.isActive; },
+      onEnter: () => { gsap.to(q('[data-laphead]'), { autoAlpha: 1, y: 0, duration: DUR.split, ease: EASE.out, overwrite: true }); show(at(st.progress)); },
+    });
+    gsap.fromTo(lapState, { veil: 1 }, { veil: 0, ease: EASE.none, scrollTrigger: { trigger: pin, start: 'top 35%', end: 'top top', scrub: true } });
+    gsap.fromTo(lapState, { veil: 0 }, { veil: 1, ease: EASE.none, immediateRender: false,
+      scrollTrigger: { trigger: pin, start: () => st.end - innerHeight * 0.25, end: () => st.end, scrub: true } });
+    onRevert(() => { lapState.active = false; lapState.veil = 1; lapState.progress = 0; });
 
     // Snap: when scrolling settles inside the pin, glide to the middle of the
     // nearest stage (or either end). Done through Lenis, since ScrollTrigger's

@@ -158,12 +158,27 @@ export function createLap() {
   const R = Math.max(size.x, size.z);
   ground.position.x = centre.x; ground.position.z = centre.z;
   (ground.material as THREE.ShaderMaterial).uniforms.uCentre.value.set(centre.x, centre.z);
+  // Veil: a full-screen quad in the scene's background colour, drawn last, so the
+  // scene can fade in and out of the page without a second render pass.
+  const veilMat = keep(new THREE.ShaderMaterial({
+    uniforms: { uVeil: { value: 1 }, uCol: { value: new THREE.Color('#070708') } },
+    vertexShader: 'void main() { gl_Position = vec4(position.xy, 0.0, 1.0); }',
+    fragmentShader: 'uniform float uVeil; uniform vec3 uCol; void main() { gl_FragColor = vec4(uCol, uVeil); }',
+    transparent: true, depthTest: false, depthWrite: false,
+  }));
+  const veil = new THREE.Mesh(keep(new THREE.PlaneGeometry(2, 2)), veilMat);
+  veil.frustumCulled = false;
+  veil.renderOrder = 999;
+  scene.add(veil);
+
   const START = 0.02, LAP = 0.96;
   const eye = new THREE.Vector3(), carPos = new THREE.Vector3();
   return {
     scene, camera,
-    /** progress 0..1 through the career stages (tweened on a fixed clock). */
-    update(progress: number, w: number, h: number) {
+    /** progress 0..1 through the lap (scrubbed to the pin); veil 0..1 fades the scene out. */
+    update(progress: number, w: number, h: number, veilAmount = 0) {
+      veilMat.uniforms.uVeil.value = veilAmount;
+      veil.visible = veilAmount > 0.001;
       camera.aspect = w / h;
       // Desktop: the stage cards sit on the right, so frame the circuit left of centre.
       if (w / h > 1.2) camera.setViewOffset(w, h, w * 0.2, 0, w, h); else camera.clearViewOffset();

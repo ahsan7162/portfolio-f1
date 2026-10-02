@@ -49,6 +49,7 @@ export class Stage {
   private dead = false;
   /** Eased copy of the lap progress, so the camera glides instead of stepping. */
   private lapP = 0;
+  private lapV = 1;
   /** Adaptive resolution: drops when frames miss vsync while moving, recovers slowly. */
   private quality = { scale: 1, vsync: 1000 / 60, slow: 0, fast: 0, cooldown: 0 };
   private size = { w: 0, h: 0, scale: 0 };
@@ -171,7 +172,7 @@ export class Stage {
   private frame() {
     if (this.dead || document.hidden || scrollState.locked) return;
     const now = performance.now();
-    const lapEasing = lapState.active && lapState.progress !== this.lapP;
+    const lapEasing = lapState.active && (lapState.progress !== this.lapP || lapState.veil !== this.lapV);
     const moving = Math.abs(scrollState.velocity) > 0.01 || this.busy > 0 || lapEasing || now - this.lastInput < 1500;
     // Idle: the contour lines keep a steady 30fps drift; the helmet holds still until
     // something moves. The lap scene has no drift, so it draws nothing while idle.
@@ -193,8 +194,9 @@ export class Stage {
     r.clear();
     if (lapState.active) {
       const { scene, camera, update } = this.lap;
-      this.lapP = lapState.progress; // tweened on a fixed clock by the Lap section
-      update(this.lapP, this.size.w, this.size.h);
+      this.lapP = lapState.progress; // scrubbed to the pin by the Lap section
+      this.lapV = lapState.veil;
+      update(this.lapP, this.size.w, this.size.h, this.lapV);
       r.render(scene, camera);
       return;
     }
