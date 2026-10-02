@@ -6,8 +6,8 @@ import { originOf, useDialogs } from '@/components/dialog-context';
 import { CrawlableDetails } from '@/components/CrawlableDetails';
 import { archive, archiveBreakdown, projects, type Breakdown } from '@/content/data';
 import { gsap } from '@/motion/gsap';
-import { clipReveal, splitReveal } from '@/motion/patterns';
-import { EASE } from '@/motion/tokens';
+import { clipReveal } from '@/motion/patterns';
+import { DUR, EASE } from '@/motion/tokens';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 import { cn } from '@/lib/utils';
 
@@ -25,7 +25,10 @@ const CRAWL: Breakdown[] = [...projects, ...archive.map(archiveBreakdown)];
 export function Projects() {
   const { openDetails, openArchive } = useDialogs();
   const ref = useSectionMotion<HTMLElement>(({ q, qa, desktop }) => {
-    splitReveal(q('h2'), { type: 'chars' });
+    // The heading wipes up like the card visuals below it.
+    // Cleared after, so the tight display leading doesn't clip the glyphs.
+    gsap.fromTo(q('h2'), { clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: DUR.reveal, ease: EASE.wipe, clearProps: 'clipPath',
+      scrollTrigger: { trigger: q('h2')!, start: 'top 85%', once: true } });
     const more = q('[data-more]')!;
     clipReveal(more, { trigger: more, from: 'inset(0% 100% 0% 0%)' });
     qa<HTMLElement>('[data-card]').forEach((card, i) => {

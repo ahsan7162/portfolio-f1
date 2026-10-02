@@ -6,7 +6,6 @@ import {
 import { ScrollVelocityContainer, ScrollVelocityRow } from '@/components/ui/scroll-based-velocity';
 import { skills } from '@/content/data';
 import { gsap } from '@/motion/gsap';
-import { splitReveal } from '@/motion/patterns';
 import { DUR, EASE, STAGGER } from '@/motion/tokens';
 import { useBentoPointer } from '@/motion/useBentoPointer';
 import { useSectionMotion } from '@/motion/useSectionMotion';
@@ -40,7 +39,7 @@ const List = ({ items }: { items: string[] }) => (
 export function TechStack() {
   const grid = useBentoPointer<HTMLDivElement>();
   const ref = useSectionMotion<HTMLElement>(({ q, qa }) => {
-    splitReveal(q('h2'), { type: 'chars' });
+    // No heading animation: the logo marquee coming in is the entrance.
     gsap.fromTo(qa('[data-tile]'), { clipPath: 'inset(0% 100% 0% 0%)' }, {
       clipPath: 'inset(0% 0% 0% 0%)', duration: DUR.reveal, ease: EASE.wipe, stagger: STAGGER.line, clearProps: 'clipPath',
       scrollTrigger: { trigger: q('.bento')!, start: 'top 80%', once: true },

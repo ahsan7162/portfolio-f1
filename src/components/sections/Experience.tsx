@@ -2,7 +2,7 @@ import { jobs, promotions, timeline, type Job } from '@/content/data';
 import { CrawlableDetails } from '@/components/CrawlableDetails';
 import { originOf, useDialogs } from '@/components/dialog-context';
 import { gsap } from '@/motion/gsap';
-import { digitRoll, splitReveal } from '@/motion/patterns';
+import { digitRoll } from '@/motion/patterns';
 import { DUR, EASE, STAGGER } from '@/motion/tokens';
 import { useBentoPointer } from '@/motion/useBentoPointer';
 import { useSectionMotion } from '@/motion/useSectionMotion';
@@ -24,11 +24,11 @@ export function Experience() {
   const { openDetails } = useDialogs();
   const grid = useBentoPointer<HTMLDivElement>();
   const ref = useSectionMotion<HTMLElement>(({ q, qa, onRevert }) => {
-    splitReveal(q('h2'), { type: 'chars' });
-    // Tiles wipe in left to right; the clip is cleared after so hover shadows aren't cut off.
-    gsap.fromTo(qa('[data-tile]'), { clipPath: 'inset(0% 100% 0% 0%)' }, {
+    // Heading and tiles wipe in left to right as one block; the clip is cleared
+    // after so hover shadows aren't cut off.
+    gsap.fromTo([q('h2'), ...qa('[data-tile]')], { clipPath: 'inset(0% 100% 0% 0%)' }, {
       clipPath: 'inset(0% 0% 0% 0%)', duration: DUR.reveal, ease: EASE.wipe, stagger: STAGGER.line, clearProps: 'clipPath',
-      scrollTrigger: { trigger: q('.bento')!, start: 'top 80%', once: true },
+      scrollTrigger: { trigger: q('h2')!, start: 'top 85%', once: true },
     });
     onRevert(digitRoll(q('[data-promo]'), { scrollTrigger: { trigger: q('[data-promo]')!, start: 'top 85%', once: true } }));
   });
