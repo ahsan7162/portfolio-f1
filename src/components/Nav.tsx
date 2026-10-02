@@ -64,13 +64,13 @@ export function Nav() {
     tl.current = open
       ? gsap.timeline()
         .set(p, { autoAlpha: 1 })
-        .fromTo(p, { clipPath: 'inset(0% 0% 100% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: DUR.wipe, ease: EASE.wipe })
-        .fromTo(rows, { yPercent: 110 }, { yPercent: 0, duration: DUR.split, stagger: 0.015, ease: EASE.out }, 0.08)
-        .fromTo(side, { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: DUR.split, stagger: 0.02, ease: EASE.out }, 0.12)
+        .fromTo(p, { clipPath: 'inset(0% 0% 100% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 0.55, ease: EASE.wipe })
+        .fromTo(rows, { yPercent: 110 }, { yPercent: 0, duration: 0.5, stagger: 0.025, ease: EASE.out }, 0.15)
+        .fromTo(side, { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.4, stagger: 0.04, ease: EASE.out }, 0.25)
       : gsap.timeline()
-        .to(rows, { yPercent: 110, duration: DUR.hit, ease: EASE.in })
-        .to(side, { autoAlpha: 0, duration: DUR.hit, ease: EASE.in }, 0)
-        .to(p, { clipPath: 'inset(0% 0% 100% 0%)', duration: 0.2, ease: EASE.in }, 0.08)
+        .to(rows, { yPercent: 110, duration: 0.2, ease: EASE.in })
+        .to(side, { autoAlpha: 0, duration: 0.2, ease: EASE.in }, 0)
+        .to(p, { clipPath: 'inset(0% 0% 100% 0%)', duration: 0.3, ease: EASE.in }, 0.1)
         .set(p, { autoAlpha: 0 });
   }, [open]);
   useEffect(() => () => { tl.current?.kill(); }, []);

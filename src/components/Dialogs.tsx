@@ -52,9 +52,9 @@ function useDialogIn(ref: React.RefObject<HTMLDivElement | null>, origin: Origin
         if (state.cancelled) return;
         state.tl = gsap.timeline({ onComplete: () => { gsap.set(el, { clearProps: 'clipPath' }); } })
           // Fast-start ease: the circle's area grows with its radius squared, so an ease-in would look stuck.
-          .to(el, { clipPath: clip(o, reach(o)), duration: DUR.wipe, ease: EASE.out })
-          .to(items, { autoAlpha: 1, y: 0, stagger: { amount: 0.08 }, duration: DUR.split, ease: EASE.out }, 0.12);
-        if (head) state.tl.to(head, { x: 0, y: 0, scale: 1, duration: DUR.wipe, ease: EASE.out }, 0);
+          .to(el, { clipPath: clip(o, reach(o)), duration: DUR.open, ease: EASE.out })
+          .to(items, { autoAlpha: 1, y: 0, stagger: { amount: 0.15 }, duration: 0.45, ease: EASE.out }, 0.15);
+        if (head) state.tl.to(head, { x: 0, y: 0, scale: 1, duration: DUR.open, ease: EASE.out }, 0);
       });
     }, el);
     return () => { cancelAnimationFrame(raf); ctx.revert(); };
@@ -71,8 +71,8 @@ export function closeWithWipe(el: HTMLElement | null, origin: Origin | undefined
   const r = mid ? parseFloat(String(el.style.clipPath).replace('circle(', '')) || 0 : reach(o);
   if (open) { open.cancelled = true; open.tl?.kill(); }
   gsap.timeline({ onComplete: done })
-    .to(el.querySelectorAll('[data-din], [data-dhead]'), { autoAlpha: 0, y: -16, duration: DUR.hit, ease: EASE.in, overwrite: true })
-    .fromTo(el, { clipPath: clip(o, r) }, { clipPath: clip(o, 0), duration: DUR.split, ease: EASE.wipe }, 0.05);
+    .to(el.querySelectorAll('[data-din], [data-dhead]'), { autoAlpha: 0, y: -16, duration: 0.18, ease: EASE.in, overwrite: true })
+    .fromTo(el, { clipPath: clip(o, r) }, { clipPath: clip(o, 0), duration: DUR.close, ease: EASE.wipe }, 0.08);
 }
 
 const shell = 'fixed inset-0 z-[70] isolate overflow-y-auto overscroll-contain bg-graphite text-fg';
