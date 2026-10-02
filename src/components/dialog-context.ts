@@ -1,7 +1,8 @@
 import { createContext, useContext } from 'react';
 import type { Breakdown } from '@/content/data';
 
-export type Origin = { x: number; y: number };
+/** Where a dialog opens from; `title` is the card title's rect, for the shared-title flight. */
+export type Origin = { x: number; y: number; title?: DOMRect };
 export type DialogApi = {
   openDetails: (b: Breakdown, origin?: Origin) => void;
   openArchive: (origin?: Origin) => void;

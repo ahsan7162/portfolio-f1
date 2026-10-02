@@ -4,6 +4,7 @@
 // Only transform and opacity are animated, plus two cheap exceptions:
 // clip-path masks and stroke-dashoffset on single SVG paths (DrawSVG).
 import { gsap, ScrollTrigger, SplitText } from './gsap';
+import { isTouch } from './prefs';
 import { DUR, EASE, STAGGER } from './tokens';
 
 type Target = gsap.TweenTarget;
@@ -138,4 +139,24 @@ export function drawPath(path: Target, opts: { scrollTrigger?: ST; duration?: nu
   const from = { drawSVG: '0%' }, to = { drawSVG: '100%', duration: opts.duration ?? DUR.show, ease: EASE.wipe };
   if (opts.timeline) return opts.timeline.fromTo(path, from, to, opts.at);
   return gsap.fromTo(path, from, { ...to, scrollTrigger: opts.scrollTrigger, ease: opts.scrollTrigger?.scrub ? EASE.none : EASE.wipe });
+}
+
+/**
+ * Magnetic arrow: while the pointer is over `host`, `target` leans toward it
+ * (quickTo, DUR.split) and settles back on leave. Fine pointers only.
+ * Returns a cleanup for onRevert.
+ */
+export function magnet(host: HTMLElement | null, target: HTMLElement | null, pull = 0.35) {
+  if (!host || !target || isTouch() || !window.matchMedia('(pointer: fine)').matches) return;
+  const v = { duration: DUR.split, ease: EASE.out };
+  const xTo = gsap.quickTo(target, 'x', v), yTo = gsap.quickTo(target, 'y', v);
+  const move = (e: PointerEvent) => {
+    const r = target.getBoundingClientRect();
+    xTo((e.clientX - (r.left + r.width / 2)) * pull);
+    yTo((e.clientY - (r.top + r.height / 2)) * pull);
+  };
+  const leave = () => { xTo(0); yTo(0); };
+  host.addEventListener('pointermove', move);
+  host.addEventListener('pointerleave', leave);
+  return () => { host.removeEventListener('pointermove', move); host.removeEventListener('pointerleave', leave); gsap.set(target, { clearProps: 'x,y' }); };
 }

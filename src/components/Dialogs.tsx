@@ -41,13 +41,20 @@ function useDialogIn(ref: React.RefObject<HTMLDivElement | null>, origin: Origin
     if (!motionEnabled()) return;
     const o = origin ?? { x: innerWidth / 2, y: innerHeight / 2 };
     const circle = placeWipe(el, o);
-    const items = el.querySelectorAll('[data-din], [data-dhead]');
+    // Shared title: the card's title flies into the dialog heading (FLIP with one
+    // uniform scale, so the text never stretches), alongside the circle wipe.
+    const head = origin?.title ? el.querySelector<HTMLElement>('h2[data-din]') : null;
+    const items = [...el.querySelectorAll('[data-din], [data-dhead]')].filter(n => n !== head);
     let raf = 0;
     const state: { tl?: gsap.core.Timeline; cancelled?: boolean } = {};
     opening.set(el, state);
     const ctx = gsap.context(() => {
       gsap.set(circle, { scale: 0, willChange: 'transform' });
       gsap.set(items, { autoAlpha: 0, y: 30 });
+      if (head && origin?.title) {
+        const to = head.getBoundingClientRect(), from = origin.title;
+        gsap.set(head, { x: from.left - to.left, y: from.top - to.top, scale: from.height / to.height, transformOrigin: '0 0' });
+      }
       // Start a frame after mount, so the cost of rendering the dialog isn't eaten by the tween.
       raf = requestAnimationFrame(() => {
         if (state.cancelled) return;
@@ -55,6 +62,7 @@ function useDialogIn(ref: React.RefObject<HTMLDivElement | null>, origin: Origin
           // Fast-start ease: the circle's area grows with scale squared, so an ease-in would look stuck.
           .to(circle, { scale: 1, duration: DUR.wipe, ease: EASE.out })
           .to(items, { autoAlpha: 1, y: 0, stagger: { amount: 0.08 }, duration: DUR.split, ease: EASE.out }, 0.12);
+        if (head) state.tl.to(head, { x: 0, y: 0, scale: 1, duration: DUR.wipe, ease: EASE.out }, 0);
       });
     }, el);
     return () => { cancelAnimationFrame(raf); ctx.revert(); };

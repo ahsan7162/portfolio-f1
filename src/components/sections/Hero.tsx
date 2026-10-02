@@ -4,14 +4,14 @@ import { originOf, useDialogs } from '@/components/dialog-context';
 import { cvHref } from '@/components/Nav';
 import { gsap } from '@/motion/gsap';
 import { introTimeline } from '@/motion/intro';
-import { drawPath, scrubParallax, splitReveal } from '@/motion/patterns';
+import { drawPath, magnet, scrubParallax, splitReveal } from '@/motion/patterns';
 import { DUR, EASE, STAGGER } from '@/motion/tokens';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 
 export function Hero() {
   const { openDetails } = useDialogs();
   const current = jobs.find(j => j.id === 'careem');
-  const ref = useSectionMotion<HTMLElement>(({ root, q, qa }) => {
+  const ref = useSectionMotion<HTMLElement>(({ root, q, qa, onRevert }) => {
     const tl = introTimeline();
     // Entrance: joins the loader's master timeline so it lands as the lights go out.
     qa('[data-hline]').forEach((line, i) =>
@@ -20,6 +20,8 @@ export function Hero() {
     tl.from(qa('[data-hfade]'), { autoAlpha: 0, y: 24, duration: DUR.reveal, ease: EASE.out, stagger: 0.08 }, 'reveal+=0.6');
     tl.from(q('[data-hnum]'), { yPercent: 40, autoAlpha: 0, duration: DUR.show, ease: EASE.out }, 'reveal+=0.2');
     drawPath(q('[data-hcircuit] path'), { timeline: tl, at: 'reveal+=0.3', duration: DUR.show });
+
+    onRevert(magnet(q('[data-pill]'), q('[data-pillarrow]')));
 
     // Leaving: the two name lines slide apart, the ghost number drifts up.
     const opts = { start: 'top top', end: 'bottom top' } as const;
@@ -44,12 +46,12 @@ export function Hero() {
 
       <div data-hbody className="mx-auto flex w-full max-w-[1400px] flex-1 flex-col justify-center pb-10">
         {/* Status pill: the one live fact, clickable into the full Careem breakdown. The dot is static. */}
-        <button data-hfade type="button" onClick={e => { if (current) openDetails(current, originOf(e)); }}
+        <button data-hfade data-pill type="button" onClick={e => { if (current) openDetails(current, originOf(e)); }}
           aria-label={`${profile.now} Open the ${current?.company} breakdown`}
           className="group mb-8 inline-flex min-h-11 items-center gap-3 self-start rounded-full border border-line bg-graphite/80 py-1.5 pl-4 pr-1.5 text-sm font-medium text-fg transition-colors hover:border-ac">
           <span aria-hidden="true" className="size-2 rounded-full bg-ac" />
           <span>Currently at <span className="font-semibold">{current?.company}</span></span>
-          <span aria-hidden="true" className="grid size-8 place-items-center rounded-full bg-ac text-carbon transition-transform duration-(--dur-hit) ease-out-expo group-hover:-rotate-45">→</span>
+          <span data-pillarrow aria-hidden="true" className="inline-block"><span className="grid size-8 place-items-center rounded-full bg-ac text-carbon transition-transform duration-(--dur-hit) ease-out-expo group-hover:-rotate-45">→</span></span>
         </button>
         <h1>
           <span data-hline="0" className="display block text-[clamp(3rem,10.5vw,9.5rem)]">Muhammad</span>{' '}

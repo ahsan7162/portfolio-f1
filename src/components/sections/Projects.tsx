@@ -6,7 +6,7 @@ import { archive, archiveBreakdown, projects, type Breakdown } from '@/content/d
 import { gsap } from '@/motion/gsap';
 import { isTouch, motionEnabled } from '@/motion/prefs';
 import { useBentoPointer } from '@/motion/useBentoPointer';
-import { clipReveal } from '@/motion/patterns';
+import { clipReveal, magnet } from '@/motion/patterns';
 import { DUR, EASE } from '@/motion/tokens';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 import { cn } from '@/lib/utils';
@@ -25,12 +25,13 @@ const CRAWL: Breakdown[] = [...projects, ...archive.map(archiveBreakdown)];
 export function Projects() {
   const { openDetails, openArchive } = useDialogs();
   const grid = useBentoPointer<HTMLDivElement>();
-  const ref = useSectionMotion<HTMLElement>(({ q, qa, desktop }) => {
+  const ref = useSectionMotion<HTMLElement>(({ q, qa, desktop, onRevert }) => {
     // The heading wipes up like the card visuals below it.
     // Cleared after, so the tight display leading doesn't clip the glyphs.
     gsap.fromTo(q('h2'), { clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: DUR.reveal, ease: EASE.wipe, clearProps: 'clipPath',
       scrollTrigger: { trigger: q('h2')!, start: 'top 85%', once: true } });
     const more = q('[data-more]')!;
+    onRevert(magnet(more, q('[data-morearrow]'), 0.25));
     clipReveal(more, { trigger: more, from: 'inset(0% 100% 0% 0%)' });
     qa<HTMLElement>('[data-card]').forEach((card, i) => {
       clipReveal(card.querySelector('[data-cardvis]'), { trigger: card });
@@ -65,7 +66,7 @@ export function Projects() {
                   </ul>
                   <div data-cardtxt className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-5">
                     <span className="font-mono text-sm font-semibold text-ac">{p.headline}</span>
-                    <button type="button" onClick={e => openDetails(p, originOf(e))} className="btn btn-ghost" aria-label={`${p.title} details`}>Details</button>
+                    <button type="button" onClick={e => openDetails(p, { ...originOf(e), title: e.currentTarget.closest('[data-card]')?.querySelector('h3')?.getBoundingClientRect() })} className="btn btn-ghost" aria-label={`${p.title} details`}>Details</button>
                   </div>
                 </div>
             </ProjectCard>
@@ -89,9 +90,10 @@ export function Projects() {
                 <span className="rounded-full px-3 py-1 font-mono text-xs text-mute transition-colors duration-(--dur-hit) group-hover:text-carbon">+{archive.length - 5} more</span>
               </span>
             </span>
-            <span aria-hidden="true"
-              className="grid size-20 shrink-0 place-items-center rounded-full bg-ac text-3xl text-carbon transition-[transform,background-color,color] duration-(--dur-hit) ease-out-expo group-hover:rotate-[-45deg] group-hover:bg-carbon group-hover:text-ac md:size-28 md:text-4xl">
-              →
+            <span data-morearrow aria-hidden="true" className="shrink-0">
+              <span className="grid size-20 place-items-center rounded-full bg-ac text-3xl text-carbon transition-[transform,background-color,color] duration-(--dur-hit) ease-out-expo group-hover:rotate-[-45deg] group-hover:bg-carbon group-hover:text-ac md:size-28 md:text-4xl">
+                →
+              </span>
             </span>
           </span>
         </button>

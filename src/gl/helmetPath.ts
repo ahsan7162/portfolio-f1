@@ -67,9 +67,10 @@ export function bindHelmetPath(pose: Pose) {
     perch.k = 0;
     if (perch.el) {
       const st = { trigger: perch.el, scrub: 1.2, markers: debug() };
-      gsap.fromTo(perch, { k: 0 }, { k: 1, ease: EASE.none, immediateRender: false, scrollTrigger: { ...st, start: 'top bottom', end: 'top 55%' } });
+      // Land as the section arrives, so it is already seated when the row is on screen.
+      gsap.fromTo(perch, { k: 0 }, { k: 1, ease: EASE.none, immediateRender: false, scrollTrigger: { ...st, trigger: '#results', start: 'top bottom', endTrigger: perch.el, end: 'top 75%' } });
       // Lift off slowly: glide from the step to the finale pose, landing as 450+ does.
-      gsap.fromTo(perch, { k: 1 }, { k: 0, ease: EASE.none, immediateRender: false, scrollTrigger: { ...st, start: 'top 40%', endTrigger: '#results [data-bignum]', end: 'center 60%' } });
+      gsap.fromTo(perch, { k: 1 }, { k: 0, ease: EASE.none, immediateRender: false, scrollTrigger: { ...st, start: 'top 25%', endTrigger: '#results [data-bignum]', end: 'center 60%' } });
     }
     // These triggers were created after the sections' own pins: re-sort by page position.
     ScrollTrigger.sort();
