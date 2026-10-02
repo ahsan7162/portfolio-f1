@@ -5,6 +5,7 @@ import {
 } from 'simple-icons';
 import { skills } from '@/content/data';
 import { gsap, ScrollTrigger } from '@/motion/gsap';
+import { scrollState } from '@/motion/SmoothScroll';
 import { DUR, EASE, STAGGER } from '@/motion/tokens';
 import { useBentoPointer } from '@/motion/useBentoPointer';
 import { useSectionMotion } from '@/motion/useSectionMotion';
@@ -34,21 +35,28 @@ const List = ({ items }: { items: string[] }) => (
 /** Lando's partner wall as a logo marquee, then the stack as a bento grid. */
 export function TechStack() {
   const grid = useBentoPointer<HTMLDivElement>();
-  const ref = useSectionMotion<HTMLElement>(({ q, qa }) => {
+  const ref = useSectionMotion<HTMLElement>(({ q, qa, onRevert }) => {
     // No heading animation: the logo marquee coming in is the entrance.
-    // The marquee only moves while you scroll, at the scroll's speed and
-    // direction, then coasts to a stop: like a car, it only moves while racing.
-    const loop = gsap.to(q('[data-marquee]'), { xPercent: -50, ease: EASE.none, duration: 40, repeat: -1 });
-    loop.totalTime(loop.duration() * 1000).timeScale(0); // far from 0, so it can run backwards too
-    const coast = () => gsap.to(loop, { timeScale: 0, duration: DUR.show, ease: EASE.out, overwrite: true });
+    // The marquee only moves while you scroll, at the scroll's speed and direction,
+    // then coasts to a stop: like a car, it only moves while racing. One ticker
+    // function eases toward Lenis's (already smooth) velocity every frame and moves
+    // the paused loop directly, so the speed glides instead of stepping, and it only
+    // runs while the bar is on screen.
+    const loop = gsap.to(q('[data-marquee]'), { xPercent: -50, ease: EASE.none, duration: 40, repeat: -1, paused: true });
+    loop.totalTime(loop.duration() * 1000); // far from 0, so it can run backwards too
+    let speed = 0;
+    const tick = () => {
+      const r = gsap.ticker.deltaRatio(60);
+      const target = gsap.utils.clamp(-8, 8, scrollState.velocity * 0.25);
+      speed += (target - speed) * (1 - Math.pow(0.92, r)); // ~1 s coast at any frame rate
+      if (Math.abs(speed) < 0.002 && target === 0) speed = 0;
+      if (speed) loop.totalTime(loop.totalTime() + (r / 60) * speed);
+    };
     ScrollTrigger.create({
       trigger: q('[data-marqueebox]')!, start: 'top bottom', end: 'bottom top',
-      onUpdate: self => {
-        const v = gsap.utils.clamp(-8, 8, self.getVelocity() / 250);
-        gsap.to(loop, { timeScale: v, duration: DUR.split, ease: EASE.out, overwrite: true, onComplete: coast });
-      },
-      onToggle: self => { if (!self.isActive) loop.timeScale(0); },
+      onToggle: self => { if (self.isActive) gsap.ticker.add(tick); else { gsap.ticker.remove(tick); speed = 0; } },
     });
+    onRevert(() => gsap.ticker.remove(tick));
     gsap.fromTo(qa('[data-tile]'), { clipPath: 'inset(0% 100% 0% 0%)' }, {
       clipPath: 'inset(0% 0% 0% 0%)', duration: DUR.reveal, ease: EASE.wipe, stagger: STAGGER.line, clearProps: 'clipPath',
       scrollTrigger: { trigger: q('.bento')!, start: 'top 80%', once: true },
@@ -62,7 +70,7 @@ export function TechStack() {
       <div data-marqueebox className="overflow-hidden border-y border-line py-8">
         {/* Two identical halves, so -50% loops seamlessly. One list is wider than any screen;
             the copy reuses the first half's paths (<use>), so the page HTML carries each logo once. */}
-        <div data-marquee className="flex w-max">
+        <div data-marquee className="flex w-max will-change-transform">
           {[0, 1].map(copy => (
             <div key={copy} aria-hidden={copy > 0 || undefined} className="flex shrink-0">
               {LOGOS.map(l => (
