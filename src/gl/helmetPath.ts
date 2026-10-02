@@ -12,6 +12,7 @@ const DESKTOP: Record<string, Pose> = {
   about:   { x: 0.6,  y: 0.05,  s: 0.72, rx: 0.12, ry: -2.1,  rz: -0.05 },
   about2:  { x: 0.62, y: 0.12,  s: 0.72, rx: 0.02, ry: -3.3,  rz: 0.04 },
   away:    { x: 1.45, y: 0.55,  s: 0.55, rx: 0.3,  ry: -4.2,  rz: 0.2 },
+  podium:  { x: 0.62, y: 0.02,  s: 0.74, rx: 0.1,  ry: -7.3,  rz: 0.03 },
   results: { x: 0.56, y: -0.05, s: 0.9,  rx: 0.04, ry: -7.85, rz: 0 },
   exit:    { x: 0.4,  y: -1.7,  s: 0.45, rx: 0.6,  ry: -9.2,  rz: 0.3 },
 };
@@ -21,16 +22,22 @@ const MOBILE: Record<string, Pose> = {
   about:   { x: 0.55, y: 0.62,  s: 0.45, rx: 0.1,  ry: -2.1,  rz: 0 },
   about2:  { x: 0.55, y: 0.62,  s: 0.45, rx: 0.1,  ry: -3.3,  rz: 0 },
   away:    { x: 1.5,  y: 0.8,   s: 0.4,  rx: 0.3,  ry: -4.2,  rz: 0 },
+  // Phones and tablets have no free column beside the award, so the helmet stays
+  // off screen through it and arrives for the 450+ finale only.
+  podium:  { x: 1.5,  y: 0.8,   s: 0.4,  rx: 0.3,  ry: -6.4,  rz: 0 },
   results: { x: 0.45, y: 0.55,  s: 0.55, rx: 0.05, ry: -7.85, rz: 0 },
   exit:    { x: 0.4,  y: -1.8,  s: 0.35, rx: 0.6,  ry: -9.2,  rz: 0 },
 };
 
-const SEGMENTS: Array<{ from: string; to: string; trigger: string; start: string; end: string }> = [
+const SEGMENTS: Array<{ from: string; to: string; trigger: string; start: string; end: string; endTrigger?: string }> = [
   { from: 'hero', to: 'about', trigger: '#about', start: 'top bottom', end: 'top top' },
   { from: 'about', to: 'about2', trigger: '#about [data-pin]', start: 'top top', end: '+=120%' },
   // The Lap's 3D track takes over the stage, so the helmet flies off as it arrives.
   { from: 'about2', to: 'away', trigger: '#timeline', start: 'top 85%', end: 'top 20%' },
-  { from: 'away', to: 'results', trigger: '#results', start: 'top bottom', end: 'top 10%' },
+  // Results and education: the driver arrives as the section starts, watches the
+  // award from the right column, then turns to face you as the headline lands.
+  { from: 'away', to: 'podium', trigger: '#results', start: 'top bottom', end: 'top 20%' },
+  { from: 'podium', to: 'results', trigger: '#results', start: 'top 20%', endTrigger: '#results [data-bignum]', end: 'center 60%' },
   { from: 'results', to: 'exit', trigger: '#results', start: 'bottom 85%', end: 'bottom top' },
 ];
 
@@ -49,7 +56,7 @@ export function bindHelmetPath(pose: Pose) {
       if (!document.querySelector(seg.trigger)) return;
       gsap.fromTo(pose, { ...P[seg.from] }, {
         ...P[seg.to], ease: 'power1.inOut', immediateRender: i === 0,
-        scrollTrigger: { trigger: seg.trigger, start: seg.start, end: seg.end, scrub: 1, markers: debug() },
+        scrollTrigger: { trigger: seg.trigger, endTrigger: seg.endTrigger, start: seg.start, end: seg.end, scrub: 1, markers: debug() },
       });
     });
     // These triggers were created after the sections' own pins: re-sort by page position.

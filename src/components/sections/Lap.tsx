@@ -70,7 +70,7 @@ export function Lap() {
     const points = [0, ...stages.map((_, k) => (k + 0.5) / n), 1];
     const settle = () => {
       const l = lenis();
-      if (!l || !st.isActive) return;
+      if (!l || l.isScrolling || !st.isActive) return; // never interrupt a scroll in progress (menu jumps included)
       const p = st.progress;
       const to = points.reduce((a, b) => (Math.abs(b - p) < Math.abs(a - p) ? b : a));
       if (Math.abs(to - p) * (st.end - st.start) < 2) return;

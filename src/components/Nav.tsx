@@ -18,8 +18,7 @@ const MENU = [
   { id: 'experience', label: 'Work experience', children: true },
   { id: 'projects', label: 'Projects', archive: true },
   { id: 'skills', label: 'Tech stack' },
-  { id: 'education', label: 'Education' },
-  { id: 'results', label: 'Results' },
+  { id: 'results', label: 'Results and education' },
   { id: 'contact', label: 'Contact' },
 ] as const;
 

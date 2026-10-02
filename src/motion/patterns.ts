@@ -42,7 +42,9 @@ export function splitReveal(
     onSplit(self) {
       const parts = type === 'chars' ? self.chars : type === 'words' ? self.words : self.lines;
       const vars: gsap.TweenVars = { yPercent: 115, duration: opts.duration ?? DUR.reveal, ease: EASE.out, stagger, delay: opts.delay ?? 0 };
-      if (opts.timeline) return opts.timeline.from(parts, vars, opts.at ?? 0);
+      // Return the tween, not the timeline: SplitText reverts whatever onSplit returns
+      // when it re-splits (fonts, resize), and that must not take the whole timeline with it.
+      if (opts.timeline) { const tw = gsap.from(parts, vars); opts.timeline.add(tw, opts.at ?? 0); return tw; }
       if (opts.scrollTrigger !== false) vars.scrollTrigger = inView(el, opts.scrollTrigger || undefined);
       return gsap.from(parts, vars);
     },

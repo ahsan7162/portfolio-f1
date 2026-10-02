@@ -7,7 +7,6 @@ import { Nav } from '@/components/Nav';
 import { TrackMap } from '@/components/TrackMap';
 import { About } from '@/components/sections/About';
 import { Contact } from '@/components/sections/Contact';
-import { Education } from '@/components/sections/Education';
 import { Experience } from '@/components/sections/Experience';
 import { Hero } from '@/components/sections/Hero';
 import { Lap } from '@/components/sections/Lap';
@@ -75,7 +74,6 @@ function Page() {
           <Experience />
           <Projects />
           <TechStack />
-          <Education />
           <Results />
         </main>
         <Contact />

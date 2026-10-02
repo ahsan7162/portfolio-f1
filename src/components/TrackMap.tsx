@@ -6,7 +6,7 @@ import { useSectionMotion } from '@/motion/useSectionMotion';
 
 const SECTIONS = [
   ['top', 'Start'], ['about', 'About'], ['timeline', 'Timeline'], ['experience', 'Experience'],
-  ['projects', 'Projects'], ['skills', 'Tech stack'], ['education', 'Education'], ['results', 'Results'],
+  ['projects', 'Projects'], ['skills', 'Tech stack'], ['results', 'Results'],
   ['contact', 'Finish'],
 ] as const;
 

@@ -183,7 +183,7 @@ export const education = {
   years: '2018 to 2022',
   gpa: 'CGPA 3.58 / 4.00',
   deansList: "Dean's list, semesters five to eight",
-  award: { place: 3, of: 2520, name: 'Alibaba Cloud Global Challenge', text: 'Third place with a weather-forecasting solution.' },
+  award: { year: '2021', place: 3, of: 2520, name: 'Alibaba Cloud Global Challenge', text: 'Third place with a weather-forecasting solution.' },
 };
 
 /** One lap through the career: each sector of the 3D lap is one stage. */
