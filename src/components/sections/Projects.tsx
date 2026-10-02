@@ -55,7 +55,7 @@ export function Projects() {
         <div ref={grid} className="grid grid-cols-1 gap-16 md:grid-cols-2 md:gap-x-8 lg:grid-cols-12">
           {projects.map((p, i) => (
             <ProjectCard key={p.id} className={cn(LAYOUT[i].col, LAYOUT[i].offset)}>
-                <div data-cardvis className="relative aspect-[16/10] overflow-hidden bg-carbon">
+                <div data-cardvis className="relative aspect-[16/10] overflow-hidden border-b border-line bg-carbon">
                   <div data-cardin className="h-full w-full"><ProjectVisual project={p} /></div>
                 </div>
                 <div className="p-6 md:p-8">

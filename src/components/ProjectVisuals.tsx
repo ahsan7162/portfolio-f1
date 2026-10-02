@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useId, useRef, type ReactNode } from 'react';
 import type { Project } from '@/content/data';
 import { ensureGsap, gsap, ScrollTrigger } from '@/motion/gsap';
 import { isTouch, motionEnabled } from '@/motion/prefs';
@@ -36,6 +36,7 @@ const GLYPHS = 'abcdefghijklmnopqrstuvwxyz0123456789-/';
 
 function Scene({ build, children }: { build: (fx: Fx) => void; children: ReactNode }) {
   const ref = useRef<SVGSVGElement>(null);
+  const id = useId().replace(/[^a-zA-Z0-9]/g, '');
   useEffect(() => {
     const svg = ref.current;
     if (!svg || !motionEnabled()) return;
@@ -101,7 +102,18 @@ function Scene({ build, children }: { build: (fx: Fx) => void; children: ReactNo
       finals.forEach((s, el) => setText(el, s));
     };
   }, [build]);
-  return <svg ref={ref} viewBox="0 0 320 200" className="h-full w-full" fill="none">{children}</svg>;
+  // The scene sits at 76% on a dot grid, so it reads as an illustration, apart from the card's own text.
+  return (
+    <svg ref={ref} viewBox="0 0 320 200" className="h-full w-full" fill="none">
+      <defs>
+        <pattern id={`dots-${id}`} width="8" height="8" patternUnits="userSpaceOnUse">
+          <circle cx="4" cy="4" r="0.45" fill="rgb(255 255 255 / 0.14)" />
+        </pattern>
+      </defs>
+      <rect width="320" height="200" fill={`url(#dots-${id})`} />
+      <g transform="translate(38.4 24) scale(0.76)">{children}</g>
+    </svg>
+  );
 }
 
 const Cursor = () => (
