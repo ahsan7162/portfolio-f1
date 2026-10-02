@@ -160,3 +160,55 @@ export function magnet(host: HTMLElement | null, target: HTMLElement | null, pul
   host.addEventListener('pointerleave', leave);
   return () => { host.removeEventListener('pointermove', move); host.removeEventListener('pointerleave', leave); gsap.set(target, { clearProps: 'x,y' }); };
 }
+
+/**
+ * Pointer proximity on split display type: letters near the cursor lean, part
+ * slightly and warm to red, then settle when it leaves. Transforms and colour
+ * only; letter centres are measured on enter (and again after scrolling), not
+ * per move. Desktop, fine pointer only. Returns a cleanup.
+ */
+export function proximityChars(host: HTMLElement | null, lines: HTMLElement[], opts: { radius?: number; skew?: number; spread?: number } = {}) {
+  if (!host || isTouch() || !window.matchMedia('(pointer: fine)').matches) return;
+  const { radius = 220, skew = -12, spread = 10 } = opts;
+  const fg = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim() || '#f4f4ed';
+  const ac = getComputedStyle(document.documentElement).getPropertyValue('--ac').trim() || '#ff2438';
+  const mix = gsap.utils.interpolate(fg, ac);
+  type C = { el: HTMLElement; cx: number; cy: number; skew: (v: number) => void; x: (v: number) => void; heat: (v: number) => void };
+  let chars: C[] = [], measuredAt = -1;
+  const v = { duration: DUR.wipe, ease: EASE.out };
+  const collect = () => {
+    // SplitText may have re-split (fonts, resize): the leaves are the current letters.
+    const els = lines.flatMap(l => [...l.querySelectorAll<HTMLElement>('*')].filter(n => !n.children.length && n.textContent?.trim()));
+    if (els.length !== chars.length || els.some((el, i) => chars[i].el !== el)) {
+      chars = els.map(el => {
+        const h = { v: 0 };
+        return { el, cx: 0, cy: 0, skew: gsap.quickTo(el, 'skewX', v), x: gsap.quickTo(el, 'x', v),
+          heat: gsap.quickTo(h, 'v', { ...v, onUpdate: () => { el.style.color = h.v > 0.01 ? mix(h.v) : ''; } }) };
+      });
+      measuredAt = -1;
+    }
+    if (measuredAt !== scrollY) {
+      chars.forEach(c => { const r = c.el.getBoundingClientRect(); c.cx = r.left + r.width / 2 - (gsap.getProperty(c.el, 'x') as number); c.cy = r.top + r.height / 2 + scrollY; });
+      measuredAt = scrollY;
+    }
+  };
+  const move = (e: PointerEvent) => {
+    collect();
+    const py = e.clientY + scrollY;
+    chars.forEach(c => {
+      const dx = c.cx - e.clientX, d = Math.hypot(dx, c.cy - py);
+      const k = Math.max(0, 1 - d / radius), heat = k * k * (3 - 2 * k); // smoothstep
+      c.skew(skew * heat);
+      c.x(Math.sign(dx) * spread * heat);
+      c.heat(heat);
+    });
+  };
+  const leave = () => chars.forEach(c => { c.skew(0); c.x(0); c.heat(0); });
+  host.addEventListener('pointermove', move);
+  host.addEventListener('pointerleave', leave);
+  return () => {
+    host.removeEventListener('pointermove', move);
+    host.removeEventListener('pointerleave', leave);
+    chars.forEach(c => { gsap.set(c.el, { clearProps: 'x,skewX,color' }); });
+  };
+}

@@ -4,7 +4,7 @@ import { originOf, useDialogs } from '@/components/dialog-context';
 import { cvHref } from '@/components/Nav';
 import { gsap } from '@/motion/gsap';
 import { introTimeline } from '@/motion/intro';
-import { drawPath, magnet, scrubParallax, splitReveal } from '@/motion/patterns';
+import { drawPath, magnet, proximityChars, scrubParallax, splitReveal } from '@/motion/patterns';
 import { DUR, EASE, STAGGER } from '@/motion/tokens';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 
@@ -22,6 +22,8 @@ export function Hero() {
     drawPath(q('[data-hcircuit] path'), { timeline: tl, at: 'reveal+=0.3', duration: DUR.show });
 
     onRevert(magnet(q('[data-pill]'), q('[data-pillarrow]')));
+    // Hover: the name's letters lean and warm to red around the cursor.
+    onRevert(proximityChars(root, qa('[data-hline]')));
 
     // Leaving: the two name lines slide apart, the ghost number drifts up.
     const opts = { start: 'top top', end: 'bottom top' } as const;
