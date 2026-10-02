@@ -1,7 +1,5 @@
-import { useRef } from 'react';
 import { CIRCUIT_PATH, CIRCUIT_VIEWBOX } from '@/art/circuit';
-import { useOnScreen } from '@/lib/useOnScreen';
-import { CV_FILE, jobs, profile, timeline } from '@/content/data';
+import { CV_FILE, jobs, profile } from '@/content/data';
 import { originOf, useDialogs } from '@/components/dialog-context';
 import { cvHref } from '@/components/Nav';
 import { gsap } from '@/motion/gsap';
@@ -13,9 +11,6 @@ import { useSectionMotion } from '@/motion/useSectionMotion';
 export function Hero() {
   const { openDetails } = useDialogs();
   const current = jobs.find(j => j.id === 'careem');
-  const stat = timeline.find(t => t.job === 'careem');
-  const nowCard = useRef<HTMLButtonElement>(null);
-  const nowOn = useOnScreen(nowCard, '0px'); // the ping loops forever: pause it off screen
   const ref = useSectionMotion<HTMLElement>(({ root, q, qa }) => {
     const tl = introTimeline();
     // Entrance: joins the loader's master timeline so it lands as the lights go out.
@@ -48,6 +43,14 @@ export function Hero() {
       </div>
 
       <div data-hbody className="mx-auto flex w-full max-w-[1400px] flex-1 flex-col justify-center pb-10">
+        {/* Status pill: the one live fact, clickable into the full Careem breakdown. The dot is static. */}
+        <button data-hfade type="button" onClick={e => { if (current) openDetails(current, originOf(e)); }}
+          aria-label={`${profile.now} Open the ${current?.company} breakdown`}
+          className="group mb-8 inline-flex min-h-11 items-center gap-3 self-start rounded-full border border-line bg-graphite/80 py-1.5 pl-4 pr-1.5 text-sm font-medium text-fg transition-colors hover:border-ac">
+          <span aria-hidden="true" className="size-2 rounded-full bg-ac" />
+          <span>Currently at <span className="font-semibold">{current?.company}</span></span>
+          <span aria-hidden="true" className="grid size-8 place-items-center rounded-full bg-ac text-carbon transition-transform duration-500 ease-out-expo group-hover:-rotate-45">→</span>
+        </button>
         <h1>
           <span data-hline="0" className="display block text-[clamp(3rem,10.5vw,9.5rem)]">Muhammad</span>{' '}
           <span data-hline="1" className="display block text-[clamp(3rem,10.5vw,9.5rem)]">
@@ -66,30 +69,8 @@ export function Hero() {
         </div>
       </div>
 
-      <div data-hfade className="mx-auto mb-6 flex w-full max-w-[1400px] items-end justify-between gap-6">
-        {/* Lando's "next race" card: the one live fact, clickable into the full breakdown. */}
-        <button ref={nowCard} type="button" onClick={e => { if (current) openDetails(current, originOf(e)); }}
-          aria-label={`Now at ${current?.company}: ${profile.now} Open details`}
-          className="group relative w-full max-w-[420px] overflow-hidden border border-line bg-graphite/95 p-5 text-left transition-colors duration-500 hover:border-ac md:p-6">
-          <span aria-hidden="true" className="absolute inset-y-0 left-0 w-[3px] bg-ac" />
-          <span className="flex items-center justify-between font-mono text-[11px] uppercase tracking-[0.14em]">
-            <span className="flex items-center gap-2 text-ac">
-              <span aria-hidden="true" className="relative flex size-2">
-                <span className={`absolute inline-flex size-full rounded-full bg-ac opacity-60 ${nowOn ? 'animate-ping' : ''}`} />
-                <span className="relative inline-flex size-2 rounded-full bg-ac" />
-              </span>
-              Now
-            </span>
-            <span className="text-mute">{current?.years}</span>
-          </span>
-          <span className="display mt-4 block text-4xl md:text-5xl">{current?.company}</span>
-          <span className="mt-3 block leading-snug text-fg">{profile.now}</span>
-          <span className="mt-5 flex items-center justify-between gap-4 border-t border-line pt-4">
-            <span className="font-mono text-sm font-semibold text-ac">{stat?.stat} {stat?.statLabel}</span>
-            <span aria-hidden="true" className="grid size-10 shrink-0 place-items-center rounded-full bg-ac text-lg text-carbon transition-transform duration-500 ease-out-expo group-hover:-rotate-45">→</span>
-          </span>
-        </button>
-        <div aria-hidden="true" className="checker hidden w-40 md:block" />
+      <div aria-hidden="true" className="mx-auto mb-6 flex w-full max-w-[1400px] justify-end">
+        <div className="checker hidden w-40 md:block" />
       </div>
     </section>
   );

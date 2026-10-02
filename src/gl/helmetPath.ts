@@ -28,7 +28,8 @@ const MOBILE: Record<string, Pose> = {
 const SEGMENTS: Array<{ from: string; to: string; trigger: string; start: string; end: string }> = [
   { from: 'hero', to: 'about', trigger: '#about', start: 'top bottom', end: 'top top' },
   { from: 'about', to: 'about2', trigger: '#about [data-pin]', start: 'top top', end: '+=120%' },
-  { from: 'about2', to: 'away', trigger: '#skills-overview', start: 'top 85%', end: 'top 20%' },
+  // The Lap's 3D track takes over the stage, so the helmet flies off as it arrives.
+  { from: 'about2', to: 'away', trigger: '#timeline', start: 'top 85%', end: 'top 20%' },
   { from: 'away', to: 'results', trigger: '#results', start: 'top bottom', end: 'top 10%' },
   { from: 'results', to: 'exit', trigger: '#results', start: 'bottom 85%', end: 'bottom top' },
 ];

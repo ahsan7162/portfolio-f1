@@ -8,13 +8,13 @@ import { useBentoPointer } from '@/motion/useBentoPointer';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 import { cn } from '@/lib/utils';
 
-// Bento layout per job, on a 6-column grid. Phones stack every tile; tablets show
-// Careem full width over Xtel and Astera, with the promotions tile below.
-const LAYOUT: Record<string, { col: string; lead?: boolean }> = {
-  careem: { col: 'md:col-span-6 lg:col-span-4', lead: true },
-  xtel: { col: 'md:col-span-3 lg:col-span-2' },
-  astera: { col: 'md:col-span-3' },
-};
+// Bento layout by position, on a 6-column grid, so a new job only needs data.
+// Phones stack every tile; the newest job leads (full width on tablets), the next
+// sits beside it on desktop, the rest fill in pairs, and the promotions tile is last.
+const layout = (i: number): { col: string; lead?: boolean } =>
+  i === 0 ? { col: 'md:col-span-6 lg:col-span-4', lead: true }
+    : i === 1 ? { col: 'md:col-span-3 lg:col-span-2' }
+      : { col: 'md:col-span-3' };
 
 const span = (j: Job) => `${j.years.replace(' to ', ' — ')} / ${j.place}`;
 const sector = (j: Job) => timeline.find(t => t.job === j.id)?.sector;
@@ -38,8 +38,8 @@ export function Experience() {
       <div className="mx-auto max-w-[1400px]">
         <h2 className="display mb-14 text-[clamp(2.6rem,8vw,7.5rem)]">Work experience</h2>
         <div ref={grid} className="bento">
-          {jobs.map(j => {
-            const { col, lead } = LAYOUT[j.id] ?? { col: 'md:col-span-3' };
+          {jobs.map((j, i) => {
+            const { col, lead } = layout(i);
             return (
               <article key={j.id} data-tile data-tilt
                 className={cn('tile flex cursor-pointer flex-col justify-between gap-12 p-6 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-ac md:p-9',

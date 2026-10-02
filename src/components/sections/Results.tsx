@@ -30,7 +30,7 @@ export function Results() {
           {stats.headline.label}
         </p>
 
-        <dl className="mt-20 grid grid-cols-2 gap-x-6 gap-y-12 md:mt-28 md:grid-cols-4">
+        <dl className="mt-20 grid max-w-[920px] grid-cols-2 gap-x-6 gap-y-12 md:mt-28">
           {stats.grid.map(s => (
             <div key={s.label} data-stat className="border-t border-line pt-5">
               <dt className="label mb-3">{s.label}</dt>

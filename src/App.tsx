@@ -7,12 +7,10 @@ import { Nav } from '@/components/Nav';
 import { TrackMap } from '@/components/TrackMap';
 import { About } from '@/components/sections/About';
 import { Contact } from '@/components/sections/Contact';
-import { Disciplines } from '@/components/sections/Disciplines';
 import { Education } from '@/components/sections/Education';
 import { Experience } from '@/components/sections/Experience';
 import { Hero } from '@/components/sections/Hero';
 import { Lap } from '@/components/sections/Lap';
-import { Performance } from '@/components/sections/Performance';
 import { Projects } from '@/components/sections/Projects';
 import { Results } from '@/components/sections/Results';
 import { TechStack } from '@/components/sections/TechStack';
@@ -73,14 +71,12 @@ function Page() {
         <main>
           <Hero />
           <About />
-          <Disciplines />
-          <Results />
           <Lap />
           <Experience />
-          <Performance />
           <Projects />
           <TechStack />
           <Education />
+          <Results />
         </main>
         <Contact />
         <TrackMap />

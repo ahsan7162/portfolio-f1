@@ -5,9 +5,9 @@ import { gsap, ScrollTrigger } from '@/motion/gsap';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 
 const SECTIONS = [
-  ['top', 'Start'], ['about', 'About'], ['skills-overview', 'Full stack'], ['results', 'Results'], ['timeline', 'Timeline'],
-  ['experience', 'Experience'], ['performance', 'Performance'], ['projects', 'Projects'],
-  ['skills', 'Tech stack'], ['education', 'Education'], ['contact', 'Finish'],
+  ['top', 'Start'], ['about', 'About'], ['timeline', 'Timeline'], ['experience', 'Experience'],
+  ['projects', 'Projects'], ['skills', 'Tech stack'], ['education', 'Education'], ['results', 'Results'],
+  ['contact', 'Finish'],
 ] as const;
 
 /**
@@ -23,7 +23,7 @@ export function TrackMap() {
       gsap.to(q('[data-dot]'), { ease: 'none', scrollTrigger: whole, motionPath: { path: track, align: track, alignOrigin: [0.5, 0.5] } });
     }
     gsap.fromTo(q('[data-bar]'), { scaleX: 0 }, { scaleX: 1, ease: 'none', scrollTrigger: whole });
-    // Hidden over the hero (it would sit on the "Now" card); slides in once the hero scrolls away.
+    // Hidden over the hero; slides in once the hero scrolls away.
     const hero = document.getElementById('top');
     if (hero) gsap.fromTo(q('[data-mapin]'), { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, ease: 'none', scrollTrigger: { trigger: hero, start: 'bottom 85%', end: 'bottom 55%', scrub: true } });
     // Step aside at the finish so it never covers the footer.

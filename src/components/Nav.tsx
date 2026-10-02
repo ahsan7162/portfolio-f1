@@ -14,14 +14,12 @@ export const cvHref = () => `${import.meta.env.BASE_URL}${CV_FILE}`;
 /** Every section, in page order. Projects opens the full list instead of scrolling. */
 const MENU = [
   { id: 'about', label: 'About' },
-  { id: 'skills-overview', label: 'Frontend and backend' },
-  { id: 'results', label: 'Results' },
   { id: 'timeline', label: 'Career timeline' },
   { id: 'experience', label: 'Work experience', children: true },
-  { id: 'performance', label: 'Performance' },
   { id: 'projects', label: 'Projects', archive: true },
   { id: 'skills', label: 'Tech stack' },
   { id: 'education', label: 'Education' },
+  { id: 'results', label: 'Results' },
   { id: 'contact', label: 'Contact' },
 ] as const;
 

@@ -15,15 +15,6 @@ export type Breakdown = {
 
 export type Job = Breakdown & { id: string; years: string; result: string; place: string; summary: string };
 
-export type Delta = {
-  name: string;
-  org: string;
-  pct: number;
-  before: string;
-  after: string;
-  factor: string;
-};
-
 export type Project = Breakdown & {
   id: 'agents' | 'partner-ops' | 'llm-server';
   title: string;
@@ -64,42 +55,13 @@ export const profile = {
   aboutAccent: ['slowest', 'fast.'],
 };
 
-export const disciplines = [
-  {
-    id: 'frontend',
-    name: 'Frontend',
-    summary: 'React interfaces that stay fast with real data.',
-    stack: ['React 19', 'Next.js', 'JavaScript', 'Microfrontends', 'OpenAPI clients', 'Vite'],
-    result: { stat: '2% to 35%', text: 'Partner dashboard adoption after launch, on a React microfrontend.' },
-  },
-  {
-    id: 'backend',
-    name: 'Backend',
-    summary: 'APIs, event pipelines and data stores built for load.',
-    stack: ['Go', 'Python', '.NET 8', 'FastAPI', 'Kafka', 'PostgreSQL', 'DynamoDB', 'OpenSearch'],
-    result: { stat: '~300×', text: 'Faster AI agent builds: 2 to 3 days down to 10 minutes.' },
-  },
-] as const;
-
 export const stats = {
   headline: { value: 450, suffix: '+', label: 'AI agents shipped on a platform I built' },
   grid: [
     { value: 300, prefix: '~', suffix: '×', label: 'Faster agent builds' },
-    { value: 3, suffix: '', label: 'Promotions in 30 months' },
-    { value: 7, suffix: '', label: 'Measured speed-ups' },
     { value: 4, suffix: '+', label: 'Years in production' },
   ],
 };
-
-export const deltas: Delta[] = [
-  { name: 'Agent build time', org: 'Careem', pct: 100, before: '2 to 3 days', after: '10 min', factor: '~300×' },
-  { name: 'UI field visibility check', org: 'Xtel', pct: 88, before: '30 s', after: '100 to 200 ms', factor: '~150×' },
-  { name: 'Support chat groups', org: 'Careem', pct: 56, before: '500+', after: 'under 20', factor: '25×' },
-  { name: 'Dashboard adoption', org: 'Careem', pct: 50, before: '2%', after: '35%', factor: '17×' },
-  { name: 'Document load', org: 'Xtel', pct: 36, before: '250 s', after: '30 s', factor: '8×' },
-  { name: 'Slow web operation', org: 'Xtel', pct: 24, before: '2 min', after: '30 s', factor: '4×' },
-  { name: 'Anomaly evaluation', org: 'Xtel', pct: 12, before: '40 s', after: '20 s', factor: '2×' },
-];
 
 export const jobs: Job[] = [
   { id: 'careem', company: 'Careem', role: 'Software Engineer', dates: 'October 2025 to present', years: '2025 to now', loc: 'Karachi, Pakistan', place: 'Karachi',
