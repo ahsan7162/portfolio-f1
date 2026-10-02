@@ -5,6 +5,7 @@ import { lapState } from '@/gl/state';
 import { glEnabled } from '@/motion/prefs';
 import { gsap, ScrollTrigger } from '@/motion/gsap';
 import { DUR, EASE } from '@/motion/tokens';
+import { useSmoothScroll } from '@/motion/SmoothScroll';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 
 /**
@@ -13,6 +14,7 @@ import { useSectionMotion } from '@/motion/useSectionMotion';
  * stages are simply listed, so the content always reads (and is prerendered).
  */
 export function Lap() {
+  const { lenis } = useSmoothScroll();
   const { openDetails } = useDialogs();
   const ref = useSectionMotion<HTMLElement>(({ root, q, qa, markers, onRevert }) => {
     const pin = q('[data-lappin]')!;
@@ -53,16 +55,29 @@ export function Lap() {
     };
 
     const at = (p: number) => Math.min(n - 1, Math.floor(p * n));
-    ScrollTrigger.create({
+    const st = ScrollTrigger.create({
       trigger: pin, start: 'top top', end: `+=${n * 35}%`, pin: true, markers,
-      // Every stop lands on a stage (the middle of its band), or on either end.
-      snap: { snapTo: [0, ...stages.map((_, k) => (k + 0.5) / n), 1], duration: { min: 0.2, max: 0.45 }, ease: EASE.wipe, delay: 0.05 },
       onToggle: self => { lapState.active = self.isActive; },
       // Enter callbacks run after onUpdate, so they must use the real progress too.
       onEnter: self => { gsap.to(q('[data-laphead]'), { autoAlpha: 1, y: 0, duration: DUR.split, ease: EASE.out }); show(at(self.progress)); },
       onEnterBack: self => show(at(self.progress)),
       onUpdate: self => show(at(self.progress)),
     });
+
+    // Snap: when scrolling settles inside the pin, glide to the middle of the
+    // nearest stage (or either end). Done through Lenis, since ScrollTrigger's
+    // own snap scrolls the window directly and Lenis would fight it.
+    const points = [0, ...stages.map((_, k) => (k + 0.5) / n), 1];
+    const settle = () => {
+      const l = lenis();
+      if (!l || !st.isActive) return;
+      const p = st.progress;
+      const to = points.reduce((a, b) => (Math.abs(b - p) < Math.abs(a - p) ? b : a));
+      if (Math.abs(to - p) * (st.end - st.start) < 2) return;
+      l.scrollTo(st.start + to * (st.end - st.start), { duration: DUR.wipe, easing: gsap.parseEase(EASE.wipe) });
+    };
+    ScrollTrigger.addEventListener('scrollEnd', settle);
+    onRevert(() => ScrollTrigger.removeEventListener('scrollEnd', settle));
   }, [], { fit: true });
 
   return (

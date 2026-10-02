@@ -10,7 +10,7 @@ import { DUR, EASE } from '@/motion/tokens';
 // Architecture diagrams that stand in for photography, drawn as one SVG on a
 // fixed 320×200 grid so they scale with the card without measuring the DOM.
 // Motion (GSAP only): each line draws once as the card comes into view, then
-// stays still. On hover, one red dot runs the request path. Nothing loops.
+// stays still. On hover, one red dot runs the request path (0.45 s per line). Nothing loops.
 
 type Node = { id: string; x: number; y: number; label: string; icon?: SimpleIcon; glyph?: ReactNode; txt?: string; accent?: boolean };
 /** from, to, bend (perpendicular offset of the curve), draw order. */
@@ -111,7 +111,7 @@ function Diagram({ spec }: { spec: Spec }) {
     // One pulse per hover: each stage's dots run their lines together.
     const pulse = () => ctx.add(() => {
       if (running?.isActive()) return;
-      const stage = DUR.wipe / spec.pulse.length;
+      const stage = DUR.wipe; // per line, so the dot reads as travelling, not flashing
       running = gsap.timeline();
       spec.pulse.forEach((edges, s) => edges.forEach(i => {
         running!.set(dots[i], { autoAlpha: 1 }, s * stage)
