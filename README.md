@@ -25,7 +25,8 @@ npm run preview    # http://localhost:4174
   The helmet's per-section poses are in `src/gl/helmetPath.ts`.
 - **One animation engine:** every JS animation is GSAP (plus Lenis on its ticker). Counters use
   `digitRoll`, scrambled labels `ScrambleTextPlugin` (`src/components/Scramble.tsx`), project
-  diagrams draw once with DrawSVG and pulse on hover with MotionPath, and the logo marquee moves
+  cards play a short SVG scene of the product in use (`src/components/ProjectVisuals.tsx`: the
+  markup is the last frame; it loops only while on screen, once on touch), and the logo marquee moves
   only with scroll velocity. Durations and eases come from `src/motion/tokens.ts`; CSS hover
   transitions share them through `--dur-hit`, `--dur-split` and `--dur-wipe`.
 - **SEO:** the page is prerendered to static HTML (`scripts/prerender.ts`) and hydrated.
