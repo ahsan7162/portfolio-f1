@@ -17,7 +17,6 @@ export function ensureGsap() {
   gsap.registerPlugin(ScrollTrigger, SplitText, DrawSVGPlugin, MotionPathPlugin, Flip, ScrambleTextPlugin, useGSAP);
   gsap.defaults({ ease: EASE.out, duration: DUR.reveal });
   gsap.ticker.lagSmoothing(0);
-  ScrollTrigger.config({ ignoreMobileResize: true });
   if (import.meta.env.DEV) Object.assign(window, { __gsap: gsap, __ST: ScrollTrigger });
 }
 

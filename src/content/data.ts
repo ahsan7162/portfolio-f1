@@ -95,7 +95,7 @@ export const jobs: Job[] = [
 /** The red tile in the work grid. */
 export const promotions = {
   value: 3,
-  text: 'promotions in thirty months at Astera — associate to SE II, ending on AI infrastructure for the flagship product.',
+  text: 'promotions in thirty months at Astera, from associate to SE II, ending on AI infrastructure for the flagship product.',
 };
 
 export const projects: Project[] = [

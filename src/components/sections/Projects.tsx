@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils';
 // and moves at its own scroll speed.
 const LAYOUT = [
   { col: 'lg:col-span-7', offset: 'lg:mt-0', speed: -6 },
-  { col: 'lg:col-span-5', offset: 'lg:mt-40', speed: 8 },
+  { col: 'lg:col-span-5', offset: 'lg:mt-24', speed: 8 },
   { col: 'md:col-span-2 lg:col-span-6 lg:col-start-4', offset: 'lg:-mt-10', speed: -3 },
 ];
 
@@ -56,9 +56,6 @@ export function Projects() {
             <ProjectCard key={p.id} className={cn(LAYOUT[i].col, LAYOUT[i].offset)}>
                 <div data-cardvis className="relative aspect-[16/10] overflow-hidden bg-carbon">
                   <div data-cardin className="h-full w-full"><ProjectVisual project={p} /></div>
-                  <span aria-hidden="true" className="absolute left-3 top-3 font-mono text-[10px] uppercase tracking-[0.14em] text-[#a3a39c]">
-                    {String(i + 1).padStart(2, '0')}
-                  </span>
                 </div>
                 <div className="p-6 md:p-8">
                   <h3 data-cardtxt className="display text-3xl md:text-4xl">{p.title}</h3>

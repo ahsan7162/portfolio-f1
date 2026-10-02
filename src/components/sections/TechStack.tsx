@@ -16,13 +16,10 @@ const LOGOS: SimpleIcon[] = [
 
 const slash = (xs: string[]) => xs.join(' / ');
 
-function Tile({ n, name, accent, className, children }: { n: number; name: string; accent?: boolean; className?: string; children: ReactNode }) {
+function Tile({ name, accent, className, children }: { name: string; accent?: boolean; className?: string; children: ReactNode }) {
   return (
     <div data-tile data-tilt className={cn('tile flex flex-col gap-5 p-6 md:p-8', className)}>
-      <div className="flex items-baseline justify-between gap-4 md:contents">
-        <h3 className={cn('label', accent && '!text-ac')}>{name}</h3>
-        <span aria-hidden="true" className="font-mono text-[10px] text-dim md:absolute md:right-6 md:top-6">{String(n).padStart(2, '0')}</span>
-      </div>
+      <h3 className={cn('label', accent && '!text-ac')}>{name}</h3>
       {children}
     </div>
   );
@@ -78,17 +75,17 @@ export function TechStack() {
       </div>
       <div className="mx-auto mt-16 max-w-[1400px] px-4 md:px-8">
         <div ref={grid} className="bento">
-          <Tile n={1} name="Core languages" accent className="tile-lead md:flex-row md:flex-wrap md:items-center md:justify-between md:gap-6 md:p-10 md:pr-16">
+          <Tile name="Core languages" accent className="tile-lead md:flex-row md:flex-wrap md:items-center md:justify-between md:gap-6 md:p-10 md:pr-16">
             <p className="display text-[clamp(2rem,4.6vw,4.75rem)]">{slash(skills.core)}</p>
           </Tile>
-          <Tile n={2} name="Frameworks" className="md:col-span-3"><List items={skills.frameworks} /></Tile>
-          <Tile n={3} name="AI / LLM" accent className="justify-center md:col-span-3 md:row-span-2 md:gap-5">
+          <Tile name="Frameworks" className="md:col-span-3"><List items={skills.frameworks} /></Tile>
+          <Tile name="AI / LLM" accent className="justify-center md:col-span-3 md:row-span-2 md:gap-5">
             <p className="display text-[clamp(1.5rem,2.5vw,2.5rem)] !leading-[1.05]">{slash(skills.ai.providers)}</p>
             <List items={skills.ai.items} />
           </Tile>
-          <Tile n={4} name="Data" className="md:col-span-3"><List items={skills.data} /></Tile>
-          <Tile n={5} name="Infra" className="md:col-span-3 lg:col-span-2"><List items={skills.infra} /></Tile>
-          <Tile n={6} name="Tooling" className="md:col-span-3 lg:col-span-4"><List items={skills.tooling} /></Tile>
+          <Tile name="Data" className="md:col-span-3"><List items={skills.data} /></Tile>
+          <Tile name="Infra" className="md:col-span-3 lg:col-span-2"><List items={skills.infra} /></Tile>
+          <Tile name="Tooling" className="md:col-span-3 lg:col-span-4"><List items={skills.tooling} /></Tile>
         </div>
       </div>
     </section>

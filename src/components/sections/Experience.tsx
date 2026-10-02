@@ -16,7 +16,7 @@ const layout = (i: number): { col: string; lead?: boolean } =>
     : i === 1 ? { col: 'md:col-span-3 lg:col-span-2' }
       : { col: 'md:col-span-3' };
 
-const span = (j: Job) => `${j.years.replace(' to ', ' — ')} / ${j.place}`;
+const span = (j: Job) => `${j.years} / ${j.place}`;
 const sector = (j: Job) => timeline.find(t => t.job === j.id)?.sector;
 
 /** Work history as a bento grid: one block per company (sectors from the lap), plus the promotions tile. */
