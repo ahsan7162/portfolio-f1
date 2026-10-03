@@ -45,8 +45,18 @@ export function TechStack() {
     // the paused loops directly, so the speed glides instead of stepping, and it only
     // runs while the bar is on screen. The second, dimmer row runs the other way.
     const row = q('[data-marquee]')!;
+    // The second row is motion-only decoration, so it is built here rather than
+    // prerendered: smaller, dimmer, offset, reusing the first row's paths (<use>).
+    const row2 = document.createElement('div');
+    row2.setAttribute('aria-hidden', 'true');
+    row2.className = 'mt-6 flex w-max will-change-transform';
+    const order = [...LOGOS.slice(7), ...LOGOS.slice(0, 7)];
+    row2.innerHTML = [0, 1].map(() => `<div class="flex shrink-0">${order.map(l =>
+      `<span class="mx-7 inline-flex items-center text-fg/30 md:mx-10"><svg viewBox="0 0 24 24" class="size-6 fill-current md:size-7"><use href="#logo-${l.slug}"/></svg></span>`).join('')}</div>`).join('');
+    row.after(row2);
+    onRevert(() => row2.remove());
     const loop = gsap.to(row, { xPercent: -50, ease: EASE.none, duration: 40, repeat: -1, paused: true });
-    const loop2 = gsap.to(q('[data-marquee2]'), { xPercent: -50, ease: EASE.none, duration: 40, repeat: -1, paused: true });
+    const loop2 = gsap.to(row2, { xPercent: -50, ease: EASE.none, duration: 40, repeat: -1, paused: true });
     loop.totalTime(loop.duration() * 1000); // far from 0, so it can run backwards too
     loop2.totalTime(loop2.duration() * 1000 + 13);
 
@@ -130,18 +140,6 @@ export function TechStack() {
                   {copy
                     ? <svg viewBox="0 0 24 24" className="size-9 fill-current md:size-11"><use href={`#logo-${l.slug}`} /></svg>
                     : <svg role="img" aria-label={l.title} viewBox="0 0 24 24" className="size-9 fill-current md:size-11"><path id={`logo-${l.slug}`} d={l.path} /></svg>}
-                </span>
-              ))}
-            </div>
-          ))}
-        </div>
-        {/* Second row, the other way: smaller and dimmer, reusing the first row's paths. */}
-        <div data-marquee2 aria-hidden="true" className="mt-6 flex w-max will-change-transform">
-          {[0, 1].map(copy => (
-            <div key={copy} className="flex shrink-0">
-              {[...LOGOS.slice(7), ...LOGOS.slice(0, 7)].map(l => (
-                <span key={l.slug} className="mx-7 inline-flex items-center text-fg/30 md:mx-10">
-                  <svg viewBox="0 0 24 24" className="size-6 fill-current md:size-7"><use href={`#logo-${l.slug}`} /></svg>
                 </span>
               ))}
             </div>

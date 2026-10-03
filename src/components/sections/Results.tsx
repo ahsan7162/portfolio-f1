@@ -43,10 +43,17 @@ export function Results() {
     // left to right in red, then settles to the page colour. One scrubbed timeline.
     const big = q('[data-bignum]')!;
     const split = SplitText.create(big, { type: 'chars', mask: 'chars', aria: 'auto' });
+    // Split the outline the same way (letters lose kerning when split), so every
+    // outline letter sits exactly under its solid one.
+    SplitText.create(q('[data-bigoutline]'), { type: 'chars', mask: 'chars', aria: 'none' });
+    // Real colours, not var(): GSAP can only blend values it can parse.
+    const css = getComputedStyle(document.documentElement);
+    const ac = css.getPropertyValue('--ac').trim() || '#ff2438', fg = css.getPropertyValue('--fg').trim() || '#f4f4ed';
     gsap.timeline({ scrollTrigger: { trigger: big, start: 'top 95%', end: 'top 35%', scrub: true } })
       .fromTo(split.chars, { yPercent: 105 }, { yPercent: 0, stagger: 0.08, ease: EASE.none, duration: 0.5 }, 0)
-      .fromTo(big, { clipPath: 'inset(0% 100% 0% 0%)', color: 'var(--ac)' }, { clipPath: 'inset(0% 0% 0% 0%)', ease: EASE.none, duration: 0.75 }, 0.05)
-      .to(big, { color: 'var(--fg)', ease: EASE.none, duration: 0.25 }, 0.75);
+      .fromTo(big, { clipPath: 'inset(0% 100% 0% 0%)', color: ac }, { clipPath: 'inset(0% 0% 0% 0%)', ease: EASE.none, duration: 0.75 }, 0.05)
+      .to(big, { color: fg, ease: EASE.none, duration: 0.25 }, 0.75);
+    onRevert(() => gsap.set(big, { clearProps: 'color,clipPath' }));
     gsap.fromTo(q('[data-bigwrap]'), { xPercent: -3 }, { xPercent: 4, ease: EASE.none, scrollTrigger: { trigger: big, start: 'top bottom', end: 'bottom top', scrub: true } });
     splitReveal(q('[data-biglabel]'), { type: 'words' });
   });
@@ -98,7 +105,7 @@ export function Results() {
         <div className="mt-32 md:mt-72">
           <div data-bigwrap data-speed className="relative w-max">
             {/* The empty outline the number fills (hidden under it when static). */}
-            <div aria-hidden="true" className="display pointer-events-none absolute inset-0 whitespace-nowrap text-[clamp(7rem,30vw,26rem)] !leading-[0.8] text-transparent"
+            <div data-bigoutline aria-hidden="true" className="display pointer-events-none absolute inset-0 whitespace-nowrap text-[clamp(7rem,30vw,26rem)] !leading-[0.8] text-transparent"
               style={{ WebkitTextStroke: '1px rgb(244 244 237 / 0.25)' }}>
               {stats.headline.value}{stats.headline.suffix}
             </div>
