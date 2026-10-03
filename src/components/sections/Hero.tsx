@@ -56,8 +56,8 @@ export function Hero() {
           <span data-pillarrow aria-hidden="true" className="inline-block"><span className="grid size-8 place-items-center rounded-full bg-ac text-carbon transition-transform duration-(--dur-hit) ease-out-expo group-hover:-rotate-45">→</span></span>
         </button>
         <h1>
-          <span data-hline="0" className="display block text-[clamp(3rem,10.5vw,9.5rem)]">Muhammad</span>{' '}
-          <span data-hline="1" className="display block text-[clamp(3rem,10.5vw,9.5rem)]">
+          <span data-hline="0" data-speed className="display block text-[clamp(3rem,10.5vw,9.5rem)]">Muhammad</span>{' '}
+          <span data-hline="1" data-speed className="display block text-[clamp(3rem,10.5vw,9.5rem)]">
             Ahsan<span aria-hidden="true" className="text-ac">.</span>
           </span>
           <span className="sr-only">, </span>
