@@ -38,26 +38,20 @@ export function Results() {
     // The ghost P3 drifts behind the row.
     scrubParallax(q('[data-p3ghost]'), root, { from: { yPercent: 20 }, to: { yPercent: -20 } });
 
-    // Finale: the headline number rises with the scroll as the helmet turns to face you,
-    // and fills in: an outline of it sits behind, the solid number wipes in over it
-    // left to right in red, then settles to the page colour. One scrubbed timeline.
-    const big = q('[data-bignum]')!;
-    // No per-letter masks: the tracking is tight enough that glyphs overlap their
-    // neighbours, and a mask per letter would cut them. The number's own clip-path
-    // does the masking instead (open above and at the sides, closed at the bottom,
-    // so the letters still rise out of a line).
+    // Finale: the headline number rises with the scroll as the helmet turns to face you.
+    // Its digits are tracked tight enough to fuse into one shape. A dim ghost of it sits
+    // behind, and the bright number wipes over the ghost left to right, led by a red edge.
+    // No per-letter masks (they would cut the overlapping digits): the number's own
+    // clip-path masks the rise (open above and at the sides, closed at the bottom).
+    const big = q('[data-bignum]')!, edge = q('[data-bigedge]')!;
     const split = SplitText.create(big, { type: 'chars', aria: 'auto' });
-    // Split the outline the same way (letters lose kerning when split), so every
-    // outline letter sits exactly under its solid one.
-    SplitText.create(q('[data-bigoutline]'), { type: 'chars', aria: 'none' });
-    // Real colours, not var(): GSAP can only blend values it can parse.
-    const css = getComputedStyle(document.documentElement);
-    const ac = css.getPropertyValue('--ac').trim() || '#ff2438', fg = css.getPropertyValue('--fg').trim() || '#f4f4ed';
-    gsap.timeline({ scrollTrigger: { trigger: big, start: 'top 95%', end: 'top 35%', scrub: true } })
+    // Split the ghost the same way (letters lose kerning when split), so they line up.
+    SplitText.create(q('[data-bigghost]'), { type: 'chars', aria: 'none' });
+    gsap.timeline({ scrollTrigger: { trigger: big, start: 'top 95%', end: 'top 35%', scrub: true, invalidateOnRefresh: true } })
       .fromTo(split.chars, { yPercent: 105 }, { yPercent: 0, stagger: 0.08, ease: EASE.none, duration: 0.5 }, 0)
-      .fromTo(big, { clipPath: 'inset(-30% 100% -2% -10%)', color: ac }, { clipPath: 'inset(-30% -10% -2% -10%)', ease: EASE.none, duration: 0.75 }, 0.05)
-      .to(big, { color: fg, ease: EASE.none, duration: 0.25 }, 0.75);
-    onRevert(() => gsap.set(big, { clearProps: 'color,clipPath' }));
+      .fromTo(big, { clipPath: 'inset(-30% 100% -2% -10%)' }, { clipPath: 'inset(-30% -10% -2% -10%)', ease: EASE.none, duration: 0.75 }, 0.05)
+      .fromTo(edge, { x: 0, autoAlpha: 1 }, { x: () => big.offsetWidth, ease: EASE.none, duration: 0.75 }, 0.05)
+      .to(edge, { autoAlpha: 0, ease: EASE.none, duration: 0.1 }, 0.8);
     gsap.fromTo(q('[data-bigwrap]'), { xPercent: -3 }, { xPercent: 4, ease: EASE.none, scrollTrigger: { trigger: big, start: 'top bottom', end: 'bottom top', scrub: true } });
     splitReveal(q('[data-biglabel]'), { type: 'words' });
   });
@@ -108,13 +102,14 @@ export function Results() {
 
         <div className="mt-32 md:mt-72">
           <div data-bigwrap data-speed className="relative w-max">
-            {/* The empty outline the number fills (hidden under it when static). */}
-            <div data-bigoutline aria-hidden="true" className="display pointer-events-none absolute inset-0 whitespace-nowrap text-[clamp(7rem,30vw,26rem)] !leading-[0.8] text-transparent"
-              style={{ WebkitTextStroke: '1px rgb(244 244 237 / 0.25)' }}>
+            {/* The dim ghost the number fills (hidden under it when static). */}
+            <div data-bigghost aria-hidden="true" className="display pointer-events-none absolute inset-0 whitespace-nowrap text-[clamp(7rem,30vw,26rem)] !leading-[0.8] tracking-[-0.06em] text-fg/[0.07]">
               {stats.headline.value}{stats.headline.suffix}
             </div>
+            {/* Motion only: the red edge that leads the fill. */}
+            <div data-bigedge aria-hidden="true" className="pointer-events-none invisible absolute -top-[6%] bottom-0 left-0 z-10 w-1.5 bg-ac" />
             <div data-bignum aria-label={`${stats.headline.value}${stats.headline.suffix}`}
-              className="display relative whitespace-nowrap text-[clamp(7rem,30vw,26rem)] !leading-[0.8]">
+              className="display relative whitespace-nowrap text-[clamp(7rem,30vw,26rem)] !leading-[0.8] tracking-[-0.06em]">
               {stats.headline.value}{stats.headline.suffix}
             </div>
           </div>
