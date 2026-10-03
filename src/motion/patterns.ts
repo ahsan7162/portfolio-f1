@@ -56,6 +56,28 @@ export function splitReveal(
   });
 }
 
+/**
+ * The site's signature heading entrance: each letter pulls into its grid slot
+ * from the right (sliding in, leaning back, fading up), locked to the scroll so
+ * it also plays backwards on the way up. Lines are masked as in splitReveal.
+ * Each letter keeps an ease-out curve inside the scrub, so it reads as a launch.
+ */
+export function gridSlot(el: HTMLElement | null, opts: { start?: string; end?: string; scrub?: number } = {}) {
+  if (!el) return;
+  SplitText.create(el, {
+    type: 'lines,chars',
+    mask: 'lines',
+    linesClass: 'split-mask',
+    autoSplit: true,
+    aria: 'auto',
+    onSplit: self => gsap.fromTo(self.chars, { xPercent: 60, skewX: -18, autoAlpha: 0 }, {
+      // A wide stagger (each letter spans about half the range) so the word builds left to right.
+      xPercent: 0, skewX: 0, autoAlpha: 1, ease: 'power2.out', duration: 1, stagger: { amount: 0.9 },
+      scrollTrigger: { trigger: el, start: opts.start ?? 'top 95%', end: opts.end ?? 'top 60%', scrub: opts.scrub ?? 0.6 },
+    }),
+  });
+}
+
 /** Staggered rise for groups of items as they enter (replaces one-off observers). */
 export function batchReveal(targets: string | Element[], opts: { y?: number; stagger?: number } = {}) {
   const els = gsap.utils.toArray<HTMLElement>(targets);

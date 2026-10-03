@@ -6,7 +6,7 @@ import { archive, archiveBreakdown, projects, type Breakdown } from '@/content/d
 import { gsap } from '@/motion/gsap';
 import { isTouch, motionEnabled } from '@/motion/prefs';
 import { useBentoPointer } from '@/motion/useBentoPointer';
-import { clipReveal, inView, magnet } from '@/motion/patterns';
+import { clipReveal, gridSlot, inView, magnet } from '@/motion/patterns';
 import { DUR, EASE } from '@/motion/tokens';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 import { cn } from '@/lib/utils';
@@ -26,10 +26,7 @@ export function Projects() {
   const { openDetails, openArchive } = useDialogs();
   const grid = useBentoPointer<HTMLDivElement>();
   const ref = useSectionMotion<HTMLElement>(({ q, qa, desktop, onRevert }) => {
-    // The heading wipes up like the card visuals below it.
-    // Cleared after, so the tight display leading doesn't clip the glyphs.
-    gsap.fromTo(q('h2'), { clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: DUR.reveal, ease: EASE.wipe, clearProps: 'clipPath',
-      scrollTrigger: { trigger: q('h2')!, start: 'top 85%', once: true } });
+    gridSlot(q('h2'));
     const more = q('[data-more]')!;
     onRevert(magnet(more, q('[data-morearrow]'), 0.25));
     clipReveal(more, { trigger: more, from: 'inset(0% 100% 0% 0%)' });
@@ -46,7 +43,7 @@ export function Projects() {
     <section ref={ref} id="projects" tabIndex={-1} data-bg="#0d0d10,#111113" className="relative px-4 py-24 md:px-8 md:py-32">
       <div className="mx-auto max-w-[1400px]">
         <div className="mb-16 flex flex-wrap items-end justify-between gap-6">
-          <h2 className="display text-[clamp(3rem,10vw,9rem)]">Projects</h2>
+          <h2 data-speed className="display text-[clamp(3rem,10vw,9rem)]">Projects</h2>
           <button type="button" onClick={e => openArchive(originOf(e))} className="btn btn-primary">
             All projects <span className="rounded-full bg-carbon/20 px-2 py-0.5">{projects.length + archive.length}</span>
           </button>

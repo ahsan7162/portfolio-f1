@@ -1,6 +1,6 @@
 import { education, stats } from '@/content/data';
 import { gsap, SplitText } from '@/motion/gsap';
-import { digitRoll, inView, scrubParallax, splitReveal } from '@/motion/patterns';
+import { digitRoll, gridSlot, inView, scrubParallax, splitReveal } from '@/motion/patterns';
 import { DUR, EASE } from '@/motion/tokens';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 
@@ -17,6 +17,7 @@ const fmt = (n: number) => n.toLocaleString('en-US');
  */
 export function Results() {
   const ref = useSectionMotion<HTMLElement>(({ root, q, qa, onRevert }) => {
+    gridSlot(q('h2'));
     const row = q('[data-row]')!;
     // Several one-off reveals share the row: preventOverlaps finishes the earlier ones first.
     const once = inView(row, { start: 'top 80%', preventOverlaps: 'row' });
@@ -54,7 +55,7 @@ export function Results() {
         style={{ WebkitTextStroke: '1px rgb(244 244 237 / 0.07)' }}>P3</div>
 
       <div className="mx-auto max-w-[1400px]">
-        <h2 className="display mb-14 max-w-[14ch] text-[clamp(2.4rem,7vw,6.5rem)]">Results and education</h2>
+        <h2 data-speed className="display mb-14 max-w-[14ch] text-[clamp(2.4rem,7vw,6.5rem)]">Results and education</h2>
 
         {/* One row: education, the award, then the numbers. The helmet perches on the P3 step. */}
         <div data-row className="grid gap-x-10 gap-y-12 sm:grid-cols-2 xl:grid-cols-4">
@@ -93,7 +94,7 @@ export function Results() {
         </div>
 
         <div className="mt-32 md:mt-72">
-          <div data-bignum aria-label={`${stats.headline.value}${stats.headline.suffix}`}
+          <div data-bignum data-speed aria-label={`${stats.headline.value}${stats.headline.suffix}`}
             className="display whitespace-nowrap text-[clamp(7rem,30vw,26rem)] !leading-[0.8]">
             {stats.headline.value}{stats.headline.suffix}
           </div>

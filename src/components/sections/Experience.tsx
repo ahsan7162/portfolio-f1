@@ -2,7 +2,7 @@ import { jobs, promotions, timeline, type Job } from '@/content/data';
 import { CrawlableDetails } from '@/components/CrawlableDetails';
 import { originOf, useDialogs } from '@/components/dialog-context';
 import { gsap } from '@/motion/gsap';
-import { digitRoll, inView } from '@/motion/patterns';
+import { digitRoll, gridSlot, inView } from '@/motion/patterns';
 import { DUR, EASE, STAGGER } from '@/motion/tokens';
 import { useBentoPointer } from '@/motion/useBentoPointer';
 import { useSectionMotion } from '@/motion/useSectionMotion';
@@ -24,11 +24,11 @@ export function Experience() {
   const { openDetails } = useDialogs();
   const grid = useBentoPointer<HTMLDivElement>();
   const ref = useSectionMotion<HTMLElement>(({ q, qa, onRevert }) => {
-    // Heading and tiles wipe in left to right as one block; the clip is cleared
-    // after so hover shadows aren't cut off.
-    gsap.fromTo([q('h2'), ...qa('[data-tile]')], { clipPath: 'inset(0% 100% 0% 0%)' }, {
+    gridSlot(q('h2'));
+    // Tiles wipe in left to right; the clip is cleared after so hover shadows aren't cut off.
+    gsap.fromTo(qa('[data-tile]'), { clipPath: 'inset(0% 100% 0% 0%)' }, {
       clipPath: 'inset(0% 0% 0% 0%)', duration: DUR.reveal, ease: EASE.wipe, stagger: STAGGER.line, clearProps: 'clipPath',
-      scrollTrigger: { trigger: q('h2')!, start: 'top 85%', once: true },
+      scrollTrigger: inView(q('.bento')!),
     });
     onRevert(digitRoll(q('[data-promo]'), { scrollTrigger: inView(q('[data-promo]')!) }));
   });
@@ -36,7 +36,7 @@ export function Experience() {
   return (
     <section ref={ref} id="experience" tabIndex={-1} data-bg="#0b0b0c,#0d1013" className="relative px-4 py-24 md:px-8 md:py-32">
       <div className="mx-auto max-w-[1400px]">
-        <h2 className="display mb-14 text-[clamp(2.6rem,8vw,7.5rem)]">Work experience</h2>
+        <h2 data-speed className="display mb-14 text-[clamp(2.6rem,8vw,7.5rem)]">Work experience</h2>
         <div ref={grid} className="bento">
           {jobs.map((j, i) => {
             const { col, lead } = layout(i);

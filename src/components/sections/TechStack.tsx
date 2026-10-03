@@ -8,7 +8,7 @@ import { gsap, ScrollTrigger } from '@/motion/gsap';
 import { scrollState } from '@/motion/SmoothScroll';
 import { DUR, EASE, STAGGER } from '@/motion/tokens';
 import { useBentoPointer } from '@/motion/useBentoPointer';
-import { inView } from '@/motion/patterns';
+import { gridSlot, inView } from '@/motion/patterns';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 import { cn } from '@/lib/utils';
 
@@ -37,7 +37,7 @@ const List = ({ items }: { items: string[] }) => (
 export function TechStack() {
   const grid = useBentoPointer<HTMLDivElement>();
   const ref = useSectionMotion<HTMLElement>(({ q, qa, onRevert }) => {
-    // No heading animation: the logo marquee coming in is the entrance.
+    gridSlot(q('h2'));
     // The marquee only moves while you scroll, at the scroll's speed and direction,
     // then coasts to a stop: like a car, it only moves while racing. One ticker
     // function eases toward Lenis's (already smooth) velocity every frame and moves
@@ -66,7 +66,7 @@ export function TechStack() {
   return (
     <section ref={ref} id="skills" tabIndex={-1} data-bg="#0b0b0c,#111113" className="relative py-24 md:py-32">
       <div className="mx-auto max-w-[1400px] px-4 md:px-8">
-        <h2 className="display mb-14 text-[clamp(2.4rem,7vw,6.5rem)]">Tech stack</h2>
+        <h2 data-speed className="display mb-14 text-[clamp(2.4rem,7vw,6.5rem)]">Tech stack</h2>
       </div>
       <div data-marqueebox className="overflow-hidden border-y border-line py-8">
         {/* Two identical halves, so -50% loops seamlessly. One list is wider than any screen;

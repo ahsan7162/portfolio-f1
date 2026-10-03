@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { LazyMap } from '@/components/LazyMap';
 import { cvHref } from '@/components/Nav';
 import { CV_FILE, EMAIL, GITHUB, LINKEDIN, PHONE, PHONE_DISPLAY, profile } from '@/content/data';
-import { batchReveal, clipReveal, splitReveal } from '@/motion/patterns';
+import { batchReveal, clipReveal, gridSlot } from '@/motion/patterns';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 
 function CopyPhone() {
@@ -26,7 +26,7 @@ function CopyPhone() {
 
 export function Contact() {
   const ref = useSectionMotion<HTMLElement>(({ q, qa }) => {
-    splitReveal(q('[data-ctitle]'), { type: 'lines' });
+    gridSlot(q('[data-ctitle]'), { start: 'top 98%', end: 'top 55%' });
     clipReveal(q('[data-finish]'), { trigger: q('[data-finish]')!, from: 'inset(0% 100% 0% 0%)' });
     batchReveal(qa('[data-clink]'), { y: 16, stagger: 0.05 });
   });
@@ -36,7 +36,7 @@ export function Contact() {
       <div className="mx-auto max-w-[1400px]">
         <h2 className="label mb-8">Contact</h2>
         <div className="grid items-end gap-12 lg:grid-cols-[1.4fr_1fr]">
-          <p data-ctitle className="display text-[clamp(3rem,9vw,8.5rem)]">
+          <p data-ctitle data-speed className="display text-[clamp(3rem,9vw,8.5rem)]">
             <a href={`mailto:${EMAIL}`} className="transition-colors duration-(--dur-hit) hover:text-ac">
               Let's build something <em className="display-em">fast</em>.
             </a>
