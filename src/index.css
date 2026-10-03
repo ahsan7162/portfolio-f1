@@ -215,6 +215,10 @@ html.gl-on .contour-fallback { opacity: 0; transition: opacity 1s; }
 .lap-live .lap-stages { position: relative; flex: 1; display: block; }
 .lap-live .lap-stage { position: absolute; left: 0; bottom: 0; }
 .lap-live .lap-meta { display: flex; }
+/* HUD lap timer: fixed-width digits in a contained box, so each text write never re-lays out the page. */
+.lap-time { display: inline-block; min-width: 8ch; text-align: right; font-variant-numeric: tabular-nums; contain: layout paint; }
+.lap-meta .sector-done { color: #2fd27a; }
+.lap-meta .sector-best { color: #b26bff; }
 @media (min-width: 768px) {
   .lap-live .lap-pin { padding-top: calc(var(--navh) + 2rem); padding-bottom: 5rem; }
   .lap-live .lap-stage { left: auto; right: 0; bottom: 8%; }

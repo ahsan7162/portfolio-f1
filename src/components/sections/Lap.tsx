@@ -38,18 +38,41 @@ export function Lap() {
     // short catch-up), so the lap stops when you stop. The stage cards are the
     // discrete events: each switch lands once, quickly (DUR.split in, DUR.hit out).
     let cur = -1;
-    const show = (i: number) => {
+    const show = (i: number, velocity = 0) => {
       if (i === cur) return;
       const dir = i > cur ? 1 : -1;
       const prev = stages[cur];
       // Crossfade with no gap: the old card drops out quietly while the new one rises in.
-      if (prev) gsap.to(prev, { autoAlpha: 0, y: -12 * dir, duration: DUR.hit, ease: EASE.in, overwrite: true });
+      // On a fast scroll it leaves like a car passing: leaning, with a longer streak.
+      const fast = gsap.utils.clamp(0, 1, (Math.abs(velocity) - 800) / 2400);
+      if (prev) gsap.fromTo(prev, { skewX: 0, x: 0 }, { autoAlpha: 0, y: -12 * dir, skewX: -10 * fast * dir, x: -120 * fast * dir, duration: DUR.hit, ease: EASE.in, overwrite: true });
       const next = stages[i];
-      gsap.fromTo(next, { autoAlpha: 0, y: 24 * dir }, { autoAlpha: 1, y: 0, duration: DUR.split, ease: EASE.out, overwrite: true });
+      gsap.fromTo(next, { autoAlpha: 0, y: 24 * dir, skewX: 0, x: 0 }, { autoAlpha: 1, y: 0, duration: DUR.split, ease: EASE.out, overwrite: true });
       gsap.fromTo(next.querySelectorAll('[data-stat]'), { yPercent: 100 }, { yPercent: 0, duration: DUR.split, delay: 0.05, ease: EASE.out, overwrite: true });
-      sectorEls.forEach((el, k) => el.classList.toggle('text-ac', k === i));
+      // Timing-screen colours: the sector being driven is red, completed ones go green.
+      sectorEls.forEach((el, k) => { el.classList.toggle('text-ac', k === i); el.classList.toggle('sector-done', k < i); });
       cur = i;
     };
+
+    // Lap timer: counts with the lap (so it runs backwards when you scroll up), one
+    // text write per change inside a contained box. At the line it freezes, the
+    // final sector turns purple (the fastest, the current job) and LAP 1 flashes.
+    const clock = q('[data-laptime]')!, flag = q('[data-lapflag]')!;
+    const LAP = 83.456;
+    const fmt = (t: number) => `${Math.floor(t / 60)}:${(t % 60).toFixed(3).padStart(6, '0')}`;
+    let shown = '', done = false;
+    const tickClock = () => {
+      const p = lapState.progress;
+      const txt = fmt(Math.min(1, p / 0.92) * LAP);
+      if (txt !== shown) { clock.textContent = txt; shown = txt; }
+      const end = p >= 0.92;
+      if (end === done) return;
+      done = end;
+      sectorEls[n - 1]?.classList.toggle('sector-best', end);
+      gsap.to(flag, { autoAlpha: end ? 1 : 0, x: end ? 0 : 8, duration: end ? DUR.split : DUR.hit, ease: end ? EASE.out : EASE.in, overwrite: true });
+    };
+    gsap.set(flag, { autoAlpha: 0, x: 8 });
+    onRevert(() => { clock.textContent = fmt(0); sectorEls.forEach(el => el.classList.remove('sector-done', 'sector-best', 'text-ac')); });
 
     const at = (p: number) => Math.min(n - 1, Math.floor(p * n));
     // Switch on intent: a short scroll away from the current stage's middle (18% of
@@ -65,11 +88,11 @@ export function Lap() {
     };
     const st = ScrollTrigger.create({
       trigger: pin, start: 'top top', end: `+=${n * 35}%`, pin: true, markers,
-      onUpdate: self => show(pick(self.progress, self.direction)),
+      onUpdate: self => show(pick(self.progress, self.direction), self.getVelocity()),
       onEnterBack: self => show(pick(self.progress, self.direction)),
     });
     const lap = { trigger: pin, start: 'top top', end: () => st.end, scrub: 0.5 };
-    gsap.fromTo(lapState, { progress: 0 }, { progress: 1, ease: EASE.none, scrollTrigger: lap });
+    gsap.fromTo(lapState, { progress: 0 }, { progress: 1, ease: EASE.none, scrollTrigger: lap, onUpdate: tickClock });
     if (flat) gsap.fromTo(svgPath, { drawSVG: '0%' }, { drawSVG: '100%', ease: EASE.none, scrollTrigger: lap });
 
     // Arrival and exit. The 3D scene takes over the canvas before the pin, behind a
@@ -141,7 +164,11 @@ export function Lap() {
         </div>
 
         <div aria-hidden="true" className="lap-meta absolute inset-x-4 top-[calc(var(--navh)+1.5rem)] mx-auto hidden max-w-[1400px] items-end justify-end font-mono text-xs uppercase tracking-[0.14em] text-mute md:inset-x-8 md:top-auto md:bottom-8">
-          <span className="flex gap-4">{timeline.map(t => <span key={t.sector} data-sector className="transition-colors duration-(--dur-split)">{t.sector}</span>)}</span>
+          <span className="flex items-baseline gap-4">
+            <span data-lapflag className="font-semibold text-fg">Lap 1</span>
+            <span data-laptime className="lap-time text-fg">0:00.000</span>
+            {timeline.map(t => <span key={t.sector} data-sector className="transition-colors duration-(--dur-split)">{t.sector}</span>)}
+          </span>
         </div>
       </div>
     </section>
