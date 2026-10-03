@@ -1,8 +1,7 @@
 # three.js plan: polish the 3D, add a few things nobody else has
 
-Branch: `scroll-wow-plan`. **Separate from `SCROLL-WOW-PLAN.md` on purpose**: this one is optional, and
-it is written so you can decide whether to do it at all (see the recommendation in Part 7). Nothing here
-is implemented.
+Branch: `threejs`. **Separate from `SCROLL-WOW-PLAN.md` on purpose**: this one was optional. Tier 1 is
+now implemented except the chequered wipe; see [Implementation status](#9-implementation-status) at the end.
 
 Contents
 
@@ -14,6 +13,7 @@ Contents
 6. [Order of work and verification](#6-order-of-work-and-verification)
 7. [Do you need it? (recommendation)](#7-do-you-need-it-recommendation)
 8. [Decisions](#8-decisions)
+9. [Implementation status](#9-implementation-status)
 
 ---
 
@@ -270,3 +270,26 @@ Suggested path: **scroll plan → 4.1.1 + 4.1.2 → pick from 4.1.3 / 4.1.4 / 4.
    it is cheaper and works without WebGL.
 4. **Bloom on the Lap:** try it as a measured experiment, or skip? Recommended: skip unless everything
    else is done and frame times have room.
+
+---
+
+## 9. Implementation status
+
+| Item | Status | What changed from the plan |
+|---|---|---|
+| 4.1.1 Garage reflections | Done | Baked pit garage (strip lights, door panel, red accent, rim strip). The visor stays black on a standard material: the iridescent visor was removed earlier on purpose (`715eda3`), so only the reflections changed |
+| 4.1.2 F1 car + rain light | Done | Car scaled up 1.25x to read from the air. At the old full-circuit framing it was still a speck, so the camera became a **helicopter shot**: 62% of the distance, leaning 55% toward the car (the minimap still shows the whole circuit). Phones shift the view up so the car rides above the stage card |
+| 4.1.3 Career banners | Done, changed | Standing banners would be foreshortened from the steep aerial camera, so the companies are **painted flat on the run-off** beside each sector (one mesh, one canvas atlas, no `InstancedFlow`). Each faces the camera angle of its stage; the active stage's name lights red |
+| 4.1.5 Pointer lens | Done | Magnifies and brightens the isolines under the cursor; fine pointers only, fades out when the pointer leaves |
+| 4.1.6 Particle exit | Done | 6,000 sparks (2,500 on phones) in livery colours; the intro's reveal runs backwards (top first); the dissolve seam is turned down to a faint ember for the scrubbed exit; the inside of the shell renders as a dark liner |
+| 4.1.4 Chequered wipe | **Skipped** | The only item with real GPU cost (two render targets, both scenes rendered during transitions), and the cost lands hardest on phones |
+| Tier 2 | Not started | — |
+
+Measurements (1440 x 900, headless Chrome, scripted full-page scroll over 24 s, WebGL on):
+- Before: p50 16.7, p99 16.8, max 33.3 ms (one hitch entering the Lap).
+- After: p50 16.7, p99 16.8, **max 16.8 ms, 0 frames over 20 ms**, also at 4x CPU throttle; adaptive scale stays 1.
+  The Lap's and the sparks' shaders now compile (and the run-off atlas uploads) in idle time, which also
+  removed the old hitch.
+- Lap: 12 -> 15 draws, ~9.7k -> ~9.5k triangles (the sphere was heavier than the car).
+- Bundle: `Stage` chunk 9 -> 12.9 KB gzip; `three` chunk 143 -> 145.7 KB gzip (BufferGeometryUtils and
+  MeshSurfaceSampler). Both still load after idle; prerendered HTML unchanged at 116.2 KB.
