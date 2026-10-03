@@ -2,7 +2,7 @@ import { jobs, promotions, timeline, type Job } from '@/content/data';
 import { CrawlableDetails } from '@/components/CrawlableDetails';
 import { originOf, useDialogs } from '@/components/dialog-context';
 import { gsap } from '@/motion/gsap';
-import { digitRoll } from '@/motion/patterns';
+import { digitRoll, inView } from '@/motion/patterns';
 import { DUR, EASE, STAGGER } from '@/motion/tokens';
 import { useBentoPointer } from '@/motion/useBentoPointer';
 import { useSectionMotion } from '@/motion/useSectionMotion';
@@ -30,7 +30,7 @@ export function Experience() {
       clipPath: 'inset(0% 0% 0% 0%)', duration: DUR.reveal, ease: EASE.wipe, stagger: STAGGER.line, clearProps: 'clipPath',
       scrollTrigger: { trigger: q('h2')!, start: 'top 85%', once: true },
     });
-    onRevert(digitRoll(q('[data-promo]'), { scrollTrigger: { trigger: q('[data-promo]')!, start: 'top 85%', once: true } }));
+    onRevert(digitRoll(q('[data-promo]'), { scrollTrigger: inView(q('[data-promo]')!) }));
   });
 
   return (

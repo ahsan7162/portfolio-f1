@@ -6,7 +6,7 @@ import { archive, archiveBreakdown, projects, type Breakdown } from '@/content/d
 import { gsap } from '@/motion/gsap';
 import { isTouch, motionEnabled } from '@/motion/prefs';
 import { useBentoPointer } from '@/motion/useBentoPointer';
-import { clipReveal, magnet } from '@/motion/patterns';
+import { clipReveal, inView, magnet } from '@/motion/patterns';
 import { DUR, EASE } from '@/motion/tokens';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 import { cn } from '@/lib/utils';
@@ -35,7 +35,7 @@ export function Projects() {
     clipReveal(more, { trigger: more, from: 'inset(0% 100% 0% 0%)' });
     qa<HTMLElement>('[data-card]').forEach((card, i) => {
       clipReveal(card.querySelector('[data-cardvis]'), { trigger: card });
-      gsap.from(card.querySelectorAll('[data-cardtxt]'), { autoAlpha: 0, y: 24, stagger: 0.06, ease: EASE.out, scrollTrigger: { trigger: card, start: 'top 80%', once: true } });
+      gsap.from(card.querySelectorAll('[data-cardtxt]'), { autoAlpha: 0, y: 24, stagger: 0.06, ease: EASE.out, scrollTrigger: inView(card, { start: 'top 80%' }) });
       if (!desktop) return;
       gsap.fromTo(card, { yPercent: 0 }, { yPercent: LAYOUT[i].speed, ease: 'none', scrollTrigger: { trigger: card, start: 'top bottom', end: 'bottom top', scrub: true } });
       gsap.fromTo(card.querySelector('[data-cardin]'), { yPercent: -6, scale: 1.08 }, { yPercent: 6, scale: 1.08, ease: 'none', scrollTrigger: { trigger: card, start: 'top bottom', end: 'bottom top', scrub: true } });

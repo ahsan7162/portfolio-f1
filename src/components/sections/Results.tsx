@@ -1,6 +1,6 @@
 import { education, stats } from '@/content/data';
 import { gsap, SplitText } from '@/motion/gsap';
-import { digitRoll, scrubParallax, splitReveal } from '@/motion/patterns';
+import { digitRoll, inView, scrubParallax, splitReveal } from '@/motion/patterns';
 import { DUR, EASE } from '@/motion/tokens';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 
@@ -18,7 +18,8 @@ const fmt = (n: number) => n.toLocaleString('en-US');
 export function Results() {
   const ref = useSectionMotion<HTMLElement>(({ root, q, qa, onRevert }) => {
     const row = q('[data-row]')!;
-    const once = { trigger: row, start: 'top 80%', once: true } as const;
+    // Several one-off reveals share the row: preventOverlaps finishes the earlier ones first.
+    const once = inView(row, { start: 'top 80%', preventOverlaps: 'row' });
 
     // 1. Education: its lines rise.
     splitReveal(q('[data-edutxt]'), { type: 'lines', scrollTrigger: once });

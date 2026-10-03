@@ -10,7 +10,11 @@ import { DUR, EASE, STAGGER } from './tokens';
 type Target = gsap.TweenTarget;
 type ST = ScrollTrigger.Vars;
 
-const inView = (trigger: Element | string, extra?: ST): ST => ({ trigger, start: 'top 85%', once: true, ...extra });
+/**
+ * One-off reveal trigger. `fastScrollEnd`: when a visitor flings past, the reveal
+ * jumps to its end instead of being left half played behind them.
+ */
+export const inView = (trigger: Element | string, extra?: ST): ST => ({ trigger, start: 'top 85%', once: true, fastScrollEnd: true, ...extra });
 
 /**
  * Whether a pinned block's content fits on screen. Pinning content taller than

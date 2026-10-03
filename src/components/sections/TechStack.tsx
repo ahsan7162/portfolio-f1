@@ -8,6 +8,7 @@ import { gsap, ScrollTrigger } from '@/motion/gsap';
 import { scrollState } from '@/motion/SmoothScroll';
 import { DUR, EASE, STAGGER } from '@/motion/tokens';
 import { useBentoPointer } from '@/motion/useBentoPointer';
+import { inView } from '@/motion/patterns';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 import { cn } from '@/lib/utils';
 
@@ -59,7 +60,7 @@ export function TechStack() {
     onRevert(() => gsap.ticker.remove(tick));
     gsap.fromTo(qa('[data-tile]'), { clipPath: 'inset(0% 100% 0% 0%)' }, {
       clipPath: 'inset(0% 0% 0% 0%)', duration: DUR.reveal, ease: EASE.wipe, stagger: STAGGER.line, clearProps: 'clipPath',
-      scrollTrigger: { trigger: q('.bento')!, start: 'top 80%', once: true },
+      scrollTrigger: inView(q('.bento')!, { start: 'top 80%' }),
     });
   });
   return (

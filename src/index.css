@@ -229,6 +229,7 @@ html.gl-on .contour-fallback { opacity: 0; transition: opacity 1s; }
     position: relative;
     display: grid;
     grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-auto-flow: dense;
     border-top: 1px solid var(--line);
     border-left: 1px solid var(--line);
   }
