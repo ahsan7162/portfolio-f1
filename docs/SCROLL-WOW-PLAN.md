@@ -17,6 +17,7 @@ Contents
    - 4.1 Global systems (speed, scrubbed headings, fast-scroll safety)
    - 4.2 to 4.9 Section by section
    - 4.10 Polish and taste fixes
+   - 4.11 Custom cursor: the pit-lane pointer
 5. [Performance check (gsap-performance)](#5-performance-check-gsap-performance)
 6. [Order of work, commits and rollback](#6-order-of-work-commits-and-rollback)
 7. [Verification per step](#7-verification-per-step)
@@ -407,6 +408,75 @@ Plan:
    remaining one-off reveals).
 5. Update `README.md` (motion paragraph) and `docs/GSAP-ENHANCEMENTS.md` (new status rows) when done.
 
+### 4.11 Custom cursor: the pit-lane pointer
+
+Added on your call (it was listed under "not doing" in the first draft). Done well, it ties the hover
+effects together instead of fighting them, as long as it follows the rules below.
+
+**Look**
+
+- A **red dot** (8 px, `--ac`) that sits exactly on the pointer, with a **thin ring** (34 px, 1.5 px
+  `--fg` at 60%) that trails behind it. Same palette as the rest of the site; no glow and no blend
+  modes.
+- **Speed stretch:** the ring stretches along the direction you move the mouse (`scaleX` up to 1.5,
+  `scaleY` down to 0.75, rotated to the movement angle) and rounds back when you stop. This is the same
+  "speed" language as the speed skew (G1) and the scrollbar.
+
+**States.** Elements opt in with a `data-cursor` attribute, read through one delegated `pointerover`
+listener. No per-element listeners.
+
+| Over | `data-cursor` | Cursor does |
+|---|---|---|
+| Links and buttons (default for `a, button`) | `link` | Ring grows to 56 px and fills to 12% `--ac`; the dot stays |
+| Project cards | `view` | Ring becomes an 84 px red disc with **VIEW** in mono (carbon text) |
+| Experience tiles, Lap "Details" | `open` | Same disc with **OPEN** |
+| ScrollRail thumb | `drag` | Ring narrows to a vertical pill with **DRAG**; while dragging, it locks to the thumb's x |
+| Hero name | `heat` | Ring hides and the dot grows to 14 px: the cursor becomes the heat source the letters react to (`proximityChars`) |
+| Magnetic arrows (hero pill, See all projects) | `magnet` | The ring **snaps to the arrow's circle** (it reads the circle's rect once on enter) and follows the magnet's pull; it releases on leave |
+| Lap pin (3D track) | `scroll` | Ring shows a small down chevron and **SCROLL** until you first scroll inside the pin, then returns to normal |
+| Dialogs (open) | inherits | Close button gets `link`; the cursor sits above the dialog (`z-[85]`, over dialogs at 70 to 75 and the intro at 80) |
+
+- **Press:** on `pointerdown` the ring tightens to 0.8 scale (`DUR.hit`) and springs back on release.
+- **Label text** changes with ScrambleText (already loaded), 0.25 s, so the states read as a timing
+  board updating rather than a swap.
+
+**Rules**
+
+1. **Desktop, fine pointer, motion on only** (`(hover: hover) and (pointer: fine)`, `motionEnabled()`).
+   Touch, reduced motion and `?nomotion` keep the native cursor. Nothing about it is in the prerender.
+2. The native cursor is hidden only by a class JS adds (`html.has-cursor { cursor: none }` and on
+   `a, button`). If the script fails, the native cursor stays. Text inside dialogs keeps the native
+   I-beam (`cursor: text` on dialog prose) so selecting text still feels normal.
+3. **No input lag where it matters:** the dot is written straight from the event with
+   `gsap.quickSetter` (no easing), so pointing is exactly as precise as the native cursor. Only the ring
+   eases (`quickTo`, 0.35 s, `expo.out`).
+4. Hidden until the first `pointermove` (never flashes at 0, 0), fades out when the pointer leaves the
+   window, and hides during the intro (`html.intro`), like the scrollbar.
+5. Focus and keyboard users are unaffected: focus rings stay as they are and the cursor is
+   `aria-hidden` with `pointer-events: none`.
+
+**How it works with what is already there**
+
+- **Proximity letters (hero):** complementary; the `heat` state hides the ring so the letters are the
+  effect.
+- **Tilt and spotlight (bento, project cards):** unchanged; the spotlight already follows the pointer
+  and the `view`/`open` disc sits on top of it.
+- **Magnets:** the ring snapping to the magnetic arrow makes the magnet feel stronger with no change to
+  `magnet()`.
+- **Red sector line on project cards:** unchanged; it draws around the card while the cursor shows
+  VIEW.
+- **WebGL helmet:** the Stage already has its own `pointermove` listener for the helmet's parallax;
+  the cursor adds a second passive listener and does not read anything from the Stage.
+
+**Build**
+
+- New `src/components/Cursor.tsx`, mounted once in `App.tsx`, outside the memoized page and outside
+  the `inert` wrapper so it keeps working while a dialog is open.
+- Two fixed elements, positioned with `x`/`y` transforms (never `top`/`left`).
+- State changes are class toggles on the cursor root (`data-state`), with sizes in CSS transitions on
+  `transform` only, and the label in its own span.
+- Cleanup removes the listeners, the `has-cursor` class and the quickTo tweens (StrictMode safe).
+
 ---
 
 ## 5. Performance check (gsap-performance)
@@ -435,17 +505,18 @@ ScrollTriggers, per-frame work, layout reads, paint area and GPU memory. The bas
 | 4.8 450+ fill | +0 (shares the chars' trigger) | 1 clip-path (one element) | none | repaint of the number box (~1200 × 400 px) while scrubbing | **Low to medium.** clip-path repaints, but one element and only during ~500 px of scroll |
 | 4.9 flag sweep | +1 one-off | one tween for `DUR.show` | none | full-width band (~1440 × 48 px) | **Low** |
 | 4.9 lap time | +0 (Contact trigger) | 1 `textContent` write, once | none | — | **Free** |
+| 4.11 Custom cursor | 0 (+1 toggle for the Lap `scroll` hint) | per pointer move: 2 `quickSetter` writes (dot), 4 `quickTo` calls (ring x, y, stretch, angle), a `Math.hypot`/`atan2`; ring tweens run only while the mouse moves | none per move; one `getBoundingClientRect` on entering a magnet | 2 small layers (≤ 84 × 84 px, ~0.1 MB at DPR 2); state changes animate `transform` only | **Low.** Estimated ~0.02 to 0.05 ms per move (the hero proximity effect measured ~0.06 ms per move and does more). No ticker at rest |
 
 ### 5.2 Totals and budget
 
 | | Today | After plan (est.) | Budget |
 |---|---|---|---|
-| ScrollTriggers (desktop, WebGL on) | 81 | **~92 to 96** (+~20 new, −6 parallax, 5 replaced) | ≤ 100 |
+| ScrollTriggers (desktop, WebGL on) | 81 | **~93 to 97** (+~21 new incl. the cursor's Lap hint, −6 parallax, 5 replaced) | ≤ 100 |
 | Pins (pin-spacer reflows) | 2 | **2** (Projects uses CSS sticky) | No new pins |
-| Tickers running at rest | Stage idle (30 fps cap), marquee off at rest | Same: speed-skew and logo-centre stop at 0 velocity | None new at rest |
+| Tickers running at rest | Stage idle (30 fps cap), marquee off at rest | Same: speed-skew and logo-centre stop at 0 velocity; the cursor's tweens finish ~0.35 s after the mouse stops | None new at rest |
 | Peak GPU memory, extra | — | ~30 MB while Projects is on screen | ≤ 40 MB |
 | New plugins / KB | — | **0 KB** (ScrambleText, SplitText already loaded) | 0 |
-| New app JS | — | ~3 to 4 KB gzip (patterns, Projects stack, HUD) | ≤ 6 KB |
+| New app JS | — | ~4 to 5 KB gzip (patterns, Projects stack, HUD, cursor ~1 KB) | ≤ 6 KB |
 | Prerender HTML | 111.4 KB | +~1 KB (index, lap-time placeholder) | ≤ 115 KB |
 | Frame time target (pane, 120 Hz, WebGL on) | p99 9.3 ms | **p99 ≤ 11 ms** | ≤ 12 ms |
 | Frame time target (headless, CPU 4×) | p99 16.8 ms | **p99 ≤ 16.8 ms**, ≤ 3 frames > 33 ms | 60 fps |
@@ -470,12 +541,16 @@ ScrollTriggers, per-frame work, layout reads, paint area and GPU memory. The bas
    motion-only (CSS sticky classes are added by JS), so without motion Projects stays the current grid.
 7. **Touch.** Speed skew and logo centre emphasis are off on touch (noisy velocity, no Lenis smoothing).
    Stacking uses sticky, which is native and smooth on iOS and Android.
-8. **Mid-range laptops.** The Stage's adaptive resolution already lowers the WebGL cost when frames miss
+8. **Cursor feel.** A trailing cursor that lags reads as a slow site. The dot is never eased (rule 3 of
+   4.11), and the ring's easing is a token (`DUR.split` range), so it can be tightened in one place
+   if it feels late. Cursor hides on touch, so phones and tablets are unaffected.
+9. **Mid-range laptops.** The Stage's adaptive resolution already lowers the WebGL cost when frames miss
    vsync; the new DOM work is small enough not to trigger it (measured in step 7).
 
 ### 5.4 Verdict
 
-The plan adds about 20 ScrollTriggers, **no pins**, no plugins, ~3 to 4 KB of JS and one medium-cost
+The plan adds about 21 ScrollTriggers, **no pins**, no plugins, ~4 to 5 KB of JS (the cursor is ~1 KB
+and a few hundredths of a millisecond per mouse move) and one medium-cost
 item (the stacking cards' layers, ~30 MB GPU while visible). Removing the Projects parallax pays back
 6 scrubbed tweens and halves the concurrent scene loops. Expected effect on frame time: within the
 measured headroom (today's p99 is 9.3 ms at 120 Hz), with the 4× throttled target kept at 60 fps.
@@ -502,7 +577,8 @@ Each commit can be reverted alone.
 | 9 | 4.7 Tech stack second row, centre emphasis, pill stagger | medium | — |
 | 10 | 4.8 450+ fill | small | 2 |
 | 11 | 4.9 Contact flag sweep, lap time, TrackMap finish, magnets | medium | 2 |
-| 12 | Docs: README, GSAP-ENHANCEMENTS status rows | small | all |
+| 12 | 4.11 Custom cursor: dot, ring, speed stretch, states, magnet snap | medium | — (independent; can move earlier) |
+| 13 | Docs: README, GSAP-ENHANCEMENTS status rows | small | all |
 
 ---
 
@@ -525,6 +601,11 @@ After every step:
 9. For step 8 (Projects): resize across 1024 px and across the "fits" height, back and forth; the layout
    switches cleanly and the helmet path still perches on P3.
 
+10. For step 12 (cursor): hover every interactive element type in the states table; open and close a
+    dialog; drag the scrollbar; check the native cursor returns with `?nomotion`, on touch emulation and
+    when the script is blocked; measure the per-move cost with a scripted 5 s pointer sweep in the
+    pane (target ≤ 0.1 ms per move, no frames over 20 ms caused by it).
+
 Still for you on real hardware (not measurable here): a mid-range Windows laptop with a mouse wheel, an
 iPhone and an Android phone, and the OS "Reduce motion" setting.
 
@@ -532,7 +613,7 @@ iPhone and an Android phone, and the OS "Reduce motion" setting.
 
 ## 8. Decisions I need from you
 
-1. **Scope:** all of Part 4, or a first pass of the signature pieces only (G1, G2, 4.5, 4.6, 4.9)?
+1. **Scope:** all of Part 4, or a first pass of the signature pieces only (G1, G2, 4.5, 4.6, 4.9, 4.11)?
    Recommended: signature pass first, then the rest.
 2. **Projects stacking (4.6):** it changes the Projects layout (split column, stacked cards) and makes
    the section about one screen longer. Yes or no? Recommended: yes, it is the biggest "wow" in the plan.
@@ -544,6 +625,10 @@ iPhone and an Android phone, and the OS "Reduce motion" setting.
    around Projects and Contact, where the new moments need room.
 6. **Lap time in Contact (4.9.2):** real time on page, shown as a lap time. Fun or gimmick? Recommended:
    yes.
+7. **Custom cursor labels (4.11):** text labels (VIEW / OPEN / DRAG / SCROLL), or icons only (arrow,
+   plus, grip)? Recommended: text, in mono, because it matches the timing-board labels around the site.
+8. **Hide the native cursor everywhere, or only over interactive elements?** Recommended: everywhere on
+   the page (the dot is exact, so precision is unchanged), with the native I-beam kept for dialog text.
 
 ---
 
@@ -551,8 +636,6 @@ iPhone and an Android phone, and the OS "Reduce motion" setting.
 
 - **Horizontal-scroll Projects gallery.** A classic "wow", but it hides the archive CTA behind a long
   sideways scroll, is awkward with keyboard and screen readers, and would need a third pin.
-- **Custom cursor.** It fights the hover effects already there (proximity letters, tilt, magnets) and
-  is a common tell.
 - **Stock photography (gpt-taste picsum rule).** The product scenes are real and specific; photos would
   make it more generic.
 - **Blur filters on scroll.** `filter: blur()` repaints every frame over large areas; the darkening in
