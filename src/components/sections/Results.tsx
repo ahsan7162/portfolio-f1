@@ -38,14 +38,16 @@ export function Results() {
     // The ghost P3 drifts behind the row.
     scrubParallax(q('[data-p3ghost]'), root, { from: { yPercent: 20 }, to: { yPercent: -20 } });
 
-    // Finale: the headline number rises with the scroll as the helmet turns to face you.
+    // Finale: the headline number rises with the scroll as the helmet turns to face you,
+    // and fills in: an outline of it sits behind, the solid number wipes in over it
+    // left to right in red, then settles to the page colour. One scrubbed timeline.
     const big = q('[data-bignum]')!;
     const split = SplitText.create(big, { type: 'chars', mask: 'chars', aria: 'auto' });
-    gsap.fromTo(split.chars, { yPercent: 105 }, {
-      yPercent: 0, stagger: 0.08, ease: EASE.none,
-      scrollTrigger: { trigger: big, start: 'top 95%', end: 'top 35%', scrub: true },
-    });
-    gsap.fromTo(big, { xPercent: -3 }, { xPercent: 4, ease: EASE.none, scrollTrigger: { trigger: big, start: 'top bottom', end: 'bottom top', scrub: true } });
+    gsap.timeline({ scrollTrigger: { trigger: big, start: 'top 95%', end: 'top 35%', scrub: true } })
+      .fromTo(split.chars, { yPercent: 105 }, { yPercent: 0, stagger: 0.08, ease: EASE.none, duration: 0.5 }, 0)
+      .fromTo(big, { clipPath: 'inset(0% 100% 0% 0%)', color: 'var(--ac)' }, { clipPath: 'inset(0% 0% 0% 0%)', ease: EASE.none, duration: 0.75 }, 0.05)
+      .to(big, { color: 'var(--fg)', ease: EASE.none, duration: 0.25 }, 0.75);
+    gsap.fromTo(q('[data-bigwrap]'), { xPercent: -3 }, { xPercent: 4, ease: EASE.none, scrollTrigger: { trigger: big, start: 'top bottom', end: 'bottom top', scrub: true } });
     splitReveal(q('[data-biglabel]'), { type: 'words' });
   });
 
@@ -94,9 +96,16 @@ export function Results() {
         </div>
 
         <div className="mt-32 md:mt-72">
-          <div data-bignum data-speed aria-label={`${stats.headline.value}${stats.headline.suffix}`}
-            className="display whitespace-nowrap text-[clamp(7rem,30vw,26rem)] !leading-[0.8]">
-            {stats.headline.value}{stats.headline.suffix}
+          <div data-bigwrap data-speed className="relative w-max">
+            {/* The empty outline the number fills (hidden under it when static). */}
+            <div aria-hidden="true" className="display pointer-events-none absolute inset-0 whitespace-nowrap text-[clamp(7rem,30vw,26rem)] !leading-[0.8] text-transparent"
+              style={{ WebkitTextStroke: '1px rgb(244 244 237 / 0.25)' }}>
+              {stats.headline.value}{stats.headline.suffix}
+            </div>
+            <div data-bignum aria-label={`${stats.headline.value}${stats.headline.suffix}`}
+              className="display relative whitespace-nowrap text-[clamp(7rem,30vw,26rem)] !leading-[0.8]">
+              {stats.headline.value}{stats.headline.suffix}
+            </div>
           </div>
           <p data-biglabel className="display mt-4 max-w-[18ch] text-[clamp(1.6rem,4vw,3.5rem)] text-mute">
             {stats.headline.label}
