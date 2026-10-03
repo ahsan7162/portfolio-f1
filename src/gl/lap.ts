@@ -1,7 +1,9 @@
 import * as THREE from 'three';
 import { CIRCUIT_PATH } from '@/art/circuit';
 import { buildCar } from './car';
+import { timeline } from '@/content/data';
 import { NOISE_GLSL } from './field';
+import { createRunoff } from './runoff';
 
 // 3D lap: the same circuit as the SVG lines, turned into a track ribbon with
 // red/white kerbs and trackside lights. An aerial "broadcast" camera looks down
@@ -174,6 +176,11 @@ export function createLap() {
   scene.add(veil);
 
   const START = 0.02, LAP = 0.96;
+  const orbit = (progress: number) => -0.9 + progress * 0.6;
+  // Each stage's company on the run-off beside the middle of its sector.
+  const n = timeline.length, mid = timeline.map((_, i) => (i + 0.5) / n);
+  const runoff = keep(createRunoff(curve, timeline.map(t => t.company), mid.map(p => (START + p * LAP) % 1), mid.map(orbit), WIDTH + 0.35));
+  scene.add(runoff.mesh);
   const eye = new THREE.Vector3(), carPos = new THREE.Vector3(), look = new THREE.Vector3();
   const ZOOM = 0.62, FOLLOW = 0.55;
   const fwd = new THREE.Vector3(), ahead = new THREE.Vector3(), side = new THREE.Vector3(), upV = new THREE.Vector3(), basis = new THREE.Matrix4();
@@ -182,12 +189,15 @@ export function createLap() {
   return {
     scene, camera,
     /** progress 0..1 through the lap (scrubbed to the pin); veil 0..1 fades the scene out. Returns true while it needs more frames. */
-    update(progress: number, w: number, h: number, veilAmount = 0) {
+    update(progress: number, w: number, h: number, veilAmount = 0, stage = -1) {
       veilMat.uniforms.uVeil.value = veilAmount;
       veil.visible = veilAmount > 0.001;
       camera.aspect = w / h;
       // Desktop: the stage cards sit on the right, so frame the circuit left of centre.
-      if (w / h > 1.2) camera.setViewOffset(w, h, w * 0.2, 0, w, h); else camera.clearViewOffset();
+      // Portrait: the card covers the lower half, so the car rides in the band above it.
+      if (w / h > 1.2) camera.setViewOffset(w, h, w * 0.2, 0, w, h);
+      else if (h > w) camera.setViewOffset(w, h, 0, h * 0.22, w, h);
+      else camera.clearViewOffset();
       camera.updateProjectionMatrix();
 
       const t = (START + progress * LAP) % 1;
@@ -213,13 +223,14 @@ export function createLap() {
       // Helicopter camera: a slow quarter orbit across the whole timeline, closer than a
       // full-circuit shot and leaning towards the car so it reads (the minimap shows the
       // whole circuit). The same framing on phones, where the circuit fills the width anyway.
-      const a = -0.9 + progress * 0.6;
+      const a = orbit(progress);
       look.copy(centre).lerp(carPos, FOLLOW).setY(centre.y - 0.2);
       eye.set(look.x + Math.sin(a) * R * 1.3 * ZOOM, centre.y + R * 1.5 * ZOOM, look.z + Math.cos(a) * R * 1.3 * ZOOM);
       camera.position.copy(eye);
       camera.lookAt(look);
       // Still blinking: ask for one more frame, so the light settles to steady when the lap stops.
-      return blinking;
+      const lighting = runoff.update(stage);
+      return blinking || lighting;
     },
     dispose: () => disposables.forEach(d => d.dispose()),
   };

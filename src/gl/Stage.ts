@@ -200,7 +200,7 @@ export class Stage {
       const { scene, camera, update } = this.lap;
       this.lapP = lapState.progress; // scrubbed to the pin by the Lap section
       this.lapV = lapState.veil;
-      this.lapMore = update(this.lapP, this.size.w, this.size.h, this.lapV);
+      this.lapMore = update(this.lapP, this.size.w, this.size.h, this.lapV, lapState.stage);
       r.render(scene, camera);
       return;
     }

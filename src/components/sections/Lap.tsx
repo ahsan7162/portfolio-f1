@@ -52,6 +52,7 @@ export function Lap() {
       // Timing-screen colours: the sector being driven is red, completed ones go green.
       sectorEls.forEach((el, k) => { el.classList.toggle('text-ac', k === i); el.classList.toggle('sector-done', k < i); });
       cur = i;
+      lapState.stage = i;
     };
 
     // Lap timer: counts with the lap (so it runs backwards when you scroll up), one
@@ -107,7 +108,7 @@ export function Lap() {
     gsap.fromTo(lapState, { veil: 1 }, { veil: 0, ease: EASE.none, scrollTrigger: { trigger: pin, start: 'top 35%', end: 'top top', scrub: true } });
     gsap.fromTo(lapState, { veil: 0 }, { veil: 1, ease: EASE.none, immediateRender: false,
       scrollTrigger: { trigger: pin, start: () => st.end - innerHeight * 0.25, end: () => st.end, scrub: true } });
-    onRevert(() => { lapState.active = false; lapState.veil = 1; lapState.progress = 0; });
+    onRevert(() => { lapState.active = false; lapState.veil = 1; lapState.progress = 0; lapState.stage = -1; });
 
     // Snap: when scrolling settles inside the pin, glide to the middle of the stage
     // the card shows (so the snap never contradicts the card), or let the first and
