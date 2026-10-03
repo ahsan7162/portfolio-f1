@@ -1,8 +1,7 @@
 # Scroll motion plan: smoother, more distinctive, more "wow"
 
-Branch: `scroll-wow-plan` (from `main` at `9936d6e`). Nothing in this document is implemented yet; it is
-the plan, the reasoning, and the performance check, so every item can be approved, changed or dropped
-before any code is written.
+Branch: `scroll-wow-plan` (from `main` at `9936d6e`). **Implemented on `scroll-wow`**; see
+[Part 10](#10-implementation-status) for what shipped, what changed from the plan, and the measurements.
 
 Skills used: `gsap-scrolltrigger`, `gsap-react`, `gsap-plugins`, `gpt-taste` for the plan, then
 `gsap-performance` for the impact check (Part 5).
@@ -642,3 +641,42 @@ iPhone and an Android phone, and the OS "Reduce motion" setting.
   4.6 uses an opacity overlay instead.
 - **ScrollSmoother.** Lenis is already wired into the ticker; swapping would touch every pin for no gain.
 - **New WebGL work.** The Stage is already the heaviest part; this plan is DOM and GSAP only.
+
+---
+
+## 10. Implementation status
+
+Built on branch `scroll-wow`, one commit per step, using the recommended answer for every decision in
+Part 8 (all of Part 4; Projects stacking yes; no accordion; "About me" and "Contact" labels
+screen-reader only, "Career timeline" kept; more room around Projects and Contact; real lap time;
+text cursor labels; native cursor hidden everywhere except dialog text).
+
+| Step | Item | Status | Changes from the plan |
+|---|---|---|---|
+| 1 | G3 `fastScrollEnd`, `grid-flow-dense` | Done | `inView` is exported and shared; Results' row uses `preventOverlaps: 'row'` |
+| 2 | G2 `gridSlot` | Done | Per-letter ease is `power2.out` with a wide stagger (`amount: 0.9`), because `expo.out` finished every letter in the first third of the range. Splits words too (`.split-word { white-space: nowrap }`) so lines never break inside a word |
+| 3 | G1 speed skew | Done | `useSpeedSkew` in `App`; up to about 2 degrees on a normal fast scroll, 3 max |
+| 4 | Hero launch exit | Done | Both lines stretch from the left edge; proximity pauses on the next pointer move after the hero starts leaving |
+| 5 | About | Done | The pin is now its own ScrollTrigger and the light-up starts at the pin's `top 40%`, so the first words light while the hero leaves. "slowest" trickles in letter by letter; "fast." kicks in with a red line behind it |
+| 6 | Lap HUD | Done | Completed sectors stay green (state, not a flash); the last turns purple with LAP 1 at 92% of the lap |
+| 7 | Experience grid formation | Done | Animates the tiles directly (GSAP composes x/y/rotation with the tilt's rotationX/Y and scale), no wrapper needed |
+| 8 | Projects deck | Done | Image height follows the screen height in deck mode so a card fits a 1440 x 800 window. The "See all projects" row does not join the deck (it would have to share the cards' sticky container); it follows the deck |
+| 9 | Tech stack | Done | The second row is built on the client (motion-only decoration), which keeps the prerender at 115 KB. `quickSetter` needs `scaleX`/`scaleY`, not `scale` |
+| 10 | 450+ fill | Done, fixed twice | The outline is split like the number so the letters line up; colours are resolved hex values (GSAP cannot blend `var()`); no per-letter masks, because the tight tracking makes the 5 and the 0 overlap and a mask per letter cut them |
+| 11 | Contact finish | Done | Lap time line sits above the CTAs; heading column widened so "Let's build / something fast." stays two lines |
+| 12 | Custom cursor | Done | As specified |
+| 13 | Docs | Done | README motion paragraph, this section |
+
+Measured after all steps (dev server, headless Chrome, 1440 x 900 window, scripted full-page scroll):
+
+| | Baseline | Now |
+|---|---|---|
+| ScrollTriggers (headless) | 65 | 82 |
+| Frame time, CPU 1x | p50 16.7, p99 16.8, max 33.4 | p50 16.7, p99 16.8, max 33.3, 1 frame > 33 ms |
+| Frame time, CPU 4x | p50 16.7, p99 16.8, max 50.0 | p50 16.7, p99 16.8, max 66.7, 1 frame > 33 ms |
+| Prerender HTML | 111.4 KB | 115.4 KB |
+| Main JS (gzip) | | 133.6 KB |
+
+Still to check on real hardware: a 120 Hz display with WebGL on (the pane was hidden during this run,
+so rAF did not tick there), a Windows laptop with a mouse wheel, an iPhone and an Android phone, and
+the OS "Reduce motion" setting.

@@ -15,8 +15,12 @@ npm run preview    # http://localhost:4174
 - **Scroll:** Lenis smooth scroll runs from the GSAP ticker and updates ScrollTrigger in the
   same frame (`src/motion/SmoothScroll.tsx`), so pins, scrubbed tweens and WebGL never drift.
 - **Motion patterns:** `src/motion/patterns.ts` (SplitText masked reveals, clip-path wipes,
-  scrubbed parallax, digit rolls, DrawSVG lines). Sections use them through
-  `useSectionMotion`, which does nothing with reduced motion.
+  scrubbed parallax, digit rolls, DrawSVG lines, and `gridSlot`, the scrubbed letter-by-letter
+  heading entrance). Sections use them through `useSectionMotion`, which does nothing with
+  reduced motion. Display headings marked `data-speed` lean with scroll speed
+  (`src/motion/useSpeedSkew.ts`); Projects becomes a CSS-sticky card deck when a card fits the
+  screen; the custom cursor is `src/components/Cursor.tsx` (states via `data-cursor`).
+  The full plan and its performance check: `docs/SCROLL-WOW-PLAN.md`.
 - **Intro:** F1 start lights (`src/components/Intro.tsx`) play the shared timeline in
   `src/motion/intro.ts`. First visit only; skipped with a URL hash, `?nointro` or reduced motion.
 - **WebGL:** one lazy-loaded three.js renderer (`src/gl/Stage.ts`) draws the contour-line
