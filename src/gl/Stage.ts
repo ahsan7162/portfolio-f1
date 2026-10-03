@@ -157,6 +157,11 @@ export class Stage {
       helmet.shell.parent!.add(sparks.points);
       this.sparks = sparks;
       this.cleanups.push(() => sparks.dispose());
+      // Warm up what first appears mid-scroll (the sparks, the lap's car and run-off logos), so
+      // their shader compiles and texture uploads don't land on a scrolling frame.
+      sparks.points.visible = true;
+      void Promise.all([this.renderer.compileAsync(this.scene, this.camera), this.renderer.compileAsync(this.lap.scene, this.lap.camera)])
+        .catch(() => {}).finally(() => { if (!this.dead) { sparks.points.visible = false; this.lap.warm(this.renderer); } });
     });
   }
 

@@ -232,6 +232,8 @@ export function createLap() {
       const lighting = runoff.update(stage);
       return blinking || lighting;
     },
+    /** Upload the run-off atlas ahead of the first lap frame. */
+    warm: (r: THREE.WebGLRenderer) => r.initTexture(runoff.texture),
     dispose: () => disposables.forEach(d => d.dispose()),
   };
 }

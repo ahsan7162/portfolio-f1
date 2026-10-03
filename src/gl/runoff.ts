@@ -108,6 +108,7 @@ export function createRunoff(curve: THREE.CatmullRomCurve3, labels: string[], at
 
   return {
     mesh,
+    texture: tex,
     /** Ease each label towards lit (the active stage) or rest. Returns true while still easing. */
     update(active: number) {
       const u = mat.uniforms.uLit.value as number[];
