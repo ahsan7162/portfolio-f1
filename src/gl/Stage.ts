@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { gsap, ScrollTrigger } from '@/motion/gsap';
 import { onIntroDone } from '@/motion/intro';
 import { loaded } from '@/motion/loading';
@@ -7,6 +6,7 @@ import { isMobile, isTouch } from '@/motion/prefs';
 import { scrollState } from '@/motion/SmoothScroll';
 import { EASE } from '@/motion/tokens';
 import { createField } from './field';
+import { garageScene } from './garage';
 import { bindHelmetPath, perch, type Pose } from './helmetPath';
 import { buildHelmet, type Helmet } from './helmet/buildHelmet';
 import { createLap } from './lap';
@@ -64,12 +64,14 @@ export class Stage {
     this.renderer.autoClear = false;
 
     const pmrem = new THREE.PMREMGenerator(this.renderer);
-    const env = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    const garage = garageScene();
+    const env = pmrem.fromScene(garage.scene, 0.02).texture;
     this.scene.environment = env;
+    garage.dispose();
     pmrem.dispose();
     this.cleanups.push(() => env.dispose());
 
-    // No scene lights: the helmet is lit only by the room environment map
+    // No scene lights: the helmet is lit only by the baked garage map
     // (image-based reflections), which keeps shading cheap.
     this.camera.position.set(0, 0, CAM_Z);
 
