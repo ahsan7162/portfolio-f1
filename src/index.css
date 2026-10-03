@@ -372,3 +372,45 @@ html.intro .rail { opacity: 0; pointer-events: none; }
   .proj-stack [data-card] { top: calc(var(--navh) + 1.5rem + var(--i) * 20px); }
   .proj-stack [data-cardvis] { height: clamp(200px, 36vh, 420px); }
 }
+
+/* Custom cursor (Cursor.tsx): desktop, fine pointer and motion only. The native
+   cursor is hidden only once the script adds html.has-cursor; dialog text keeps
+   the I-beam. Positions are GSAP transforms; states are CSS transitions on
+   transform, opacity and colour, driven by [data-state]. */
+html.has-cursor, html.has-cursor * { cursor: none !important; }
+html.has-cursor [role="dialog"] :is(p, li, dd, dt, h2, h3, td, th) { cursor: text !important; }
+.cursor { display: none; }
+html.has-cursor .cursor { display: block; position: fixed; inset: 0; z-index: 85; pointer-events: none; opacity: 0; transition: opacity var(--dur-split); }
+html.has-cursor .cursor[data-on] { opacity: 1; }
+html.has-cursor.intro .cursor { opacity: 0; }
+.cursor-pos { position: fixed; left: 0; top: 0; width: 0; height: 0; will-change: transform; }
+.cursor-dot {
+  position: absolute; left: -4px; top: -4px; width: 8px; height: 8px; border-radius: 999px; background: var(--ac);
+  transition: transform var(--dur-hit) var(--ease-out-expo);
+}
+.cursor-ring {
+  --s: 1; --p: 1;
+  position: absolute; left: -17px; top: -17px; width: 34px; height: 34px; border-radius: 999px;
+  border: 1.5px solid rgb(244 244 237 / 0.6); background: rgb(255 36 56 / 0);
+  transform: scale(calc(var(--s) * var(--p)));
+  transition: transform var(--dur-split) var(--ease-out-expo), background-color var(--dur-split), border-color var(--dur-split), border-radius var(--dur-split), opacity var(--dur-hit);
+}
+.cursor[data-down] .cursor-ring { --p: 0.8; }
+.cursor-label, .cursor-chev {
+  position: absolute; left: 0; top: 0; translate: -50% -50%; opacity: 0; transition: opacity var(--dur-hit);
+  color: var(--carbon); font: 700 10px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; white-space: nowrap;
+}
+.cursor-chev { width: 12px; translate: -50% 10px; color: var(--fg); }
+.cursor[data-state="link"] .cursor-ring { --s: 1.65; background: rgb(255 36 56 / 0.12); border-color: rgb(255 36 56 / 0.6); }
+.cursor:is([data-state="view"], [data-state="open"]) .cursor-ring { --s: 2.47; background: var(--ac); border-color: var(--ac); }
+.cursor:is([data-state="view"], [data-state="open"], [data-state="drag"]) .cursor-label { opacity: 1; }
+.cursor:is([data-state="view"], [data-state="open"]) .cursor-dot { transform: scale(0); }
+.cursor[data-state="drag"] .cursor-ring { --s: 1.4; border-radius: 12px; background: var(--fg); border-color: var(--fg); }
+.cursor[data-state="drag"] .cursor-label { translate: calc(-100% - 34px) -50%; color: var(--fg); }
+.cursor[data-state="heat"] .cursor-ring { opacity: 0; --s: 0.4; }
+.cursor[data-state="heat"] .cursor-dot { transform: scale(1.75); }
+.cursor[data-state="magnet"] .cursor-ring { --s: var(--ms, 2); border-color: rgb(244 244 237 / 0.9); }
+.cursor[data-state="magnet"] .cursor-dot { transform: scale(0.6); }
+.cursor[data-state="scroll"] .cursor-ring { --s: 1.9; }
+.cursor[data-state="scroll"] .cursor-label { opacity: 1; color: var(--fg); translate: -50% -22px; }
+.cursor[data-state="scroll"] .cursor-chev { opacity: 1; }

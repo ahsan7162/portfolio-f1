@@ -129,7 +129,7 @@ export function Projects() {
         </div>
 
         {/* The archive, as a proper call to action (Lando's "see more helmets" row). */}
-        <button type="button" data-more onClick={e => openArchive(originOf(e))}
+        <button type="button" data-more data-cursor="magnet" data-cursor-pull="0.25" onClick={e => openArchive(originOf(e))}
           className="group relative mt-24 block w-full overflow-hidden border border-line bg-graphite/70 p-6 text-left transition-colors duration-(--dur-hit) hover:border-ac md:mt-32 md:p-10">
           <span aria-hidden="true" className="absolute inset-0 origin-left scale-x-0 bg-ac transition-transform duration-(--dur-wipe) ease-out-expo group-hover:scale-x-100" />
           <span className="relative flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
@@ -146,7 +146,7 @@ export function Projects() {
               </span>
             </span>
             <span data-morearrow aria-hidden="true" className="shrink-0">
-              <span className="grid size-20 place-items-center rounded-full bg-ac text-3xl text-carbon transition-[transform,background-color,color] duration-(--dur-hit) ease-out-expo group-hover:rotate-[-45deg] group-hover:bg-carbon group-hover:text-ac md:size-28 md:text-4xl">
+              <span data-cursor-target className="grid size-20 place-items-center rounded-full bg-ac text-3xl text-carbon transition-[transform,background-color,color] duration-(--dur-hit) ease-out-expo group-hover:rotate-[-45deg] group-hover:bg-carbon group-hover:text-ac md:size-28 md:text-4xl">
                 →
               </span>
             </span>
@@ -177,7 +177,7 @@ function ProjectCard({ index, className, children }: { index: number; className:
     }
   };
   return (
-    <article data-card className={className} style={{ '--i': index } as CSSProperties}
+    <article data-card data-cursor="view" className={className} style={{ '--i': index } as CSSProperties}
       onPointerEnter={() => { if (!isTouch()) draw(true); }} onPointerLeave={() => { if (!isTouch()) draw(false); }}
       onFocus={() => draw(true)} onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) draw(false); }}>
       <div ref={box} data-tilt className="card relative isolate overflow-hidden border border-line bg-graphite">

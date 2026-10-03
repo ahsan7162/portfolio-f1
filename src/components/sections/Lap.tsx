@@ -128,7 +128,7 @@ export function Lap() {
 
   return (
     <section ref={ref} id="timeline" tabIndex={-1} data-bg="#070708,#0b0b0c" data-lap className="relative">
-      <div data-lappin className="lap-pin relative px-4 py-24 md:px-8">
+      <div data-lappin data-cursor="scroll" className="lap-pin relative px-4 py-24 md:px-8">
         <svg data-lapsvg aria-hidden="true" viewBox={CIRCUIT_VIEWBOX} fill="none"
           className="lap-flat pointer-events-none absolute left-1/2 top-1/2 -z-10 w-[min(900px,92vw)] -translate-x-1/2 -translate-y-1/2 opacity-60">
           <path d={CIRCUIT_PATH} stroke="var(--ac)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
@@ -153,7 +153,7 @@ export function Lap() {
                   <span data-stat className="inline-block pb-2 font-mono text-xs uppercase tracking-[0.12em] text-mute">{t.statLabel}</span>
                 </div>
                 <p className="mt-4 leading-relaxed md:mt-5">{t.text}</p>
-                <button type="button" aria-label={`${t.company} details`}
+                <button type="button" data-cursor="open" aria-label={`${t.company} details`}
                   onClick={e => { const j = jobs.find(x => x.id === t.job); if (j) openDetails(j, originOf(e)); }}
                   className="btn btn-primary mt-5 md:mt-6">
                   Details <span aria-hidden="true">→</span>

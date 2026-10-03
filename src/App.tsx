@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { DialogCtx, type Origin } from '@/components/dialog-context';
+import { Cursor } from '@/components/Cursor';
 import { ArchiveDialog, closeWithWipe, DetailsDialog } from '@/components/Dialogs';
 import { Intro } from '@/components/Intro';
 import { Nav } from '@/components/Nav';
@@ -83,7 +84,7 @@ function Page() {
       <ScrollRail />
     </>
   ), []);
-  const gl = useMemo(() => <GLCanvas />, []), intro = useMemo(() => <Intro />, []);
+  const gl = useMemo(() => <GLCanvas />, []), intro = useMemo(() => <Intro />, []), cursor = useMemo(() => <Cursor />, []);
 
   return (
     <DialogCtx.Provider value={api}>
@@ -93,6 +94,7 @@ function Page() {
       {intro}
       {open.arch && <ArchiveDialog dref={archRef} origin={open.arch.o} onClose={closeArch} onOpenItem={openDetails} />}
       {open.sel && <DetailsDialog dref={selRef} sel={open.sel.b} origin={open.sel.o} onClose={closeSel} />}
+      {cursor}
     </DialogCtx.Provider>
   );
 }

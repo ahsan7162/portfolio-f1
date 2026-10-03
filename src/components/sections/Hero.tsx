@@ -53,14 +53,14 @@ export function Hero() {
 
       <div data-hbody className="mx-auto flex w-full max-w-[1400px] flex-1 flex-col justify-center pb-10">
         {/* Status pill: the one live fact, clickable into the full Careem breakdown. The dot is static. */}
-        <button data-hfade data-pill type="button" onClick={e => { if (current) openDetails(current, originOf(e)); }}
+        <button data-hfade data-pill data-cursor="magnet" data-cursor-pull="0.35" type="button" onClick={e => { if (current) openDetails(current, originOf(e)); }}
           aria-label={`${profile.now} Open the ${current?.company} breakdown`}
           className="group mb-8 inline-flex min-h-11 items-center gap-3 self-start rounded-full border border-line bg-graphite/80 py-1.5 pl-4 pr-1.5 text-sm font-medium text-fg transition-colors hover:border-ac">
           <span aria-hidden="true" className="size-2 rounded-full bg-ac" />
           <span>Currently at <span className="font-semibold">{current?.company}</span></span>
-          <span data-pillarrow aria-hidden="true" className="inline-block"><span className="grid size-8 place-items-center rounded-full bg-ac text-carbon transition-transform duration-(--dur-hit) ease-out-expo group-hover:-rotate-45">→</span></span>
+          <span data-pillarrow aria-hidden="true" className="inline-block"><span data-cursor-target className="grid size-8 place-items-center rounded-full bg-ac text-carbon transition-transform duration-(--dur-hit) ease-out-expo group-hover:-rotate-45">→</span></span>
         </button>
-        <h1>
+        <h1 data-cursor="heat">
           <span data-hline="0" data-speed className="display block text-[clamp(3rem,10.5vw,9.5rem)]">Muhammad</span>{' '}
           <span data-hline="1" data-speed className="display block text-[clamp(3rem,10.5vw,9.5rem)]">
             Ahsan<span aria-hidden="true" className="text-ac">.</span>

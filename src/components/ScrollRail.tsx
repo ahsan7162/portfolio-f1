@@ -103,7 +103,7 @@ export function ScrollRail() {
           <span className="rail-label">{m.name}</span>
         </button>
       ))}
-      <div ref={thumb} className="rail-thumb"><span className="rail-flag" /></div>
+      <div ref={thumb} data-cursor="drag" className="rail-thumb"><span className="rail-flag" /></div>
     </div>
   );
 }

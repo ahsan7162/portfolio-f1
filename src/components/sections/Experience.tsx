@@ -54,7 +54,7 @@ export function Experience() {
           {jobs.map((j, i) => {
             const { col, lead } = layout(i);
             return (
-              <article key={j.id} data-tile data-tilt
+              <article key={j.id} data-tile data-tilt data-cursor="open"
                 className={cn('tile flex cursor-pointer flex-col justify-between gap-12 p-6 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-ac md:p-9',
                   lead ? 'tile-lead md:min-h-[340px] lg:p-11' : 'md:min-h-[300px]', col)}>
                 <div className="flex items-baseline justify-between gap-4">
