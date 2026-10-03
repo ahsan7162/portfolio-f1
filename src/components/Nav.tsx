@@ -210,8 +210,8 @@ export function Nav() {
             className="btn btn-ghost group min-h-11 !gap-3 !px-4 !py-2">
             <span className="font-mono text-[11px] uppercase tracking-[0.14em]">{open ? 'Close' : 'Menu'}</span>
             <span aria-hidden="true" className="relative block h-2.5 w-5">
-              <span className={cn('absolute left-0 top-0 h-[2px] w-full bg-current transition-transform duration-(--dur-hit) ease-out-expo', open && 'translate-y-[4px] rotate-45 bg-ac')} />
-              <span className={cn('absolute bottom-0 left-0 h-[2px] w-full bg-current transition-transform duration-(--dur-hit) ease-out-expo', open && '-translate-y-[4px] -rotate-45 bg-ac')} />
+              <span className={cn('absolute left-0 top-0 h-[2px] w-full transition-transform duration-(--dur-hit) ease-out-expo', open ? 'translate-y-[4px] rotate-45 bg-ac' : 'bg-current')} />
+              <span className={cn('absolute bottom-0 left-0 h-[2px] w-full transition-transform duration-(--dur-hit) ease-out-expo', open ? '-translate-y-[4px] -rotate-45 bg-ac' : 'bg-current')} />
             </span>
           </button>
         </div>

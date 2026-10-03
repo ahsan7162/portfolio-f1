@@ -20,7 +20,6 @@ npm run preview    # http://localhost:4174
   reduced motion. Display headings marked `data-speed` lean with scroll speed
   (`src/motion/useSpeedSkew.ts`); Projects becomes a CSS-sticky card deck when a card fits the
   screen; the custom cursor is `src/components/Cursor.tsx` (states via `data-cursor`).
-  The full plan and its performance check: `docs/SCROLL-WOW-PLAN.md`.
 - **Intro:** F1 start lights (`src/components/Intro.tsx`) play the shared timeline in
   `src/motion/intro.ts`. First visit only; skipped with a URL hash, `?nointro` or reduced motion.
 - **WebGL:** one lazy-loaded three.js renderer (`src/gl/Stage.ts`) draws the contour-line

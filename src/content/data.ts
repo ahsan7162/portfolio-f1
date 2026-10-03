@@ -2,7 +2,7 @@
 // rewritten for a senior full-stack positioning. Visible copy is plain
 // developer English (SEO); F1 styling lives only in the visuals.
 
-export type Highlight = { stat: string; title: string; text: string };
+type Highlight = { stat: string; title: string; text: string };
 
 /** Anything the details dialog can show. */
 export type Breakdown = {

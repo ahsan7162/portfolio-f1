@@ -26,6 +26,3 @@ export const CIRCUIT_PATH =
 
 /** A short open stretch (the "fix it" underline). */
 export const SWOOSH_PATH = 'M 4 22 C 60 30 120 6 180 12 C 230 17 262 30 300 18 L 340 6';
-
-/** Sector split points along the lap, as progress 0..1. */
-export const SECTORS = [0, 0.34, 0.68] as const;

@@ -18,7 +18,7 @@ const ss = (e0: number, e1: number, x: number) => {
 };
 
 /** Push a point on the unit sphere into the helmet silhouette. */
-export function shapeShell(v: THREE.Vector3): THREE.Vector3 {
+function shapeShell(v: THREE.Vector3): THREE.Vector3 {
   const { x, y, z } = v;
   let px = x * 0.92, py = y * 1.06, pz = z * 1.03;
   // Longer, rounder back of the head, pushed out most at the lower back.

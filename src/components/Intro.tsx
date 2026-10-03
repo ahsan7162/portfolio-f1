@@ -149,9 +149,9 @@ export function Intro() {
 
         <div className="relative flex flex-col items-center gap-8 md:gap-10">
           <div className="relative flex gap-3 px-3 md:gap-5 md:px-5">
-            <div data-ibeam className="absolute inset-x-0 top-1/2 h-3 -translate-y-1/2 rounded-sm bg-[#141417] shadow-[inset_0_1px_0_rgb(255_255_255/0.05)] md:h-4" />
+            <div data-ibeam className="absolute inset-x-0 top-1/2 h-3 -translate-y-1/2 bg-[#141417] shadow-[inset_0_1px_0_rgb(255_255_255/0.05)] md:h-4" />
             {Array.from({ length: LIGHTS }, (_, i) => (
-              <div key={i} data-ipod className="relative flex flex-col gap-2 rounded-md bg-[#18181b] p-2 shadow-[inset_0_1px_0_rgb(255_255_255/0.06),0_20px_40px_-12px_rgb(0_0_0/0.8)] md:gap-3 md:p-3">
+              <div key={i} data-ipod className="relative flex flex-col gap-2 bg-[#18181b] p-2 shadow-[inset_0_1px_0_rgb(255_255_255/0.06),0_20px_40px_-12px_rgb(0_0_0/0.8)] md:gap-3 md:p-3">
                 <span className="block size-6 rounded-full bg-[#1f0a0d] md:size-10" />
                 <span className="relative block size-6 md:size-10">
                   <span data-halo className="absolute -inset-3 rounded-full bg-ac opacity-0 blur-xl md:-inset-5" />

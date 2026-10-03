@@ -7,7 +7,7 @@ let tl: gsap.core.Timeline | null = null;
 let done = false;
 const waiters: Array<() => void> = [];
 
-export const INTRO_KEY = 'v2-intro-seen';
+const INTRO_KEY = 'v2-intro-seen';
 
 /** Loader runs on first visit only, never with a URL hash or reduced motion. */
 export function loaderWanted() {
@@ -30,7 +30,6 @@ export function introTimeline() {
   return tl;
 }
 
-export const introDone = () => done;
 export function onIntroDone(fn: () => void) { if (done) fn(); else waiters.push(fn); }
 
 /** Start the reveal (called by the loader, or straight away when it is skipped). */

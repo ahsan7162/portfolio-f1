@@ -1,6 +1,6 @@
 const q = () => (typeof location === 'undefined' ? new URLSearchParams() : new URLSearchParams(location.search));
 
-export const isBrowser = () => typeof window !== 'undefined';
+const isBrowser = () => typeof window !== 'undefined';
 
 /** Motion is on unless the OS asks for reduced motion or `?nomotion` is set. */
 export function motionEnabled() {

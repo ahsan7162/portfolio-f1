@@ -148,7 +148,7 @@ export function TechStack() {
       </div>
       <div className="mx-auto mt-16 max-w-[1400px] px-4 md:px-8">
         <div ref={grid} className="bento">
-          <Tile name="Core languages" accent className="tile-lead md:flex-row md:flex-wrap md:items-center md:justify-between md:gap-6 md:p-10 md:pr-16">
+          <Tile name="Core languages" accent className="tile-lead md:flex-row md:flex-wrap md:items-center md:justify-between md:gap-6 md:!p-10 md:!pr-16">
             <p className="display text-[clamp(2rem,4.6vw,4.75rem)]">{slash(skills.core)}</p>
           </Tile>
           <Tile name="Frameworks" className="md:col-span-3"><List items={skills.frameworks} /></Tile>

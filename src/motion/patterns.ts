@@ -16,20 +16,6 @@ type ST = ScrollTrigger.Vars;
  */
 export const inView = (trigger: Element | string, extra?: ST): ST => ({ trigger, start: 'top 85%', once: true, fastScrollEnd: true, ...extra });
 
-/**
- * Whether a pinned block's content fits on screen. Pinning content taller than
- * the viewport cuts it off (landscape phones), so sections pin only when it fits.
- * Measured from the first child's top to the last child's bottom, plus padding,
- * against the stable viewport height (not 100dvh, which moves with the URL bar).
- */
-export function fitsViewport(el: HTMLElement, extra = 0) {
-  const first = el.firstElementChild, last = el.lastElementChild;
-  if (!first || !last) return true;
-  const s = getComputedStyle(el);
-  const content = last.getBoundingClientRect().bottom - first.getBoundingClientRect().top;
-  return content + parseFloat(s.paddingTop) + parseFloat(s.paddingBottom) + extra <= document.documentElement.clientHeight;
-}
-
 /** Masked rise of lines, words or chars (Lando's headline reveal). */
 export function splitReveal(
   el: HTMLElement | null,

@@ -1,4 +1,4 @@
-// Motion tokens, from the interaction thesis (docs/GSAP-ENHANCEMENTS.md, section 0):
+// Motion tokens. Motion works like F1 timing:
 // scroll is scrubbed with `none`; discrete events land once with `out`; anything
 // leaving is quicker and quieter (`in`); clip and circle wipes use `wipe`.
 // `settle` is the one bounce on the page, kept for the podium steps only.

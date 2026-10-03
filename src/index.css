@@ -1,71 +1,36 @@
 @import "tailwindcss";
 @import "lenis/dist/lenis.css";
 
-@custom-variant dark (&:where(.dark, .dark *));
-
 :root {
   color-scheme: dark;
   --carbon: #0b0b0c;
   --graphite: #111113;
-  --asphalt: #0d1013;
   --fg: #f4f4ed;
   --mute: #a3a39c;
   --dim: #85857e;
   --line: rgb(244 244 237 / 0.12);
   --ac: #ff2438;
   --navh: 64px;
-
-  /* shadcn names, pointed at the tokens above */
-  --background: var(--carbon);
-  --foreground: var(--fg);
-  --primary: var(--ac);
-  --primary-foreground: var(--carbon);
-  --card: var(--graphite);
-  --card-foreground: var(--fg);
-  --muted: #1a1a1d;
-  --muted-foreground: var(--mute);
-  --border: var(--line);
-  --input: var(--line);
-  --ring: var(--ac);
-  --radius: 0px;
 }
 
 @theme inline {
   --color-carbon: var(--carbon);
   --color-graphite: var(--graphite);
-  --color-asphalt: var(--asphalt);
   --color-fg: var(--fg);
   --color-mute: var(--mute);
   --color-dim: var(--dim);
   --color-line: var(--line);
   --color-ac: var(--ac);
 
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-
   --font-sans: "Mona Sans Variable", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
 
   /* Same values as DUR in src/motion/tokens.ts, so CSS and GSAP share timing. */
   --dur-hit: 150ms;
   --dur-split: 300ms;
   --dur-wipe: 450ms;
-
-  --radius-lg: var(--radius);
-  --radius-md: var(--radius);
-  --radius-sm: var(--radius);
 }
 
 @layer base {

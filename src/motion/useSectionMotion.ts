@@ -21,8 +21,8 @@ export type MotionCtx = {
  * markup's resting state (fully visible) is the final state. Content is never
  * hidden in CSS; GSAP sets start states before first paint.
  *
- * `fit`: for sections that pin only when their content fits the screen
- * (`fitsViewport`). Their setup is rebuilt when the viewport height crosses a
+ * `fit`: for sections that pin only when their content fits the screen.
+ * Their setup is rebuilt when the viewport height crosses a
  * few steps, and once more when web fonts finish loading: the first measure
  * can run on the wider fallback font and wrongly skip the pin, which would
  * also throw off the helmet path timed against it.
