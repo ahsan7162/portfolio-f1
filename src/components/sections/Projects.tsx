@@ -1,9 +1,9 @@
-import { useRef, type ReactNode } from 'react';
+import { useRef, type CSSProperties, type ReactNode } from 'react';
 import { ProjectVisual } from '@/components/ProjectVisuals';
 import { originOf, useDialogs } from '@/components/dialog-context';
 import { CrawlableDetails } from '@/components/CrawlableDetails';
 import { archive, archiveBreakdown, projects, type Breakdown } from '@/content/data';
-import { gsap } from '@/motion/gsap';
+import { gsap, ScrollTrigger } from '@/motion/gsap';
 import { isTouch, motionEnabled } from '@/motion/prefs';
 import { useBentoPointer } from '@/motion/useBentoPointer';
 import { clipReveal, gridSlot, inView, magnet } from '@/motion/patterns';
@@ -12,7 +12,7 @@ import { useSectionMotion } from '@/motion/useSectionMotion';
 import { cn } from '@/lib/utils';
 
 // Staggered offsets, like Lando's helmet grid: each card sits at its own height
-// and moves at its own scroll speed.
+// and moves at its own scroll speed. (Grid mode; motion turns it into a deck when it fits.)
 const LAYOUT = [
   { col: 'lg:col-span-7', offset: 'lg:mt-0', speed: -6 },
   { col: 'lg:col-span-5', offset: 'lg:mt-24', speed: 8 },
@@ -25,33 +25,90 @@ const CRAWL: Breakdown[] = [...projects, ...archive.map(archiveBreakdown)];
 export function Projects() {
   const { openDetails, openArchive } = useDialogs();
   const grid = useBentoPointer<HTMLDivElement>();
-  const ref = useSectionMotion<HTMLElement>(({ q, qa, desktop, onRevert }) => {
+  const ref = useSectionMotion<HTMLElement>(({ root, q, qa, desktop, wide, onRevert }) => {
     gridSlot(q('h2'));
     const more = q('[data-more]')!;
     onRevert(magnet(more, q('[data-morearrow]'), 0.25));
     clipReveal(more, { trigger: more, from: 'inset(0% 100% 0% 0%)' });
-    qa<HTMLElement>('[data-card]').forEach((card, i) => {
+    const cards = qa<HTMLElement>('[data-card]');
+    cards.forEach(card => {
       clipReveal(card.querySelector('[data-cardvis]'), { trigger: card });
       gsap.from(card.querySelectorAll('[data-cardtxt]'), { autoAlpha: 0, y: 24, stagger: 0.06, ease: EASE.out, scrollTrigger: inView(card, { start: 'top 80%' }) });
-      if (!desktop) return;
+    });
+
+    // Stack mode (motion only): the cards stick under the nav one after another, each
+    // stepped a little lower, so the next one slides up over the last like a deck.
+    // On wide screens the heading becomes a sticky column with a live index, the
+    // current title and a progress bar. Only when a card fits the screen; otherwise
+    // the staggered grid below stays. Plain CSS sticky: no pin, no pin-spacer.
+    root.classList.add('proj-stack');
+    const navh = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--navh')) || 64;
+    const top = (i: number) => navh + (wide ? 24 : 16) + i * (wide ? 20 : 12); // matches the CSS
+    const room = document.documentElement.clientHeight;
+    if (cards.every((c, i) => top(i) + c.offsetHeight <= room - 8)) {
+      onRevert(() => root.classList.remove('proj-stack'));
+      stack(cards, top, wide);
+      return;
+    }
+    root.classList.remove('proj-stack');
+    if (!desktop) return;
+    cards.forEach((card, i) => {
       gsap.fromTo(card, { yPercent: 0 }, { yPercent: LAYOUT[i].speed, ease: 'none', scrollTrigger: { trigger: card, start: 'top bottom', end: 'bottom top', scrub: true } });
       gsap.fromTo(card.querySelector('[data-cardin]'), { yPercent: -6, scale: 1.08 }, { yPercent: 6, scale: 1.08, ease: 'none', scrollTrigger: { trigger: card, start: 'top bottom', end: 'bottom top', scrub: true } });
     });
-  });
+
+    function stack(cards: HTMLElement[], top: (i: number) => number, wide: boolean) {
+      const n = cards.length;
+      // The card underneath steps back and darkens (an overlay, not a filter) as the next one covers it.
+      cards.slice(0, -1).forEach((card, i) => {
+        gsap.timeline({ scrollTrigger: { trigger: cards[i + 1], start: 'top bottom', end: `top ${top(i + 1)}px`, scrub: true } })
+          .fromTo(card, { scale: 1 }, { scale: 0.92, transformOrigin: '50% 0%', ease: EASE.none }, 0)
+          .fromTo(card.querySelector('[data-cardshade]'), { opacity: 0 }, { opacity: 0.55, ease: EASE.none }, 0);
+      });
+      if (!wide) return;
+      // The sticky column follows the deck: index (scrambled like a timing board), title, progress.
+      const idx = q('[data-pidx]')!, title = q('[data-ptitle]')!;
+      let cur = 0, swap: gsap.core.Timeline | undefined;
+      const set = (i: number) => {
+        if (i === cur) return;
+        const dir = i > cur ? 1 : -1;
+        cur = i;
+        gsap.to(idx, { scrambleText: { text: String(i + 1).padStart(2, '0'), chars: '0123456789' }, duration: DUR.split, ease: EASE.none, overwrite: true });
+        swap?.kill();
+        swap = gsap.timeline()
+          .to(title, { yPercent: -110 * dir, duration: DUR.hit, ease: EASE.in })
+          .call(() => { title.textContent = projects[i].title; })
+          .fromTo(title, { yPercent: 110 * dir }, { yPercent: 0, duration: DUR.split, ease: EASE.out });
+      };
+      cards.slice(1).forEach((card, k) => ScrollTrigger.create({
+        trigger: card, start: 'top 55%', onEnter: () => set(k + 1), onLeaveBack: () => set(k),
+      }));
+      gsap.fromTo(q('[data-pbar]'), { scaleX: 1 / n }, { scaleX: 1, ease: EASE.none,
+        scrollTrigger: { trigger: cards[0], start: `top ${top(0)}px`, endTrigger: cards[n - 1], end: `top ${top(n - 1)}px`, scrub: true } });
+      onRevert(() => { idx.textContent = '01'; title.textContent = projects[0].title; });
+    }
+  }, [], { fit: true });
 
   return (
     <section ref={ref} id="projects" tabIndex={-1} data-bg="#0d0d10,#111113" className="relative px-4 py-24 md:px-8 md:py-32">
       <div className="mx-auto max-w-[1400px]">
-        <div className="mb-16 flex flex-wrap items-end justify-between gap-6">
+        <div className="proj-layout">
+        <div className="proj-head mb-16 flex flex-wrap items-end justify-between gap-6">
           <h2 data-speed className="display text-[clamp(3rem,10vw,9rem)]">Projects</h2>
+          {/* Stack mode only (see the CSS): which card is on top of the deck. */}
+          <div aria-hidden="true" className="proj-now">
+            <span className="label"><span data-pidx className="text-fg">01</span> / {String(projects.length).padStart(2, '0')}</span>
+            <span className="display mt-3 block overflow-hidden text-[clamp(1.4rem,2.2vw,2.2rem)]"><span data-ptitle className="block">{projects[0].title}</span></span>
+            <span className="mt-5 block h-0.5 w-full max-w-[280px] bg-line"><span data-pbar className="block h-full origin-left bg-ac" /></span>
+          </div>
           <button type="button" onClick={e => openArchive(originOf(e))} className="btn btn-primary">
             All projects <span className="rounded-full bg-carbon/20 px-2 py-0.5">{projects.length + archive.length}</span>
           </button>
         </div>
 
-        <div ref={grid} className="grid grid-cols-1 gap-16 md:grid-cols-2 md:gap-x-8 lg:grid-cols-12">
+        <div ref={grid} className="proj-cards grid grid-cols-1 gap-16 md:grid-cols-2 md:gap-x-8 lg:grid-cols-12">
           {projects.map((p, i) => (
-            <ProjectCard key={p.id} className={cn(LAYOUT[i].col, LAYOUT[i].offset)}>
+            <ProjectCard key={p.id} index={i} className={cn(LAYOUT[i].col, LAYOUT[i].offset)}>
                 <div data-cardvis className="relative aspect-[16/10] overflow-hidden border-b border-line bg-carbon">
                   <div data-cardin className="h-full w-full"><ProjectVisual project={p} /></div>
                 </div>
@@ -68,6 +125,7 @@ export function Projects() {
                 </div>
             </ProjectCard>
           ))}
+        </div>
         </div>
 
         {/* The archive, as a proper call to action (Lando's "see more helmets" row). */}
@@ -105,7 +163,7 @@ export function Projects() {
  * around the card with DrawSVG, and it retracts, quicker, on leave. The tilt
  * and the local spotlight come from useBentoPointer on the grid.
  */
-function ProjectCard({ className, children }: { className: string; children: ReactNode }) {
+function ProjectCard({ index, className, children }: { index: number; className: string; children: ReactNode }) {
   const box = useRef<HTMLDivElement>(null), line = useRef<SVGRectElement>(null);
   const draw = (on: boolean) => {
     const el = box.current, r = line.current;
@@ -119,12 +177,13 @@ function ProjectCard({ className, children }: { className: string; children: Rea
     }
   };
   return (
-    <article data-card className={className}
+    <article data-card className={className} style={{ '--i': index } as CSSProperties}
       onPointerEnter={() => { if (!isTouch()) draw(true); }} onPointerLeave={() => { if (!isTouch()) draw(false); }}
       onFocus={() => draw(true)} onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) draw(false); }}>
       <div ref={box} data-tilt className="card relative isolate overflow-hidden border border-line bg-graphite">
         <span aria-hidden="true" className="card-spot" />
         {children}
+        <span data-cardshade aria-hidden="true" className="pointer-events-none absolute inset-0 z-20 bg-carbon opacity-0" />
         <svg aria-hidden="true" className="pointer-events-none absolute inset-0 z-10 size-full overflow-visible">
           <rect ref={line} x="0.5" y="0.5" width="0" height="0" fill="none" stroke="var(--ac)" strokeWidth="2" style={{ strokeDasharray: '0 1' }} />
         </svg>

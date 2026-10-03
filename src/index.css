@@ -354,3 +354,20 @@ html.intro .rail { opacity: 0; pointer-events: none; }
 }
 
 /* Hover-mounted decorations (border beam) fade in rather than pop. */
+
+/* Projects deck (motion only, when a card fits the screen; see Projects.tsx). The
+   cards stick under the nav, each a step lower, so the next one slides over the
+   last; wide screens turn the heading into a sticky column. Unlayered, so it
+   overrides the grid utilities (spans, staggered offsets) without !important. */
+.proj-now { display: none; }
+.proj-stack .proj-cards { display: flex; flex-direction: column; gap: 14vh; }
+.proj-stack [data-card] { position: sticky; top: calc(var(--navh) + 1rem + var(--i) * 12px); margin-top: 0; }
+.proj-stack [data-cardvis] { aspect-ratio: auto; height: clamp(170px, 28vh, 380px); }
+@media (min-width: 1024px) {
+  .proj-stack .proj-layout { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 4rem; align-items: start; }
+  .proj-stack .proj-head { position: sticky; top: calc(var(--navh) + 2rem); flex-direction: column; align-items: flex-start; gap: 2.5rem; margin-bottom: 0; }
+  .proj-stack .proj-head h2 { font-size: clamp(3rem, 5.6vw, 6rem); }
+  .proj-stack .proj-now { display: block; }
+  .proj-stack [data-card] { top: calc(var(--navh) + 1.5rem + var(--i) * 20px); }
+  .proj-stack [data-cardvis] { height: clamp(200px, 36vh, 420px); }
+}

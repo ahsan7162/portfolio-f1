@@ -7,6 +7,8 @@ export type MotionCtx = {
   q: <T extends Element = HTMLElement>(sel: string) => T | null;
   qa: <T extends Element = HTMLElement>(sel: string) => T[];
   desktop: boolean;
+  /** At least 1024 px wide (room for split layouts). */
+  wide: boolean;
   /** Too short to pin (see SHORT_SCREEN). */
   short: boolean;
   markers: boolean;
@@ -32,7 +34,7 @@ export function useSectionMotion<T extends HTMLElement = HTMLElement>(build: (c:
     const root = ref.current;
     if (!root || !motionEnabled()) return;
     const undo: Array<() => void> = [];
-    const conditions: Record<string, string> = { desktop: '(min-width: 768px)', mobile: '(max-width: 767px)', short: SHORT_SCREEN };
+    const conditions: Record<string, string> = { desktop: '(min-width: 768px)', mobile: '(max-width: 767px)', wide: '(min-width: 1024px)', short: SHORT_SCREEN };
     if (opts.fit) Object.assign(conditions, { h1: '(min-height: 560px)', h2: '(min-height: 760px)', h3: '(min-height: 960px)' });
     const setup = () => {
       const mm = gsap.matchMedia();
@@ -42,6 +44,7 @@ export function useSectionMotion<T extends HTMLElement = HTMLElement>(build: (c:
           q: sel => root.querySelector(sel),
           qa: sel => Array.from(root.querySelectorAll(sel)),
           desktop: !!ctx.conditions?.desktop,
+          wide: !!ctx.conditions?.wide,
           short: !!ctx.conditions?.short,
           markers: debug(),
           onRevert: fn => { if (fn) undo.push(fn); },
