@@ -67,7 +67,7 @@ export function Experience() {
                   <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-5">
                     <span className="font-mono text-sm font-semibold text-ac">{j.result}</span>
                     {/* The button's ::after covers the block, so the whole tile opens the breakdown. */}
-                    <button type="button" onClick={e => openDetails(j, originOf(e))} aria-label={`${j.company} breakdown`}
+                    <button type="button" data-cursor="open" onClick={e => openDetails(j, originOf(e))} aria-label={`${j.company} breakdown`}
                       className="btn btn-ghost outline-none after:absolute after:inset-0 after:content-[''] [.tile:hover_&]:border-ac [.tile:hover_&]:text-ac">
                       Breakdown <span aria-hidden="true">→</span>
                     </button>

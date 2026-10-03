@@ -33,7 +33,9 @@ export function Projects() {
     const cards = qa<HTMLElement>('[data-card]');
     cards.forEach(card => {
       clipReveal(card.querySelector('[data-cardvis]'), { trigger: card });
-      gsap.from(card.querySelectorAll('[data-cardtxt]'), { autoAlpha: 0, y: 24, stagger: 0.06, ease: EASE.out, scrollTrigger: inView(card, { start: 'top 80%' }) });
+      // clearProps: a leftover transform would make the text row the Details button's
+      // containing block and shrink its whole-card click area to that row.
+      gsap.from(card.querySelectorAll('[data-cardtxt]'), { autoAlpha: 0, y: 24, stagger: 0.06, ease: EASE.out, clearProps: 'transform', scrollTrigger: inView(card, { start: 'top 80%' }) });
     });
 
     // Stack mode (motion only): the cards stick under the nav one after another, each
@@ -120,7 +122,8 @@ export function Projects() {
                   </ul>
                   <div data-cardtxt className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-5">
                     <span className="font-mono text-sm font-semibold text-ac">{p.headline}</span>
-                    <button type="button" onClick={e => openDetails(p, { ...originOf(e), title: e.currentTarget.closest('[data-card]')?.querySelector('h3')?.getBoundingClientRect() })} className="btn btn-ghost" aria-label={`${p.title} details`}>Details</button>
+                    <button type="button" onClick={e => openDetails(p, { ...originOf(e), title: e.currentTarget.closest('[data-card]')?.querySelector('h3')?.getBoundingClientRect() })} data-cursor="view" aria-label={`${p.title} details`}
+                      className="btn btn-ghost outline-none after:absolute after:inset-0 after:z-30 after:content-[''] [.card:hover_&]:border-ac [.card:hover_&]:text-ac">Details</button>
                   </div>
                 </div>
             </ProjectCard>
@@ -180,7 +183,7 @@ function ProjectCard({ index, className, children }: { index: number; className:
     <article data-card data-cursor="view" className={className} style={{ '--i': index } as CSSProperties}
       onPointerEnter={() => { if (!isTouch()) draw(true); }} onPointerLeave={() => { if (!isTouch()) draw(false); }}
       onFocus={() => draw(true)} onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) draw(false); }}>
-      <div ref={box} data-tilt className="card relative isolate overflow-hidden border border-line bg-graphite">
+      <div ref={box} data-tilt className="card relative isolate cursor-pointer overflow-hidden border border-line bg-graphite has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-ac">
         <span aria-hidden="true" className="card-spot" />
         {children}
         <span data-cardshade aria-hidden="true" className="pointer-events-none absolute inset-0 z-20 bg-carbon opacity-0" />
