@@ -33,8 +33,6 @@ export function Projects() {
     const cards = qa<HTMLElement>('[data-card]');
     cards.forEach(card => {
       clipReveal(card.querySelector('[data-cardvis]'), { trigger: card });
-      // clearProps: a leftover transform would make the text row the Details button's
-      // containing block and shrink its whole-card click area to that row.
       gsap.from(card.querySelectorAll('[data-cardtxt]'), { autoAlpha: 0, y: 24, stagger: 0.06, ease: EASE.out, clearProps: 'transform', scrollTrigger: inView(card, { start: 'top 80%' }) });
     });
 
@@ -122,8 +120,8 @@ export function Projects() {
                   </ul>
                   <div data-cardtxt className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-5">
                     <span className="font-mono text-sm font-semibold text-ac">{p.headline}</span>
-                    <button type="button" onClick={e => openDetails(p, { ...originOf(e), title: e.currentTarget.closest('[data-card]')?.querySelector('h3')?.getBoundingClientRect() })} data-cursor="view" aria-label={`${p.title} details`}
-                      className="btn btn-ghost outline-none after:absolute after:inset-0 after:z-30 after:content-[''] [.card:hover_&]:border-ac [.card:hover_&]:text-ac">Details</button>
+                    <button type="button" onClick={e => openDetails(p, { ...originOf(e), title: e.currentTarget.closest('[data-card]')?.querySelector('h3')?.getBoundingClientRect() })} data-details data-cursor="view" aria-label={`${p.title} details`}
+                      className="btn btn-ghost [.card:hover_&]:border-ac [.card:hover_&]:text-ac">Details</button>
                   </div>
                 </div>
             </ProjectCard>
@@ -180,7 +178,10 @@ function ProjectCard({ index, className, children }: { index: number; className:
     }
   };
   return (
+    // The whole card opens its details: a click anywhere that isn't another control
+    // is passed to the Details button (which keeps keyboard access and the dialog origin).
     <article data-card data-cursor="view" className={className} style={{ '--i': index } as CSSProperties}
+      onClick={e => { if (!(e.target as Element).closest('button, a')) e.currentTarget.querySelector<HTMLButtonElement>('[data-details]')?.click(); }}
       onPointerEnter={() => { if (!isTouch()) draw(true); }} onPointerLeave={() => { if (!isTouch()) draw(false); }}
       onFocus={() => draw(true)} onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) draw(false); }}>
       <div ref={box} data-tilt className="card relative isolate cursor-pointer overflow-hidden border border-line bg-graphite has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-ac">
