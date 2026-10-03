@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { CIRCUIT_PATH } from '@/art/circuit';
+import { buildCar } from './car';
 import { NOISE_GLSL } from './field';
 
 // 3D lap: the same circuit as the SVG lines, turned into a track ribbon with
@@ -110,10 +111,11 @@ export function createLap() {
   const lineGeo = keep(ribbon(curve, 0.05, 0.006, SEGS));
   const lineMat = keep(new THREE.MeshBasicMaterial({ color: '#ff2438', fog: false }));
   scene.add(new THREE.Mesh(lineGeo, lineMat));
-  const car = new THREE.Mesh(keep(new THREE.SphereGeometry(0.11, 20, 12)), keep(new THREE.MeshBasicMaterial({ color: '#ff2438', fog: false })));
-  const halo = new THREE.Mesh(keep(new THREE.RingGeometry(0.16, 0.22, 32)), keep(new THREE.MeshBasicMaterial({ color: '#ff2438', transparent: true, opacity: 0.35, side: THREE.DoubleSide, fog: false })));
+  const car = keep(buildCar());
+  // A faint ring under the car, so it is easy to find on the whole circuit.
+  const halo = new THREE.Mesh(keep(new THREE.RingGeometry(0.5, 0.56, 40)), keep(new THREE.MeshBasicMaterial({ color: '#ff2438', transparent: true, opacity: 0.3, side: THREE.DoubleSide, fog: false })));
   halo.rotation.x = -Math.PI / 2;
-  scene.add(car, halo);
+  scene.add(car.group, halo);
 
   // Contour ground far below the track: the same isolines as the page
   // background, laid flat in world space, fading out towards the edges.
@@ -172,10 +174,14 @@ export function createLap() {
   scene.add(veil);
 
   const START = 0.02, LAP = 0.96;
-  const eye = new THREE.Vector3(), carPos = new THREE.Vector3();
+  const eye = new THREE.Vector3(), carPos = new THREE.Vector3(), look = new THREE.Vector3();
+  const ZOOM = 0.62, FOLLOW = 0.55;
+  const fwd = new THREE.Vector3(), ahead = new THREE.Vector3(), side = new THREE.Vector3(), upV = new THREE.Vector3(), basis = new THREE.Matrix4();
+  const roll = new THREE.Quaternion();
+  let lastP = -1, movedAt = 0;
   return {
     scene, camera,
-    /** progress 0..1 through the lap (scrubbed to the pin); veil 0..1 fades the scene out. */
+    /** progress 0..1 through the lap (scrubbed to the pin); veil 0..1 fades the scene out. Returns true while it needs more frames. */
     update(progress: number, w: number, h: number, veilAmount = 0) {
       veilMat.uniforms.uVeil.value = veilAmount;
       veil.visible = veilAmount > 0.001;
@@ -186,15 +192,34 @@ export function createLap() {
 
       const t = (START + progress * LAP) % 1;
       curve.getPointAt(t, carPos);
-      car.position.copy(carPos).setY(carPos.y + 0.12);
-      halo.position.copy(carPos).setY(carPos.y + 0.02);
-      lineGeo.setDrawRange(0, Math.floor(progress * LAP * SEGS) * 6);
+      // Face along the track (pitching with its elevation) and lean into corners.
+      curve.getTangentAt(t, fwd);
+      curve.getTangentAt((t + 0.012) % 1, ahead);
+      side.crossVectors(fwd, up).normalize();
+      upV.crossVectors(side, fwd).normalize();
+      basis.makeBasis(fwd, upV, side);
+      const g = car.group;
+      g.quaternion.setFromRotationMatrix(basis);
+      const turn = fwd.x * ahead.z - fwd.z * ahead.x; // + = turning right
+      g.quaternion.multiply(roll.setFromAxisAngle(fwd.set(1, 0, 0), THREE.MathUtils.clamp(turn * 2.2, -0.14, 0.14)));
+      g.position.copy(carPos).setY(carPos.y + 0.005);
+      halo.position.copy(carPos).setY(carPos.y + 0.008);
+      const now = performance.now();
+      if (progress !== lastP) { lastP = progress; movedAt = now; }
+      const blinking = now - movedAt < 250;
+      car.setLight(blinking, now);
+      lineGeo.setDrawRange(0, Math.floor(t * SEGS) * 6); // up to the car
 
-      // Aerial camera: slow quarter orbit across the whole timeline.
+      // Helicopter camera: a slow quarter orbit across the whole timeline, closer than a
+      // full-circuit shot and leaning towards the car so it reads (the minimap shows the
+      // whole circuit). The same framing on phones, where the circuit fills the width anyway.
       const a = -0.9 + progress * 0.6;
-      eye.set(centre.x + Math.sin(a) * R * 1.3, centre.y + R * 1.5, centre.z + Math.cos(a) * R * 1.3);
+      look.copy(centre).lerp(carPos, FOLLOW).setY(centre.y - 0.2);
+      eye.set(look.x + Math.sin(a) * R * 1.3 * ZOOM, centre.y + R * 1.5 * ZOOM, look.z + Math.cos(a) * R * 1.3 * ZOOM);
       camera.position.copy(eye);
-      camera.lookAt(centre.x, centre.y - 0.2, centre.z);
+      camera.lookAt(look);
+      // Still blinking: ask for one more frame, so the light settles to steady when the lap stops.
+      return blinking;
     },
     dispose: () => disposables.forEach(d => d.dispose()),
   };
