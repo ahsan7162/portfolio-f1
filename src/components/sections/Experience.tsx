@@ -3,7 +3,6 @@ import { CrawlableDetails } from '@/components/CrawlableDetails';
 import { originOf, useDialogs } from '@/components/dialog-context';
 import { gsap } from '@/motion/gsap';
 import { digitRoll, gridSlot, inView } from '@/motion/patterns';
-import { DUR, EASE, STAGGER } from '@/motion/tokens';
 import { useBentoPointer } from '@/motion/useBentoPointer';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 import { cn } from '@/lib/utils';
@@ -23,13 +22,27 @@ const sector = (j: Job) => timeline.find(t => t.job === j.id)?.sector;
 export function Experience() {
   const { openDetails } = useDialogs();
   const grid = useBentoPointer<HTMLDivElement>();
-  const ref = useSectionMotion<HTMLElement>(({ q, qa, onRevert }) => {
+  const ref = useSectionMotion<HTMLElement>(({ q, qa, desktop, onRevert }) => {
     gridSlot(q('h2'));
-    // Tiles wipe in left to right; the clip is cleared after so hover shadows aren't cut off.
-    gsap.fromTo(qa('[data-tile]'), { clipPath: 'inset(0% 100% 0% 0%)' }, {
-      clipPath: 'inset(0% 0% 0% 0%)', duration: DUR.reveal, ease: EASE.wipe, stagger: STAGGER.line, clearProps: 'clipPath',
-      scrollTrigger: inView(q('.bento')!),
-    });
+    // Grid formation: the tiles line up like cars on a starting grid, scrubbed. They
+    // start staggered in a two-column zig-zag, each one further back, and pull into
+    // their bento slots as the grid scrolls in, the lead (newest job) first. Only
+    // x, y, rotation and opacity: the hover tilt owns rotationX/Y and scale.
+    const tiles = qa('[data-tile]');
+    if (desktop) {
+      gsap.fromTo(tiles, {
+        x: i => (i % 2 ? 12 : -12) * innerWidth / 100, y: i => 80 * (i + 1), rotation: i => (i % 2 ? 2 : -2), autoAlpha: 0.2,
+      }, {
+        x: 0, y: 0, rotation: 0, autoAlpha: 1, ease: 'power2.out', stagger: 0.15,
+        scrollTrigger: { trigger: q('.bento')!, start: 'top 90%', end: 'top 35%', scrub: 0.8, invalidateOnRefresh: true },
+      });
+    } else {
+      // Phones (one column): each tile rises into place on its own.
+      tiles.forEach(t => gsap.fromTo(t, { y: 60, rotation: 1.5, autoAlpha: 0.2 }, {
+        y: 0, rotation: 0, autoAlpha: 1, ease: 'power2.out',
+        scrollTrigger: { trigger: t, start: 'top 98%', end: 'top 70%', scrub: 0.6 },
+      }));
+    }
     onRevert(digitRoll(q('[data-promo]'), { scrollTrigger: inView(q('[data-promo]')!) }));
   });
 
