@@ -38,6 +38,8 @@ export class Stage {
   private base = { w: 1, cx: 0, minY: 0 };
   private pose: Pose = { x: 0.5, y: 0, s: 1, rx: 0, ry: -0.65, rz: 0 };
   private pointer = { x: 0, y: 0, tx: 0, ty: 0 };
+  /** The contour lens under the cursor: a quicker copy of the pointer, and its strength (desktop only). */
+  private lens = { x: 0.5, y: 0.5, on: 0, target: 0 };
   private cleanups: Array<() => void> = [];
   private busy = 0;
   private lastRender = 0;
@@ -87,9 +89,13 @@ export class Stage {
         this.pointer.tx = (e.clientX / innerWidth) * 2 - 1;
         this.pointer.ty = (e.clientY / innerHeight) * 2 - 1;
         this.lastInput = performance.now();
+        if (this.lens.target === 0) { this.lens.x = e.clientX / innerWidth; this.lens.y = 1 - e.clientY / innerHeight; }
+        this.lens.target = 1;
       };
+      const onLeave = (e: PointerEvent) => { if (!e.relatedTarget) { this.lens.target = 0; this.kick(); } };
       window.addEventListener('pointermove', onMove, { passive: true });
-      this.cleanups.push(() => window.removeEventListener('pointermove', onMove));
+      document.addEventListener('pointerout', onLeave, { passive: true });
+      this.cleanups.push(() => { window.removeEventListener('pointermove', onMove); document.removeEventListener('pointerout', onLeave); });
     }
 
     const onLost = (e: Event) => { e.preventDefault(); this.dead = true; };
@@ -190,6 +196,13 @@ export class Stage {
     const r = this.renderer, t = this.clock;
     const u = this.field.uniforms;
     u.uTime.value = t;
+    // Lens: follows the pointer a little behind (like the cursor ring), fades in and out.
+    const L = this.lens;
+    L.x += ((this.pointer.tx * 0.5 + 0.5) - L.x) * 0.25;
+    L.y += ((0.5 - this.pointer.ty * 0.5) - L.y) * 0.25;
+    L.on += (L.target - L.on) * 0.08;
+    u.uPointer.value.set(L.x, L.y);
+    u.uLens.value = L.on;
     if (!this.still) {
       u.uScroll.value = scrollState.progress;
       u.uVel.value += (scrollState.velocity - u.uVel.value) * 0.15;

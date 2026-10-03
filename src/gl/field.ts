@@ -30,11 +30,17 @@ uniform vec2 uRes;
 uniform float uTime, uScroll, uVel;
 uniform vec3 uColA, uColB, uLine, uAccent;
 uniform float uLineAlpha;
+uniform vec2 uPointer;
+uniform float uLens;
 
 ${NOISE_GLSL}
 void main(){
   float aspect = uRes.x / uRes.y;
-  vec2 p = (vUv - 0.5) * vec2(aspect, 1.0) * 1.35;
+  // Pointer lens (desktop): the map magnifies slightly around the cursor and its lines brighten.
+  vec2 dp = (vUv - uPointer) * vec2(aspect, 1.0);
+  float lens = exp(-dot(dp, dp) / 0.016) * uLens;
+  vec2 uv = uPointer + (vUv - uPointer) * (1.0 - 0.32 * lens);
+  vec2 p = (uv - 0.5) * vec2(aspect, 1.0) * 1.35;
   p.y += uScroll * 2.4;
   // Fast scroll stretches the field vertically, like speed.
   p.y *= 1.0 / (1.0 + clamp(abs(uVel) * 0.012, 0.0, 0.6));
@@ -50,7 +56,7 @@ void main(){
   vec3 bg = mix(uColB, uColA, smoothstep(0.0, 1.0, vUv.y));
   float vign = smoothstep(1.25, 0.25, length((vUv - 0.5) * vec2(aspect, 1.0)));
   vec3 col = bg;
-  col = mix(col, uLine, line * uLineAlpha * (0.55 + index * 0.9) * (0.5 + 0.5 * vign));
+  col = mix(col, uLine, line * uLineAlpha * (0.55 + index * 0.9) * (0.5 + 0.5 * vign) * (1.0 + 1.4 * lens));
   col = mix(col, uAccent, racing * 0.22 * vign);
   outColor = vec4(col, 1.0);
 }`;
@@ -62,6 +68,7 @@ export function createField() {
     uColA: { value: new THREE.Color('#0b0b0c') }, uColB: { value: new THREE.Color('#141417') },
     uLine: { value: new THREE.Color('#f4f4ed') }, uAccent: { value: new THREE.Color('#ff2438') },
     uLineAlpha: { value: 0.09 },
+    uPointer: { value: new THREE.Vector2(0.5, 0.5) }, uLens: { value: 0 },
   };
   const geo = new THREE.BufferGeometry();
   geo.setAttribute('position', new THREE.Float32BufferAttribute([-1, -1, 0, 3, -1, 0, -1, 3, 0], 3));
