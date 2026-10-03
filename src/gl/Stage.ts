@@ -7,8 +7,9 @@ import { scrollState } from '@/motion/SmoothScroll';
 import { EASE } from '@/motion/tokens';
 import { createField } from './field';
 import { garageScene } from './garage';
-import { bindHelmetPath, perch, type Pose } from './helmetPath';
+import { bindHelmetPath, exit, perch, type Pose } from './helmetPath';
 import { buildHelmet, type Helmet } from './helmet/buildHelmet';
+import { createParticles } from './helmet/particles';
 import { createLap } from './lap';
 import { lapState } from './state';
 
@@ -34,6 +35,9 @@ export class Stage {
   private field = createField();
   private lap = createLap();
   private helmet: Helmet | null = null;
+  private sparks: ReturnType<typeof createParticles> | null = null;
+  /** The intro's reveal (0..1.05); the shell shows the lower of this and the exit's dissolve. */
+  private intro = { value: 0 };
   /** The helmet's size at scale 1, in world units (for perching it on a DOM element). */
   private base = { w: 1, cx: 0, minY: 0 };
   private pose: Pose = { x: 0.5, y: 0, s: 1, rx: 0, ry: -0.65, rz: 0 };
@@ -127,6 +131,7 @@ export class Stage {
     // Adaptive scaling never takes the canvas below 1x CSS pixels (unless the budget already does).
     this.renderer.setPixelRatio(Math.max(Math.min(1, dpr), dpr * this.quality.scale));
     this.renderer.setSize(w, h, false);
+    this.sparks?.setPixelRatio(this.renderer.getPixelRatio());
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
     this.field.uniforms.uRes.value.set(w, h);
@@ -143,6 +148,16 @@ export class Stage {
     // Compile shaders before the reveal so the first frames don't stutter.
     this.renderer.compile(this.scene, this.camera);
     onIntroDone(() => this.playReveal());
+    // The exit sparks are sampled in idle time; fewer on phones (smaller screen, weaker GPU).
+    const idle = (cb: () => void) => ('requestIdleCallback' in window ? requestIdleCallback(cb, { timeout: 3000 }) : setTimeout(cb, 1000));
+    idle(() => {
+      if (this.dead || !this.helmet) return;
+      const sparks = createParticles(helmet.shell, helmet.livery, isMobile() ? 2500 : 6000, helmet.reveal);
+      sparks.setPixelRatio(this.renderer.getPixelRatio());
+      helmet.shell.parent!.add(sparks.points);
+      this.sparks = sparks;
+      this.cleanups.push(() => sparks.dispose());
+    });
   }
 
   /** Wireframe draws itself, the painted shell dissolves in, the wireframe fades. */
@@ -151,7 +166,7 @@ export class Stage {
     this.busy++;
     gsap.timeline({ onComplete: () => { this.busy--; } })
       .fromTo(h.wire, { draw: 0 }, { draw: 1, duration: 1.3, ease: EASE.wipe })
-      .fromTo(h.reveal, { value: 0 }, { value: 1.05, duration: 1.6, ease: 'power2.inOut' }, 0.7)
+      .fromTo(this.intro, { value: 0 }, { value: 1.05, duration: 1.6, ease: 'power2.inOut' }, 0.7)
       .to(h.wire, { opacity: 0, duration: 0.8, ease: 'power2.out' }, 1.8);
   }
 
@@ -279,7 +294,12 @@ export class Stage {
     g.position.set(x * halfW, y * halfH + Math.sin(t * 0.9) * 0.03 * loose, 0);
     g.rotation.set(rx + this.pointer.y * 0.14 * loose, ry + (this.pointer.x * 0.2 + Math.sin(t * 0.6) * 0.03) * loose, rz);
     g.scale.setScalar(s * fit);
-    g.visible = y > -1.6;
+    // The exit runs the reveal backwards (top first) while the sparks fly off. It overshoots
+    // below 0 so the last sparks finish fading: the shell is gone at about k = 0.6.
+    h.reveal.value = Math.min(this.intro.value, 1.05 - 1.7 * exit.k);
+    h.seam.value = exit.k > 0.001 ? 0.05 : 1; // a faint ember: the sparks carry the heat
+    if (this.sparks) this.sparks.points.visible = exit.k > 0.001;
+    g.visible = exit.k > 0.001 ? h.reveal.value > -0.6 : y > -1.6;
     h.update();
   }
 

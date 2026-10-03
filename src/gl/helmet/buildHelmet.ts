@@ -6,23 +6,30 @@ export type Helmet = {
   group: THREE.Group;
   /** 0 = nothing, 1 = fully built. Drives the dissolve on every solid part. */
   reveal: { value: number };
+  /** Strength of the glowing seam at the dissolve edge (1 for the intro, lower for the slow scrubbed exit). */
+  seam: { value: number };
   /** 0..1 how much of the wireframe is drawn; wireOpacity fades it out. */
   wire: { draw: number; opacity: number };
   update: () => void;
   dispose: () => void;
+  /** The painted shell and its livery canvas, for sampling the exit particles. */
+  shell: THREE.Mesh;
+  livery: HTMLCanvasElement;
 };
 
 // Dissolve-in shader chunk: parts appear bottom to top through a noisy edge
 // with a glowing accent seam, like Lando's wireframe-to-solid hero helmet.
+const seam = { value: 1 };
 function withReveal<T extends THREE.Material>(mat: T, reveal: { value: number }): T {
   mat.onBeforeCompile = shader => {
     shader.uniforms.uReveal = reveal;
+    shader.uniforms.uSeam = seam;
     shader.vertexShader = shader.vertexShader
       .replace('#include <common>', '#include <common>\nvarying vec3 vObjPos;')
       .replace('#include <begin_vertex>', '#include <begin_vertex>\nvObjPos = position;');
     shader.fragmentShader = shader.fragmentShader
       .replace('#include <common>', `#include <common>
-uniform float uReveal;
+uniform float uReveal, uSeam;
 varying vec3 vObjPos;
 float h3(vec3 p){ p = fract(p * 0.3183099 + 0.1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
 float vnoise(vec3 x){ vec3 i = floor(x); vec3 f = fract(x); f = f*f*(3.0-2.0*f);
@@ -30,8 +37,10 @@ float vnoise(vec3 x){ vec3 i = floor(x); vec3 f = fract(x); f = f*f*(3.0-2.0*f);
              mix(mix(h3(i+vec3(0,0,1)),h3(i+vec3(1,0,1)),f.x), mix(h3(i+vec3(0,1,1)),h3(i+vec3(1,1,1)),f.x),f.y), f.z); }
 float revealD(){ return (vObjPos.y + 1.15) / 2.3 * 0.82 + vnoise(vObjPos * 5.0) * 0.18; }`)
       .replace('#include <clipping_planes_fragment>', '#include <clipping_planes_fragment>\nif (revealD() > uReveal) discard;')
+      // The inside of the shell (seen while it dissolves) is a dark liner, not the painted livery.
+      .replace('#include <map_fragment>', '#include <map_fragment>\nif (!gl_FrontFacing) diffuseColor.rgb = vec3(0.025);')
       .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
-totalEmissiveRadiance += vec3(1.0, 0.14, 0.22) * smoothstep(uReveal - 0.035, uReveal, revealD()) * step(uReveal, 1.0) * 4.0;`);
+totalEmissiveRadiance += vec3(1.0, 0.14, 0.22) * smoothstep(uReveal - 0.035, uReveal, revealD()) * step(uReveal, 1.0) * 4.0 * uSeam;`);
   };
   return mat;
 }
@@ -163,7 +172,10 @@ export async function buildHelmet(opts: { anisotropy: number }): Promise<Helmet>
   return {
     group: pivot,
     reveal,
+    seam,
     wire,
+    shell,
+    livery: map.image as HTMLCanvasElement,
     update() {
       wireGeo.setDrawRange(0, Math.floor(wireCount * wire.draw / 2) * 2);
       wireMat.opacity = wire.opacity;

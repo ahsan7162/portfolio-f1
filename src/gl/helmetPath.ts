@@ -45,6 +45,9 @@ const SEGMENTS: Array<{ from: string; to: string; trigger: string; start: string
  */
 export const perch = { k: 0, el: null as HTMLElement | null };
 
+/** The finish: 0..1 as the helmet leaves after Results, dissolving into sparks (scrubbed). */
+export const exit = { k: 0 };
+
 export function bindHelmetPath(pose: Pose) {
   const mm = gsap.matchMedia();
   // Tablets use the phone poses: their text runs the full width, so the side-by-side poses would cover it.
@@ -73,9 +76,14 @@ export function bindHelmetPath(pose: Pose) {
       // finale pose, arriving as 450+ settles.
       gsap.fromTo(perch, { k: 1 }, { k: 0, ease: EASE.none, immediateRender: false, scrollTrigger: { ...st, scrub: 1.5, start: 'top 40%', endTrigger: '#results [data-bignum]', end: 'center 25%' } });
     }
+    const fin = segments[segments.length - 1];
+    if (document.querySelector(fin.trigger)) {
+      gsap.fromTo(exit, { k: 0 }, { k: 1, ease: EASE.none, immediateRender: false,
+        scrollTrigger: { trigger: fin.trigger, start: fin.start, end: fin.end, scrub: 1, markers: debug() } });
+    }
     // These triggers were created after the sections' own pins: re-sort by page position.
     ScrollTrigger.sort();
     ScrollTrigger.refresh();
   });
-  return () => { mm.revert(); perch.k = 0; perch.el = null; };
+  return () => { mm.revert(); perch.k = 0; perch.el = null; exit.k = 0; };
 }
