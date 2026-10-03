@@ -22,13 +22,18 @@ export function Hero() {
     drawPath(q('[data-hcircuit] path'), { timeline: tl, at: 'reveal+=0.3', duration: DUR.show });
 
     onRevert(magnet(q('[data-pill]'), q('[data-pillarrow]')));
-    // Hover: the name's letters lean and warm to red around the cursor.
-    onRevert(proximityChars(root, qa('[data-hline]')));
+    // Hover: the name's letters lean and warm to red around the cursor, until the
+    // hero starts to leave (they would fight the launch below).
+    onRevert(proximityChars(root, qa('[data-hline]'), { active: () => scrollY < root.offsetHeight * 0.05 }));
 
-    // Leaving: the two name lines slide apart, the ghost number drifts up.
+    // Leaving, the launch: the two name lines slide apart and stretch from their
+    // leading edge (speed skew adds the lean), and the intro's red lights-out line
+    // draws across the bottom as the hero goes. The ghost number drifts up.
     const opts = { start: 'top top', end: 'bottom top' } as const;
-    scrubParallax(q('[data-hline="0"]'), root, { to: { xPercent: -8 }, ...opts });
-    scrubParallax(q('[data-hline="1"]'), root, { to: { xPercent: 10 }, ...opts });
+    gsap.set(qa('[data-hline]'), { transformOrigin: '0% 50%' });
+    scrubParallax(q('[data-hline="0"]'), root, { to: { xPercent: -8, scaleX: 1.12 }, ...opts });
+    scrubParallax(q('[data-hline="1"]'), root, { to: { xPercent: 10, scaleX: 1.12 }, ...opts });
+    gsap.fromTo(q('[data-hstreak]'), { scaleX: 0, autoAlpha: 1 }, { scaleX: 1, ease: EASE.none, scrollTrigger: { trigger: root, start: 'center top', end: 'bottom top', scrub: true } });
     scrubParallax(q('[data-hnum]'), root, { to: { yPercent: -25 }, ...opts });
     scrubParallax(q('[data-hcircuit]'), root, { to: { yPercent: 18, scale: 1.08 }, ...opts });
     gsap.to(q('[data-hbody]'), { autoAlpha: 0.15, ease: 'none', scrollTrigger: { trigger: root, start: 'center top', end: 'bottom top', scrub: true } });
@@ -73,6 +78,8 @@ export function Hero() {
         </div>
       </div>
 
+      {/* Motion only (shown by GSAP): the launch streak along the bottom edge. */}
+      <div data-hstreak aria-hidden="true" className="invisible absolute inset-x-0 bottom-0 h-0.5 origin-left bg-ac" />
       <div aria-hidden="true" className="mx-auto mb-6 flex w-full max-w-[1400px] justify-end">
         <div className="checker hidden w-40 md:block" />
       </div>

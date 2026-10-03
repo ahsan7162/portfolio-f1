@@ -193,9 +193,9 @@ export function magnet(host: HTMLElement | null, target: HTMLElement | null, pul
  * only; letter centres are measured on enter (and again after scrolling), not
  * per move. Desktop, fine pointer only. Returns a cleanup.
  */
-export function proximityChars(host: HTMLElement | null, lines: HTMLElement[], opts: { radius?: number; skew?: number; spread?: number } = {}) {
+export function proximityChars(host: HTMLElement | null, lines: HTMLElement[], opts: { radius?: number; skew?: number; spread?: number; active?: () => boolean } = {}) {
   if (!host || isTouch() || !window.matchMedia('(pointer: fine)').matches) return;
-  const { radius = 220, skew = -12, spread = 10 } = opts;
+  const { radius = 220, skew = -12, spread = 10, active } = opts;
   const fg = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim() || '#f4f4ed';
   const ac = getComputedStyle(document.documentElement).getPropertyValue('--ac').trim() || '#ff2438';
   const mix = gsap.utils.interpolate(fg, ac);
@@ -218,7 +218,12 @@ export function proximityChars(host: HTMLElement | null, lines: HTMLElement[], o
       measuredAt = scrollY;
     }
   };
+  const leave = () => chars.forEach(c => { c.skew(0); c.x(0); c.heat(0); });
+  let hot = false;
   const move = (e: PointerEvent) => {
+    // Paused (e.g. while the hero scrolls away): settle once, then ignore the pointer.
+    if (active && !active()) { if (hot) { hot = false; leave(); } return; }
+    hot = true;
     collect();
     const py = e.clientY + scrollY;
     chars.forEach(c => {
@@ -229,7 +234,6 @@ export function proximityChars(host: HTMLElement | null, lines: HTMLElement[], o
       c.heat(heat);
     });
   };
-  const leave = () => chars.forEach(c => { c.skew(0); c.x(0); c.heat(0); });
   host.addEventListener('pointermove', move);
   host.addEventListener('pointerleave', leave);
   return () => {
