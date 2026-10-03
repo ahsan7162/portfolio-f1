@@ -42,16 +42,20 @@ export function Results() {
     // and fills in: an outline of it sits behind, the solid number wipes in over it
     // left to right in red, then settles to the page colour. One scrubbed timeline.
     const big = q('[data-bignum]')!;
-    const split = SplitText.create(big, { type: 'chars', mask: 'chars', aria: 'auto' });
+    // No per-letter masks: the tracking is tight enough that glyphs overlap their
+    // neighbours, and a mask per letter would cut them. The number's own clip-path
+    // does the masking instead (open above and at the sides, closed at the bottom,
+    // so the letters still rise out of a line).
+    const split = SplitText.create(big, { type: 'chars', aria: 'auto' });
     // Split the outline the same way (letters lose kerning when split), so every
     // outline letter sits exactly under its solid one.
-    SplitText.create(q('[data-bigoutline]'), { type: 'chars', mask: 'chars', aria: 'none' });
+    SplitText.create(q('[data-bigoutline]'), { type: 'chars', aria: 'none' });
     // Real colours, not var(): GSAP can only blend values it can parse.
     const css = getComputedStyle(document.documentElement);
     const ac = css.getPropertyValue('--ac').trim() || '#ff2438', fg = css.getPropertyValue('--fg').trim() || '#f4f4ed';
     gsap.timeline({ scrollTrigger: { trigger: big, start: 'top 95%', end: 'top 35%', scrub: true } })
       .fromTo(split.chars, { yPercent: 105 }, { yPercent: 0, stagger: 0.08, ease: EASE.none, duration: 0.5 }, 0)
-      .fromTo(big, { clipPath: 'inset(0% 100% 0% 0%)', color: ac }, { clipPath: 'inset(0% 0% 0% 0%)', ease: EASE.none, duration: 0.75 }, 0.05)
+      .fromTo(big, { clipPath: 'inset(-30% 100% -2% -10%)', color: ac }, { clipPath: 'inset(-30% -10% -2% -10%)', ease: EASE.none, duration: 0.75 }, 0.05)
       .to(big, { color: fg, ease: EASE.none, duration: 0.25 }, 0.75);
     onRevert(() => gsap.set(big, { clearProps: 'color,clipPath' }));
     gsap.fromTo(q('[data-bigwrap]'), { xPercent: -3 }, { xPercent: 4, ease: EASE.none, scrollTrigger: { trigger: big, start: 'top bottom', end: 'bottom top', scrub: true } });
