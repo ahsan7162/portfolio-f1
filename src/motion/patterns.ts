@@ -65,9 +65,10 @@ export function splitReveal(
 export function gridSlot(el: HTMLElement | null, opts: { start?: string; end?: string; scrub?: number } = {}) {
   if (!el) return;
   SplitText.create(el, {
-    type: 'lines,chars',
+    type: 'lines,words,chars', // words too (kept whole), so lines never break inside a word
     mask: 'lines',
     linesClass: 'split-mask',
+    wordsClass: 'split-word',
     autoSplit: true,
     aria: 'auto',
     onSplit: self => gsap.fromTo(self.chars, { xPercent: 60, skewX: -18, autoAlpha: 0 }, {

@@ -164,6 +164,7 @@
     padding-bottom: 0.08em;
     margin-bottom: -0.08em;
   }
+  .split-word { white-space: nowrap; }
 }
 
 html.intro [data-intro] { display: grid; }

@@ -51,7 +51,7 @@ export function About() {
     <section ref={ref} id="about" tabIndex={-1} data-bg="#111113,#0b0b0c" className="relative px-4 md:px-8">
       <div data-pin className="mx-auto flex min-h-[100dvh] max-w-[1400px] flex-col justify-center py-24">
         <div data-pinbody>
-        <h2 className="label mb-8">About me</h2>
+        <h2 className="sr-only">About me</h2>
         <p data-statement className="display max-w-[20ch] text-[clamp(2.2rem,min(6.2vw,calc(15svh_-_45px)),6rem)] !leading-[0.95]">
           {words.map((w, i) => (
             <span key={i}>

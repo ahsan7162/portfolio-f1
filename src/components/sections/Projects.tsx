@@ -90,7 +90,7 @@ export function Projects() {
   }, [], { fit: true });
 
   return (
-    <section ref={ref} id="projects" tabIndex={-1} data-bg="#0d0d10,#111113" className="relative px-4 py-24 md:px-8 md:py-32">
+    <section ref={ref} id="projects" tabIndex={-1} data-bg="#0d0d10,#111113" className="relative px-4 py-24 md:px-8 md:py-40">
       <div className="mx-auto max-w-[1400px]">
         <div className="proj-layout">
         <div className="proj-head mb-16 flex flex-wrap items-end justify-between gap-6">

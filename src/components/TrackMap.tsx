@@ -20,7 +20,10 @@ export function TrackMap() {
     const whole = { trigger: document.body, start: 'top top', end: 'bottom bottom', scrub: true } as const;
     if (desktop) {
       const track = q<SVGPathElement>('[data-track]')!;
-      gsap.to(q('[data-dot]'), { ease: 'none', scrollTrigger: whole, motionPath: { path: track, align: track, alignOrigin: [0.5, 0.5] } });
+      // The dot crosses the start/finish line as Contact arrives, not at the very bottom.
+      const contact = document.getElementById('contact');
+      const lap = contact ? { ...whole, endTrigger: contact, end: 'top 60%' } : whole;
+      gsap.to(q('[data-dot]'), { ease: 'none', scrollTrigger: lap, motionPath: { path: track, align: track, alignOrigin: [0.5, 0.5] } });
     }
     gsap.fromTo(q('[data-bar]'), { scaleX: 0 }, { scaleX: 1, ease: 'none', scrollTrigger: whole });
     // Hidden over the hero; slides in once the hero scrolls away.
