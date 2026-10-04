@@ -10,3 +10,11 @@ motion-lab/*/assets/
 motion-lab/*/snapshots/
 motion-lab/*/renders/
 motion-lab/*/.hyperframes/
+
+# HyperFrames films: renders, snapshots and caches regenerate from the sources
+# (videos/onboard-lap: npm run film; the other films: npm run render)
+videos/*/renders/
+videos/*/snapshots/
+videos/*/.hyperframes/
+videos/*/.thumbnails/
+videos/*/.waveform-cache/
