@@ -109,12 +109,23 @@ export function scrubParallax(el: Target, trigger: Element, opts: { from?: gsap.
   });
 }
 
-/** Slot-machine digits: each digit strip rolls up to its value. Keeps an aria-label. */
+/**
+ * Slot-machine digits: each digit strip rolls up to its value. Screen readers get a
+ * plain copy of the text (an aria-label on a span isn't announced). Returns a restore
+ * for onRevert in every mode; the original text is kept on the element, so a second
+ * run (StrictMode, a rebuild) rolls the stat again instead of the strips.
+ */
 export function digitRoll(el: HTMLElement | null, opts: { delay?: number; timeline?: gsap.core.Timeline; at?: gsap.Position; scrollTrigger?: ST } = {}) {
   if (!el) return;
-  const text = el.textContent ?? '';
-  el.setAttribute('aria-label', text);
+  const text = el.dataset.rollText ?? el.textContent ?? '';
+  el.dataset.rollText = text;
   el.textContent = '';
+  const sr = document.createElement('span');
+  sr.className = 'sr-only';
+  sr.textContent = text;
+  el.appendChild(sr);
+  // restore plain text on revert so SSR markup and HMR stay clean
+  const restore = () => { el.textContent = text; delete el.dataset.rollText; };
   const strips: { strip: HTMLElement; to: number }[] = [];
   for (const ch of text) {
     const win = document.createElement('span');
@@ -139,12 +150,29 @@ export function digitRoll(el: HTMLElement | null, opts: { delay?: number; timeli
   const vars = (i: number): gsap.TweenVars => ({ yPercent: -(strips[i].to * 100) / 20, duration: DUR.reveal, ease: EASE.out });
   if (opts.timeline) {
     strips.forEach((s, i) => opts.timeline!.to(s.strip, vars(i), typeof opts.at === 'number' ? opts.at + i * 0.08 : opts.at));
-    return;
+    return restore;
   }
   const tl = gsap.timeline({ delay: opts.delay ?? 0, scrollTrigger: opts.scrollTrigger ?? inView(el) });
   strips.forEach((s, i) => tl.to(s.strip, vars(i), i * 0.08));
-  // restore plain text on revert so SSR markup and HMR stay clean
-  return () => { el.textContent = text; };
+  return restore;
+}
+
+/**
+ * One-off reveals inside a scroll container (the dialogs). Not ScrollTrigger: it
+ * keeps every scroller it has ever seen (each closed dialog would stay in memory)
+ * and updates every page trigger on the container's scroll. `onEnter` gets each
+ * batch that came into view, in page order; the top margin clears the sticky
+ * dialog header. Returns a stop.
+ */
+export function revealWithin(root: HTMLElement, targets: Element[], onEnter: (batch: Element[]) => void, margin = '-64px 0px -8% 0px') {
+  const io = new IntersectionObserver(entries => {
+    const batch = entries.filter(e => e.isIntersecting).map(e => e.target);
+    if (!batch.length) return;
+    batch.forEach(t => io.unobserve(t));
+    onEnter(batch.sort((a, b) => (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1)));
+  }, { root, rootMargin: margin });
+  targets.forEach(t => io.observe(t));
+  return () => io.disconnect();
 }
 
 /** Draw an SVG stroke (Lando's scribble lines). */

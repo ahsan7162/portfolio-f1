@@ -48,14 +48,15 @@ function useDialogIn(ref: React.RefObject<HTMLDivElement | null>, origin: Origin
         gsap.set(head, { x: from.left - to.left, y: from.top - to.top, scale: from.height / to.height, transformOrigin: '0 0' });
       }
       // Start a frame after mount, so the cost of rendering the dialog isn't eaten by the tween.
-      raf = requestAnimationFrame(() => {
+      // ctx.add: this runs after the context function returned, and must still be reverted with it.
+      raf = requestAnimationFrame(() => ctx.add(() => {
         if (state.cancelled) return;
         state.tl = gsap.timeline({ onComplete: () => { gsap.set(el, { clearProps: 'clipPath' }); } })
           // Fast-start ease: the circle's area grows with its radius squared, so an ease-in would look stuck.
           .to(el, { clipPath: clip(o, reach(o)), duration: DUR.open, ease: EASE.out })
           .to(items, { autoAlpha: 1, y: 0, stagger: { amount: 0.15 }, duration: 0.45, ease: EASE.out }, 0.15);
         if (head) state.tl.to(head, { x: 0, y: 0, scale: 1, duration: DUR.open, ease: EASE.out }, 0);
-      });
+      }));
     }, el);
     return () => { cancelAnimationFrame(raf); ctx.revert(); };
   }, [ref, origin, focusId]);

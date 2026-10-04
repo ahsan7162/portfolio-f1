@@ -144,26 +144,6 @@ html.gl-on .lap-flat { opacity: 0; }
   }
 }
 
-/* Timing-sheet tables collapse to stacked rows on phones. Every row shares one
-   template (task and speed-up on top, before/after under it, a full-width bar
-   last), so bars start at the same edge and read as one scale. */
-@media (max-width: 767px) {
-  .timing thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-  .timing tr {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-areas: "task factor" "delta factor" "bar bar";
-    column-gap: 1rem;
-    row-gap: 0.35rem;
-    padding: 1.25rem 0;
-  }
-  .timing td, .timing th { padding: 0 !important; }
-  .timing tr > :nth-child(1) { grid-area: task; }
-  .timing tr > :nth-child(2) { grid-area: bar; margin-top: 0.65rem; }
-  .timing tr > :nth-child(3) { grid-area: delta; }
-  .timing tr > :nth-child(4) { grid-area: factor; align-self: center; text-align: right; }
-}
-
 /* WebGL stage fades in once ready. Without it, a static contour pattern shows. */
 html.gl-on .gl-canvas { opacity: 1; }
 .contour-fallback {
