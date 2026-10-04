@@ -24,8 +24,10 @@ const opening = new WeakMap<HTMLElement, { tl?: gsap.core.Timeline; cancelled?: 
 // A row lands: its stat rolls (numbers) or rises (words), and its before/after bars
 // race at the same speed (ease none: the bar is a stopwatch), so the faster result
 // stops almost at once while the old one keeps crawling. Returns digitRoll's restore.
+// Opacity, not autoAlpha: a row waiting to land must stay focusable, or the Close button
+// (in the header row) loses focus as the dialog opens and Tab skips rows below the fold.
 function rowIn(row: Element, tl: gsap.core.Timeline) {
-  tl.fromTo(row, { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.45, ease: EASE.out });
+  tl.fromTo(row, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.45, ease: EASE.out });
   row.querySelectorAll<HTMLElement>('[data-bar]').forEach(b => {
     const k = Number(b.dataset.k);
     tl.fromTo(b, { scaleX: 0 }, { scaleX: k, duration: 1.2 * k, ease: EASE.none }, 0.25);
