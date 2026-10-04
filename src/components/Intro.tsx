@@ -29,6 +29,8 @@ export function Intro() {
     // when the loader should run, so the overlay never shows without JS.
     if (!loaderWanted() || !document.documentElement.classList.contains('intro')) {
       document.documentElement.classList.remove('intro');
+      // The overlay is prerendered, so the first render must keep it to match the HTML.
+      // oxlint-disable-next-line react/set-state-in-effect
       setShow(false);
       skipIntro();
       return;
@@ -112,7 +114,7 @@ export function Intro() {
     // Cleanup reverts (not just kills) so the start states set by from() are undone, and
     // stops the pending start: React's dev double mount runs this effect twice.
     let live = true;
-    fontsOrTimeout.then(() => { if (live) gsap.ticker.add(step); });
+    void fontsOrTimeout.then(() => { if (live) gsap.ticker.add(step); });
     return () => {
       live = false;
       gsap.ticker.remove(step);

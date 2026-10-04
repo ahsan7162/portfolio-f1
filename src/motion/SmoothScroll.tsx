@@ -59,7 +59,7 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     if (locks.current > 0) { lenis.stop(); document.documentElement.style.overflow = ''; }
     const tick = (t: number) => lenis.raf(t * 1000);
     gsap.ticker.add(tick);
-    document.fonts?.ready.then(() => ScrollTrigger.refresh());
+    void document.fonts?.ready.then(() => ScrollTrigger.refresh());
     return () => {
       gsap.ticker.remove(tick);
       lenis.destroy();

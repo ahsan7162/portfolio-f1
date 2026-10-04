@@ -17,7 +17,7 @@ import { useSectionMotion } from '@/motion/useSectionMotion';
 export function Lap() {
   const { lenis } = useSmoothScroll();
   const { openDetails } = useDialogs();
-  const ref = useSectionMotion<HTMLElement>(({ root, q, qa, markers, onRevert }) => {
+  const ref = useSectionMotion(({ root, q, qa, markers, onRevert }) => {
     const pin = q('[data-lappin]')!;
     const stages = qa('[data-stage]');
     const sectorEls = qa('[data-sector]');

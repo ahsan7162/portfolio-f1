@@ -26,12 +26,12 @@ const CRAWL: Breakdown[] = [...projects, ...archive.map(archiveBreakdown)];
 export function Projects() {
   const { openDetails, openArchive } = useDialogs();
   const grid = useBentoPointer<HTMLDivElement>();
-  const ref = useSectionMotion<HTMLElement>(({ root, q, qa, desktop, wide, onRevert }) => {
+  const ref = useSectionMotion(({ root, q, qa, desktop, wide, onRevert }) => {
     gridSlot(q('h2'));
     const more = q('[data-more]')!;
     onRevert(magnet(more, q('[data-morearrow]')));
     clipReveal(more, { trigger: more, from: 'inset(0% 100% 0% 0%)' });
-    const cards = qa<HTMLElement>('[data-card]');
+    const cards = qa('[data-card]');
     cards.forEach(card => {
       clipReveal(card.querySelector('[data-cardvis]'), { trigger: card });
       gsap.from(card.querySelectorAll('[data-cardtxt]'), { autoAlpha: 0, y: 24, stagger: 0.06, ease: EASE.out, clearProps: 'transform', scrollTrigger: inView(card, { start: 'top 80%' }) });
@@ -48,7 +48,7 @@ export function Projects() {
     const room = document.documentElement.clientHeight;
     if (cards.every((c, i) => top(i) + c.offsetHeight <= room - 8)) {
       onRevert(() => root.classList.remove('proj-stack'));
-      stack(cards, top, wide);
+      stack();
       return;
     }
     root.classList.remove('proj-stack');
@@ -58,7 +58,7 @@ export function Projects() {
       gsap.fromTo(card.querySelector('[data-cardin]'), { yPercent: -6, scale: 1.08 }, { yPercent: 6, scale: 1.08, ease: 'none', scrollTrigger: { trigger: card, start: 'top bottom', end: 'bottom top', scrub: true } });
     });
 
-    function stack(cards: HTMLElement[], top: (i: number) => number, wide: boolean) {
+    function stack() {
       const n = cards.length;
       // The card underneath steps back and darkens (an overlay, not a filter) as the next one covers it.
       cards.slice(0, -1).forEach((card, i) => {
@@ -181,10 +181,11 @@ function ProjectCard({ index, className, children }: { index: number; className:
   return (
     // The whole card opens its details: a click anywhere that isn't another control
     // is passed to the Details button (which keeps keyboard access and the dialog origin).
+    // oxlint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions -- mouse shortcut to the Details button
     <article data-card data-cursor="view" className={className} style={{ '--i': index } as CSSProperties}
       onClick={e => { if (!(e.target as Element).closest('button, a')) e.currentTarget.querySelector<HTMLButtonElement>('[data-details]')?.click(); }}
       onPointerEnter={() => { if (!isTouch()) draw(true); }} onPointerLeave={() => { if (!isTouch()) draw(false); }}
-      onFocus={() => draw(true)} onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) draw(false); }}>
+      onFocus={() => draw(true)} onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget)) draw(false); }}>
       <div ref={box} data-tilt className="card relative isolate cursor-pointer overflow-hidden border border-line bg-graphite has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-ac">
         <span aria-hidden="true" className="card-spot" />
         {children}

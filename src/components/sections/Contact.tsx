@@ -29,7 +29,7 @@ function CopyPhone() {
 }
 
 export function Contact() {
-  const ref = useSectionMotion<HTMLElement>(({ root, q, qa, onRevert }) => {
+  const ref = useSectionMotion(({ root, q, qa, onRevert }) => {
     // Crossing the line: a chequered band sweeps across once as Contact reaches the
     // middle of the screen, the visitor's real time on the page freezes as their lap
     // time, and the heading's letters pull in from the right, carrying on the 450+ drift.

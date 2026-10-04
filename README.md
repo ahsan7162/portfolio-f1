@@ -8,7 +8,16 @@ npm install
 npm run dev        # http://localhost:5174
 npm run build      # client build + SSR build + prerender into dist/
 npm run preview    # http://localhost:4174
+npm run check      # typecheck + lint (both must pass with no warnings)
 ```
+
+## Linting
+
+`npm run lint` runs [oxlint](https://oxc.rs/docs/guide/usage/linter) with type-aware rules
+(`oxlint-tsgolint`); `npm run lint:fix` applies the safe fixes. It is oxlint rather than ESLint
+because typescript-eslint parses through the TypeScript compiler API, which TypeScript 7 (used
+here) doesn't ship. Rules and the reason for each override are in `.oxlintrc.json`. Where code
+breaks a rule on purpose, an `oxlint-disable-next-line` comment says why.
 
 ## How it fits together
 

@@ -16,7 +16,7 @@ const award = education.award;
  * finished state.
  */
 export function Results() {
-  const ref = useSectionMotion<HTMLElement>(({ root, q, qa, onRevert }) => {
+  const ref = useSectionMotion(({ root, q, qa, onRevert }) => {
     gridSlot(q('h2'));
     const row = q('[data-row]')!;
     // Several one-off reveals share the row: preventOverlaps finishes the earlier ones first.

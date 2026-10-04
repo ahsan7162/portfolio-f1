@@ -159,7 +159,7 @@ export function createLap() {
   const centre = box.getCenter(new THREE.Vector3()), size = box.getSize(new THREE.Vector3());
   const R = Math.max(size.x, size.z);
   ground.position.x = centre.x; ground.position.z = centre.z;
-  (ground.material as THREE.ShaderMaterial).uniforms.uCentre.value.set(centre.x, centre.z);
+  ground.material.uniforms.uCentre.value.set(centre.x, centre.z);
   // Veil: a full-screen quad in the scene's background colour, drawn last, so the
   // scene can fade in and out of the page without a second render pass.
   const veilMat = keep(new THREE.ShaderMaterial({

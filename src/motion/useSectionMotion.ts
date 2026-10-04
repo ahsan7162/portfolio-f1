@@ -56,7 +56,7 @@ export function useSectionMotion<T extends HTMLElement = HTMLElement>(build: (c:
     let mm = setup();
     let live = true;
     if (opts.fit && document.fonts && document.fonts.status !== 'loaded') {
-      document.fonts.ready.then(() => {
+      void document.fonts.ready.then(() => {
         if (!live) return;
         mm.revert();
         mm = setup();

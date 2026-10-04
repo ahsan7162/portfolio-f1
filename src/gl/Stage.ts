@@ -116,7 +116,7 @@ export class Stage {
     this.lastInput = performance.now();
     // The loader counts the helmet in once it is built and compiled (or failed).
     void this.loadHelmet().finally(() => loaded('helmet'));
-    if (import.meta.env.DEV) (window as unknown as { __stage: Stage }).__stage = this;
+    if (import.meta.env.DEV) Object.assign(window, { __stage: this });
   }
 
   /** Ask for renders for a short while (after resizes, tweens starting, etc.). */
@@ -231,10 +231,10 @@ export class Stage {
 
     r.clear();
     if (lapState.active) {
-      const { scene, camera, update } = this.lap;
+      const { scene, camera } = this.lap;
       this.lapP = lapState.progress; // scrubbed to the pin by the Lap section
       this.lapV = lapState.veil;
-      this.lapMore = update(this.lapP, this.size.w, this.size.h, this.lapV, lapState.stage);
+      this.lapMore = this.lap.update(this.lapP, this.size.w, this.size.h, this.lapV, lapState.stage);
       r.render(scene, camera);
       return;
     }

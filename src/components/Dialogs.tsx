@@ -116,7 +116,7 @@ export function closeWithWipe(el: HTMLElement | null, origin: Origin | undefined
   // Closing mid-open: stop the open wipe and shrink from wherever it got to.
   const open = opening.get(el);
   const mid = open?.tl?.isActive() || (open && !open.tl);
-  const r = mid ? parseFloat(String(el.style.clipPath).replace('circle(', '')) || 0 : reach(o);
+  const r = mid ? parseFloat(el.style.clipPath.replace('circle(', '')) || 0 : reach(o);
   if (open) { open.cancelled = true; open.tl?.kill(); }
   gsap.timeline({ onComplete: done })
     .to(el.querySelectorAll('[data-din], [data-dhead]'), { autoAlpha: 0, y: -16, duration: 0.18, ease: EASE.in, overwrite: true })
@@ -137,6 +137,7 @@ function DialogFrame({ origin, onClose, dref, label, titleId, tone, width, child
 }) {
   useDialogIn(dref, origin);
   return (
+    // oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- the dialog keeps Tab inside itself
     <div ref={dref} role="dialog" aria-modal="true" aria-labelledby={titleId} onKeyDown={e => trapTab(e, e.currentTarget)} data-lenis-prevent
       className={cn('fixed inset-0 isolate overflow-y-auto overscroll-contain text-fg', TONE[tone].box)}>
       <div data-dhead className={cn('sticky top-0 z-10 flex items-center justify-between border-b border-line px-4 py-4 md:px-8', TONE[tone].head)}>

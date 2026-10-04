@@ -16,7 +16,8 @@ export function LazyMap(props: Props) {
     const io = new IntersectionObserver(([e]) => {
       if (!e.isIntersecting) return;
       io.disconnect();
-      import('@/components/WorldMap').then(m => setMap(() => m.WorldMap));
+      // The map is decorative: if its chunk fails to load (offline, a stale deploy), the box stays empty.
+      import('@/components/WorldMap').then(m => setMap(() => m.WorldMap)).catch(() => {});
     }, { rootMargin: '800px 0px' });
     io.observe(el);
     return () => io.disconnect();

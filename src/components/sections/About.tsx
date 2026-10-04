@@ -5,7 +5,7 @@ import { drawPath } from '@/motion/patterns';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 
 export function About() {
-  const ref = useSectionMotion<HTMLElement>(({ q, qa, short, markers }) => {
+  const ref = useSectionMotion(({ q, qa, short, markers }) => {
     const text = q('[data-statement]')!;
     const pin = q('[data-pin]')!;
     // Pinned statement: words light up and rise into place as you scroll (Lando's manifesto).
@@ -14,7 +14,7 @@ export function About() {
     // "fast." snaps in at once with a kick and a red streak behind it.
     const [slow, fast] = qa('[data-statement] em');
     const slowChars = slow ? SplitText.create(slow, { type: 'chars' }).chars : [];
-    const words = split.words.filter(w => !slow?.contains(w) && !w.contains(slow!));
+    const words = split.words.filter(w => !slow?.contains(w) && !w.contains(slow));
 
     // The helmet's About move is timed against this pin (helmetPath), so it pins on
     // every screen but landscape phones, and the statement's size also follows the
@@ -54,6 +54,8 @@ export function About() {
         <h2 className="sr-only">About me</h2>
         <p data-statement className="display max-w-[20ch] text-[clamp(2.2rem,min(6.2vw,calc(15svh_-_45px)),6rem)] !leading-[0.95]">
           {words.map((w, i) => (
+            // The statement is static and repeats words, so the position is the key.
+            // oxlint-disable-next-line react/no-array-index-key
             <span key={i}>
               {profile.aboutAccent.includes(w)
                 ? <em className="display-em relative isolate inline-block">{w}{w === 'fast.' && <span data-fastline aria-hidden="true" className="absolute inset-x-0 top-1/2 -z-10 h-[0.12em] origin-left scale-x-0 bg-ac/60" />}</em>

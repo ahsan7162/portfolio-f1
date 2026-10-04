@@ -33,7 +33,7 @@ export function buildCar() {
     part(B(0.08, 0.1, 0.01), BLACK, -0.29, 0.11, -0.125),
     part(B(0.07, 0.012, 0.07), BLACK, 0.06, 0.11),     // halo
     part(B(0.012, 0.035, 0.012), BLACK, 0.095, 0.09),
-  ])!;
+  ]);
   const wheel = (x: number, z: number, r: number, w: number) => {
     const g = new THREE.CylinderGeometry(r, r, w, 14);
     g.rotateX(Math.PI / 2);
@@ -42,7 +42,7 @@ export function buildCar() {
   const wheels = mergeGeometries([
     wheel(0.19, 0.15, 0.05, 0.05), wheel(0.19, -0.15, 0.05, 0.05),
     wheel(-0.19, 0.15, 0.056, 0.065), wheel(-0.19, -0.15, 0.056, 0.065),
-  ])!;
+  ]);
   const bodyMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.35, metalness: 0.2, fog: false });
   const wheelMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.9, fog: false });
   const lightGeo = new THREE.BoxGeometry(0.02, 0.03, 0.05);

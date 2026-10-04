@@ -11,7 +11,7 @@ import { useSectionMotion } from '@/motion/useSectionMotion';
 export function Hero() {
   const { openDetails } = useDialogs();
   const current = jobs.find(j => j.id === 'careem');
-  const ref = useSectionMotion<HTMLElement>(({ root, q, qa, onRevert }) => {
+  const ref = useSectionMotion(({ root, q, qa, onRevert }) => {
     const tl = introTimeline();
     // Entrance: joins the loader's master timeline so it lands as the lights go out.
     qa('[data-hline]').forEach((line, i) =>

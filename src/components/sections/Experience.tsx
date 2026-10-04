@@ -22,7 +22,7 @@ const sector = (j: Job) => timeline.find(t => t.job === j.id)?.sector;
 export function Experience() {
   const { openDetails } = useDialogs();
   const grid = useBentoPointer<HTMLDivElement>();
-  const ref = useSectionMotion<HTMLElement>(({ q, qa, desktop, onRevert }) => {
+  const ref = useSectionMotion(({ q, qa, desktop, onRevert }) => {
     gridSlot(q('h2'));
     // Grid formation: the tiles line up like cars on a starting grid, scrubbed. They
     // start staggered in a two-column zig-zag, each one further back, and pull into

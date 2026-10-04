@@ -1,0 +1,34 @@
+{
+  // oxlint, not ESLint: typescript-eslint needs the TypeScript compiler API to parse,
+  // and TypeScript 7 (the native port this project uses) doesn't ship one.
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc", "react", "jsx-a11y", "import"],
+  "categories": { "correctness": "error", "suspicious": "warn", "perf": "warn" },
+  "env": { "builtin": true, "browser": true },
+  "ignorePatterns": ["dist/**", "dist-ssr/**", "videos/**", "motion-lab/**", "behance-export/**", "src/art/worldDots.ts"],
+  "rules": {
+    "react/rules-of-hooks": "error",
+    "react/exhaustive-deps": "warn",
+    // The automatic JSX runtime ("jsx": "react-jsx") needs no React import.
+    "react/react-in-jsx-scope": "off",
+    // Its suggested toSorted() and toReversed() are ES2023; tsconfig targets ES2022,
+    // and every sort() and reverse() here runs on a fresh array.
+    "unicorn/no-array-sort": "off",
+    "unicorn/no-array-reverse": "off",
+    // Inline <svg role="img" aria-label> is the accessible pattern for the logos, and
+    // the menu and dialogs are custom role="dialog" layers (inert page, clip-path wipe).
+    "jsx-a11y/prefer-tag-over-role": "off",
+    // Card and archive buttons carry their text a few spans deep.
+    "jsx-a11y/control-has-associated-label": ["error", { "depth": 6 }],
+    // Small helpers built once during setup read best next to where they are used.
+    "unicorn/consistent-function-scoping": "off",
+    // Type-aware rules (npm run lint runs with --type-aware). React effects return a
+    // cleanup or nothing, which consistent-return reads as a mistake; the GSAP setter
+    // casts and the typed q()/qa() query helpers (like querySelector<T>) are deliberate.
+    "typescript/consistent-return": "off",
+    "typescript/no-unsafe-type-assertion": "off",
+    "typescript/no-unnecessary-type-parameters": "off",
+    // Fonts and stylesheets are imported for their side effects.
+    "import/no-unassigned-import": ["warn", { "allow": ["**/*.css"] }]
+  }
+}

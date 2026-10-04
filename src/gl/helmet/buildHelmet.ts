@@ -173,7 +173,7 @@ export async function buildHelmet(opts: { anisotropy: number }): Promise<Helmet>
     seam,
     wire,
     shell,
-    livery: map.image as HTMLCanvasElement,
+    livery: map.image,
     update() {
       wireGeo.setDrawRange(0, Math.floor(wireCount * wire.draw / 2) * 2);
       wireMat.opacity = wire.opacity;

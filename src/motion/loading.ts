@@ -29,7 +29,7 @@ export function loadingNow(): string | null {
 }
 
 if (typeof window !== 'undefined') {
-  (document.fonts?.ready ?? Promise.resolve()).then(() => loaded('fonts'));
+  void (document.fonts?.ready ?? Promise.resolve()).then(() => loaded('fonts'));
   if (document.readyState === 'complete') loaded('page');
   else window.addEventListener('load', () => loaded('page'), { once: true });
 }

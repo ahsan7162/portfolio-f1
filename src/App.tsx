@@ -33,18 +33,19 @@ function Page() {
   const returns = useRef<(HTMLElement | null)[]>([]);
   const anyOpen = !!(open.sel || open.arch);
 
-  const push = () => returns.current.push(document.activeElement as HTMLElement | null);
+  // Remember what had focus when a dialog opens; closing returns it there.
+  const push = useCallback(() => { returns.current.push(document.activeElement as HTMLElement | null); }, []);
   // Commit the close synchronously so `inert` is gone, then return focus.
-  const finishClose = (update: (s: Open) => Open) => {
+  const finishClose = useCallback((update: (s: Open) => Open) => {
     flushSync(() => setOpen(update));
     unlock();
     returns.current.pop()?.focus({ preventScroll: true });
-  };
+  }, [unlock]);
 
-  const openDetails = useCallback((b: Breakdown, o?: Origin) => { push(); lock(); setOpen(s => ({ ...s, sel: { b, o } })); }, [lock]);
-  const openArchive = useCallback((o?: Origin) => { push(); lock(); setOpen(s => ({ ...s, arch: { o } })); }, [lock]);
-  const closeSel = useCallback(() => closeWithWipe(selRef.current, open.sel?.o, () => finishClose(s => ({ ...s, sel: null }))), [open.sel]); // eslint-disable-line react-hooks/exhaustive-deps
-  const closeArch = useCallback(() => closeWithWipe(archRef.current, open.arch?.o, () => finishClose(s => ({ ...s, arch: null }))), [open.arch]); // eslint-disable-line react-hooks/exhaustive-deps
+  const openDetails = useCallback((b: Breakdown, o?: Origin) => { push(); lock(); setOpen(s => ({ ...s, sel: { b, o } })); }, [push, lock]);
+  const openArchive = useCallback((o?: Origin) => { push(); lock(); setOpen(s => ({ ...s, arch: { o } })); }, [push, lock]);
+  const closeSel = useCallback(() => closeWithWipe(selRef.current, open.sel?.o, () => finishClose(s => ({ ...s, sel: null }))), [open.sel, finishClose]);
+  const closeArch = useCallback(() => closeWithWipe(archRef.current, open.arch?.o, () => finishClose(s => ({ ...s, arch: null }))), [open.arch, finishClose]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {

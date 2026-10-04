@@ -78,7 +78,7 @@ export function createRunoff(curve: THREE.CatmullRomCurve3, labels: string[], at
   geo.setAttribute('aStage', new THREE.Float32BufferAttribute(stage, 1));
   geo.setIndex(idx);
   const tex = atlas(labels);
-  const lit = new Array(labels.length).fill(0);
+  const lit = labels.map(() => 0);
   const mat = new THREE.ShaderMaterial({
     glslVersion: THREE.GLSL3,
     uniforms: { uMap: { value: tex }, uRows: { value: labels.length }, uLit: { value: lit.slice() } },

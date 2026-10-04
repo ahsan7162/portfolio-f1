@@ -52,7 +52,7 @@ function sideText(c: Ctx, u: number, theta: number, text: string, size: number, 
 
 function paint(c: Ctx, rough: boolean) {
   // In the roughness pass every colour becomes a grey level (lighter = rougher).
-  const col = (paint: string, r: number) => (rough ? `rgb(${r},${r},${r})` : paint);
+  const col = (colour: string, r: number) => (rough ? `rgb(${r},${r},${r})` : colour);
   if (rough) { c.fillStyle = 'rgb(120,120,120)'; c.fillRect(0, 0, W, H); } else carbonWeave(c);
 
   // Centre stripe over the crown, front to back.

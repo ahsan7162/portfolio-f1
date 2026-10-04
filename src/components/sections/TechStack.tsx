@@ -37,7 +37,7 @@ const List = ({ items }: { items: string[] }) => (
 /** Lando's partner wall as a logo marquee, then the stack as a bento grid. */
 export function TechStack() {
   const grid = useBentoPointer<HTMLDivElement>();
-  const ref = useSectionMotion<HTMLElement>(({ q, qa, onRevert }) => {
+  const ref = useSectionMotion(({ q, qa, onRevert }) => {
     gridSlot(q('h2'));
     // The marquee only moves while you scroll, at the scroll's speed and direction,
     // then coasts to a stop: like a car, it only moves while racing. One ticker
