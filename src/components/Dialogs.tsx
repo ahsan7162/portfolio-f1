@@ -180,9 +180,11 @@ export function DetailsDialog({ sel, ...frame }: DialogProps & { sel: Breakdown 
     <DialogFrame {...frame} label="Details" titleId="selTitle" tone="carbon" width="max-w-[1100px]">
       <p data-din className="font-mono text-xs uppercase tracking-[0.12em] text-mute">{sel.dates}, {sel.loc}, {sel.role}</p>
       <h2 id="selTitle" data-din className="display mt-4 text-[clamp(2.6rem,8vw,7rem)]">{sel.company}</h2>
-      <div className="mt-12 border-t border-line">
+      {/* One grid for every row (each row is a subgrid), so the stat column fits the widest
+          stat in this breakdown ("OPENAPI", "Jinja2") and the text still lines up row to row. */}
+      <div className="mt-12 grid border-t border-line md:grid-cols-[minmax(12rem,max-content)_1fr] md:gap-x-4">
         {sel.highlights.map(h => (
-          <div key={h.title} data-din className="grid gap-4 border-b border-line py-8 md:grid-cols-[12rem_1fr]">
+          <div key={h.title} data-din className="grid gap-4 border-b border-line py-8 md:col-span-2 md:grid-cols-subgrid">
             <div className="display text-4xl text-ac md:text-5xl"><span data-dstat className="inline-block">{h.stat}</span></div>
             <div>
               <h3 className="text-xl font-semibold [font-stretch:110%]">{h.title}</h3>
