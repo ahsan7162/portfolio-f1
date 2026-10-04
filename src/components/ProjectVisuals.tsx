@@ -1,5 +1,7 @@
 import { useEffect, useId, useRef, type ReactNode } from 'react';
+import { PALETTE } from '@/art/palette';
 import type { Project } from '@/content/data';
+import { thousands } from '@/lib/format';
 import { ensureGsap, gsap, ScrollTrigger } from '@/motion/gsap';
 import { isTouch, motionEnabled } from '@/motion/prefs';
 import { EASE } from '@/motion/tokens';
@@ -10,9 +12,9 @@ import { EASE } from '@/motion/tokens';
 // card comes into view, then loops quietly (desktop) only while it is on screen;
 // hovering a resting card replays it. Touch screens play it once.
 
-const FG = '#f4f4ed', MUTE = '#a3a39c', AC = '#ff2438', CARBON = '#0b0b0c', PANEL = '#141417', DIM = '#2a2a2e', LINE = 'rgb(255 255 255 / 0.12)';
-const t = (size: number, fill = FG, weight?: number) => ({ className: 'font-mono', fontSize: size, fill, fontWeight: weight });
-const label = (fill = MUTE) => ({ ...t(5.8, fill, 600), letterSpacing: 0.6 });
+const { fg: FG, mute: MUTE, ac: AC, carbon: CARBON, panel: PANEL } = PALETTE, DIM = '#2a2a2e', LINE = 'rgb(255 255 255 / 0.12)';
+const t = (size: number, fill: string = FG, weight?: number) => ({ className: 'font-mono', fontSize: size, fill, fontWeight: weight });
+const label = (fill: string = MUTE) => ({ ...t(5.8, fill, 600), letterSpacing: 0.6 });
 
 type At = number | string;
 /** Text helpers for a scene's timeline. Text is restored at time 0 on every replay. */
@@ -63,7 +65,7 @@ function Scene({ build, children }: { build: (fx: Fx) => void; children: ReactNo
         },
         count: (el, start, at, dur) => {
           const [, pre, num, post] = keep(el).match(/^(\D*)([\d,]+)(.*)$/)!;
-          const end = parseInt(num.replace(/,/g, ''), 10), fmt = (n: number) => pre + Math.round(n).toLocaleString('en-US') + post;
+          const end = parseInt(num.replace(/,/g, ''), 10), fmt = (n: number) => pre + thousands(n) + post;
           fx.from(el, fmt(start));
           const o = { n: start };
           tl.to(o, { n: end, duration: dur, ease: EASE.out, onUpdate: () => setText(el, fmt(o.n)) }, at);

@@ -1,7 +1,7 @@
 import { CIRCUIT_PATH, CIRCUIT_VIEWBOX } from '@/art/circuit';
-import { CV_FILE, jobs, profile } from '@/content/data';
+import { jobs, profile } from '@/content/data';
+import { CvLink } from '@/components/CvLink';
 import { originOf, useDialogs } from '@/components/dialog-context';
-import { cvHref } from '@/components/Nav';
 import { gsap } from '@/motion/gsap';
 import { introTimeline } from '@/motion/intro';
 import { drawPath, magnet, proximityChars, scrubParallax, splitReveal } from '@/motion/patterns';
@@ -74,7 +74,7 @@ export function Hero() {
         <p data-hfade className="mt-6 max-w-[42ch] text-base leading-relaxed text-mute md:text-lg">{profile.lede}</p>
         <div data-hfade className="mt-8 flex flex-wrap gap-3">
           <a href="#projects" className="btn btn-primary">View projects</a>
-          <a href={cvHref()} download={CV_FILE} className="btn btn-ghost">Download CV</a>
+          <CvLink className="btn btn-ghost" />
         </div>
       </div>
 

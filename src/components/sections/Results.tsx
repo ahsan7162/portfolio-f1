@@ -1,4 +1,5 @@
 import { education, stats } from '@/content/data';
+import { thousands } from '@/lib/format';
 import { gsap, SplitText } from '@/motion/gsap';
 import { digitRoll, gridSlot, inView, scrubParallax, splitReveal } from '@/motion/patterns';
 import { DUR, EASE } from '@/motion/tokens';
@@ -7,7 +8,6 @@ import { useSectionMotion } from '@/motion/useSectionMotion';
 // Podium steps left to right: 2nd, 1st, 3rd, in the order they rise.
 const STEPS = [{ p: 2, h: 'h-20' }, { p: 1, h: 'h-28' }, { p: 3, h: 'h-14' }];
 const award = education.award;
-const fmt = (n: number) => n.toLocaleString('en-US');
 
 /**
  * The finale: every result in one row, in order (education, the award, then
@@ -86,7 +86,7 @@ export function Results() {
               ))}
             </div>
             <p data-awtxt className="mt-4 text-sm leading-relaxed text-mute">
-              Out of {fmt(award.of)} teams worldwide, with a weather-forecasting solution on Alibaba Cloud.
+              Out of {thousands(award.of)} teams worldwide, with a weather-forecasting solution on Alibaba Cloud.
             </p>
           </div>
 

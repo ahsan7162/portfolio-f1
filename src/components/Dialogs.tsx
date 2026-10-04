@@ -1,21 +1,12 @@
-import { useLayoutEffect, type KeyboardEvent } from 'react';
+import { useLayoutEffect, type ReactNode, type RefObject } from 'react';
 import { archive, archiveBreakdown, type Breakdown, type Delta } from '@/content/data';
-import type { Origin } from '@/components/dialog-context';
+import { originOf, type Origin } from '@/components/dialog-context';
+import { trapTab } from '@/lib/focus';
+import { cn } from '@/lib/utils';
 import { gsap } from '@/motion/gsap';
 import { digitRoll, revealWithin } from '@/motion/patterns';
 import { motionEnabled } from '@/motion/prefs';
 import { DUR, EASE } from '@/motion/tokens';
-import { cn } from '@/lib/utils';
-
-/** Keep Tab focus inside the open dialog. */
-function trapTab(e: KeyboardEvent<HTMLDivElement>) {
-  if (e.key !== 'Tab') return;
-  const f = Array.from(e.currentTarget.querySelectorAll<HTMLElement>('a[href], button, [tabindex="0"]')).filter(el => el.offsetParent !== null);
-  if (!f.length) return;
-  const first = f[0], last = f[f.length - 1];
-  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-}
 
 // Circular wipe from the click point: the dialog itself is clipped to a circle
 // that grows from the click (clip-path), then the content rises in. Its radius is
@@ -24,6 +15,8 @@ function trapTab(e: KeyboardEvent<HTMLDivElement>) {
 // own layer: a ~46M-pixel texture at 2x, which the GPU had to raster and upload.)
 const reach = (o: Origin) => Math.hypot(Math.max(o.x, innerWidth - o.x), Math.max(o.y, innerHeight - o.y));
 const clip = (o: Origin, r: number) => `circle(${r.toFixed(1)}px at ${o.x.toFixed(1)}px ${o.y.toFixed(1)}px)`;
+/** Dialogs opened without a click point (find-in-page) wipe from the middle of the screen. */
+const centre = (): Origin => ({ x: innerWidth / 2, y: innerHeight / 2 });
 
 /** The running open animation per dialog, so a close that starts mid-open can cancel it. */
 const opening = new WeakMap<HTMLElement, { tl?: gsap.core.Timeline; cancelled?: boolean }>();
@@ -47,12 +40,12 @@ function rowIn(row: Element, tl: gsap.core.Timeline) {
  * Wipe in from the click point, then the rows land: the ones on screen right after
  * the wipe starts, the rest as they scroll into view inside the dialog.
  */
-function useDialogIn(ref: React.RefObject<HTMLDivElement | null>, origin: Origin | undefined, focusId: string) {
+function useDialogIn(ref: RefObject<HTMLDivElement | null>, origin: Origin | undefined) {
   useLayoutEffect(() => {
     const el = ref.current!;
-    document.getElementById(focusId)?.focus({ preventScroll: true });
+    el.querySelector<HTMLElement>('[data-dclose]')?.focus({ preventScroll: true });
     if (!motionEnabled()) return;
-    const o = origin ?? { x: innerWidth / 2, y: innerHeight / 2 };
+    const o = origin ?? centre();
     // Shared title: the card's title flies into the dialog heading (FLIP with one
     // uniform scale, so the text never stretches), alongside the circle wipe.
     const head = origin?.title ? el.querySelector<HTMLElement>('h2[data-din]') : null;
@@ -90,7 +83,7 @@ function useDialogIn(ref: React.RefObject<HTMLDivElement | null>, origin: Origin
       }));
     }, el);
     return () => { cancelAnimationFrame(raf); stop?.(); ctx.revert(); restores.forEach(r => r()); };
-  }, [ref, origin, focusId]);
+  }, [ref, origin]);
 }
 
 /** Before and after on one scale (aria-hidden: the highlight's own text states both). */
@@ -119,7 +112,7 @@ function Bars({ d }: { d: Delta }) {
 /** Content drops out, the circle shrinks back to the click point, then really close. */
 export function closeWithWipe(el: HTMLElement | null, origin: Origin | undefined, done: () => void) {
   if (!el || !motionEnabled()) { done(); return; }
-  const o = origin ?? { x: innerWidth / 2, y: innerHeight / 2 };
+  const o = origin ?? centre();
   // Closing mid-open: stop the open wipe and shrink from wherever it got to.
   const open = opening.get(el);
   const mid = open?.tl?.isActive() || (open && !open.tl);
@@ -130,68 +123,75 @@ export function closeWithWipe(el: HTMLElement | null, origin: Origin | undefined
     .fromTo(el, { clipPath: clip(o, r) }, { clipPath: clip(o, 0), duration: DUR.close, ease: EASE.wipe }, 0.08);
 }
 
-const shell = 'fixed inset-0 z-[70] isolate overflow-y-auto overscroll-contain bg-graphite text-fg';
+// The archive sits on graphite; details open over it, one layer up, on carbon.
+const TONE = {
+  graphite: { box: 'z-[70] bg-graphite', head: 'bg-graphite/95' },
+  carbon: { box: 'z-[75] bg-carbon', head: 'bg-carbon/95' },
+};
 
-export function ArchiveDialog({ origin, onClose, onOpenItem, dref }: {
-  origin?: Origin; onClose: () => void; onOpenItem: (b: Breakdown, o: Origin) => void; dref: React.RefObject<HTMLDivElement | null>;
+type DialogProps = { origin?: Origin; onClose: () => void; dref: RefObject<HTMLDivElement | null> };
+
+/** The full-screen dialog shell: sticky header with its label and Close, Tab kept inside, the wipe in. */
+function DialogFrame({ origin, onClose, dref, label, titleId, tone, width, children }: DialogProps & {
+  label: string; titleId: string; tone: keyof typeof TONE; width: string; children: ReactNode;
 }) {
-  useDialogIn(dref, origin, 'archClose');
+  useDialogIn(dref, origin);
   return (
-    <div ref={dref} role="dialog" aria-modal="true" aria-labelledby="archTitle" onKeyDown={trapTab} data-lenis-prevent className={shell}>
-      <div data-dhead className="sticky top-0 z-10 flex items-center justify-between border-b border-line bg-graphite/95 px-4 py-4 md:px-8">
-        <span className="label">All projects</span>
-        <button type="button" id="archClose" onClick={onClose} className="btn btn-ghost">Close</button>
+    <div ref={dref} role="dialog" aria-modal="true" aria-labelledby={titleId} onKeyDown={e => trapTab(e, e.currentTarget)} data-lenis-prevent
+      className={cn('fixed inset-0 isolate overflow-y-auto overscroll-contain text-fg', TONE[tone].box)}>
+      <div data-dhead className={cn('sticky top-0 z-10 flex items-center justify-between border-b border-line px-4 py-4 md:px-8', TONE[tone].head)}>
+        <span className="label">{label}</span>
+        <button type="button" data-dclose onClick={onClose} className="btn btn-ghost">Close</button>
       </div>
-      <div className="mx-auto max-w-[1400px] px-4 py-12 md:px-8">
-        <h2 id="archTitle" data-din className="display text-[clamp(2.6rem,8vw,7rem)]">All projects</h2>
-        <p data-din className="mt-3 text-mute">Everything else I have shipped, 2021 to now.</p>
-        <ul className="mt-12 border-t border-line">
-          {archive.map(a => (
-            <li key={a.name} data-din className="border-b border-line">
-              <button type="button" onClick={e => onOpenItem(archiveBreakdown(a), { x: e.clientX || innerWidth / 2, y: e.clientY || innerHeight / 2 })}
-                className="group relative grid w-full grid-cols-[4rem_1fr] gap-4 py-5 text-left transition-colors hover:bg-fg/[0.03] md:grid-cols-[5rem_1.3fr_1fr_auto] md:items-center">
-                {/* Sector line: draws in from the left on hover, leaves to the right, quicker. */}
-                <span aria-hidden="true" className="absolute inset-x-0 -bottom-px h-px origin-right scale-x-0 bg-ac transition-transform duration-(--dur-split) ease-out-expo group-hover:origin-left group-hover:scale-x-100 group-hover:duration-(--dur-wipe) group-focus-visible:origin-left group-focus-visible:scale-x-100" />
-                <span className="font-mono text-sm text-mute group-hover:text-ac">{a.year}</span>
-                <span>
-                  <span className="block text-lg font-semibold [font-stretch:110%]">{a.name}</span>
-                  <span className="block font-mono text-xs text-mute">{a.stack}</span>
-                </span>
-                <span className="col-start-2 text-mute md:col-start-auto">{a.note}</span>
-                <span className="col-start-2 font-mono text-xs uppercase tracking-[0.12em] text-ac md:col-start-auto">Details <span aria-hidden="true" className="inline-block transition-transform duration-(--dur-split) ease-out-expo group-hover:translate-x-1.5">→</span></span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <div className={cn('mx-auto px-4 py-12 md:px-8', width)}>{children}</div>
     </div>
   );
 }
 
-export function DetailsDialog({ sel, origin, onClose, dref }: { sel: Breakdown; origin?: Origin; onClose: () => void; dref: React.RefObject<HTMLDivElement | null> }) {
-  useDialogIn(dref, origin, 'selClose');
+export function ArchiveDialog({ onOpenItem, ...frame }: DialogProps & { onOpenItem: (b: Breakdown, o: Origin) => void }) {
   return (
-    <div ref={dref} role="dialog" aria-modal="true" aria-labelledby="selTitle" onKeyDown={trapTab} data-lenis-prevent className={`${shell} z-[75] bg-carbon`}>
-      <div data-dhead className="sticky top-0 z-10 flex items-center justify-between border-b border-line bg-carbon/95 px-4 py-4 md:px-8">
-        <span className="label">Details</span>
-        <button type="button" id="selClose" onClick={onClose} className="btn btn-ghost">Close</button>
-      </div>
-      <div className="mx-auto max-w-[1100px] px-4 py-12 md:px-8">
-        <p data-din className="font-mono text-xs uppercase tracking-[0.12em] text-mute">{sel.dates}, {sel.loc}, {sel.role}</p>
-        <h2 id="selTitle" data-din className="display mt-4 text-[clamp(2.6rem,8vw,7rem)]">{sel.company}</h2>
-        <div className="mt-12 border-t border-line">
-          {sel.highlights.map(h => (
-            <div key={h.title} data-din className="grid gap-4 border-b border-line py-8 md:grid-cols-[12rem_1fr]">
-              <div className="display text-4xl text-ac md:text-5xl"><span data-dstat className="inline-block">{h.stat}</span></div>
-              <div>
-                <h3 className="text-xl font-semibold [font-stretch:110%]">{h.title}</h3>
-                <p className="mt-2 max-w-[65ch] leading-relaxed text-mute">{h.text}</p>
-                {h.delta && <Bars d={h.delta} />}
-              </div>
+    <DialogFrame {...frame} label="All projects" titleId="archTitle" tone="graphite" width="max-w-[1400px]">
+      <h2 id="archTitle" data-din className="display text-[clamp(2.6rem,8vw,7rem)]">All projects</h2>
+      <p data-din className="mt-3 text-mute">Everything else I have shipped, 2021 to now.</p>
+      <ul className="mt-12 border-t border-line">
+        {archive.map(a => (
+          <li key={a.name} data-din className="border-b border-line">
+            <button type="button" onClick={e => onOpenItem(archiveBreakdown(a), originOf(e))}
+              className="group relative grid w-full grid-cols-[4rem_1fr] gap-4 py-5 text-left transition-colors hover:bg-fg/[0.03] md:grid-cols-[5rem_1.3fr_1fr_auto] md:items-center">
+              {/* Sector line: draws in from the left on hover, leaves to the right, quicker. */}
+              <span aria-hidden="true" className="absolute inset-x-0 -bottom-px h-px origin-right scale-x-0 bg-ac transition-transform duration-(--dur-split) ease-out-expo group-hover:origin-left group-hover:scale-x-100 group-hover:duration-(--dur-wipe) group-focus-visible:origin-left group-focus-visible:scale-x-100" />
+              <span className="font-mono text-sm text-mute group-hover:text-ac">{a.year}</span>
+              <span>
+                <span className="block text-lg font-semibold [font-stretch:110%]">{a.name}</span>
+                <span className="block font-mono text-xs text-mute">{a.stack}</span>
+              </span>
+              <span className="col-start-2 text-mute md:col-start-auto">{a.note}</span>
+              <span className="col-start-2 font-mono text-xs uppercase tracking-[0.12em] text-ac md:col-start-auto">Details <span aria-hidden="true" className="inline-block transition-transform duration-(--dur-split) ease-out-expo group-hover:translate-x-1.5">→</span></span>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </DialogFrame>
+  );
+}
+
+export function DetailsDialog({ sel, ...frame }: DialogProps & { sel: Breakdown }) {
+  return (
+    <DialogFrame {...frame} label="Details" titleId="selTitle" tone="carbon" width="max-w-[1100px]">
+      <p data-din className="font-mono text-xs uppercase tracking-[0.12em] text-mute">{sel.dates}, {sel.loc}, {sel.role}</p>
+      <h2 id="selTitle" data-din className="display mt-4 text-[clamp(2.6rem,8vw,7rem)]">{sel.company}</h2>
+      <div className="mt-12 border-t border-line">
+        {sel.highlights.map(h => (
+          <div key={h.title} data-din className="grid gap-4 border-b border-line py-8 md:grid-cols-[12rem_1fr]">
+            <div className="display text-4xl text-ac md:text-5xl"><span data-dstat className="inline-block">{h.stat}</span></div>
+            <div>
+              <h3 className="text-xl font-semibold [font-stretch:110%]">{h.title}</h3>
+              <p className="mt-2 max-w-[65ch] leading-relaxed text-mute">{h.text}</p>
+              {h.delta && <Bars d={h.delta} />}
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
-    </div>
+    </DialogFrame>
   );
 }

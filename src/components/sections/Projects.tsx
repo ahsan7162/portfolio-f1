@@ -8,6 +8,7 @@ import { isTouch, motionEnabled } from '@/motion/prefs';
 import { useBentoPointer } from '@/motion/useBentoPointer';
 import { clipReveal, gridSlot, inView, magnet } from '@/motion/patterns';
 import { DUR, EASE } from '@/motion/tokens';
+import { navHeight } from '@/motion/useNavHeight';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 import { cn } from '@/lib/utils';
 
@@ -28,7 +29,7 @@ export function Projects() {
   const ref = useSectionMotion<HTMLElement>(({ root, q, qa, desktop, wide, onRevert }) => {
     gridSlot(q('h2'));
     const more = q('[data-more]')!;
-    onRevert(magnet(more, q('[data-morearrow]'), 0.25));
+    onRevert(magnet(more, q('[data-morearrow]')));
     clipReveal(more, { trigger: more, from: 'inset(0% 100% 0% 0%)' });
     const cards = qa<HTMLElement>('[data-card]');
     cards.forEach(card => {
@@ -42,7 +43,7 @@ export function Projects() {
     // current title and a progress bar. Only when a card fits the screen; otherwise
     // the staggered grid below stays. Plain CSS sticky: no pin, no pin-spacer.
     root.classList.add('proj-stack');
-    const navh = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--navh')) || 64;
+    const navh = navHeight();
     const top = (i: number) => navh + (wide ? 24 : 16) + i * (wide ? 20 : 12); // matches the CSS
     const room = document.documentElement.clientHeight;
     if (cards.every((c, i) => top(i) + c.offsetHeight <= room - 8)) {

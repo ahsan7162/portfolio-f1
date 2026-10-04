@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { ensureGsap, gsap } from '@/motion/gsap';
-import { motionEnabled } from '@/motion/prefs';
+import { finePointer, motionEnabled } from '@/motion/prefs';
 import { DUR, EASE } from '@/motion/tokens';
 
 type State = 'idle' | 'link' | 'view' | 'open' | 'drag' | 'heat' | 'magnet' | 'scroll';
@@ -19,7 +19,7 @@ export function Cursor() {
   const root = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const el = root.current;
-    if (!el || !motionEnabled() || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    if (!el || !motionEnabled() || !finePointer()) return;
     ensureGsap();
     const html = document.documentElement;
     const ring = el.querySelector<HTMLElement>('[data-cring]')!, stretch = el.querySelector<HTMLElement>('[data-cstretch]')!;

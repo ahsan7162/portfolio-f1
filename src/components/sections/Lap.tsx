@@ -2,6 +2,7 @@ import { CIRCUIT_PATH, CIRCUIT_VIEWBOX } from '@/art/circuit';
 import { jobs, timeline } from '@/content/data';
 import { originOf, useDialogs } from '@/components/dialog-context';
 import { lapState } from '@/gl/state';
+import { lapTime } from '@/lib/format';
 import { glEnabled } from '@/motion/prefs';
 import { gsap, ScrollTrigger } from '@/motion/gsap';
 import { DUR, EASE } from '@/motion/tokens';
@@ -60,11 +61,10 @@ export function Lap() {
     // final sector turns purple (the fastest, the current job) and LAP 1 flashes.
     const clock = q('[data-laptime]')!, flag = q('[data-lapflag]')!;
     const LAP = 83.456;
-    const fmt = (t: number) => `${Math.floor(t / 60)}:${(t % 60).toFixed(3).padStart(6, '0')}`;
     let shown = '', done = false;
     const tickClock = () => {
       const p = lapState.progress;
-      const txt = fmt(Math.min(1, p / 0.92) * LAP);
+      const txt = lapTime(Math.min(1, p / 0.92) * LAP);
       if (txt !== shown) { clock.textContent = txt; shown = txt; }
       const end = p >= 0.92;
       if (end === done) return;
@@ -73,7 +73,7 @@ export function Lap() {
       gsap.to(flag, { autoAlpha: end ? 1 : 0, x: end ? 0 : 8, duration: end ? DUR.split : DUR.hit, ease: end ? EASE.out : EASE.in, overwrite: true });
     };
     gsap.set(flag, { autoAlpha: 0, x: 8 });
-    onRevert(() => { clock.textContent = fmt(0); sectorEls.forEach(el => el.classList.remove('sector-done', 'sector-best', 'text-ac')); });
+    onRevert(() => { clock.textContent = lapTime(0); sectorEls.forEach(el => el.classList.remove('sector-done', 'sector-best', 'text-ac')); });
 
     const at = (p: number) => Math.min(n - 1, Math.floor(p * n));
     // Switch on intent: a short scroll away from the current stage's middle (18% of

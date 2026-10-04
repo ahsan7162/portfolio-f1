@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "lenis/dist/lenis.css";
 
+/* The palette is mirrored in src/art/palette.ts for SVG, canvas and WebGL: change both together. */
 :root {
   color-scheme: dark;
   --carbon: #0b0b0c;
@@ -88,11 +89,6 @@
     background-size: 10px 10px;
     opacity: 0.85;
   }
-  .hairline {
-    height: 1px;
-    background: var(--line);
-    transform-origin: left center;
-  }
   .btn {
     display: inline-flex;
     align-items: center;
@@ -134,7 +130,6 @@
 
 html.intro [data-intro] { display: grid; }
 html.gl-on .lap-flat { opacity: 0; }
-
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -298,8 +293,6 @@ html.intro .rail { opacity: 0; pointer-events: none; }
   position: absolute; left: 0; right: 0; top: 50%; height: 10px; margin-top: -5px;
   background: conic-gradient(var(--carbon) 25%, transparent 0 50%, var(--carbon) 0 75%, transparent 0) 0 0 / 5px 5px;
 }
-
-/* Hover-mounted decorations (border beam) fade in rather than pop. */
 
 /* Projects deck (motion only, when a card fits the screen; see Projects.tsx). The
    cards stick under the nav, each a step lower, so the next one slides over the

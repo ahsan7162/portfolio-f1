@@ -31,4 +31,6 @@ export function glEnabled() {
 export const SHORT_SCREEN = '(max-height: 499px)';
 
 export const isTouch = () => isBrowser() && window.matchMedia('(hover: none)').matches;
+/** A mouse or trackpad (hover and a precise pointer): pointer-following effects run only on these. */
+export const finePointer = () => isBrowser() && !isTouch() && window.matchMedia('(pointer: fine)').matches;
 export const isMobile = () => isBrowser() && window.matchMedia('(max-width: 767px)').matches;

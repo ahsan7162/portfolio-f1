@@ -1,29 +1,19 @@
-import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { CvLink } from '@/components/CvLink';
 import { Scramble } from '@/components/Scramble';
 import { originOf, useDialogs } from '@/components/dialog-context';
-import { archive, CV_FILE, EMAIL, GITHUB, jobs, LINKEDIN, projects } from '@/content/data';
+import { archive, EMAIL, jobs, projects, SECTIONS, SOCIAL, type Section } from '@/content/data';
+import { cn } from '@/lib/utils';
+import { FOCUSABLE, trapTab } from '@/lib/focus';
 import { Flip, gsap, ScrollTrigger } from '@/motion/gsap';
 import { introDone, introTimeline } from '@/motion/intro';
 import { motionEnabled } from '@/motion/prefs';
 import { useSmoothScroll } from '@/motion/SmoothScroll';
 import { DUR, EASE } from '@/motion/tokens';
 import { useNavHeight } from '@/motion/useNavHeight';
-import { cn } from '@/lib/utils';
 
-export const cvHref = () => `${import.meta.env.BASE_URL}${CV_FILE}`;
-
-/** Every section, in page order. Projects opens the full list instead of scrolling. */
-const MENU = [
-  { id: 'about', label: 'About' },
-  { id: 'timeline', label: 'Career timeline' },
-  { id: 'experience', label: 'Work experience', children: true },
-  { id: 'projects', label: 'Projects', archive: true },
-  { id: 'skills', label: 'Tech stack' },
-  { id: 'results', label: 'Results and education' },
-  { id: 'contact', label: 'Contact' },
-] as const;
-
-const FOCUSABLE = 'a[href], button:not([disabled])';
+/** Every section with a menu row, in page order. */
+const MENU = SECTIONS.filter((s): s is Section & { menu: string } => !!s.menu);
 
 /**
  * Always-visible top bar with a full-screen menu (Lando's overlay nav).
@@ -123,14 +113,10 @@ export function Nav() {
   };
 
   // Keyboard: Esc closes, Tab stays inside the bar and the open menu.
-  const onKey = (e: ReactKeyboardEvent) => {
+  const onKey = (e: KeyboardEvent) => {
     if (!open) return;
     if (e.key === 'Escape') { e.stopPropagation(); hide(); return; }
-    if (e.key !== 'Tab') return;
-    const els = [...ref.current!.querySelectorAll<HTMLElement>(FOCUSABLE)].filter(el => el.offsetParent !== null);
-    const first = els[0], last = els[els.length - 1];
-    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    trapTab(e, ref.current!);
   };
 
   // Section links: unlock first so the page-wide anchor handler can scroll.
@@ -154,11 +140,11 @@ export function Nav() {
                   <li key={m.id} data-mflip className="border-b border-line">
                     <div className="overflow-hidden">
                       <div data-mrow className="flex items-stretch">
-                        {'archive' in m ? (
+                        {m.archive ? (
                           <button type="button" onClick={e => { const o = originOf(e); hide(false); openArchive(o); }}
                             className="group flex flex-1 items-start py-3 text-left md:py-4">
                             {n}
-                            <span className={rowText}>{m.label}</span>
+                            <span className={rowText}>{m.menu}</span>
                             <span className="ml-4 self-center rounded-full bg-ac px-2.5 py-0.5 font-mono text-xs text-carbon">{projects.length + archive.length}</span>
                             {dot}
                             <span aria-hidden="true" className="ml-auto self-center font-mono text-sm text-mute transition-colors group-hover:text-ac">See all →</span>
@@ -167,11 +153,11 @@ export function Nav() {
                           <a href={`#${m.id}`} onClick={go} aria-current={current === m.id ? 'location' : undefined}
                             className="group flex flex-1 items-start py-3 md:py-4">
                             {n}
-                            <span className={rowText}>{m.label}</span>
+                            <span className={rowText}>{m.menu}</span>
                             {dot}
                           </a>
                         )}
-                        {'children' in m && (
+                        {m.jobs && (
                           <button type="button" onClick={() => setExpOpen(v => !v)} aria-expanded={expOpen} aria-controls="menu-jobs"
                             aria-label={`${expOpen ? 'Hide' : 'Show'} each work experience`}
                             className="grid w-14 shrink-0 place-items-center border-l border-line text-2xl text-mute transition-colors hover:text-ac md:w-20">
@@ -180,7 +166,7 @@ export function Nav() {
                         )}
                       </div>
                     </div>
-                    {'children' in m && (
+                    {m.jobs && (
                       <ul ref={subRef} id="menu-jobs" aria-label="Work experience" className="h-0 overflow-hidden">
                         {jobs.map(j => (
                           <li key={j.id} className="border-t border-line/60">
@@ -207,10 +193,9 @@ export function Nav() {
               <a href={`mailto:${EMAIL}`} className="inline-flex min-h-11 items-center text-lg transition-colors hover:text-ac">{EMAIL}</a>
             </div>
             <div data-mside className="flex gap-6 font-mono text-xs uppercase tracking-[0.14em]">
-              <a href={GITHUB} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center transition-colors hover:text-ac">GitHub</a>
-              <a href={LINKEDIN} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center transition-colors hover:text-ac">LinkedIn</a>
+              {SOCIAL.map(s => <a key={s.label} href={s.href} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center transition-colors hover:text-ac">{s.label}</a>)}
             </div>
-            <a data-mside href={cvHref()} download={CV_FILE} className="btn btn-primary self-start">Download CV</a>
+            <CvLink data-mside className="btn btn-primary self-start" />
           </aside>
         </div>
       </div>
@@ -221,7 +206,7 @@ export function Nav() {
           <span className="sr-only">Muhammad Ahsan</span>
         </a>
         <div className="flex items-center gap-3">
-          <a href={cvHref()} download={CV_FILE} className={cn('btn btn-primary !px-4 !py-2 max-sm:hidden transition-opacity', open && 'pointer-events-none opacity-0')} tabIndex={open ? -1 : 0}>Download CV</a>
+          <CvLink className={cn('btn btn-primary !px-4 !py-2 max-sm:hidden transition-opacity', open && 'pointer-events-none opacity-0')} tabIndex={open ? -1 : 0} />
           <button ref={btn} type="button" onClick={() => (open ? hide() : show())}
             aria-expanded={open} aria-controls="site-menu"
             className="btn btn-ghost group min-h-11 !gap-3 !px-4 !py-2">

@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
+import { PALETTE } from '@/art/palette';
+import { CvLink } from '@/components/CvLink';
 import { LazyMap } from '@/components/LazyMap';
-import { cvHref } from '@/components/Nav';
-import { CV_FILE, EMAIL, GITHUB, LINKEDIN, PHONE, PHONE_DISPLAY, profile } from '@/content/data';
+import { EMAIL, PHONE, PHONE_DISPLAY, profile, SOCIAL } from '@/content/data';
+import { lapTime } from '@/lib/format';
 import { gsap, ScrollTrigger } from '@/motion/gsap';
 import { batchReveal, clipReveal, gridSlot, inView, magnet } from '@/motion/patterns';
 import { DUR, EASE } from '@/motion/tokens';
@@ -26,12 +28,6 @@ function CopyPhone() {
   );
 }
 
-// Time on the page so far, as a lap time (m:ss.mmm).
-const lapTime = (ms: number) => {
-  const s = ms / 1000;
-  return `${Math.floor(s / 60)}:${(s % 60).toFixed(3).padStart(6, '0')}`;
-};
-
 export function Contact() {
   const ref = useSectionMotion<HTMLElement>(({ root, q, qa, onRevert }) => {
     // Crossing the line: a chequered band sweeps across once as Contact reaches the
@@ -41,7 +37,7 @@ export function Contact() {
       scrollTrigger: inView(root, { start: 'top 55%' }) });
     const clock = q('[data-lapclock]')!, line = q('[data-laptotal]')!;
     ScrollTrigger.create({ trigger: root, start: 'top 55%', once: true, onEnter: () => {
-      clock.textContent = lapTime(performance.now());
+      clock.textContent = lapTime(performance.now() / 1000); // time on the page so far
       line.hidden = false;
       gsap.fromTo(line, { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: DUR.split, ease: EASE.out, delay: 0.5 });
     } });
@@ -67,17 +63,18 @@ export function Contact() {
           </p>
           <div aria-hidden="true" className="text-fg/25">
             {/* Karachi, Dubai (Careem), Milan (Xtel): set in scripts/world-dots.ts */}
-            <LazyMap markerColor="#ff2438" />
+            <LazyMap markerColor={PALETTE.ac} />
           </div>
         </div>
 
         {/* Filled in on the client (never prerendered with a made-up time). */}
         <p data-laptotal hidden className="label mt-10">Lap complete <span aria-hidden="true">/</span> <span data-lapclock className="tabular-nums text-fg" /></p>
         <div className="mt-12 flex flex-wrap gap-3">
-          <span data-clink className="inline-flex"><a href={cvHref()} download={CV_FILE} className="btn btn-primary">Download CV</a></span>
+          <span data-clink className="inline-flex"><CvLink className="btn btn-primary" /></span>
           <span data-clink className="inline-flex"><a href={`mailto:${EMAIL}`} className="btn btn-ghost">Email</a></span>
-          <span data-clink className="inline-flex"><a href={GITHUB} target="_blank" rel="noopener" className="btn btn-ghost">GitHub</a></span>
-          <span data-clink className="inline-flex"><a href={LINKEDIN} target="_blank" rel="noopener" className="btn btn-ghost">LinkedIn</a></span>
+          {SOCIAL.map(s => (
+            <span key={s.label} data-clink className="inline-flex"><a href={s.href} target="_blank" rel="noreferrer" className="btn btn-ghost">{s.label}</a></span>
+          ))}
           <span data-clink className="inline-flex"><CopyPhone /></span>
         </div>
 

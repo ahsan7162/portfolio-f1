@@ -52,6 +52,31 @@ export const PHONE = '+923110237524';
 export const PHONE_DISPLAY = '+92 311 023 7524';
 export const GITHUB = 'https://www.github.com/ahsan7162';
 export const LINKEDIN = 'https://www.linkedin.com/in/ahsan-imran-';
+export const SOCIAL = [{ label: 'GitHub', href: GITHUB }, { label: 'LinkedIn', href: LINKEDIN }];
+
+export type Section = {
+  id: string;
+  /** Its name on the track map and the scroll rail. */
+  short: string;
+  /** Its row in the site menu (the hero has none). */
+  menu?: string;
+  /** Menu: the row also lists every job. */
+  jobs?: true;
+  /** Menu: the row opens the full project list instead of scrolling. */
+  archive?: true;
+};
+
+/** Every section, in page order. The ids are the sections' element ids (and #links). */
+export const SECTIONS: Section[] = [
+  { id: 'top', short: 'Start' },
+  { id: 'about', short: 'About', menu: 'About' },
+  { id: 'timeline', short: 'Timeline', menu: 'Career timeline' },
+  { id: 'experience', short: 'Experience', menu: 'Work experience', jobs: true },
+  { id: 'projects', short: 'Projects', menu: 'Projects', archive: true },
+  { id: 'skills', short: 'Tech stack', menu: 'Tech stack' },
+  { id: 'results', short: 'Results', menu: 'Results and education' },
+  { id: 'contact', short: 'Finish', menu: 'Contact' },
+];
 
 export const profile = {
   name: 'Muhammad Ahsan',

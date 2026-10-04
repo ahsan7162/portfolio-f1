@@ -2,9 +2,10 @@ import { createContext, useContext, useEffect, useMemo, useRef, type ReactNode }
 import Lenis from 'lenis';
 import { ensureGsap, gsap, ScrollTrigger } from './gsap';
 import { motionEnabled } from './prefs';
+import { navHeight } from './useNavHeight';
 
 /** Live scroll numbers shared with non-React code (WebGL stage, track map). */
-export const scrollState = { y: 0, progress: 0, velocity: 0, direction: 0 as -1 | 0 | 1, locked: false };
+export const scrollState = { y: 0, progress: 0, velocity: 0, locked: false };
 
 type Api = {
   scrollTo: (target: string | HTMLElement | number, opts?: { immediate?: boolean }) => void;
@@ -20,7 +21,6 @@ export const useSmoothScroll = () => {
   return v;
 };
 
-const navOffset = () => -(parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--navh')) || 64);
 const expoOut = (t: number) => (t === 1 ? 1 : 1 - Math.pow(2, -10 * t));
 
 /**
@@ -34,15 +34,14 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     ensureGsap();
-    const update = (y: number, limit: number, velocity: number, direction: number) => {
+    const update = (y: number, limit: number, velocity: number) => {
       scrollState.y = y;
       scrollState.progress = limit > 0 ? y / limit : 0;
       scrollState.velocity = velocity;
-      scrollState.direction = (Math.sign(direction) as -1 | 0 | 1);
     };
 
     if (!motionEnabled()) {
-      const onScroll = () => update(window.scrollY, document.documentElement.scrollHeight - innerHeight, 0, 0);
+      const onScroll = () => update(window.scrollY, document.documentElement.scrollHeight - innerHeight, 0);
       window.addEventListener('scroll', onScroll, { passive: true });
       onScroll();
       return () => window.removeEventListener('scroll', onScroll);
@@ -50,9 +49,9 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
 
     const lenis = new Lenis({ lerp: 0.1, smoothWheel: true, syncTouch: false, touchMultiplier: 1.25, autoRaf: false });
     lenisRef.current = lenis;
-    (window as unknown as { lenis?: Lenis }).lenis = lenis;
+    if (import.meta.env.DEV) Object.assign(window, { lenis });
     lenis.on('scroll', (l: Lenis) => {
-      update(l.scroll, l.limit, l.velocity, l.direction);
+      update(l.scroll, l.limit, l.velocity);
       ScrollTrigger.update();
     });
     // A lock taken before Lenis existed (the loader locks in a layout effect, before this
@@ -74,7 +73,7 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
       const lenis = lenisRef.current;
       const el = typeof target === 'string' ? document.querySelector<HTMLElement>(target) : target;
       if (lenis) {
-        lenis.scrollTo(el ?? 0, { offset: typeof el === 'number' ? 0 : navOffset(), duration: 1.2, easing: expoOut, immediate: opts?.immediate });
+        lenis.scrollTo(el ?? 0, { offset: typeof el === 'number' ? 0 : -navHeight(), duration: 1.2, easing: expoOut, immediate: opts?.immediate });
       } else if (typeof el === 'number') {
         window.scrollTo(0, el);
       } else {

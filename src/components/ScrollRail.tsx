@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { SECTIONS } from '@/components/TrackMap';
+import { SECTIONS } from '@/content/data';
 import { gsap, ScrollTrigger } from '@/motion/gsap';
-import { isTouch, motionEnabled } from '@/motion/prefs';
+import { finePointer, motionEnabled } from '@/motion/prefs';
 import { scrollState, useSmoothScroll } from '@/motion/SmoothScroll';
 
 type Mark = { id: string; name: string; top: number; p: number };
@@ -20,7 +20,7 @@ export function ScrollRail() {
 
   useEffect(() => {
     const r = rail.current, th = thumb.current;
-    if (!r || !th || !motionEnabled() || isTouch() || !window.matchMedia('(pointer: fine)').matches) return;
+    if (!r || !th || !motionEnabled() || !finePointer()) return;
     const root = document.documentElement;
     root.classList.add('has-rail');
     let H = 0, T = 0, limit = 1, lastY = -1, lastV = 0;
@@ -41,10 +41,10 @@ export function ScrollRail() {
       limit = Math.max(1, root.scrollHeight - innerHeight);
       T = Math.max(44, (H * innerHeight) / root.scrollHeight);
       th.style.height = `${T}px`;
-      setMarks(SECTIONS.map(([id, name]) => {
+      setMarks(SECTIONS.map(({ id, short }) => {
         const el = document.getElementById(id);
         const p = el ? clamp((el.getBoundingClientRect().top + scrollY) / limit) : 0;
-        return { id, name, p, top: p * (H - T) + T / 2 };
+        return { id, name: short, p, top: p * (H - T) + T / 2 };
       }));
       lastY = -1;
     };

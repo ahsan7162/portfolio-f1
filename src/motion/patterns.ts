@@ -3,8 +3,9 @@
 //
 // Only transform and opacity are animated, plus two cheap exceptions:
 // clip-path masks and stroke-dashoffset on single SVG paths (DrawSVG).
+import { PALETTE } from '@/art/palette';
 import { gsap, ScrollTrigger, SplitText } from './gsap';
-import { isTouch } from './prefs';
+import { finePointer } from './prefs';
 import { DUR, EASE, STAGGER } from './tokens';
 
 type Target = gsap.TweenTarget;
@@ -194,11 +195,12 @@ export function drawPath(path: Target, opts: { scrollTrigger?: ST; duration?: nu
 
 /**
  * Magnetic arrow: while the pointer is over `host`, `target` leans toward it
- * (quickTo, DUR.split) and settles back on leave. Fine pointers only.
- * Returns a cleanup for onRevert.
+ * (quickTo, DUR.split) and settles back on leave. Fine pointers only. `pull`
+ * defaults to the host's data-cursor-pull, so the cursor ring (Cursor.tsx)
+ * and the arrow move as one. Returns a cleanup for onRevert.
  */
-export function magnet(host: HTMLElement | null, target: HTMLElement | null, pull = 0.35) {
-  if (!host || !target || isTouch() || !window.matchMedia('(pointer: fine)').matches) return;
+export function magnet(host: HTMLElement | null, target: HTMLElement | null, pull = Number(host?.dataset.cursorPull ?? 0.35)) {
+  if (!host || !target || !finePointer()) return;
   const v = { duration: DUR.split, ease: EASE.out };
   const xTo = gsap.quickTo(target, 'x', v), yTo = gsap.quickTo(target, 'y', v);
   const move = (e: PointerEvent) => {
@@ -219,11 +221,9 @@ export function magnet(host: HTMLElement | null, target: HTMLElement | null, pul
  * per move. Desktop, fine pointer only. Returns a cleanup.
  */
 export function proximityChars(host: HTMLElement | null, lines: HTMLElement[], opts: { radius?: number; skew?: number; spread?: number; active?: () => boolean } = {}) {
-  if (!host || isTouch() || !window.matchMedia('(pointer: fine)').matches) return;
+  if (!host || !finePointer()) return;
   const { radius = 220, skew = -12, spread = 10, active } = opts;
-  const fg = getComputedStyle(document.documentElement).getPropertyValue('--fg').trim() || '#f4f4ed';
-  const ac = getComputedStyle(document.documentElement).getPropertyValue('--ac').trim() || '#ff2438';
-  const mix = gsap.utils.interpolate(fg, ac);
+  const mix = gsap.utils.interpolate(PALETTE.fg, PALETTE.ac);
   type C = { el: HTMLElement; cx: number; cy: number; skew: (v: number) => void; x: (v: number) => void; heat: (v: number) => void };
   let chars: C[] = [], measuredAt = -1;
   const v = { duration: DUR.wipe, ease: EASE.out };
