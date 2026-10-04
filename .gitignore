@@ -3,3 +3,10 @@ dist
 dist-ssr
 .DS_Store
 *.tsbuildinfo
+
+# HyperFrames stills: motion-lab/build.mjs copies or builds the assets, and the
+# snapshots end up in public/ (og.jpg, apple-touch-icon.png)
+motion-lab/*/assets/
+motion-lab/*/snapshots/
+motion-lab/*/renders/
+motion-lab/*/.hyperframes/
