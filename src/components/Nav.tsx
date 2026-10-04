@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { Scramble } from '@/components/Scramble';
 import { originOf, useDialogs } from '@/components/dialog-context';
 import { archive, CV_FILE, EMAIL, GITHUB, jobs, LINKEDIN, projects } from '@/content/data';
 import { Flip, gsap, ScrollTrigger } from '@/motion/gsap';
+import { introDone, introTimeline } from '@/motion/intro';
 import { motionEnabled } from '@/motion/prefs';
 import { useSmoothScroll } from '@/motion/SmoothScroll';
 import { DUR, EASE } from '@/motion/tokens';
@@ -40,6 +41,22 @@ export function Nav() {
   const btn = useRef<HTMLButtonElement>(null);
   const tl = useRef<gsap.core.Timeline | null>(null);
   useNavHeight(ref);
+
+  // Entrance: the wordmark, CV and Menu drop in as the lights go out, on the loader's
+  // master timeline with the hero. A layout effect, so it joins before the intro is
+  // skipped (repeat visits, #links); the bar's children only, never the <header>,
+  // whose transform would trap the fixed menu panel inside a 64 px box.
+  useLayoutEffect(() => {
+    const bar = ref.current?.querySelector('nav[aria-label=Primary]');
+    if (!bar || !motionEnabled() || introDone()) return;
+    const ctx = gsap.context(() => {
+      // The wordmark and the buttons' wrapper (the .btn elements have CSS transitions that would fight GSAP).
+      introTimeline().from([bar.firstElementChild, bar.lastElementChild], {
+        autoAlpha: 0, y: -14, duration: DUR.reveal, ease: EASE.out, stagger: 0.08, clearProps: 'transform,opacity,visibility',
+      }, 'reveal+=0.2');
+    });
+    return () => ctx.revert();
+  }, []);
 
   // Which section is on screen, marked in the menu. Measured after the pins (priority -1).
   useEffect(() => {

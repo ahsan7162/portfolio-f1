@@ -32,6 +32,9 @@ export function introTimeline() {
 
 export function onIntroDone(fn: () => void) { if (done) fn(); else waiters.push(fn); }
 
+/** True once the intro has played or been skipped: too late to add a tween to it. */
+export const introDone = () => done;
+
 /** Start the reveal (called by the loader, or straight away when it is skipped). */
 export function playIntro(speed = 1) {
   const t = introTimeline();
