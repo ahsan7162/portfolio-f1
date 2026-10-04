@@ -2,7 +2,17 @@
 // rewritten for a senior full-stack positioning. Visible copy is plain
 // developer English (SEO); F1 styling lives only in the visuals.
 
-type Highlight = { stat: string; title: string; text: string };
+/**
+ * Before and after, in one unit, drawn as two bars in the details dialog. Only for
+ * highlights whose own stat and text measure the same thing.
+ */
+export type Delta = { from: number; to: number; fromLabel: string; toLabel: string };
+export type Highlight = { stat: string; title: string; text: string; delta?: Delta };
+
+// Xtel's timings, shown on the job and on its archive entry.
+const DOC_LOAD: Delta = { from: 250, to: 30, fromLabel: '250 s', toLabel: '30 s' };
+const FIELD_CHECK: Delta = { from: 30000, to: 100, fromLabel: '30 s', toLabel: '100 ms' };
+const SQL_OP: Delta = { from: 120, to: 30, fromLabel: '2 min', toLabel: '30 s' };
 
 /** Anything the details dialog can show. */
 export type Breakdown = {
@@ -68,7 +78,7 @@ export const jobs: Job[] = [
     summary: 'Software engineer. AI agent platform used company-wide, partner ops dashboard, booking concurrency, Go notification service.',
     result: '450+ AI agents, 35% dashboard adoption', highlights: [
     { stat: '450+', title: 'AI agent platform, company-wide', text: 'Internal platform in Go, Python and React with chat, semantic search and Slack integration. Teams create, version and deploy custom AI assistants self-service, with deployment to CI/CD pipelines, Slack channels and threads, and Jira automation. Agent build time fell from 2 to 3 days to 10 minutes.' },
-    { stat: '35%', title: 'Partner operations dashboard', text: 'Real-time booking and walk-in visibility on DynamoDB, Kafka and OpenSearch through a React microfrontend, with CSV and Excel export. Launched during a 2026 campaign of 50K bookings: adoption rose from under 2% to 35%, support chat groups fell from 500+ to under 20, and email queries dropped 70%.' },
+    { stat: '35%', title: 'Partner operations dashboard', text: 'Real-time booking and walk-in visibility on DynamoDB, Kafka and OpenSearch through a React microfrontend, with CSV and Excel export. Launched during a 2026 campaign of 50K bookings: adoption rose from under 2% to 35%, support chat groups fell from 500+ to under 20, and email queries dropped 70%.', delta: { from: 2, to: 35, fromLabel: 'under 2%', toLabel: '35%' } },
     { stat: '1,500+', title: 'Booking concurrency fix', text: 'Two writers could claim the same booking at the same time, leaving partner payouts wrong until someone fixed them by hand. Optimistic locking and structured logging closed the race: 50+ partner payouts delivered accurately across 1,500+ transactions.' },
     { stat: '500+', title: 'In-platform notifications', text: 'Go service (Gin, PostgreSQL) with AWS S3 and CloudFront media, delivered to 500+ partners.' },
     { stat: 'R19', title: 'Frontend modernization', text: 'Upgraded to React 19, migrated tooling, replaced hand-written fetch clients with OpenAPI-generated ones, and added the first automated unit tests.' },
@@ -76,10 +86,10 @@ export const jobs: Job[] = [
   { id: 'xtel', company: 'Xtel', role: 'Senior Software Engineer', dates: 'January 2025 to October 2025', years: '2025', loc: 'Remote, Italy', place: 'Remote, Italy',
     summary: 'Senior engineer. 250 s loads to 30 s, 30 s field checks to 100 ms.',
     result: 'Document loads 8× faster', highlights: [
-    { stat: '8×', title: 'Document load: 250 s to 30 s', text: 'Optimized MARS usage and database access patterns across the document pipeline.' },
-    { stat: '2×', title: 'Anomaly evaluation: 40 s to 20 s', text: 'Removed unnecessary save-and-rollback transactions in document anomaly evaluation.' },
-    { stat: '~150×', title: 'UI field visibility: 30 s to 100 ms', text: 'Removed unnecessary GUI initialization and optimized visibility calculations.' },
-    { stat: '4×', title: 'A 2-minute operation in 30 seconds', text: 'Azure SQL Server indexing, pagination and on-demand loading, plus high-impact bug fixes across the .NET Core and React application.' },
+    { stat: '8×', title: 'Document load: 250 s to 30 s', text: 'Optimized MARS usage and database access patterns across the document pipeline.', delta: DOC_LOAD },
+    { stat: '2×', title: 'Anomaly evaluation: 40 s to 20 s', text: 'Removed unnecessary save-and-rollback transactions in document anomaly evaluation.', delta: { from: 40, to: 20, fromLabel: '40 s', toLabel: '20 s' } },
+    { stat: '~150×', title: 'UI field visibility: 30 s to 100 ms', text: 'Removed unnecessary GUI initialization and optimized visibility calculations.', delta: FIELD_CHECK },
+    { stat: '4×', title: 'A 2-minute operation in 30 seconds', text: 'Azure SQL Server indexing, pagination and on-demand loading, plus high-impact bug fixes across the .NET Core and React application.', delta: SQL_OP },
   ] },
   { id: 'astera', company: 'Astera', role: 'Associate to Software Engineer II', dates: 'June 2022 to December 2024', years: '2022 to 2024', loc: 'Karachi, Pakistan', place: 'Karachi',
     summary: 'Python, .NET and React. Multi-LLM API server, enterprise catalog, ETL marketplace.',
@@ -97,7 +107,9 @@ export const projects: Project[] = [
     summary: 'A self-service platform to create, version and deploy AI assistants with chat, semantic search, Slack and Jira integrations.',
     highlights: [
     { stat: '450+', title: 'Agents live company-wide', text: 'Teams create, version and deploy custom AI assistants self-service: chat interface, semantic search, Slack integration.' },
-    { stat: '10 min', title: 'Build time, down from 2 to 3 days', text: 'What used to need an engineer and a sprint now takes anyone ten minutes.' },
+    { stat: '10 min', title: 'Build time, down from 2 to 3 days', text: 'What used to need an engineer and a sprint now takes anyone ten minutes.',
+      // The bar uses the low end of 2 to 3 days.
+      delta: { from: 2 * 24 * 60, to: 10, fromLabel: '2 to 3 days', toLabel: '10 min' } },
     { stat: '4', title: 'Deployment targets', text: 'CI/CD pipelines, Slack channels and threads, Jira automation, and in-platform chat.' },
     { stat: 'Go+Py', title: 'Architecture', text: 'Go services for the platform core, Python for the agent runtime, React front end. Versioning built in from day one.' },
   ] },
@@ -133,9 +145,9 @@ export const archive: ArchiveItem[] = [
     { stat: 'OpenAPI', title: 'Generated API clients', text: 'Replaced hand-written fetch clients with OpenAPI-generated, type-safe ones.' },
     { stat: '1st', title: 'Unit tests', text: 'Introduced the first automated unit tests the codebase had.' } ] },
   { year: '2025', name: 'Xtel performance work', stack: 'Azure SQL, .NET Core', ctx: 'Xtel, Italy', note: 'Loads 250 s to 30 s, field checks 30 s to 100 ms.', highlights: [
-    { stat: '8×', title: 'Document loads: 250 s to 30 s', text: 'Optimized MARS usage and database access patterns.' },
-    { stat: '~150×', title: 'Field checks: 30 s to 100 ms', text: 'Removed unnecessary GUI initialization and optimized visibility calculations.' },
-    { stat: '4×', title: '2 minutes to 30 seconds', text: 'Azure SQL indexing, pagination and on-demand data loading.' } ] },
+    { stat: '8×', title: 'Document loads: 250 s to 30 s', text: 'Optimized MARS usage and database access patterns.', delta: DOC_LOAD },
+    { stat: '~150×', title: 'Field checks: 30 s to 100 ms', text: 'Removed unnecessary GUI initialization and optimized visibility calculations.', delta: FIELD_CHECK },
+    { stat: '4×', title: '2 minutes to 30 seconds', text: 'Azure SQL indexing, pagination and on-demand data loading.', delta: SQL_OP } ] },
   { year: '2024', name: 'ETL workflow marketplace', stack: '.NET 8, React, JWT, OAuth', ctx: 'Astera', note: 'Upload and publish ETL workflows, APIs secured.', highlights: [
     { stat: 'ETL', title: 'Scalable marketplace', text: '.NET 8 and React marketplace where users upload and publish ETL workflows.' },
     { stat: 'OAuth', title: 'Secured APIs', text: 'JWT and OAuth authentication across the marketplace API.' } ] },

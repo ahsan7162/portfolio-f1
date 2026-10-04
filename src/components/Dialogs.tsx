@@ -1,9 +1,11 @@
 import { useLayoutEffect, type KeyboardEvent } from 'react';
-import { archive, archiveBreakdown, type Breakdown } from '@/content/data';
+import { archive, archiveBreakdown, type Breakdown, type Delta } from '@/content/data';
 import type { Origin } from '@/components/dialog-context';
 import { gsap } from '@/motion/gsap';
+import { digitRoll, revealWithin } from '@/motion/patterns';
 import { motionEnabled } from '@/motion/prefs';
 import { DUR, EASE } from '@/motion/tokens';
+import { cn } from '@/lib/utils';
 
 /** Keep Tab focus inside the open dialog. */
 function trapTab(e: KeyboardEvent<HTMLDivElement>) {
@@ -26,7 +28,25 @@ const clip = (o: Origin, r: number) => `circle(${r.toFixed(1)}px at ${o.x.toFixe
 /** The running open animation per dialog, so a close that starts mid-open can cancel it. */
 const opening = new WeakMap<HTMLElement, { tl?: gsap.core.Timeline; cancelled?: boolean }>();
 
-/** Wipe in from the click point, then content rises in. */
+// A row lands: its stat rolls (numbers) or rises (words), and its before/after bars
+// race at the same speed (ease none: the bar is a stopwatch), so the faster result
+// stops almost at once while the old one keeps crawling. Returns digitRoll's restore.
+function rowIn(row: Element, tl: gsap.core.Timeline) {
+  tl.fromTo(row, { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.45, ease: EASE.out });
+  row.querySelectorAll<HTMLElement>('[data-bar]').forEach(b => {
+    const k = Number(b.dataset.k);
+    tl.fromTo(b, { scaleX: 0 }, { scaleX: k, duration: 1.2 * k, ease: EASE.none }, 0.25);
+  });
+  const stat = row.querySelector<HTMLElement>('[data-dstat]');
+  if (!stat) return;
+  if (/^[~\d]/.test(stat.textContent ?? '')) return digitRoll(stat, { timeline: tl, at: 0.1 });
+  tl.fromTo(stat, { yPercent: 60, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, duration: DUR.split, ease: EASE.out }, 0.1);
+}
+
+/**
+ * Wipe in from the click point, then the rows land: the ones on screen right after
+ * the wipe starts, the rest as they scroll into view inside the dialog.
+ */
 function useDialogIn(ref: React.RefObject<HTMLDivElement | null>, origin: Origin | undefined, focusId: string) {
   useLayoutEffect(() => {
     const el = ref.current!;
@@ -37,29 +57,63 @@ function useDialogIn(ref: React.RefObject<HTMLDivElement | null>, origin: Origin
     // uniform scale, so the text never stretches), alongside the circle wipe.
     const head = origin?.title ? el.querySelector<HTMLElement>('h2[data-din]') : null;
     const items = [...el.querySelectorAll('[data-din], [data-dhead]')].filter(n => n !== head);
-    let raf = 0;
+    let raf = 0, stop: (() => void) | undefined;
     const state: { tl?: gsap.core.Timeline; cancelled?: boolean } = {};
+    const restores: (() => void)[] = [];
     opening.set(el, state);
     const ctx = gsap.context(() => {
       gsap.set(el, { clipPath: clip(o, 0) });
-      gsap.set(items, { autoAlpha: 0, y: 30 });
+      // Each row's entrance, built paused up front: digitRoll rewrites the stats before the title is measured.
+      const rows = new Map(items.map(it => {
+        const tl = gsap.timeline({ paused: true });
+        const restore = rowIn(it, tl);
+        if (restore) restores.push(restore);
+        return [it, tl] as const;
+      }));
+      if (import.meta.env.DEV) Object.assign(window, { __dialogRows: [...rows.values()] });
       if (head && origin?.title) {
         const to = head.getBoundingClientRect(), from = origin.title;
         gsap.set(head, { x: from.left - to.left, y: from.top - to.top, scale: from.height / to.height, transformOrigin: '0 0' });
       }
+      const onScreen = items.filter(it => it.getBoundingClientRect().top < innerHeight * 0.92);
+      const below = items.filter(it => !onScreen.includes(it));
       // Start a frame after mount, so the cost of rendering the dialog isn't eaten by the tween.
       // ctx.add: this runs after the context function returned, and must still be reverted with it.
       raf = requestAnimationFrame(() => ctx.add(() => {
         if (state.cancelled) return;
         state.tl = gsap.timeline({ onComplete: () => { gsap.set(el, { clearProps: 'clipPath' }); } })
           // Fast-start ease: the circle's area grows with its radius squared, so an ease-in would look stuck.
-          .to(el, { clipPath: clip(o, reach(o)), duration: DUR.open, ease: EASE.out })
-          .to(items, { autoAlpha: 1, y: 0, stagger: { amount: 0.15 }, duration: 0.45, ease: EASE.out }, 0.15);
+          .to(el, { clipPath: clip(o, reach(o)), duration: DUR.open, ease: EASE.out });
         if (head) state.tl.to(head, { x: 0, y: 0, scale: 1, duration: DUR.open, ease: EASE.out }, 0);
+        onScreen.forEach((it, i) => gsap.delayedCall(0.15 + (0.15 * i) / Math.max(1, onScreen.length - 1), () => rows.get(it)!.play()));
+        stop = revealWithin(el, below, batch => ctx.add(() => batch.forEach((it, i) => gsap.delayedCall(i * 0.06, () => rows.get(it)!.play()))));
       }));
     }, el);
-    return () => { cancelAnimationFrame(raf); ctx.revert(); };
+    return () => { cancelAnimationFrame(raf); stop?.(); ctx.revert(); restores.forEach(r => r()); };
   }, [ref, origin, focusId]);
+}
+
+/** Before and after on one scale (aria-hidden: the highlight's own text states both). */
+function Bars({ d }: { d: Delta }) {
+  const max = Math.max(d.from, d.to);
+  const rows = [['Before', d.fromLabel, d.from], ['After', d.toLabel, d.to]] as const;
+  return (
+    <div aria-hidden="true" className="mt-6 grid max-w-[65ch] gap-2 font-mono text-[11px] uppercase tracking-[0.14em]">
+      {rows.map(([tag, label, v]) => {
+        // At least a sliver, so 100 ms against 30 s still shows on a phone.
+        const k = Math.max(v / max, 0.006);
+        return (
+          <div key={tag} className="grid grid-cols-[3.75rem_minmax(0,1fr)_6.5rem] items-center gap-3">
+            <span className="text-mute">{tag}</span>
+            <span className="h-1.5 bg-fg/[0.07]">
+              <span data-bar data-k={k} className={cn('block h-full origin-left', tag === 'After' ? 'bg-ac' : 'bg-fg/40')} style={{ transform: `scaleX(${k})` }} />
+            </span>
+            <span className={tag === 'After' ? 'text-ac' : 'text-mute'}>{label}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 /** Content drops out, the circle shrinks back to the click point, then really close. */
@@ -126,10 +180,11 @@ export function DetailsDialog({ sel, origin, onClose, dref }: { sel: Breakdown; 
         <div className="mt-12 border-t border-line">
           {sel.highlights.map(h => (
             <div key={h.title} data-din className="grid gap-4 border-b border-line py-8 md:grid-cols-[12rem_1fr]">
-              <div className="display text-4xl text-ac md:text-5xl">{h.stat}</div>
+              <div className="display text-4xl text-ac md:text-5xl"><span data-dstat className="inline-block">{h.stat}</span></div>
               <div>
                 <h3 className="text-xl font-semibold [font-stretch:110%]">{h.title}</h3>
                 <p className="mt-2 max-w-[65ch] leading-relaxed text-mute">{h.text}</p>
+                {h.delta && <Bars d={h.delta} />}
               </div>
             </div>
           ))}
