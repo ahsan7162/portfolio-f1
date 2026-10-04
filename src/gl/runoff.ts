@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import { PALETTE } from '@/art/palette';
+import { vec3 } from './glsl';
 
 // Run-off logos: each career stage's company painted flat on the ground beside its
 // sector, like the sponsor names on real F1 run-off areas. Flat and facing up, they
@@ -98,7 +100,7 @@ export function createRunoff(curve: THREE.CatmullRomCurve3, labels: string[], at
         float lit = 0.0;
         for (int i = 0; i < ${labels.length}; i++) if (abs(vStage - float(i)) < 0.5) lit = uLit[i];
         // Painted white at rest, faded into the ground; the active stage glows red.
-        vec3 col = mix(vec3(0.957, 0.957, 0.929), vec3(1.0, 0.141, 0.22), lit);
+        vec3 col = mix(${vec3(PALETTE.fg)}, ${vec3(PALETTE.ac)}, lit);
         outColor = vec4(col, a * mix(0.14, 0.95, lit));
       }`,
     transparent: true, depthWrite: false, side: THREE.DoubleSide,

@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { disposables } from './dispose';
 
 /**
  * A pit garage to bake into the helmet's reflection map: a dark box with long
@@ -8,8 +9,7 @@ import * as THREE from 'three';
  */
 export function garageScene() {
   const scene = new THREE.Scene();
-  const disposables: Array<{ dispose: () => void }> = [];
-  const keep = <T extends { dispose: () => void }>(x: T) => { disposables.push(x); return x; };
+  const { keep, dispose } = disposables();
 
   // Room: grey walls and a lighter floor, so the shell keeps its carbon texture between the strips.
   const room = new THREE.Mesh(keep(new THREE.BoxGeometry(12, 6, 12)), keep(new THREE.MeshBasicMaterial({ color: '#34343b', side: THREE.BackSide })));
@@ -43,5 +43,5 @@ export function garageScene() {
   rim.position.set(5.8, 1.5, -2);
   scene.add(rim);
 
-  return { scene, dispose: () => disposables.forEach(d => d.dispose()) };
+  return { scene, dispose };
 }

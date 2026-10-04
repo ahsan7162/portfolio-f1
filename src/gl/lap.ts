@@ -1,8 +1,10 @@
 import * as THREE from 'three';
 import { CIRCUIT_PATH } from '@/art/circuit';
-import { buildCar } from './car';
+import { PALETTE } from '@/art/palette';
 import { timeline } from '@/content/data';
-import { NOISE_GLSL } from './field';
+import { buildCar } from './car';
+import { disposables } from './dispose';
+import { CONTOURS_GLSL, NOISE_GLSL, vec3 } from './glsl';
 import { createRunoff } from './runoff';
 
 // 3D lap: the same circuit as the SVG lines, turned into a track ribbon with
@@ -59,12 +61,11 @@ function offsetCurve(curve: THREE.CatmullRomCurve3, off: number) {
 
 export function createLap() {
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color('#070708');
-  scene.fog = new THREE.FogExp2('#070708', 0.012);
+  scene.background = new THREE.Color(PALETTE.pit);
+  scene.fog = new THREE.FogExp2(PALETTE.pit, 0.012);
   const camera = new THREE.PerspectiveCamera(38, 1, 0.5, 80);
   const curve = circuitCurve();
-  const disposables: Array<{ dispose: () => void }> = [];
-  const keep = <T extends { dispose: () => void }>(x: T) => { disposables.push(x); return x; };
+  const { keep, dispose } = disposables();
 
   // Asphalt.
   const road = new THREE.Mesh(keep(ribbon(curve, WIDTH, 0, 700)),
@@ -72,7 +73,7 @@ export function createLap() {
   scene.add(road);
 
   // Kerbs: alternating red and white blocks on both edges.
-  const red = new THREE.Color('#ff2438'), white = new THREE.Color('#f4f4ed');
+  const red = new THREE.Color(PALETTE.ac), white = new THREE.Color(PALETTE.fg);
   const kerbMat = keep(new THREE.MeshBasicMaterial({ vertexColors: true, fog: true }));
   for (const s of [-1, 1]) {
     const edge = offsetCurve(curve, s * (WIDTH + 0.035));
@@ -80,7 +81,7 @@ export function createLap() {
   }
 
   // Centre line.
-  const dashMat = keep(new THREE.MeshBasicMaterial({ color: '#f4f4ed', transparent: true, opacity: 0.7, fog: true }));
+  const dashMat = keep(new THREE.MeshBasicMaterial({ color: PALETTE.fg, transparent: true, opacity: 0.7, fog: true }));
   const dashGeo = keep(ribbon(curve, 0.008, 0.003, 700));
   scene.add(new THREE.Mesh(dashGeo, dashMat));
 
@@ -88,8 +89,8 @@ export function createLap() {
   const postGeo = keep(new THREE.BoxGeometry(0.02, 0.5, 0.02));
   const capGeo = keep(new THREE.BoxGeometry(0.07, 0.03, 0.07));
   const postMat = keep(new THREE.MeshStandardMaterial({ color: '#55555e', roughness: 0.6 }));
-  const capA = keep(new THREE.MeshBasicMaterial({ color: '#ff2438', fog: true }));
-  const capB = keep(new THREE.MeshBasicMaterial({ color: '#f4f4ed', fog: true }));
+  const capA = keep(new THREE.MeshBasicMaterial({ color: PALETTE.ac, fog: true }));
+  const capB = keep(new THREE.MeshBasicMaterial({ color: PALETTE.fg, fog: true }));
   // Instanced: two draw calls for all 90 posts and caps, not 180.
   const POSTS = 90;
   const posts = new THREE.InstancedMesh(postGeo, postMat, POSTS);
@@ -111,11 +112,11 @@ export function createLap() {
   // Racing line: a red ribbon revealed up to the car, plus the car marker.
   const SEGS = 700;
   const lineGeo = keep(ribbon(curve, 0.05, 0.006, SEGS));
-  const lineMat = keep(new THREE.MeshBasicMaterial({ color: '#ff2438', fog: false }));
+  const lineMat = keep(new THREE.MeshBasicMaterial({ color: PALETTE.ac, fog: false }));
   scene.add(new THREE.Mesh(lineGeo, lineMat));
   const car = keep(buildCar());
   // A faint ring under the car, so it is easy to find on the whole circuit.
-  const halo = new THREE.Mesh(keep(new THREE.RingGeometry(0.5, 0.56, 40)), keep(new THREE.MeshBasicMaterial({ color: '#ff2438', transparent: true, opacity: 0.3, side: THREE.DoubleSide, fog: false })));
+  const halo = new THREE.Mesh(keep(new THREE.RingGeometry(0.5, 0.56, 40)), keep(new THREE.MeshBasicMaterial({ color: PALETTE.ac, transparent: true, opacity: 0.3, side: THREE.DoubleSide, fog: false })));
   halo.rotation.x = -Math.PI / 2;
   scene.add(car.group, halo);
 
@@ -133,18 +134,15 @@ export function createLap() {
       out vec4 outColor;
       uniform vec2 uCentre;
       ${NOISE_GLSL}
+      ${CONTOURS_GLSL}
       void main() {
         vec2 p = vP * 0.045;
         vec2 q = vec2(fbm(p), fbm(p + vec2(5.2, 1.3)));
-        float f = fbm(p + 1.4 * q) * 14.0;
-        float w = max(fwidth(f), 1e-4);
-        float line = clamp(1.0 - abs(fract(f + 0.5) - 0.5) / w * 0.9, 0.0, 1.0);
-        float index = 1.0 - step(0.5, mod(floor(f + 0.5), 5.0));
-        float racing = clamp(1.0 - abs(f - 3.5) / w * 0.55, 0.0, 1.0);
+        Contours c = contours(fbm(p + 1.4 * q) * 14.0);
         float fade = smoothstep(26.0, 6.0, length(vP - uCentre));
-        vec3 col = vec3(0.027, 0.027, 0.031);
-        col = mix(col, vec3(0.957, 0.957, 0.929), line * 0.13 * (0.55 + index * 0.9) * fade);
-        col = mix(col, vec3(1.0, 0.141, 0.22), racing * 0.2 * fade);
+        vec3 col = ${vec3(PALETTE.pit)};
+        col = mix(col, ${vec3(PALETTE.fg)}, c.line * 0.13 * (0.55 + c.index * 0.9) * fade);
+        col = mix(col, ${vec3(PALETTE.ac)}, c.racing * 0.2 * fade);
         outColor = vec4(col, 1.0);
       }`,
   })));
@@ -152,7 +150,7 @@ export function createLap() {
   ground.position.y = -1.1;
   scene.add(ground);
 
-  scene.add(new THREE.HemisphereLight('#f4f4ed', '#1a1a20', 2.2));
+  scene.add(new THREE.HemisphereLight(PALETTE.fg, '#1a1a20', 2.2));
   const key = new THREE.DirectionalLight('#ffffff', 2.4);
   key.position.set(3, 6, 2);
   scene.add(key);
@@ -165,7 +163,7 @@ export function createLap() {
   // Veil: a full-screen quad in the scene's background colour, drawn last, so the
   // scene can fade in and out of the page without a second render pass.
   const veilMat = keep(new THREE.ShaderMaterial({
-    uniforms: { uVeil: { value: 1 }, uCol: { value: new THREE.Color('#070708') } },
+    uniforms: { uVeil: { value: 1 }, uCol: { value: new THREE.Color(PALETTE.pit) } },
     vertexShader: 'void main() { gl_Position = vec4(position.xy, 0.0, 1.0); }',
     fragmentShader: 'uniform float uVeil; uniform vec3 uCol; void main() { gl_FragColor = vec4(uCol, uVeil); }',
     transparent: true, depthTest: false, depthWrite: false,
@@ -234,6 +232,6 @@ export function createLap() {
     },
     /** Upload the run-off atlas ahead of the first lap frame. */
     warm: (r: THREE.WebGLRenderer) => r.initTexture(runoff.texture),
-    dispose: () => disposables.forEach(d => d.dispose()),
+    dispose,
   };
 }

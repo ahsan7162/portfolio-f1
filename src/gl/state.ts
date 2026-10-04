@@ -4,4 +4,3 @@
 // behind its own background colour, 0 shows it; it fades the scene in and out.
 // stage: the career stage whose card is showing (-1 before the first).
 export const lapState = { progress: 0, veil: 1, active: false, stage: -1 };
-export const glState = { enabled: false, ready: false };

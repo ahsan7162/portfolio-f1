@@ -1,4 +1,7 @@
 import * as THREE from 'three';
+import { PALETTE } from '@/art/palette';
+import { disposables } from '../dispose';
+import { DISSOLVE_GLSL, vec3 } from '../glsl';
 import { liveryTextures, roundedMask } from './livery';
 import { FRONT_PHI, PHI_START, shellGeometry, shellNormal, shellPoint, THETA_LEN, VISOR } from './shape';
 
@@ -31,16 +34,12 @@ function withReveal<T extends THREE.Material>(mat: T, reveal: { value: number })
       .replace('#include <common>', `#include <common>
 uniform float uReveal, uSeam;
 varying vec3 vObjPos;
-float h3(vec3 p){ p = fract(p * 0.3183099 + 0.1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
-float vnoise(vec3 x){ vec3 i = floor(x); vec3 f = fract(x); f = f*f*(3.0-2.0*f);
-  return mix(mix(mix(h3(i),h3(i+vec3(1,0,0)),f.x), mix(h3(i+vec3(0,1,0)),h3(i+vec3(1,1,0)),f.x),f.y),
-             mix(mix(h3(i+vec3(0,0,1)),h3(i+vec3(1,0,1)),f.x), mix(h3(i+vec3(0,1,1)),h3(i+vec3(1,1,1)),f.x),f.y), f.z); }
-float revealD(){ return (vObjPos.y + 1.15) / 2.3 * 0.82 + vnoise(vObjPos * 5.0) * 0.18; }`)
-      .replace('#include <clipping_planes_fragment>', '#include <clipping_planes_fragment>\nif (revealD() > uReveal) discard;')
+${DISSOLVE_GLSL}`)
+      .replace('#include <clipping_planes_fragment>', '#include <clipping_planes_fragment>\nif (dissolveEdge(vObjPos) > uReveal) discard;')
       // The inside of the shell (seen while it dissolves) is a dark liner, not the painted livery.
       .replace('#include <map_fragment>', '#include <map_fragment>\nif (!gl_FrontFacing) diffuseColor.rgb = vec3(0.025);')
       .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
-totalEmissiveRadiance += vec3(1.0, 0.14, 0.22) * smoothstep(uReveal - 0.035, uReveal, revealD()) * step(uReveal, 1.0) * 4.0 * uSeam;`);
+totalEmissiveRadiance += ${vec3(PALETTE.ac)} * smoothstep(uReveal - 0.035, uReveal, dissolveEdge(vObjPos)) * step(uReveal, 1.0) * 4.0 * uSeam;`);
   };
   return mat;
 }
@@ -51,8 +50,7 @@ export async function buildHelmet(opts: { anisotropy: number }): Promise<Helmet>
   const seg = { w: 44, h: 28 };
   const reveal = { value: 0 };
   const group = new THREE.Group();
-  const disposables: Array<{ dispose: () => void }> = [];
-  const keep = <T extends { dispose: () => void }>(x: T) => { disposables.push(x); return x; };
+  const { keep, dispose } = disposables();
 
   const { map } = await liveryTextures(opts.anisotropy);
   keep(map);
@@ -96,7 +94,7 @@ export async function buildHelmet(opts: { anisotropy: number }): Promise<Helmet>
   }
 
   // Rear spoiler (Gurney-style lip) across the back of the crown.
-  const accentPaint = keep(withReveal(new THREE.MeshStandardMaterial({ color: '#ff2438', roughness: 0.22 }), reveal));
+  const accentPaint = keep(withReveal(new THREE.MeshStandardMaterial({ color: PALETTE.ac, roughness: 0.22 }), reveal));
   const carbonMat = keep(withReveal(new THREE.MeshStandardMaterial({ color: '#141416', roughness: 0.3 }), reveal));
   {
     const prof = new THREE.Shape();
@@ -157,7 +155,7 @@ export async function buildHelmet(opts: { anisotropy: number }): Promise<Helmet>
 
   // Wireframe that draws itself before the solid dissolves in.
   const wireGeo = keep(new THREE.WireframeGeometry(shellGeometry({ w: 40, h: 22 })));
-  const wireMat = keep(new THREE.LineBasicMaterial({ color: '#ff2438', transparent: true, opacity: 0.9, depthWrite: false }));
+  const wireMat = keep(new THREE.LineBasicMaterial({ color: PALETTE.ac, transparent: true, opacity: 0.9, depthWrite: false }));
   const wireLines = new THREE.LineSegments(wireGeo, wireMat);
   wireLines.scale.setScalar(1.004);
   group.add(wireLines);
@@ -181,6 +179,6 @@ export async function buildHelmet(opts: { anisotropy: number }): Promise<Helmet>
       wireMat.opacity = wire.opacity;
       wireLines.visible = wire.opacity > 0.01 && wire.draw > 0;
     },
-    dispose() { disposables.forEach(d => d.dispose()); },
+    dispose,
   };
 }

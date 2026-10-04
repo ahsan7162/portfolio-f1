@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import { PALETTE } from '@/art/palette';
+import { whenIdle } from '@/lib/idle';
 import { gsap, ScrollTrigger } from '@/motion/gsap';
 import { onIntroDone } from '@/motion/intro';
 import { loaded } from '@/motion/loading';
@@ -149,8 +151,7 @@ export class Stage {
     this.renderer.compile(this.scene, this.camera);
     onIntroDone(() => this.playReveal());
     // The exit sparks are sampled in idle time; fewer on phones (smaller screen, weaker GPU).
-    const idle = (cb: () => void) => ('requestIdleCallback' in window ? requestIdleCallback(cb, { timeout: 3000 }) : setTimeout(cb, 1000));
-    idle(() => {
+    whenIdle(() => {
       if (this.dead || !this.helmet) return;
       const sparks = createParticles(helmet.shell, helmet.livery, isMobile() ? 2500 : 6000, helmet.reveal);
       sparks.setPixelRatio(this.renderer.getPixelRatio());
@@ -162,7 +163,7 @@ export class Stage {
       sparks.points.visible = true;
       void Promise.all([this.renderer.compileAsync(this.scene, this.camera), this.renderer.compileAsync(this.lap.scene, this.lap.camera)])
         .catch(() => {}).finally(() => { if (!this.dead) { sparks.points.visible = false; this.lap.warm(this.renderer); } });
-    });
+    }, 3000, 1000);
   }
 
   /** Wireframe draws itself, the painted shell dissolves in, the wireframe fades. */
@@ -177,7 +178,7 @@ export class Stage {
 
   private bindSectionColours() {
     const u = this.field.uniforms;
-    const light = new THREE.Color('#f4f4ed'), dark = new THREE.Color('#141416');
+    const light = new THREE.Color(PALETTE.fg), dark = new THREE.Color('#141416');
     const to = (a: string, b: string) => {
       const A = new THREE.Color(a), B = new THREE.Color(b);
       const isLight = A.r + A.g + A.b > 1.5;

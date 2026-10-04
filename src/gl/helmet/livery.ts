@@ -1,11 +1,12 @@
 import * as THREE from 'three';
+import { PALETTE } from '@/art/palette';
 import { THETA_LEN } from './shape';
 
 // The helmet paint, drawn in code onto the shell's UV layout:
 //   u (x) = around the head, 0 = back seam, 0.25 = left side, 0.5 = front, 0.75 = right side
 //   v (y) = top of the head (0) down to the neck opening (1), linear in theta.
 const W = 2048, H = 1024;
-const AC = '#ff2438', FG = '#f4f4ed', CARBON = '#121214';
+const { ac: AC, fg: FG } = PALETTE, CARBON = '#121214';
 const yAt = (theta: number) => (theta / THETA_LEN) * H;
 
 type Ctx = CanvasRenderingContext2D;
@@ -80,7 +81,7 @@ function paint(c: Ctx, rough: boolean) {
   // Checkered band just above the neck line.
   const y0 = yAt(THETA_LEN - Math.PI * 0.05), sq = 14;
   for (let row = 0; row < 2; row++) for (let x = 0; x < W; x += sq) {
-    c.fillStyle = ((x / sq + row) & 1) ? col(FG, 60) : col('#0b0b0c', 90);
+    c.fillStyle = ((x / sq + row) & 1) ? col(FG, 60) : col(PALETTE.carbon, 90);
     c.fillRect(x, y0 + row * sq, sq, sq);
   }
 }

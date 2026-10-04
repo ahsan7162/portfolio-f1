@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 import { MeshSurfaceSampler } from 'three/examples/jsm/math/MeshSurfaceSampler.js';
+import { PALETTE } from '@/art/palette';
+import { DISSOLVE_GLSL, vec3 } from '../glsl';
 
 /**
  * The helmet's exit: points sampled from the shell, each with the livery colour at
@@ -21,7 +23,7 @@ export function createParticles(shell: THREE.Mesh, livery: HTMLCanvasElement | u
       const x = Math.min(px.width - 1, Math.floor(uv.x * px.width)), y = Math.min(px.height - 1, Math.floor((1 - uv.y) * px.height));
       const k = (y * px.width + x) * 4;
       c.setRGB(px.data[k] / 255, px.data[k + 1] / 255, px.data[k + 2] / 255, THREE.SRGBColorSpace);
-    } else c.set('#ff2438');
+    } else c.set(PALETTE.ac);
     // Dark carbon would vanish against the page: lift it to a warm grey ember.
     if (c.r + c.g + c.b < 0.25) c.setRGB(0.32, 0.3, 0.3);
     c.toArray(col, i * 3);
@@ -43,21 +45,17 @@ export function createParticles(shell: THREE.Mesh, livery: HTMLCanvasElement | u
       uniform float uReveal, uSize;
       out vec3 vCol;
       out float vAlpha;
-      float h3(vec3 p){ p = fract(p * 0.3183099 + 0.1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
-      float vnoise(vec3 x){ vec3 i = floor(x); vec3 f = fract(x); f = f*f*(3.0-2.0*f);
-        return mix(mix(mix(h3(i),h3(i+vec3(1,0,0)),f.x), mix(h3(i+vec3(0,1,0)),h3(i+vec3(1,1,0)),f.x),f.y),
-                   mix(mix(h3(i+vec3(0,0,1)),h3(i+vec3(1,0,1)),f.x), mix(h3(i+vec3(0,1,1)),h3(i+vec3(1,1,1)),f.x),f.y), f.z); }
+      ${DISSOLVE_GLSL}
       void main() {
-        // Same edge as the shell's dissolve, so each point leaves exactly where the shell disappears.
-        float d = (position.y + 1.15) / 2.3 * 0.82 + vnoise(position * 5.0) * 0.18;
-        float life = clamp((d - uReveal) / 0.55, 0.0, 1.0);
+        // The shell's own dissolve edge, so each point leaves exactly where the shell disappears.
+        float life = clamp((dissolveEdge(position) - uReveal) / 0.55, 0.0, 1.0);
         float e = 1.0 - (1.0 - life) * (1.0 - life); // fast release, slowing down
         vec3 drift = normal * (0.5 + aSeed.x) + vec3(sin(aSeed.y * 6.283) * 0.6, 2.2 + aSeed.y * 1.6, cos(aSeed.y * 6.283) * 0.6);
         vec3 p = position + drift * e * 1.6;
         vec4 mv = modelViewMatrix * vec4(p, 1.0);
         gl_Position = projectionMatrix * mv;
         gl_PointSize = uSize * (1.0 + aSeed.x) * (1.0 - 0.5 * life) / -mv.z;
-        vCol = color + vec3(1.0, 0.14, 0.22) * (1.0 - life) * 0.6; // hot as they leave
+        vCol = color + ${vec3(PALETTE.ac)} * (1.0 - life) * 0.6; // hot as they leave
         // Fade in over the first stretch: freshly released sparks pile up on the edge, and at
         // full strength their additive glow would paint it pink.
         vAlpha = smoothstep(0.0, 0.18, life) * (1.0 - life);

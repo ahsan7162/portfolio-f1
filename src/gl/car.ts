@@ -1,11 +1,12 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import { PALETTE } from '@/art/palette';
 
 // A low-poly F1 car built from boxes and cylinders (no model download): red body
 // with black wings, floor and halo in one vertex-coloured mesh, four wheels in a
 // second, and the blinking rain light. Local axes: +x forward, +y up, +z right.
 // It is scaled up beyond the track's real proportions so it reads from the aerial camera.
-const RED = new THREE.Color('#ff2438'), BLACK = new THREE.Color('#121214'), WHITE = new THREE.Color('#f4f4ed');
+const RED = new THREE.Color(PALETTE.ac), BLACK = new THREE.Color('#121214'), WHITE = new THREE.Color(PALETTE.fg);
 
 function part(geo: THREE.BufferGeometry, color: THREE.Color, x: number, y: number, z = 0) {
   geo.translate(x, y, z);
@@ -45,7 +46,7 @@ export function buildCar() {
   const bodyMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.35, metalness: 0.2, fog: false });
   const wheelMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.9, fog: false });
   const lightGeo = new THREE.BoxGeometry(0.02, 0.03, 0.05);
-  const lightMat = new THREE.MeshBasicMaterial({ color: '#ff2438', fog: false, toneMapped: false });
+  const lightMat = new THREE.MeshBasicMaterial({ color: PALETTE.ac, fog: false, toneMapped: false });
 
   const group = new THREE.Group();
   const light = new THREE.Mesh(lightGeo, lightMat);
@@ -53,7 +54,7 @@ export function buildCar() {
   group.add(new THREE.Mesh(body, bodyMat), new THREE.Mesh(wheels, wheelMat), light);
   group.scale.setScalar(1.25);
 
-  const on = new THREE.Color('#ff2438').multiplyScalar(2.2), off = new THREE.Color('#3a070c');
+  const on = RED.clone().multiplyScalar(2.2), off = new THREE.Color('#3a070c');
   return {
     group,
     /** Rain light: blinks while the lap is moving, holds steady when it stops. */
