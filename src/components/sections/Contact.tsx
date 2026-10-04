@@ -47,7 +47,8 @@ export function Contact() {
     } });
     onRevert(() => { line.hidden = true; clock.textContent = ''; });
     gridSlot(q('[data-ctitle]'), { start: 'top 98%', end: 'top 55%' });
-    clipReveal(q('[data-finish]'), { trigger: q('[data-finish]')!, from: 'inset(0% 100% 0% 0%)' });
+    // 'top bottom': the strip sits in the last screen, so 85% may never be reached.
+    clipReveal(q('[data-finish]'), { scrollTrigger: inView(q('[data-finish]')!, { start: 'top bottom' }), from: 'inset(0% 100% 0% 0%)' });
     batchReveal(qa('[data-clink]'), { y: 16, stagger: 0.05 });
     qa('[data-clink]').forEach(w => onRevert(magnet(w, w.firstElementChild as HTMLElement, 0.3)));
   });
