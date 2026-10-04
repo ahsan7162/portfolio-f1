@@ -36,6 +36,10 @@ npm run preview    # http://localhost:4174
   an arc to each place worked with (`src/components/WorldMap.tsx`). Durations and eases come
   from `src/motion/tokens.ts`; CSS hover transitions share them through `--dur-hit`,
   `--dur-split` and `--dur-wipe`.
+- **Shared pieces:** colours for SVG, canvas and WebGL come from `src/art/palette.ts` (the same
+  values as the CSS variables in `src/index.css`); GLSL used by more than one shader (noise, the
+  contour isolines, the helmet's dissolve edge) is in `src/gl/glsl.ts`; small helpers (focus trap,
+  lap-time format, idle callback) are in `src/lib/`. Both dialogs are one `DialogFrame`.
 - **SEO:** the page is prerendered to static HTML (`scripts/prerender.ts`) and hydrated.
   Headings and copy use plain developer terms; F1 details are decorative and `aria-hidden`.
 - **Social card and touch icon:** HyperFrames stills in `motion-lab/` (the site's own type,
@@ -48,7 +52,8 @@ npm run preview    # http://localhost:4174
 
 ## Content and TODOs
 
-- All copy lives in `src/content/data.ts`.
+- All copy lives in `src/content/data.ts`, including `SECTIONS`, the one list of page sections that
+  the menu, the track map and the scroll rail read.
 - Project screenshots: add files to `src/assets/projects/` and set `image` on each project.
 - Set `SITE_URL` in `src/content/data.ts` (or pass it to the build): the prerender then writes
   canonical, `og:url` and `og:image`. A sitemap is still to do.
