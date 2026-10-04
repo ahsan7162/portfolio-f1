@@ -82,21 +82,14 @@ export const jobs: Job[] = [
     { stat: '4×', title: 'A 2-minute operation in 30 seconds', text: 'Azure SQL Server indexing, pagination and on-demand loading, plus high-impact bug fixes across the .NET Core and React application.' },
   ] },
   { id: 'astera', company: 'Astera', role: 'Associate to Software Engineer II', dates: 'June 2022 to December 2024', years: '2022 to 2024', loc: 'Karachi, Pakistan', place: 'Karachi',
-    summary: 'ASE → SE I → SE II. Multi-LLM API server, enterprise catalog, ETL marketplace.',
-    result: '3 promotions, multi-LLM API server', highlights: [
-    { stat: '3 in 30', title: 'Three promotions in thirty months', text: 'Associate Software Engineer to Software Engineer I to Software Engineer II, ending on AI infrastructure for the flagship product.' },
+    summary: 'Python, .NET and React. Multi-LLM API server, enterprise catalog, ETL marketplace.',
+    result: 'Multi-LLM API server, 4 providers', highlights: [
     { stat: '4 LLMs', title: 'Multi-provider LLM server', text: 'Python FastAPI server integrating OpenAI, Anthropic, Llama and HuggingFace: streaming responses, image I/O, Pydantic-structured requests, Jinja2 prompt generation, LangChain and LangGraph agents, and an optimized RAG pipeline.' },
     { stat: '80%', title: 'Faster resource sharing', text: 'Enterprise catalog system on .NET 6 with role-based access control and secure resource sharing, integrated with a React data-governance application.' },
     { stat: '30%', title: 'Less troubleshooting time', text: 'Azure Monitor and Application Insights telemetry: real-time dashboards, anomaly alerts and server-request analysis.' },
     { stat: 'ETL', title: 'Workflow marketplace', text: 'Scalable ETL workflow marketplace on .NET 8 and React with JWT and OAuth. Also a WinForms to WPF modernization and product localization.' },
   ] },
 ];
-
-/** The red tile in the work grid. */
-export const promotions = {
-  value: 3,
-  text: 'promotions in thirty months at Astera, from associate to SE II, ending on AI infrastructure for the flagship product.',
-};
 
 export const projects: Project[] = [
   { id: 'agents', company: 'AI agent platform', title: 'AI agent platform', role: 'Go, Python, React, Slack API', dates: '2025 to present', loc: 'Careem, in production',
@@ -177,6 +170,12 @@ export const skills = {
   tooling: ['GitHub', 'Jira', 'Vite', 'Matplotlib', 'Scrapy', 'BeautifulSoup'],
 };
 
+/** The red tile in the work grid. */
+export const languages = {
+  value: skills.core.length,
+  text: 'languages in production: Go, Python, C# and JavaScript, from React front ends to back ends and AI.',
+};
+
 export const education = {
   degree: 'BS Computer Science',
   school: 'FAST-NUCES',
@@ -189,7 +188,7 @@ export const education = {
 /** One lap through the career: each sector of the 3D lap is one stage. */
 export const timeline = [
   { sector: 'S1', job: 'astera', years: '2022 to 2024', company: 'Astera', role: 'Associate to Software Engineer II',
-    stat: '3 in 30', statLabel: 'promotions in 30 months',
+    stat: '4 LLMs', statLabel: 'providers behind one API',
     text: 'Built a multi-LLM FastAPI server, an enterprise catalog on .NET 6 and an ETL workflow marketplace.' },
   { sector: 'S2', job: 'xtel', years: '2025', company: 'Xtel', role: 'Senior Software Engineer',
     stat: '8×', statLabel: 'faster document loads',

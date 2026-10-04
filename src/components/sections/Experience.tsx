@@ -1,4 +1,4 @@
-import { jobs, promotions, timeline, type Job } from '@/content/data';
+import { jobs, languages, timeline, type Job } from '@/content/data';
 import { CrawlableDetails } from '@/components/CrawlableDetails';
 import { originOf, useDialogs } from '@/components/dialog-context';
 import { gsap } from '@/motion/gsap';
@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 
 // Bento layout by position, on a 6-column grid, so a new job only needs data.
 // Phones stack every tile; the newest job leads (full width on tablets), the next
-// sits beside it on desktop, the rest fill in pairs, and the promotions tile is last.
+// sits beside it on desktop, the rest fill in pairs, and the languages tile is last.
 const layout = (i: number): { col: string; lead?: boolean } =>
   i === 0 ? { col: 'md:col-span-6 lg:col-span-4', lead: true }
     : i === 1 ? { col: 'md:col-span-3 lg:col-span-2' }
@@ -18,7 +18,7 @@ const layout = (i: number): { col: string; lead?: boolean } =>
 const span = (j: Job) => `${j.years} / ${j.place}`;
 const sector = (j: Job) => timeline.find(t => t.job === j.id)?.sector;
 
-/** Work history as a bento grid: one block per company (sectors from the lap), plus the promotions tile. */
+/** Work history as a bento grid: one block per company (sectors from the lap), plus the languages tile. */
 export function Experience() {
   const { openDetails } = useDialogs();
   const grid = useBentoPointer<HTMLDivElement>();
@@ -43,7 +43,7 @@ export function Experience() {
         scrollTrigger: { trigger: t, start: 'top 98%', end: 'top 70%', scrub: 0.6 },
       }));
     }
-    onRevert(digitRoll(q('[data-promo]'), { scrollTrigger: inView(q('[data-promo]')!) }));
+    onRevert(digitRoll(q('[data-langs]'), { scrollTrigger: inView(q('[data-langs]')!) }));
   });
 
   return (
@@ -77,8 +77,8 @@ export function Experience() {
             );
           })}
           <div data-tile data-tilt className="tile flex flex-col justify-center gap-6 overflow-hidden !bg-ac p-6 text-carbon before:!bg-carbon md:col-span-6 md:min-h-[300px] lg:col-span-3 md:p-9">
-            <div data-promo className="display text-[clamp(4.5rem,8vw,8.5rem)] !leading-[0.82]">{promotions.value}</div>
-            <p className="max-w-[34ch] font-medium leading-relaxed md:text-lg">{promotions.text}</p>
+            <div data-langs className="display text-[clamp(4.5rem,8vw,8.5rem)] !leading-[0.82]">{languages.value}</div>
+            <p className="max-w-[34ch] font-medium leading-relaxed md:text-lg">{languages.text}</p>
             <div aria-hidden="true" className="checker absolute inset-x-0 bottom-0 opacity-40" />
           </div>
         </div>
