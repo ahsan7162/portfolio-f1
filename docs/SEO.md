@@ -34,15 +34,17 @@ Fix options, best first:
 
 ## 2. Must-do at launch (needs the domain)
 
-1. **Set `SITE_URL`** in `src/content/data.ts`, then add:
-   - `<link rel="canonical">`
-   - `og:url` and an **OG image** (1200×630: name, title and helmet). LinkedIn and Slack previews use it.
-   - `twitter:card` = `summary_large_image`
+1. **Set `SITE_URL`** in `src/content/data.ts` (or `SITE_URL=https://… npm run build`).
+   > **Status: wired.** `scripts/prerender.ts` then writes `<link rel="canonical">`, `og:url`,
+   > `og:image` (+ width, height, alt) and `twitter:image`; until it is set the build warns and
+   > writes none of them. The **OG image** is `public/og.jpg` (1200×630: name, title, skills,
+   > 450+ and the helmet), made with HyperFrames in `motion-lab/`. `twitter:card` is
+   > `summary_large_image`.
 2. **`public/sitemap.xml`**: list the home page (plus project and job pages if 1a is done). Reference it from `robots.txt`.
 3. **Google Search Console:**
    - Verify the domain, submit the sitemap, and watch indexing and search terms.
    - Also add Bing Webmaster Tools (import from Search Console).
-4. **Icons:** `apple-touch-icon`, a 32px PNG favicon and `site.webmanifest`. Currently there is only `favicon.svg`.
+4. **Icons:** `apple-touch-icon` done (`public/apple-touch-icon.png`, from `motion-lab/touch-icon`). Still to do: a 32px PNG favicon and `site.webmanifest`.
 
 ## 3. Content: match what recruiters search
 
@@ -69,9 +71,9 @@ Matching profiles help Google treat them as one person and help you own searches
 - **Already good:**
   - The `h1` never waits on WebGL, so first render (LCP) isn't held up.
   - Layout shift is minimal.
-- **Watch:** startup JS is about 168KB gzip plus 63KB of motion-core (GSAP and Lenis). This can hurt responsiveness (INP) on mid-range phones.
+- **Watch:** startup JS is about 124KB gzip plus 72KB of motion-core (GSAP and Lenis); three.js loads later, in idle time. This can still hurt responsiveness (INP) on mid-range phones.
 - **Fixes:**
-  - Replace the Motion-based Magic UI pieces with GSAP or CSS, so the `motion` library can be dropped.
+  - ~~Drop the `motion` library~~ done: every animation is GSAP.
   - Subset the fonts (Latin only, used weight and width ranges).
 - **Check:** after deploy, run Lighthouse and PageSpeed Insights on the live URL. Target 90+ on mobile.
 

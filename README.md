@@ -30,10 +30,17 @@ npm run preview    # http://localhost:4174
   `digitRoll`, scrambled labels `ScrambleTextPlugin` (`src/components/Scramble.tsx`), project
   cards play a short SVG scene of the product in use (`src/components/ProjectVisuals.tsx`: the
   markup is the last frame; it loops only while on screen, once on touch), and the logo marquee moves
-  only with scroll velocity. Durations and eases come from `src/motion/tokens.ts`; CSS hover
-  transitions share them through `--dur-hit`, `--dur-split` and `--dur-wipe`.
+  only with scroll velocity. In the details dialogs each row lands as it scrolls into view: its
+  stat rolls and, where the highlight has a before/after `delta` in `data.ts`, two bars race at
+  the same speed (`src/components/Dialogs.tsx`). The Contact map grows out of Karachi and draws
+  an arc to each place worked with (`src/components/WorldMap.tsx`). Durations and eases come
+  from `src/motion/tokens.ts`; CSS hover transitions share them through `--dur-hit`,
+  `--dur-split` and `--dur-wipe`.
 - **SEO:** the page is prerendered to static HTML (`scripts/prerender.ts`) and hydrated.
   Headings and copy use plain developer terms; F1 details are decorative and `aria-hidden`.
+- **Social card and touch icon:** HyperFrames stills in `motion-lab/` (the site's own type,
+  contours and helmet); `node motion-lab/build.mjs` rebuilds `public/og.jpg` and
+  `public/apple-touch-icon.png`. No video is used on the site.
 
 ## Debug flags
 
@@ -43,4 +50,5 @@ npm run preview    # http://localhost:4174
 
 - All copy lives in `src/content/data.ts`.
 - Project screenshots: add files to `src/assets/projects/` and set `image` on each project.
-- Set `SITE_URL` in `src/content/data.ts`, then add canonical, `og:url`, `og:image` and a sitemap.
+- Set `SITE_URL` in `src/content/data.ts` (or pass it to the build): the prerender then writes
+  canonical, `og:url` and `og:image`. A sitemap is still to do.

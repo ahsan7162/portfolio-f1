@@ -1,5 +1,38 @@
 # Motion graphics pass: the road book journey, plus dialogs, map, nav and social stills
 
+## Implementation status (4 Oct 2026)
+
+Built on branch `motion-graphics`, one commit per step. Everything below the status table is the
+plan as approved.
+
+| Step | Status | Changes from the plan |
+|---|---|---|
+| 0. Shared fixes | Done | `digitRoll` keeps the original text on the element (`data-roll-text`), so a re-run never rolls the strips; each digit window is as wide as its own final digit (a narrow "1" left a gap in "~150×") |
+| 1. Content | Done | — |
+| 2. Road book trail | **Built, then reverted on your review** ("doesn't look great") | Nothing of it is left: the contour field keeps its own red line, no trail component or data |
+| 3. Dialog stats | Done | Bars and row motion live in `Dialogs.tsx` (no separate `StatGraphic.tsx` / `statMotion.ts`); the agents bar uses the low end of "2 to 3 days" and labels it "2 to 3 days" |
+| 4. Archive rows | Done | `revealWithin` also releases rows a jump or fling skipped, so none stays hidden above you |
+| 5. Contact map | Done | Added: the finish strip never showed (its reveal started at 85% of the screen, which the last screen can't reach at 1440×900 or 375×812); it now starts as it enters |
+| 6. Nav entrance | Done | Animates the wordmark and the buttons' wrapper (the `.btn` CSS transitions would fight GSAP) |
+| 7. Stills | Done | Card text kept clear of the helmet (HyperFrames `check` flagged the overlap); the card has no trail since step 2 was reverted |
+
+**Measured** (headless Chrome, dev server, scripted full-page scroll, `main` vs this branch):
+
+| | `main` | Branch |
+|---|---|---|
+| Main JS gzip | 122.5 KB | 123.6 KB |
+| WorldMap chunk gzip (lazy) | 4.2 KB | 5.0 KB |
+| CSS gzip | 13.9 KB | 13.8 KB |
+| Prerender | 116.1 KB | 115.9 KB |
+| ScrollTriggers at load (desktop / phone) | 96 / 85 | 96 / 85 (+1 once the map loads) |
+| Scroll p99, CPU 1× and 4×, 1440×900 and 375×812 | 16.8 ms | 16.8 ms |
+| Dialog open, CPU 4×, worst frame over 5 opens | 33.4 ms, one 233 ms outlier | 33.3 ms on the first opens, then 16.8 ms |
+| Dialog open/close ×10 | — | trigger count unchanged, no leftover dialog |
+
+Single frames over 20 ms showed up in different runs on both branches (noise in the headless runs).
+Still for you: a real iPhone and Android pass (dialog reveals while momentum scrolling, the
+map clip in Safari) and the OS "Reduce motion" setting on a device.
+
 ## Context
 
 The site is already heavily animated. Three earlier plans (GSAP enhancements, scroll wow, three.js) shipped
