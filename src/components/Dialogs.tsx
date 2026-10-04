@@ -149,14 +149,16 @@ export function ArchiveDialog({ origin, onClose, onOpenItem, dref }: {
           {archive.map(a => (
             <li key={a.name} data-din className="border-b border-line">
               <button type="button" onClick={e => onOpenItem(archiveBreakdown(a), { x: e.clientX || innerWidth / 2, y: e.clientY || innerHeight / 2 })}
-                className="group grid w-full grid-cols-[4rem_1fr] gap-4 py-5 text-left transition-colors hover:bg-fg/[0.03] md:grid-cols-[5rem_1.3fr_1fr_auto] md:items-center">
+                className="group relative grid w-full grid-cols-[4rem_1fr] gap-4 py-5 text-left transition-colors hover:bg-fg/[0.03] md:grid-cols-[5rem_1.3fr_1fr_auto] md:items-center">
+                {/* Sector line: draws in from the left on hover, leaves to the right, quicker. */}
+                <span aria-hidden="true" className="absolute inset-x-0 -bottom-px h-px origin-right scale-x-0 bg-ac transition-transform duration-(--dur-split) ease-out-expo group-hover:origin-left group-hover:scale-x-100 group-hover:duration-(--dur-wipe) group-focus-visible:origin-left group-focus-visible:scale-x-100" />
                 <span className="font-mono text-sm text-mute group-hover:text-ac">{a.year}</span>
                 <span>
                   <span className="block text-lg font-semibold [font-stretch:110%]">{a.name}</span>
                   <span className="block font-mono text-xs text-mute">{a.stack}</span>
                 </span>
                 <span className="col-start-2 text-mute md:col-start-auto">{a.note}</span>
-                <span className="col-start-2 font-mono text-xs uppercase tracking-[0.12em] text-ac md:col-start-auto">Details →</span>
+                <span className="col-start-2 font-mono text-xs uppercase tracking-[0.12em] text-ac md:col-start-auto">Details <span aria-hidden="true" className="inline-block transition-transform duration-(--dur-split) ease-out-expo group-hover:translate-x-1.5">→</span></span>
               </button>
             </li>
           ))}

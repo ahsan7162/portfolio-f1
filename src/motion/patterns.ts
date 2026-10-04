@@ -168,15 +168,18 @@ export function digitRoll(el: HTMLElement | null, opts: { delay?: number; timeli
  * One-off reveals inside a scroll container (the dialogs). Not ScrollTrigger: it
  * keeps every scroller it has ever seen (each closed dialog would stay in memory)
  * and updates every page trigger on the container's scroll. `onEnter` gets each
- * batch that came into view, in page order; the top margin clears the sticky
- * dialog header. Returns a stop.
+ * batch that came into view, in page order, plus any target above it that a jump
+ * or a fling skipped (so nothing stays hidden behind you); the top margin clears
+ * the sticky dialog header. Returns a stop.
  */
 export function revealWithin(root: HTMLElement, targets: Element[], onEnter: (batch: Element[]) => void, margin = '-64px 0px -8% 0px') {
+  const pending = [...targets];
   const io = new IntersectionObserver(entries => {
-    const batch = entries.filter(e => e.isIntersecting).map(e => e.target);
-    if (!batch.length) return;
+    const seen = entries.filter(e => e.isIntersecting).map(e => pending.indexOf(e.target)).filter(i => i >= 0);
+    if (!seen.length) return;
+    const batch = pending.splice(0, Math.max(...seen) + 1);
     batch.forEach(t => io.unobserve(t));
-    onEnter(batch.sort((a, b) => (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1)));
+    onEnter(batch);
   }, { root, rootMargin: margin });
   targets.forEach(t => io.observe(t));
   return () => io.disconnect();
