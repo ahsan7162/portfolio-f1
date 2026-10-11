@@ -1,4 +1,5 @@
 import { jobs, languages, timeline, type Job } from '@/content/data';
+import { Arrow } from '@/components/Arrow';
 import { CrawlableDetails } from '@/components/CrawlableDetails';
 import { originOf, useDialogs } from '@/components/dialog-context';
 import { gsap } from '@/motion/gsap';
@@ -49,7 +50,7 @@ export function Experience() {
   return (
     <section ref={ref} id="experience" tabIndex={-1} data-bg="#0b0b0c,#0d1013" className="relative px-4 py-24 md:px-8 md:py-32">
       <div className="mx-auto max-w-[1400px]">
-        <h2 data-speed className="display mb-14 text-[clamp(2.6rem,8vw,7.5rem)]">Work experience</h2>
+        <h2 data-speed className="display mb-14 text-display-section">Work experience</h2>
         <div ref={grid} className="bento">
           {jobs.map((j, i) => {
             const { col, lead } = layout(i);
@@ -62,14 +63,14 @@ export function Experience() {
                   <span className="font-mono text-xs font-semibold text-ac">{sector(j)}</span>
                 </div>
                 <div>
-                  <h3 className={cn('display', lead ? 'text-[clamp(2.75rem,6.4vw,6.5rem)]' : 'text-[clamp(2.25rem,4vw,4.25rem)]')}>{j.company}</h3>
+                  <h3 className={cn('display', lead ? 'text-display-lead' : 'text-display-stat')}>{j.company}</h3>
                   <p className={cn('mt-5 leading-relaxed text-mute', lead ? 'max-w-[52ch] md:text-lg' : 'max-w-[40ch]')}>{j.summary}</p>
                   <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-5">
-                    <span className="font-mono text-sm font-semibold text-ac">{j.result}</span>
+                    <span className="font-mono text-[0.9375rem] font-semibold text-ac">{j.result}</span>
                     {/* The button's ::after covers the block, so the whole tile opens the breakdown. */}
                     <button type="button" data-cursor="open" onClick={e => openDetails(j, originOf(e))} aria-label={`${j.company} breakdown`}
                       className="btn btn-ghost outline-none after:absolute after:inset-0 after:content-[''] [.tile:hover_&]:border-ac [.tile:hover_&]:text-ac">
-                      Breakdown <span aria-hidden="true">→</span>
+                      Breakdown <Arrow />
                     </button>
                   </div>
                 </div>
@@ -77,7 +78,7 @@ export function Experience() {
             );
           })}
           <div data-tile data-tilt className="tile flex flex-col justify-center gap-6 overflow-hidden !bg-ac p-6 text-carbon before:!bg-carbon md:col-span-6 md:min-h-[300px] lg:col-span-3 md:p-9">
-            <div data-langs className="display text-[clamp(4.5rem,8vw,8.5rem)] !leading-[0.82]">{languages.value}</div>
+            <div data-langs className="display text-display-lead !leading-[0.82]">{languages.value}</div>
             <p className="max-w-[34ch] font-medium leading-relaxed md:text-lg">{languages.text}</p>
             <div aria-hidden="true" className="checker absolute inset-x-0 bottom-0 opacity-40" />
           </div>

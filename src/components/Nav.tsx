@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { Arrow } from '@/components/Arrow';
 import { CvLink } from '@/components/CvLink';
 import { Scramble } from '@/components/Scramble';
 import { originOf, useDialogs } from '@/components/dialog-context';
@@ -148,7 +149,7 @@ export function Nav() {
                             <span className={rowText}>{m.menu}</span>
                             <span className="ml-4 self-center rounded-full bg-ac px-2.5 py-0.5 font-mono text-xs text-carbon">{projects.length + archive.length}</span>
                             {dot}
-                            <span aria-hidden="true" className="ml-auto self-center font-mono text-sm text-mute transition-colors group-hover:text-ac">See all →</span>
+                            <span aria-hidden="true" className="ml-auto self-center font-mono text-sm text-mute transition-colors group-hover:text-ac">See all <Arrow /></span>
                           </button>
                         ) : (
                           <a href={`#${m.id}`} onClick={go} aria-current={current === m.id ? 'location' : undefined}
@@ -174,7 +175,7 @@ export function Nav() {
                             <button type="button" tabIndex={expOpen ? 0 : -1}
                               onClick={e => { const o = originOf(e); hide(false); openDetails(j, o); }}
                               className="group flex w-full items-baseline gap-4 py-3 pl-8 text-left md:pl-12">
-                              <span className="text-xl font-semibold tracking-tight [font-stretch:115%] transition-colors group-hover:text-ac md:text-2xl">{j.company}</span>
+                              <span className="text-xl font-semibold tracking-tight font-stretch-semi-expanded transition-colors group-hover:text-ac md:text-2xl">{j.company}</span>
                               <span className="text-sm text-mute">{j.role}</span>
                               <span className="ml-auto font-mono text-xs uppercase tracking-[0.12em] text-mute">{j.years}</span>
                             </button>
@@ -202,7 +203,7 @@ export function Nav() {
       </div>
 
       <nav aria-label="Primary" className="relative mx-auto flex h-16 max-w-[1400px] items-center justify-between gap-6 px-4 md:px-8">
-        <a href="#top" onClick={go} className="inline-flex min-h-11 items-center font-sans text-sm font-extrabold uppercase tracking-tight [font-stretch:125%]" aria-label="Muhammad Ahsan, back to top">
+        <a href="#top" onClick={go} className="display inline-flex min-h-11 items-center text-sm" aria-label="Muhammad Ahsan, back to top">
           <Scramble text="AHSAN" on="hover" />
           <span className="sr-only">Muhammad Ahsan</span>
         </a>
@@ -211,7 +212,7 @@ export function Nav() {
           <button ref={btn} type="button" onClick={() => (open ? hide() : show())}
             aria-expanded={open} aria-controls="site-menu"
             className="btn btn-ghost group min-h-11 !gap-3 !px-4 !py-2">
-            <span className="font-mono text-[11px] uppercase tracking-[0.14em]">{open ? 'Close' : 'Menu'}</span>
+            <span className="font-mono uppercase tracking-[0.14em]">{open ? 'Close' : 'Menu'}</span>
             <span aria-hidden="true" className="relative block h-2.5 w-5">
               <span className={cn('absolute left-0 top-0 h-[2px] w-full transition-transform duration-(--dur-hit) ease-out-expo', open ? 'translate-y-[4px] rotate-45 bg-ac' : 'bg-current')} />
               <span className={cn('absolute bottom-0 left-0 h-[2px] w-full transition-transform duration-(--dur-hit) ease-out-expo', open ? '-translate-y-[4px] -rotate-45 bg-ac' : 'bg-current')} />

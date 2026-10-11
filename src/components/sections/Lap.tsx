@@ -1,5 +1,6 @@
 import { CIRCUIT_PATH, CIRCUIT_VIEWBOX } from '@/art/circuit';
 import { jobs, timeline } from '@/content/data';
+import { Arrow } from '@/components/Arrow';
 import { originOf, useDialogs } from '@/components/dialog-context';
 import { lapState } from '@/gl/state';
 import { lapTime } from '@/lib/format';
@@ -138,7 +139,7 @@ export function Lap() {
         <div className="lap-inner mx-auto flex w-full max-w-[1400px] flex-col">
           <div data-laphead className="lap-head">
             <h2 className="label">Career timeline</h2>
-            <p className="display mt-3 text-[clamp(1.8rem,4vw,3.4rem)]">One lap, three teams.</p>
+            <p className="display mt-3 text-display-lead">One lap, three teams.</p>
           </div>
 
           <ol className="lap-stages mt-10 grid gap-10">
@@ -147,17 +148,17 @@ export function Lap() {
                 <div className="flex items-center justify-between font-mono text-xs uppercase tracking-[0.14em] text-mute">
                   <span className="text-ac">{t.sector}</span><span>{t.years}</span>
                 </div>
-                <h3 className="display mt-4 text-4xl md:text-7xl">{t.company}</h3>
+                <h3 className="display mt-4 text-display-stat">{t.company}</h3>
                 <p className="mt-2 text-mute">{t.role}</p>
                 <div className="mt-5 flex items-end gap-4 overflow-hidden border-t border-line pt-5 md:mt-6 md:pt-6">
-                  <span data-stat className="display inline-block whitespace-nowrap text-4xl text-ac md:text-6xl">{t.stat}</span>
+                  <span data-stat className="display inline-block whitespace-nowrap text-display-stat text-ac">{t.stat}</span>
                   <span data-stat className="inline-block pb-2 font-mono text-xs uppercase tracking-[0.12em] text-mute">{t.statLabel}</span>
                 </div>
                 <p className="mt-4 leading-relaxed md:mt-5">{t.text}</p>
                 <button type="button" data-cursor="open" aria-label={`${t.company} details`}
                   onClick={e => { const j = jobs.find(x => x.id === t.job); if (j) openDetails(j, originOf(e)); }}
                   className="btn btn-primary mt-5 md:mt-6">
-                  Details <span aria-hidden="true">→</span>
+                  Details <Arrow />
                 </button>
               </li>
             ))}

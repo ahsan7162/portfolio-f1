@@ -1,6 +1,33 @@
 @import "tailwindcss";
 @import "lenis/dist/lenis.css";
 
+/* Self-hosted fonts, trimmed by scripts/fonts.py to the weights and widths used here. */
+@font-face {
+  font-family: "Mona Sans Variable";
+  src: url("./assets/fonts/mona-sans.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400 900;
+  font-stretch: 100% 125%;
+  font-display: swap;
+}
+/* The file is expanded only (125%); the wider range makes any italic request,
+   such as the helmet livery's canvas text, use it instead of a slanted upright. */
+@font-face {
+  font-family: "Mona Sans Variable";
+  src: url("./assets/fonts/mona-sans-italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 700 800;
+  font-stretch: 100% 125%;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Monaspace Krypton";
+  src: url("./assets/fonts/monaspace-krypton.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+}
+
 /* The palette is mirrored in src/art/palette.ts for SVG, canvas and WebGL: change both together. */
 :root {
   color-scheme: dark;
@@ -24,7 +51,19 @@
   --color-ac: var(--ac);
 
   --font-sans: "Mona Sans Variable", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
+  --font-mono: "Monaspace Krypton", ui-monospace, monospace;
+
+  /* Display sizes for .display type, largest first. Each role stays below the one
+     above it at every width, so a section heading always outranks what it holds:
+     375 px wide 47/44/36/32/28/20, 1440 px wide 151/115/79/63/37/29. Below 375 px
+     the minimums shrink with the screen, so the name and the longest words
+     ("experience", "modernization") still fit a 320 px phone. */
+  --text-display-hero: clamp(min(3rem, 12.6vw), 10.5vw, 9.5rem);
+  --text-display-section: clamp(min(2.75rem, 11.7vw), 8vw, 7.5rem);
+  --text-display-lead: clamp(min(2.25rem, 9.6vw), 5.5vw, 5.5rem);
+  --text-display-stat: clamp(min(2rem, 8.5vw), 4.4vw, 4rem);
+  --text-display-card: clamp(min(1.75rem, 7.5vw), 2.6vw, 2.5rem);
+  --text-display-small: clamp(1.25rem, 2vw, 2rem);
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 
@@ -39,6 +78,8 @@
     background: var(--carbon);
     color: var(--fg);
     font-family: var(--font-sans);
+    /* A touch above 400: light text on carbon renders thinner than dark on white. */
+    font-weight: 450;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
@@ -62,23 +103,26 @@
 }
 
 @layer components {
-  /* Expanded all-caps display type, the F1-poster voice. */
+  /* Expanded all-caps display type, the F1-poster voice. Three widths in all:
+     expanded (125%) here, semi-expanded (112.5%) for small headings, normal for text.
+     The tracking follows the size: about 0 at 16 px, -0.02em at 32 px and
+     -0.035em from 90 px, so small caps don't crowd and big ones stay tight. */
   .display {
     font-family: var(--font-sans);
-    font-stretch: 125%;
+    font-stretch: expanded;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: -0.035em;
+    letter-spacing: calc(0.7px - 0.043em);
     line-height: 0.88;
   }
   .display-em {
     font-style: italic;
-    font-stretch: 125%;
+    font-stretch: expanded;
     color: var(--ac);
   }
   .label {
     font-family: var(--font-mono);
-    font-size: 11px;
+    font-size: 0.75rem;
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--mute);
@@ -97,7 +141,7 @@
     border-radius: 999px;
     padding: 0.7rem 1.25rem;
     font-family: var(--font-mono);
-    font-size: 12px;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -232,7 +276,7 @@ html.gl-on .contour-fallback { opacity: 0; transition: opacity 1s; }
     border-radius: 999px;
     padding: 0.25rem 0.75rem;
     font-family: var(--font-mono);
-    font-size: 12px;
+    font-size: 0.75rem;
     transition: border-color 0.3s, color 0.3s;
   }
   .tile:hover .pill { border-color: rgb(244 244 237 / 0.25); }
@@ -310,6 +354,11 @@ html.intro .rail { opacity: 0; pointer-events: none; }
   .proj-stack [data-card] { top: calc(var(--navh) + 1.5rem + var(--i) * 20px); }
   .proj-stack [data-cardvis] { height: clamp(200px, 36vh, 420px); }
 }
+
+/* Project scenes (ProjectVisuals.tsx): inset to 76% on the card's dot grid, 90% on phones,
+   where 76% shrinks their UI text below 5 px. SVG transforms here are in viewBox units. */
+.proj-scene { transform: translate(38.4px, 24px) scale(0.76); }
+@media (max-width: 639px) { .proj-scene { transform: translate(16px, 10px) scale(0.9); } }
 
 /* Custom cursor (Cursor.tsx): desktop, fine pointer and motion only. The native
    cursor is hidden only once the script adds html.has-cursor; dialog text keeps

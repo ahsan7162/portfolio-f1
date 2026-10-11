@@ -62,13 +62,13 @@ export function Results() {
         style={{ WebkitTextStroke: '1px rgb(244 244 237 / 0.07)' }}>P3</div>
 
       <div className="mx-auto max-w-[1400px]">
-        <h2 data-speed className="display mb-14 max-w-[14ch] text-[clamp(2.4rem,7vw,6.5rem)]">Results and education</h2>
+        <h2 data-speed className="display mb-14 max-w-[14ch] text-display-section">Results and education</h2>
 
         {/* One row: education, the award, then the numbers. The helmet perches on the P3 step. */}
         <div data-row className="grid gap-x-10 gap-y-12 sm:grid-cols-2 xl:grid-cols-4">
           <div id="education" tabIndex={-1} className="border-t border-line pt-5">
             <p className="label mb-3">{education.years}</p>
-            <h3 className="text-xl font-semibold [font-stretch:110%]">{education.degree}</h3>
+            <h3 className="text-xl font-semibold font-stretch-semi-expanded">{education.degree}</h3>
             <p data-edutxt className="mt-3 text-sm leading-relaxed text-mute">
               {education.school}. {education.gpa}. {education.deansList}.
             </p>
@@ -76,12 +76,12 @@ export function Results() {
 
           <div className="border-t border-line pt-5">
             <p className="label mb-3">{award.year}</p>
-            <h3 className="text-xl font-semibold [font-stretch:110%]">3rd place, {award.name}</h3>
+            <h3 className="text-xl font-semibold font-stretch-semi-expanded">3rd place, {award.name}</h3>
             <div aria-hidden="true" className="mt-10 flex items-end gap-1.5">
               {STEPS.map(s => (
                 <div key={s.p} data-step className={`relative flex w-12 items-start justify-center overflow-hidden pt-1 ${s.h} bg-fg/10 text-mute`}>
                   {s.p === 3 && <span data-p3fill data-p3step className="absolute inset-0 bg-ac" />}
-                  <span data-p3num={s.p === 3 || undefined} className={`display relative text-lg ${s.p === 3 ? 'text-carbon' : ''}`}>{s.p}</span>
+                  <span data-p3num={s.p === 3 || undefined} className={`display relative text-lg font-bold ${s.p === 3 ? 'text-carbon' : ''}`}>{s.p}</span>
                 </div>
               ))}
             </div>
@@ -93,7 +93,7 @@ export function Results() {
           {stats.grid.map(s => (
             <dl key={s.label} className="border-t border-line pt-5">
               <dt className="label mb-3">{s.label}</dt>
-              <dd className="display whitespace-nowrap text-[clamp(2.75rem,4.6vw,4rem)]">
+              <dd className="display whitespace-nowrap text-display-stat">
                 {s.prefix}<span data-roll className="tracking-tight">{s.value}</span>{s.suffix}
               </dd>
             </dl>
@@ -103,17 +103,17 @@ export function Results() {
         <div className="mt-32 md:mt-72">
           <div data-bigwrap data-speed className="relative w-max">
             {/* The dim ghost the number fills (hidden under it when static). */}
-            <div data-bigghost aria-hidden="true" className="display pointer-events-none absolute inset-0 whitespace-nowrap text-[clamp(7rem,30vw,26rem)] !leading-[0.8] tracking-[-0.06em] text-fg/[0.07]">
+            <div data-bigghost aria-hidden="true" className="display pointer-events-none absolute inset-0 whitespace-nowrap text-[clamp(7rem,30vw,26rem)] font-black !leading-[0.8] tracking-[-0.06em] text-fg/[0.07]">
               {stats.headline.value}{stats.headline.suffix}
             </div>
             {/* Motion only: the red edge that leads the fill. */}
             <div data-bigedge aria-hidden="true" className="pointer-events-none invisible absolute -top-[6%] bottom-0 left-0 z-10 w-1.5 bg-ac" />
             <div data-bignum aria-label={`${stats.headline.value}${stats.headline.suffix}`}
-              className="display relative whitespace-nowrap text-[clamp(7rem,30vw,26rem)] !leading-[0.8] tracking-[-0.06em]">
+              className="display relative whitespace-nowrap text-[clamp(7rem,30vw,26rem)] font-black !leading-[0.8] tracking-[-0.06em]">
               {stats.headline.value}{stats.headline.suffix}
             </div>
           </div>
-          <p data-biglabel className="display mt-4 max-w-[18ch] text-[clamp(1.6rem,4vw,3.5rem)] text-mute">
+          <p data-biglabel className="mt-5 max-w-[26ch] text-xl font-medium tracking-tight font-stretch-semi-expanded text-mute md:text-3xl">
             {stats.headline.label}
           </p>
         </div>

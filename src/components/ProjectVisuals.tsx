@@ -104,7 +104,8 @@ function Scene({ build, children }: { build: (fx: Fx) => void; children: ReactNo
       finals.forEach((s, el) => setText(el, s));
     };
   }, [build]);
-  // The scene sits at 76% on a dot grid, so it reads as an illustration, apart from the card's own text.
+  // The scene sits at 76% on a dot grid, so it reads as an illustration, apart from the card's own
+  // text; phones draw it at 90% so its small UI text stays readable (see .proj-scene in index.css).
   return (
     <svg ref={ref} viewBox="0 0 320 200" className="h-full w-full" fill="none">
       <defs>
@@ -113,7 +114,7 @@ function Scene({ build, children }: { build: (fx: Fx) => void; children: ReactNo
         </pattern>
       </defs>
       <rect width="320" height="200" fill={`url(#dots-${id})`} />
-      <g transform="translate(38.4 24) scale(0.76)">{children}</g>
+      <g className="proj-scene">{children}</g>
     </svg>
   );
 }

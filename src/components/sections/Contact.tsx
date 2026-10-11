@@ -56,7 +56,7 @@ export function Contact() {
       <div className="mx-auto max-w-[1400px]">
         <h2 className="sr-only">Contact</h2>
         <div className="grid items-end gap-12 lg:grid-cols-[minmax(0,1.9fr)_minmax(0,1fr)]">
-          <p data-ctitle data-speed className="display text-[clamp(3rem,9vw,8.5rem)]">
+          <p data-ctitle data-speed className="display text-display-section">
             <a href={`mailto:${EMAIL}`} className="transition-colors duration-(--dur-hit) hover:text-ac">
               Let's build something <em className="display-em">fast</em>.
             </a>

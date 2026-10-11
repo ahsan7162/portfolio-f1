@@ -1,4 +1,5 @@
 import { useRef, type CSSProperties, type ReactNode } from 'react';
+import { Arrow } from '@/components/Arrow';
 import { ProjectVisual } from '@/components/ProjectVisuals';
 import { originOf, useDialogs } from '@/components/dialog-context';
 import { CrawlableDetails } from '@/components/CrawlableDetails';
@@ -95,11 +96,11 @@ export function Projects() {
       <div className="mx-auto max-w-[1400px]">
         <div className="proj-layout">
         <div className="proj-head mb-16 flex flex-wrap items-end justify-between gap-6">
-          <h2 data-speed className="display text-[clamp(3rem,10vw,9rem)]">Projects</h2>
+          <h2 data-speed className="display text-display-section">Projects</h2>
           {/* Stack mode only (see the CSS): which card is on top of the deck. */}
           <div aria-hidden="true" className="proj-now">
             <span className="label"><span data-pidx className="text-fg">01</span> / {String(projects.length).padStart(2, '0')}</span>
-            <span className="display mt-3 block overflow-hidden text-[clamp(1.4rem,2.2vw,2.2rem)]"><span data-ptitle className="block">{projects[0].title}</span></span>
+            <span className="display mt-3 block overflow-hidden text-display-small font-bold"><span data-ptitle className="block">{projects[0].title}</span></span>
             <span className="mt-5 block h-0.5 w-full max-w-[280px] bg-line"><span data-pbar className="block h-full origin-left bg-ac" /></span>
           </div>
           <button type="button" onClick={e => openArchive(originOf(e))} className="btn btn-primary">
@@ -114,13 +115,13 @@ export function Projects() {
                   <div data-cardin className="h-full w-full"><ProjectVisual project={p} /></div>
                 </div>
                 <div className="p-6 md:p-8">
-                  <h3 data-cardtxt className="display text-3xl md:text-4xl">{p.title}</h3>
+                  <h3 data-cardtxt className="display text-display-card">{p.title}</h3>
                   <p data-cardtxt className="mt-4 max-w-[52ch] leading-relaxed text-mute">{p.summary}</p>
                   <ul data-cardtxt className="mt-5 flex flex-wrap gap-2" aria-label={`${p.title} stack`}>
                     {p.stack.map(s => <li key={s} className="rounded-full border border-line px-3 py-1 font-mono text-xs">{s}</li>)}
                   </ul>
                   <div data-cardtxt className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-5">
-                    <span className="font-mono text-sm font-semibold text-ac">{p.headline}</span>
+                    <span className="font-mono text-[0.9375rem] font-semibold text-ac">{p.headline}</span>
                     <button type="button" onClick={e => openDetails(p, { ...originOf(e), title: e.currentTarget.closest('[data-card]')?.querySelector('h3')?.getBoundingClientRect() })} data-details data-cursor="view" aria-label={`${p.title} details`}
                       className="btn btn-ghost [.card:hover_&]:border-ac [.card:hover_&]:text-ac">Details</button>
                   </div>
@@ -137,7 +138,7 @@ export function Projects() {
           <span className="relative flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
             <span>
               <span className="label block transition-colors duration-(--dur-hit) group-hover:text-carbon">{archive.length} more projects, 2021 to now</span>
-              <span className="display mt-4 block text-[clamp(2.6rem,7vw,6.5rem)] transition-colors duration-(--dur-hit) group-hover:text-carbon">
+              <span className="display mt-4 block text-display-lead transition-colors duration-(--dur-hit) group-hover:text-carbon">
                 See all projects
               </span>
               <span className="mt-6 flex flex-wrap gap-2">
@@ -149,7 +150,7 @@ export function Projects() {
             </span>
             <span data-morearrow aria-hidden="true" className="shrink-0">
               <span data-cursor-target className="grid size-20 place-items-center rounded-full bg-ac text-3xl text-carbon transition-[transform,background-color,color] duration-(--dur-hit) ease-out-expo group-hover:rotate-[-45deg] group-hover:bg-carbon group-hover:text-ac md:size-28 md:text-4xl">
-                →
+                <Arrow />
               </span>
             </span>
           </span>

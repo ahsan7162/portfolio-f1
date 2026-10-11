@@ -127,7 +127,7 @@ export function TechStack() {
   return (
     <section ref={ref} id="skills" tabIndex={-1} data-bg="#0b0b0c,#111113" className="relative py-24 md:py-32">
       <div className="mx-auto max-w-[1400px] px-4 md:px-8">
-        <h2 data-speed className="display mb-14 text-[clamp(2.4rem,7vw,6.5rem)]">Tech stack</h2>
+        <h2 data-speed className="display mb-14 text-display-section">Tech stack</h2>
       </div>
       <div data-marqueebox className="overflow-hidden border-y border-line py-8">
         {/* Two identical halves, so -50% loops seamlessly. One list is wider than any screen;
@@ -149,11 +149,11 @@ export function TechStack() {
       <div className="mx-auto mt-16 max-w-[1400px] px-4 md:px-8">
         <div ref={grid} className="bento">
           <Tile name="Core languages" accent className="tile-lead md:flex-row md:flex-wrap md:items-center md:justify-between md:gap-6 md:!p-10 md:!pr-16">
-            <p className="display text-[clamp(2rem,4.6vw,4.75rem)]">{slash(skills.core)}</p>
+            <p className="display text-display-stat">{slash(skills.core)}</p>
           </Tile>
           <Tile name="Frameworks" className="md:col-span-3"><List items={skills.frameworks} /></Tile>
           <Tile name="AI / LLM" accent className="justify-center md:col-span-3 md:row-span-2 md:gap-5">
-            <p className="display text-[clamp(1.5rem,2.5vw,2.5rem)] !leading-[1.05]">{slash(skills.ai.providers)}</p>
+            <p className="display text-display-small font-bold !leading-[1.05]">{slash(skills.ai.providers)}</p>
             <List items={skills.ai.items} />
           </Tile>
           <Tile name="Data" className="md:col-span-3"><List items={skills.data} /></Tile>

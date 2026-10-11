@@ -1,5 +1,6 @@
 import { CIRCUIT_PATH, CIRCUIT_VIEWBOX } from '@/art/circuit';
 import { jobs, profile } from '@/content/data';
+import { Arrow } from '@/components/Arrow';
 import { CvLink } from '@/components/CvLink';
 import { originOf, useDialogs } from '@/components/dialog-context';
 import { gsap } from '@/motion/gsap';
@@ -58,15 +59,15 @@ export function Hero() {
           className="group mb-8 inline-flex min-h-11 items-center gap-3 self-start rounded-full border border-line bg-graphite/80 py-1.5 pl-4 pr-1.5 text-sm font-medium text-fg transition-colors hover:border-ac">
           <span aria-hidden="true" className="size-2 rounded-full bg-ac" />
           <span>Currently at <span className="font-semibold">{current?.company}</span></span>
-          <span data-pillarrow aria-hidden="true" className="inline-block"><span data-cursor-target className="grid size-8 place-items-center rounded-full bg-ac text-carbon transition-transform duration-(--dur-hit) ease-out-expo group-hover:-rotate-45">→</span></span>
+          <span data-pillarrow aria-hidden="true" className="inline-block"><span data-cursor-target className="grid size-8 place-items-center rounded-full bg-ac text-carbon transition-transform duration-(--dur-hit) ease-out-expo group-hover:-rotate-45"><Arrow className="size-4" /></span></span>
         </button>
         <h1 data-cursor="heat">
-          <span data-hline="0" data-speed className="display block text-[clamp(3rem,10.5vw,9.5rem)]">Muhammad</span>{' '}
-          <span data-hline="1" data-speed className="display block text-[clamp(3rem,10.5vw,9.5rem)]">
+          <span data-hline="0" data-speed className="display block text-display-hero font-black">Muhammad</span>{' '}
+          <span data-hline="1" data-speed className="display block text-display-hero font-black">
             Ahsan<span aria-hidden="true" className="text-ac">.</span>
           </span>
           <span className="sr-only">, </span>
-          <span data-hsub className="mt-5 block font-sans text-xl font-medium tracking-tight [font-stretch:112%] text-fg md:text-3xl">
+          <span data-hsub className="mt-5 block font-sans text-xl font-medium tracking-tight font-stretch-semi-expanded text-fg md:text-3xl">
             Senior <em className="display-em font-bold">Full-Stack</em> Developer
           </span>
         </h1>

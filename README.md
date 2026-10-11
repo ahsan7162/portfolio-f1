@@ -49,6 +49,12 @@ breaks a rule on purpose, an `oxlint-disable-next-line` comment says why.
   values as the CSS variables in `src/index.css`); GLSL used by more than one shader (noise, the
   contour isolines, the helmet's dissolve edge) is in `src/gl/glsl.ts`; small helpers (focus trap,
   lap-time format, idle callback) are in `src/lib/`. Both dialogs are one `DialogFrame`.
+- **Type:** Mona Sans for headings and text, Monaspace Krypton for labels, buttons and data.
+  Both are self-hosted from `src/assets/fonts/`, trimmed by `scripts/fonts.py` to the weights
+  and widths in use, and preloaded (the plugin in `vite.config.ts`). Display sizes are the
+  `--text-display-*` roles in `src/index.css` (hero, section, lead, stat, card, small); widths
+  are expanded (display), semi-expanded (small headings) and normal (text). Arrows are the
+  `<Arrow />` SVG, because the → character isn't in the fonts.
 - **SEO:** the page is prerendered to static HTML (`scripts/prerender.ts`) and hydrated.
   Headings and copy use plain developer terms; F1 details are decorative and `aria-hidden`.
 - **Social card and touch icon:** HyperFrames stills in `motion-lab/` (the site's own type,

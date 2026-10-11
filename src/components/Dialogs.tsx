@@ -1,5 +1,6 @@
 import { useLayoutEffect, type ReactNode, type RefObject } from 'react';
 import { archive, archiveBreakdown, type Breakdown, type Delta } from '@/content/data';
+import { Arrow } from '@/components/Arrow';
 import { originOf, type Origin } from '@/components/dialog-context';
 import { trapTab } from '@/lib/focus';
 import { cn } from '@/lib/utils';
@@ -93,7 +94,7 @@ function Bars({ d }: { d: Delta }) {
   const max = Math.max(d.from, d.to);
   const rows = [['Before', d.fromLabel, d.from], ['After', d.toLabel, d.to]] as const;
   return (
-    <div aria-hidden="true" className="mt-6 grid max-w-[65ch] gap-2 font-mono text-[11px] uppercase tracking-[0.14em]">
+    <div aria-hidden="true" className="mt-6 grid max-w-[65ch] gap-2 font-mono text-xs uppercase tracking-[0.14em]">
       {rows.map(([tag, label, v]) => {
         // At least a sliver, so 100 ms against 30 s still shows on a phone.
         const k = Math.max(v / max, 0.006);
@@ -154,7 +155,7 @@ function DialogFrame({ origin, onClose, dref, label, titleId, tone, width, child
 export function ArchiveDialog({ onOpenItem, ...frame }: DialogProps & { onOpenItem: (b: Breakdown, o: Origin) => void }) {
   return (
     <DialogFrame {...frame} label="All projects" titleId="archTitle" tone="graphite" width="max-w-[1400px]">
-      <h2 id="archTitle" data-din className="display text-[clamp(2.6rem,8vw,7rem)]">All projects</h2>
+      <h2 id="archTitle" data-din className="display text-display-section">All projects</h2>
       <p data-din className="mt-3 text-mute">Everything else I have shipped, 2021 to now.</p>
       <ul className="mt-12 border-t border-line">
         {archive.map(a => (
@@ -165,11 +166,11 @@ export function ArchiveDialog({ onOpenItem, ...frame }: DialogProps & { onOpenIt
               <span aria-hidden="true" className="absolute inset-x-0 -bottom-px h-px origin-right scale-x-0 bg-ac transition-transform duration-(--dur-split) ease-out-expo group-hover:origin-left group-hover:scale-x-100 group-hover:duration-(--dur-wipe) group-focus-visible:origin-left group-focus-visible:scale-x-100" />
               <span className="font-mono text-sm text-mute group-hover:text-ac">{a.year}</span>
               <span>
-                <span className="block text-lg font-semibold [font-stretch:110%]">{a.name}</span>
+                <span className="block text-lg font-semibold font-stretch-semi-expanded">{a.name}</span>
                 <span className="block font-mono text-xs text-mute">{a.stack}</span>
               </span>
               <span className="col-start-2 text-mute md:col-start-auto">{a.note}</span>
-              <span className="col-start-2 font-mono text-xs uppercase tracking-[0.12em] text-ac md:col-start-auto">Details <span aria-hidden="true" className="inline-block transition-transform duration-(--dur-split) ease-out-expo group-hover:translate-x-1.5">→</span></span>
+              <span className="col-start-2 font-mono text-xs uppercase tracking-[0.12em] text-ac md:col-start-auto">Details <span aria-hidden="true" className="inline-block transition-transform duration-(--dur-split) ease-out-expo group-hover:translate-x-1.5"><Arrow /></span></span>
             </button>
           </li>
         ))}
@@ -182,15 +183,15 @@ export function DetailsDialog({ sel, ...frame }: DialogProps & { sel: Breakdown 
   return (
     <DialogFrame {...frame} label="Details" titleId="selTitle" tone="carbon" width="max-w-[1100px]">
       <p data-din className="font-mono text-xs uppercase tracking-[0.12em] text-mute">{sel.dates}, {sel.loc}, {sel.role}</p>
-      <h2 id="selTitle" data-din className="display mt-4 text-[clamp(2.6rem,8vw,7rem)]">{sel.company}</h2>
+      <h2 id="selTitle" data-din className="display mt-4 break-words text-display-lead md:text-display-section">{sel.company}</h2>
       {/* One grid for every row (each row is a subgrid), so the stat column fits the widest
           stat in this breakdown ("OPENAPI", "Jinja2") and the text still lines up row to row. */}
       <div className="mt-12 grid border-t border-line md:grid-cols-[minmax(12rem,max-content)_1fr] md:gap-x-4">
         {sel.highlights.map(h => (
           <div key={h.title} data-din className="grid gap-4 border-b border-line py-8 md:col-span-2 md:grid-cols-subgrid">
-            <div className="display text-4xl text-ac md:text-5xl"><span data-dstat className="inline-block">{h.stat}</span></div>
+            <div className="display text-display-stat text-ac"><span data-dstat className="inline-block">{h.stat}</span></div>
             <div>
-              <h3 className="text-xl font-semibold [font-stretch:110%]">{h.title}</h3>
+              <h3 className="text-xl font-semibold font-stretch-semi-expanded">{h.title}</h3>
               <p className="mt-2 max-w-[65ch] leading-relaxed text-mute">{h.text}</p>
               {h.delta && <Bars d={h.delta} />}
             </div>
