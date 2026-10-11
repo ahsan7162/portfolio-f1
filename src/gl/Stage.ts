@@ -13,7 +13,7 @@ import { bindHelmetPath, exit, perch, type Pose } from './helmetPath';
 import { buildHelmet, type Helmet } from './helmet/buildHelmet';
 import { createParticles } from './helmet/particles';
 import { createLap } from './lap';
-import { lapState } from './state';
+import { lapMarks, lapState } from './state';
 
 const FOV = 30, CAM_Z = 8;
 /**
@@ -237,6 +237,7 @@ export class Stage {
       this.lapP = lapState.progress; // scrubbed to the pin by the Lap section
       this.lapV = lapState.veil;
       this.lapMore = this.lap.update(this.lapP, this.size.w, this.size.h, this.lapV, lapState.stage);
+      lapMarks.sink?.(); // the DOM sector marks follow in this same frame
       r.render(scene, camera);
       return;
     }

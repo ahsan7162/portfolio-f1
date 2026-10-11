@@ -237,8 +237,9 @@ html.gl-on .contour-fallback { opacity: 0; transition: opacity 1s; }
 .lap-live .lap-meta { display: flex; }
 /* HUD lap timer: fixed-width digits in a contained box, so each text write never re-lays out the page. */
 .lap-time { display: inline-block; min-width: 8ch; text-align: right; font-variant-numeric: tabular-nums; contain: layout paint; }
-.lap-meta .sector-done { color: #2fd27a; }
-.lap-meta .sector-best { color: #b26bff; }
+:is(.lap-meta, .lap-marks) .sector-done { color: #2fd27a; }
+:is(.lap-meta, .lap-marks) .sector-best { color: #b26bff; }
+html:not(.gl-on) .lap-marks { display: none; }
 @media (min-width: 768px) {
   .lap-live .lap-pin { padding-top: calc(var(--navh) + 2rem); padding-bottom: 5rem; }
   .lap-live .lap-stage { left: auto; right: 0; bottom: 8%; }

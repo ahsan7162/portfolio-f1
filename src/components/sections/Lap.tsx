@@ -2,7 +2,7 @@ import { CIRCUIT_PATH, CIRCUIT_VIEWBOX } from '@/art/circuit';
 import { jobs, timeline } from '@/content/data';
 import { Arrow } from '@/components/Arrow';
 import { originOf, useDialogs } from '@/components/dialog-context';
-import { lapState } from '@/gl/state';
+import { lapMarks, lapState } from '@/gl/state';
 import { lapTime } from '@/lib/format';
 import { glEnabled } from '@/motion/prefs';
 import { gsap, ScrollTrigger } from '@/motion/gsap';
@@ -19,10 +19,11 @@ import { useSectionMotion } from '@/motion/useSectionMotion';
 export function Lap() {
   const { lenis } = useSmoothScroll();
   const { openDetails } = useDialogs();
-  const ref = useSectionMotion(({ root, q, qa, markers, onRevert }) => {
+  const ref = useSectionMotion(({ root, q, qa, desktop, markers, onRevert }) => {
     const pin = q('[data-lappin]')!;
     const stages = qa('[data-stage]');
-    const sectorEls = qa('[data-sector]');
+    // The sector names, twice: in the timing bar and on the track marks (same order).
+    const sectorSets = [qa('[data-sector]'), qa('[data-marksector]')];
     const svgPath = q('[data-lapsvg] path');
     const flat = !glEnabled();
     const n = stages.length;
@@ -56,7 +57,7 @@ export function Lap() {
       gsap.fromTo(next, { autoAlpha: 0, y: 24 * dir, skewX: 0, x: 0 }, { autoAlpha: 1, y: 0, duration: DUR.split, ease: EASE.out, overwrite: true });
       gsap.fromTo(next.querySelectorAll('[data-stat]'), { yPercent: 100 }, { yPercent: 0, duration: DUR.split, delay: 0.05, ease: EASE.out, overwrite: true });
       // Timing-screen colours: the sector being driven is red, completed ones go green.
-      sectorEls.forEach((el, k) => { el.classList.toggle('text-ac', k === i); el.classList.toggle('sector-done', k < i); });
+      sectorSets.forEach(els => els.forEach((el, k) => { el.classList.toggle('text-ac', k === i); el.classList.toggle('sector-done', k < i); }));
       cur = i;
       lapState.stage = i;
     };
@@ -74,11 +75,11 @@ export function Lap() {
       const end = p >= 0.92;
       if (end === done) return;
       done = end;
-      sectorEls[n - 1]?.classList.toggle('sector-best', end);
+      sectorSets.forEach(els => els[n - 1]?.classList.toggle('sector-best', end));
       gsap.to(flag, { autoAlpha: end ? 1 : 0, x: end ? 0 : 8, duration: end ? DUR.split : DUR.hit, ease: end ? EASE.out : EASE.in, overwrite: true });
     };
     gsap.set(flag, { autoAlpha: 0, x: 8 });
-    onRevert(() => { clock.textContent = lapTime(0); sectorEls.forEach(el => el.classList.remove('sector-done', 'sector-best', 'text-ac')); });
+    onRevert(() => { clock.textContent = lapTime(0); sectorSets.flat().forEach(el => el.classList.remove('sector-done', 'sector-best', 'text-ac')); });
 
     const at = (p: number) => Math.min(n - 1, Math.floor(p * n));
     // Switch on intent: a short scroll away from the current stage's middle (18% of
@@ -105,9 +106,38 @@ export function Lap() {
     // veil in its own background colour that clears as the section scrolls up, and the
     // veil closes over the last quarter screen of the pin, so it never cuts in or out.
     // The heading and the first stage arrive with it, not after the pin starts.
+    // Sector marks (desktop, with the 3D lap): each sector's start, projected from the
+    // track by the render loop, as a dot with a leader and its name. Written only on lap
+    // frames, by transform, and faded with the veil so they come and go with the scene.
+    const layer = q('[data-lapmarks]');
+    let hideMarks = () => {};
+    if (desktop && !flat && layer) {
+      const els = gsap.utils.toArray<HTMLElement>(layer.children);
+      const marks = els.map(el => ({ el, x: gsap.quickSetter(el, 'x', 'px'), y: gsap.quickSetter(el, 'y', 'px'), lx: Infinity, ly: Infinity, on: -1 }));
+      let alpha = -1;
+      const fade = (a: number) => {
+        if (a === alpha) return;
+        alpha = a;
+        layer.style.opacity = String(a);
+        layer.style.visibility = a > 0 ? 'visible' : 'hidden';
+      };
+      lapMarks.sink = () => {
+        const xy = lapMarks.xy;
+        if (xy.length < marks.length * 3) return;
+        marks.forEach((m, k) => {
+          const x = xy[k * 3], y = xy[k * 3 + 1], on = xy[k * 3 + 2];
+          if (Math.abs(x - m.lx) > 0.25 || Math.abs(y - m.ly) > 0.25) { m.x(x); m.y(y); m.lx = x; m.ly = y; }
+          if (on !== m.on) { m.on = on; m.el.style.visibility = on ? '' : 'hidden'; }
+        });
+        fade(Math.round((1 - lapState.veil) * 100) / 100);
+      };
+      hideMarks = () => fade(0);
+      onRevert(() => { lapMarks.sink = null; layer.style.opacity = layer.style.visibility = ''; });
+    }
+
     ScrollTrigger.create({
       trigger: pin, start: 'top 35%', end: () => st.end,
-      onToggle: self => { lapState.active = self.isActive; },
+      onToggle: self => { lapState.active = self.isActive; if (!self.isActive) hideMarks(); },
       onEnter: () => {
         gsap.to(q('[data-laphead]'), { autoAlpha: 1, y: 0, duration: DUR.split, ease: EASE.out, overwrite: true });
         if (!label.progress()) label.play();
@@ -138,6 +168,18 @@ export function Lap() {
 
   return (
     <section ref={ref} id="timeline" tabIndex={-1} data-bg="#070708,#0b0b0c" data-lap className="relative">
+      {/* Sector marks over the 3D track (motion, desktop): the same box as the canvas,
+          outside the pin, so pinning never moves it. Placed by the render loop. */}
+      <div data-lapmarks aria-hidden="true" className="lap-marks pointer-events-none invisible fixed inset-0 hidden h-[100lvh] w-full opacity-0 md:block">
+        {timeline.map(t => (
+          // text-mute here, not on the name, so its sector colour (red, green, purple) wins.
+          <div key={t.sector} className="absolute left-1/2 top-1/2 text-mute">
+            <span className="absolute -left-[3px] -top-[3px] size-1.5 rounded-full bg-fg" />
+            <span className="absolute bottom-[3px] left-0 h-7 w-px bg-fg/40" />
+            <span data-marksector className="absolute bottom-[calc(1.75rem+6px)] left-0 -translate-x-1/2 font-mono text-xs uppercase tracking-[0.14em] transition-colors duration-(--dur-split)">{t.sector}</span>
+          </div>
+        ))}
+      </div>
       <div data-lappin data-cursor="scroll" className="lap-pin relative px-4 py-24 md:px-8">
         <svg data-lapsvg aria-hidden="true" viewBox={CIRCUIT_VIEWBOX} fill="none"
           className="lap-flat pointer-events-none absolute left-1/2 top-1/2 -z-10 w-[min(900px,92vw)] -translate-x-1/2 -translate-y-1/2 opacity-60">

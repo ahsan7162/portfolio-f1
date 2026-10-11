@@ -6,6 +6,7 @@ import { buildCar } from './car';
 import { disposables } from './dispose';
 import { CONTOURS_GLSL, NOISE_GLSL, vec3 } from './glsl';
 import { createRunoff } from './runoff';
+import { lapMarks } from './state';
 
 // 3D lap: the same circuit as the SVG lines, turned into a track ribbon with
 // red/white kerbs and trackside lights. An aerial "broadcast" camera looks down
@@ -13,6 +14,8 @@ import { createRunoff } from './runoff';
 // per career stage. Seen from above, the movement reads slow and calm.
 const SCALE = 0.06;
 const WIDTH = 0.34;
+/** Light pulses on the racing line: how many fit in one lap, and how fast they run next to the car. */
+const PULSES = 6, PULSE_RATE = 1.5;
 
 function circuitCurve() {
   const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -29,8 +32,9 @@ function circuitCurve() {
   return new THREE.CatmullRomCurve3(pts, true, 'centripetal');
 }
 
-function ribbon(curve: THREE.CatmullRomCurve3, halfW: number, lift: number, segs: number, colorAt?: (i: number) => THREE.Color) {
-  const pos: number[] = [], col: number[] = [], idx: number[] = [];
+/** A flat strip along the curve. With `withUv`: uv.x runs 0..1 along it (not wrapped), uv.y 0..1 across. */
+function ribbon(curve: THREE.CatmullRomCurve3, halfW: number, lift: number, segs: number, colorAt?: (i: number) => THREE.Color, withUv = false) {
+  const pos: number[] = [], col: number[] = [], uv: number[] = [], idx: number[] = [];
   const up = new THREE.Vector3(0, 1, 0), side = new THREE.Vector3();
   for (let i = 0; i <= segs; i++) {
     const t = (i % segs) / segs;
@@ -39,12 +43,14 @@ function ribbon(curve: THREE.CatmullRomCurve3, halfW: number, lift: number, segs
     for (const s of [-1, 1]) {
       pos.push(p.x + side.x * halfW * s, p.y + lift, p.z + side.z * halfW * s);
       if (colorAt) { const c = colorAt(i); col.push(c.r, c.g, c.b); }
+      if (withUv) uv.push(i / segs, s < 0 ? 0 : 1);
     }
     if (i < segs) { const a = i * 2; idx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); }
   }
   const g = new THREE.BufferGeometry();
   g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
   if (colorAt) g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+  if (withUv) g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
   g.setIndex(idx);
   g.computeVertexNormals();
   return g;
@@ -114,6 +120,38 @@ export function createLap() {
   const lineGeo = keep(ribbon(curve, 0.05, 0.006, SEGS));
   const lineMat = keep(new THREE.MeshBasicMaterial({ color: PALETTE.ac, fog: false }));
   scene.add(new THREE.Mesh(lineGeo, lineMat));
+
+  // Pulses of light running along the racing line towards the car (landonorris.com's
+  // track scene), driven by the scroll, not a clock: their phase is the lap progress, so
+  // they run backwards on the way up and stand still when you stop, and they fade out as
+  // the scrolling slows. At rest the line is exactly the plain red one. A wide additive
+  // strip with a soft edge stands in for bloom (no extra passes).
+  const glowGeo = keep(ribbon(curve, 0.24, 0.007, SEGS, undefined, true));
+  const glowMat = keep(new THREE.ShaderMaterial({
+    glslVersion: THREE.GLSL3,
+    uniforms: { uPhase: { value: 0 }, uGlow: { value: 0 }, uHead: { value: 0 } },
+    vertexShader: /* glsl */ `
+      out vec2 vUv;
+      void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+    fragmentShader: /* glsl */ `
+      precision highp float;
+      in vec2 vUv;
+      out vec4 outColor;
+      uniform float uPhase, uGlow, uHead;
+      void main() {
+        float across = vUv.y * 2.0 - 1.0;
+        float core = exp(-across * across * 24.0), halo = exp(-across * across * 3.0);
+        // Bright head, long fading tail behind it, moving in race direction (uv.x grows with the lap).
+        float pulse = pow(fract(vUv.x * ${PULSES.toFixed(1)} - uPhase), 3.0);
+        float head = smoothstep(0.0, 0.02, uHead - vUv.x); // fades into the car
+        float a = uGlow * pulse * head * (core + halo * 0.55);
+        outColor = vec4(mix(${vec3(PALETTE.ac)}, ${vec3(PALETTE.fg)}, core * pulse * 0.7), a);
+      }`,
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+  }));
+  const glow = new THREE.Mesh(glowGeo, glowMat);
+  glow.renderOrder = 2;
+  scene.add(glow); // left visible until the first lap frame, so the warm-up compiles it
   const car = keep(buildCar());
   // A faint ring under the car, so it is easy to find on the whole circuit.
   const halo = new THREE.Mesh(keep(new THREE.RingGeometry(0.5, 0.56, 40)), keep(new THREE.MeshBasicMaterial({ color: PALETTE.ac, transparent: true, opacity: 0.3, side: THREE.DoubleSide, fog: false })));
@@ -179,11 +217,16 @@ export function createLap() {
   const n = timeline.length, mid = timeline.map((_, i) => (i + 0.5) / n);
   const runoff = keep(createRunoff(curve, timeline.map(t => t.company), mid.map(p => (START + p * LAP) % 1), mid.map(orbit), WIDTH + 0.35));
   scene.add(runoff.mesh);
+  // Sector starts, for the DOM marks the Lap section draws over the track (lapMarks).
+  const marks = timeline.map((_, k) => curve.getPointAt((START + (k / n) * LAP) % 1).add(new THREE.Vector3(0, 0.02, 0)));
+  lapMarks.xy = new Float32Array(n * 3);
+  const proj = new THREE.Vector3();
   const eye = new THREE.Vector3(), carPos = new THREE.Vector3(), look = new THREE.Vector3();
   const ZOOM = 0.62, FOLLOW = 0.55;
   const fwd = new THREE.Vector3(), ahead = new THREE.Vector3(), side = new THREE.Vector3(), upV = new THREE.Vector3(), basis = new THREE.Matrix4();
   const roll = new THREE.Quaternion();
   let lastP = -1, movedAt = 0;
+  let glowK = 0, glowP = -1, glowAt = 0;
   return {
     scene, camera,
     /** progress 0..1 through the lap (scrubbed to the pin); veil 0..1 fades the scene out. Returns true while it needs more frames. */
@@ -218,6 +261,19 @@ export function createLap() {
       car.setLight(blinking, now);
       lineGeo.setDrawRange(0, Math.floor(t * SEGS) * 6); // up to the car
 
+      // The pulses' strength follows how fast the lap moves, easing over about 0.2 s.
+      const dt = Math.min(0.05, (now - glowAt) / 1000);
+      glowAt = now;
+      const speed = glowP < 0 || dt <= 0 ? 0 : Math.abs(progress - glowP) / dt;
+      glowP = progress;
+      glowK += (Math.min(1, speed / 0.5) - glowK) * (1 - Math.exp(-dt / 0.2));
+      if (glowK < 0.004) glowK = 0;
+      glowMat.uniforms.uPhase.value = progress * LAP * PULSES * PULSE_RATE;
+      glowMat.uniforms.uGlow.value = glowK;
+      glowMat.uniforms.uHead.value = t;
+      glowGeo.setDrawRange(0, Math.floor(t * SEGS) * 6);
+      glow.visible = glowK > 0;
+
       // Helicopter camera: a slow quarter orbit across the whole timeline, closer than a
       // full-circuit shot and leaning towards the car so it reads (the minimap shows the
       // whole circuit). The same framing on phones, where the circuit fills the width anyway.
@@ -226,9 +282,21 @@ export function createLap() {
       eye.set(look.x + Math.sin(a) * R * 1.3 * ZOOM, centre.y + R * 1.5 * ZOOM, look.z + Math.cos(a) * R * 1.3 * ZOOM);
       camera.position.copy(eye);
       camera.lookAt(look);
-      // Still blinking: ask for one more frame, so the light settles to steady when the lap stops.
+      // Project the sector starts now (render() would update the camera matrices only
+      // later, and the marks would trail by a frame). The view offset is already in the
+      // projection, so NDC maps straight onto the canvas.
+      camera.updateMatrixWorld();
+      marks.forEach((mark, k) => {
+        proj.copy(mark).project(camera);
+        const o = k * 3;
+        lapMarks.xy[o] = (proj.x * w) / 2;
+        lapMarks.xy[o + 1] = (-proj.y * h) / 2;
+        lapMarks.xy[o + 2] = proj.z < 1 && Math.abs(proj.x) < 1.05 && Math.abs(proj.y) < 1.05 ? 1 : 0;
+      });
+      // Still blinking or glowing: ask for more frames, so the light settles to steady
+      // and the pulses fade out when the lap stops.
       const lighting = runoff.update(stage);
-      return blinking || lighting;
+      return blinking || lighting || glowK > 0;
     },
     /** Upload the run-off atlas ahead of the first lap frame. */
     warm: (r: THREE.WebGLRenderer) => r.initTexture(runoff.texture),
