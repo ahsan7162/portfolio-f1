@@ -2,12 +2,12 @@ import { DROP, HOOK, type Bend } from './bezier';
 
 // The helmet's route down the page, as data (the motion is flight.ts). Anchors are
 // layout boxes marked [data-helmet-anchor] (the helmet lands in them and scrolls with
-// them), or virtual boxes in viewport terms: off-screen while the Lap has the canvas,
-// and the exit. Windows run back to back down the page: each starts where the last one
-// ended, so two moves never write the helmet at once. A window whose `from` and `to`
-// are the same anchor is a hold (it can still turn the helmet).
+// them), or virtual boxes in viewport terms (off-screen while the Lap has the canvas).
+// Windows run back to back down the page: each starts where the last one ended, so two
+// moves never write the helmet at once. A window whose `from` and `to` are the same
+// anchor is a hold (it can still turn the helmet).
 
-export type AnchorId = 'hero' | 'slot' | 'away' | 'podium' | 'finale' | 'parc' | 'exit';
+export type AnchorId = 'hero' | 'slot' | 'away' | 'podium' | 'finale' | 'parc';
 
 /** Where a window ends, in scroll terms. */
 export type End =
@@ -31,16 +31,11 @@ export const ANCHOR: Record<AnchorId, { fill: number; stand?: boolean; loose: nu
   podium: { fill: 0.95, stand: true, loose: 0 },
   finale: { fill: 1, loose: 1 },
   parc: { fill: 1, loose: 1 },
-  exit: { fill: 1, loose: 0 },
 };
 
-/**
- * The virtual anchors: centre as fractions of the viewport, size in viewport heights.
- * The exit sinks below the screen while its sparks stream up through it.
- */
+/** The virtual anchors: centre as fractions of the viewport, size in viewport heights. */
 export const VIRTUAL: Partial<Record<AnchorId, { x: number; y: number; size: number }>> = {
   away: { x: 1.3, y: 0.3, size: 0.35 },
-  exit: { x: 0.7, y: 1.35, size: 0.18 },
 };
 
 /** The rotation before the first window ends: the hero's. */

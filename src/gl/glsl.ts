@@ -39,9 +39,8 @@ Contours contours(float f){
 
 /**
  * The helmet's dissolve edge at an object-space point: 0 at the neck to 1 at the
- * crown, broken up by value noise. The shell discards everything above the reveal
- * value (buildHelmet) and each exit spark leaves as the edge passes it (particles),
- * so both read this one function.
+ * crown, broken up by value noise. Every solid part discards what lies above the
+ * reveal value and glows along it (buildHelmet).
  */
 export const DISSOLVE_GLSL = /* glsl */ `
 float h3(vec3 p){ p = fract(p * 0.3183099 + 0.1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }

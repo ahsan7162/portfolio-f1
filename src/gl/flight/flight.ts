@@ -12,8 +12,6 @@ export type Flight = {
   rx: number; ry: number; rz: number;
   /** How much pointer tilt and float it keeps (0..1). */
   loose: number;
-  /** 0..1 through the exit, as scrolled (drives the dissolve into sparks). */
-  exit: number;
 };
 
 type Box = { p: Pt; w: number; stand: number };
@@ -47,7 +45,7 @@ export function bindFlight() {
     const max = ScrollTrigger.maxScroll(window);
     ends = [];
     // Never backwards: one move at a time, whatever the layout does. The last window
-    // ends by the bottom of the page, or its exit could never finish.
+    // ends by the bottom of the page, or the helmet could never park.
     ROUTE.forEach((w, i) => ends.push(Math.max(endOf((short && SHORT_ENDS[i]) || w.end), (ends[i - 1] ?? 0) + 1)));
     const last = ends.length - 1;
     ends[last] = Math.max(Math.min(ends[last], max), (ends[last - 1] ?? 0) + 1);
@@ -94,7 +92,6 @@ export function bindFlight() {
     const r0 = ROUTE[i - 1]?.rot ?? START_ROT, r1 = w.rot;
     out.rx = lerp(r0[0], r1[0], t); out.ry = lerp(r0[1], r1[1], t); out.rz = lerp(r0[2], r1[2], t);
     out.loose = lerp(ANCHOR[w.from].loose, ANCHOR[w.to].loose, t);
-    out.exit = w.to === 'exit' ? raw : 0;
     return out;
   };
 

@@ -11,7 +11,6 @@ import { createField } from './field';
 import { bindFlight, type Flight } from './flight/flight';
 import { garageScene } from './garage';
 import { buildHelmet, type Helmet } from './helmet/buildHelmet';
-import { createParticles } from './helmet/particles';
 import { createLap } from './lap';
 import { lapMarks, lapState } from './state';
 
@@ -44,10 +43,9 @@ export class Stage {
   private field = createField();
   private lap = createLap();
   private helmet: Helmet | null = null;
-  private sparks: ReturnType<typeof createParticles> | null = null;
   private flight: ReturnType<typeof bindFlight> | null = null;
-  private at: Flight = { x: 0, y: 0, size: 1, stand: 0, rx: 0, ry: 0, rz: 0, loose: 1, exit: 0 };
-  /** The intro's reveal (0..1.05); the shell shows the lower of this and the exit's dissolve. */
+  private at: Flight = { x: 0, y: 0, size: 1, stand: 0, rx: 0, ry: 0, rz: 0, loose: 1 };
+  /** The intro's reveal (0..1.05), handed to the shell's dissolve on every drawn frame. */
   private intro = { value: 0 };
   /** The helmet's box at scale 1 and rotation 0, in world units (for fitting it to a layout box). */
   private base = { w: 1, cx: 0, cy: 0, minY: 0 };
@@ -60,7 +58,7 @@ export class Stage {
   /** The helmet changed without anything moving (its reveal ended, a resize): draw it on the next frame. */
   private helmetDirty = true;
   /** The flight as last drawn: idle frames redraw only if it changed (a jump, the podium building). */
-  private drawn = { x: Infinity, y: Infinity, size: Infinity, ry: Infinity, exit: Infinity };
+  private drawn = { x: Infinity, y: Infinity, size: Infinity, ry: Infinity };
   private cleanups: Array<() => void> = [];
   private busy = 0;
   private lastRender = 0;
@@ -172,7 +170,6 @@ export class Stage {
     const pr = Math.max(Math.min(1, dpr), dpr * this.quality.scale);
     for (const r of [this.renderer, this.hr]) { r.setPixelRatio(pr); r.setSize(w, h, false); }
     this.helmetDirty = true; // resizing cleared its canvas
-    this.sparks?.setPixelRatio(this.hr.getPixelRatio());
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
     this.field.uniforms.uRes.value.set(w, h);
@@ -191,19 +188,12 @@ export class Stage {
     // Compile shaders before the reveal so the first frames don't stutter.
     this.hr.compile(this.scene, this.camera);
     onIntroDone(() => this.playReveal());
-    // The exit sparks are sampled in idle time; fewer on phones (smaller screen, weaker GPU).
+    // Warm up what first appears mid-scroll (the lap's car and run-off logos) in idle time,
+    // so their shader compiles and texture uploads don't land on a scrolling frame.
     whenIdle(() => {
-      if (this.dead || !this.helmet) return;
-      const sparks = createParticles(helmet.shell, helmet.livery, isMobile() ? 2500 : 6000, helmet.reveal);
-      sparks.setPixelRatio(this.hr.getPixelRatio());
-      helmet.shell.parent!.add(sparks.points);
-      this.sparks = sparks;
-      this.cleanups.push(() => sparks.dispose());
-      // Warm up what first appears mid-scroll (the sparks, the lap's car and run-off logos), so
-      // their shader compiles and texture uploads don't land on a scrolling frame.
-      sparks.points.visible = true;
-      void Promise.all([this.hr.compileAsync(this.scene, this.camera), this.renderer.compileAsync(this.lap.scene, this.lap.camera)])
-        .catch(() => {}).finally(() => { if (!this.dead) { sparks.points.visible = false; this.lap.warm(this.renderer); } });
+      if (this.dead) return;
+      void this.renderer.compileAsync(this.lap.scene, this.lap.camera)
+        .catch(() => {}).finally(() => { if (!this.dead) this.lap.warm(this.renderer); });
     }, 3000, 1000);
   }
 
@@ -295,10 +285,10 @@ export class Stage {
     const h = this.helmet!, g = h.group, f = this.at, { w: W, h: H } = this.size;
     this.flight!.sample(scrollState.y, W, H, f);
     const d = this.drawn;
-    const changed = Math.abs(f.x - d.x) > 0.1 || Math.abs(f.y - d.y) > 0.1 || Math.abs(f.size - d.size) > 0.1 || Math.abs(f.ry - d.ry) > 1e-4 || f.exit !== d.exit;
+    const changed = Math.abs(f.x - d.x) > 0.1 || Math.abs(f.y - d.y) > 0.1 || Math.abs(f.size - d.size) > 0.1 || Math.abs(f.ry - d.ry) > 1e-4;
     if (!moving && !this.helmetDirty && !changed) return;
     this.helmetDirty = false;
-    d.x = f.x; d.y = f.y; d.size = f.size; d.ry = f.ry; d.exit = f.exit;
+    d.x = f.x; d.y = f.y; d.size = f.size; d.ry = f.ry;
     const unit = (2 * HALF_H) / H; // world units per CSS px at z = 0
     const s = (f.size * unit) / this.base.w;
     // Gentle pointer follow (desktop), eased every drawn frame, and a slow float.
@@ -312,16 +302,12 @@ export class Stage {
     g.position.set((x - W / 2) * unit, (H / 2 - y) * unit + Math.sin(t * 0.9) * 0.03 * loose, 0);
     g.rotation.set(f.rx + this.pointer.y * 0.14 * loose, f.ry + (this.pointer.x * 0.2 + Math.sin(t * 0.6) * 0.03) * loose, f.rz);
     g.scale.setScalar(s);
-    // The exit runs the reveal backwards (top first) while the sparks fly off. It overshoots
-    // below 0 so the last sparks finish fading: the shell is gone at about exit = 0.6.
-    h.reveal.value = Math.min(this.intro.value, 1.05 - 1.7 * f.exit);
-    h.seam.value = f.exit > 0.001 ? 0.05 : 1; // a faint ember: the sparks carry the heat
-    if (this.sparks) this.sparks.points.visible = f.exit > 0.001;
+    h.reveal.value = this.intro.value;
     h.update();
 
-    // On screen at all (the sparks travel well beyond the shell)?
-    const half = f.size * (f.exit > 0.001 ? 1.5 : 0.75);
-    const on = h.reveal.value > -0.6 && f.x + half > 0 && f.x - half < W && f.y + half > 0 && f.y - half < H;
+    // On screen at all?
+    const half = f.size * 0.75;
+    const on = f.x + half > 0 && f.x - half < W && f.y + half > 0 && f.y - half < H;
     this.showHelmet(on);
     if (!on) return;
     const fb = this.focus, top = scrollY;

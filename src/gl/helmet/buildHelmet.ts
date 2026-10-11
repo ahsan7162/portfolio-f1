@@ -9,15 +9,12 @@ export type Helmet = {
   group: THREE.Group;
   /** 0 = nothing, 1 = fully built. Drives the dissolve on every solid part. */
   reveal: { value: number };
-  /** Strength of the glowing seam at the dissolve edge (1 for the intro, lower for the slow scrubbed exit). */
+  /** Strength of the glowing seam at the dissolve edge (1, the intro's). */
   seam: { value: number };
   /** 0..1 how much of the wireframe is drawn; wireOpacity fades it out. */
   wire: { draw: number; opacity: number };
   update: () => void;
   dispose: () => void;
-  /** The painted shell and its livery canvas, for sampling the exit particles. */
-  shell: THREE.Mesh;
-  livery: HTMLCanvasElement;
 };
 
 // Dissolve-in shader chunk: parts appear bottom to top through a noisy edge
@@ -172,8 +169,6 @@ export async function buildHelmet(opts: { anisotropy: number }): Promise<Helmet>
     reveal,
     seam,
     wire,
-    shell,
-    livery: map.image,
     update() {
       wireGeo.setDrawRange(0, Math.floor(wireCount * wire.draw / 2) * 2);
       wireMat.opacity = wire.opacity;
