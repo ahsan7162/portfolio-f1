@@ -57,7 +57,8 @@ export function WorldMap({ markerColor }: { markerColor: string }) {
       </svg>
       <svg viewBox={`0 0 ${WORLD.width} ${WORLD.height}`} className="pointer-events-none absolute inset-0 size-full overflow-visible">
         {away.map(m => <path key={`${m.x}-${m.y}`} data-arc d={arc(m)} fill="none" stroke={markerColor} strokeWidth={1.25} strokeLinecap="round" vectorEffect="non-scaling-stroke" />)}
-        {away.map(m => <circle key={`${m.x}-${m.y}`} data-runner r={0.9} fill={markerColor} />)}
+        {/* Motion only: they sit at the map's corner until GSAP moves them onto an arc. */}
+        {away.map(m => <circle key={`${m.x}-${m.y}`} data-runner r={0.9} fill={markerColor} className="invisible" />)}
       </svg>
       {[0, 1].map(i => (
         <span key={i} data-ring className={ring}

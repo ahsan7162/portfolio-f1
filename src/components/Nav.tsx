@@ -26,6 +26,7 @@ export function Nav() {
   const [open, setOpen] = useState(false);
   const [expOpen, setExpOpen] = useState(false);
   const [current, setCurrent] = useState<string | null>(null);
+  const [finish, setFinish] = useState(false);
   const ref = useRef<HTMLElement>(null);
   const panel = useRef<HTMLDivElement>(null);
   const subRef = useRef<HTMLUListElement>(null);
@@ -58,6 +59,11 @@ export function Nav() {
         onToggle: s => setCurrent(c => (s.isActive ? m.id : c === m.id ? null : c)),
       })] : [];
     });
+    // At the finish the bar goes clear and steps back (see the buttons below), so the
+    // footer's frame and tab show through it. Re-read on refresh too, after a jump.
+    const contact = document.getElementById('contact');
+    const atFinish = (s: ScrollTrigger) => setFinish(s.isActive);
+    if (contact) triggers.push(ScrollTrigger.create({ trigger: contact, start: 'top 15%', refreshPriority: -1, onToggle: atFinish, onRefresh: atFinish }));
     return () => triggers.forEach(t => t.kill());
   }, []);
 
@@ -129,7 +135,7 @@ export function Nav() {
 
   return (
     // oxlint-disable-next-line jsx-a11y/no-static-element-interactions -- Esc and the Tab trap for the bar and the open menu
-    <header ref={ref} onKeyDown={onKey} className={cn('fixed inset-x-0 top-0 z-50 transition-colors duration-(--dur-hit)', open ? 'bg-carbon' : 'bg-carbon/85')}>
+    <header ref={ref} onKeyDown={onKey} className={cn('fixed inset-x-0 top-0 z-50 transition-colors duration-(--dur-hit)', open ? 'bg-carbon' : finish ? 'bg-transparent' : 'bg-carbon/85')}>
       {/* Full-screen menu. Behind the bar, so the bar's button also closes it. */}
       <div ref={panel} id="site-menu" data-lenis-prevent role="dialog" aria-modal="true" aria-label="Site menu"
         className="invisible fixed inset-0 overflow-y-auto bg-carbon opacity-0">
@@ -209,12 +215,20 @@ export function Nav() {
           <Scramble text="AHSAN" on="hover" />
           <span className="sr-only">Muhammad Ahsan</span>
         </a>
+        {/* At the finish the footer has the CV and every link, so the bar steps back: the CV
+            button slides away and Menu folds to its icon (its label comes back when open). */}
         <div className="flex items-center gap-3">
-          <CvLink className={cn('btn btn-primary !px-4 !py-2 max-sm:hidden transition-opacity', open && 'pointer-events-none opacity-0')} tabIndex={open ? -1 : 0} />
+          <CvLink inert={open || finish || undefined} tabIndex={open || finish ? -1 : 0}
+            className={cn('btn btn-primary !px-4 !py-2 max-sm:hidden transition-[opacity,translate,background-color] duration-(--dur-split) ease-out-expo', (open || finish) && 'pointer-events-none translate-x-3 opacity-0')} />
           <button ref={btn} type="button" onClick={() => (open ? hide() : show())}
             aria-expanded={open} aria-controls="site-menu"
-            className="btn btn-ghost group min-h-11 !gap-3 !px-4 !py-2">
-            <span key={open ? 'close' : 'menu'} data-letter-roll className="font-mono uppercase tracking-[0.14em]">{open ? 'Close' : 'Menu'}</span>
+            className={cn('btn btn-ghost group min-h-11 !gap-0 !py-2 transition-[padding,border-color,transform] duration-(--dur-split) ease-out-expo', finish && !open ? '!px-[11px]' : '!px-4')}>
+            {/* The label folds to nothing (0fr) and back; it stays the button's accessible name. */}
+            <span className={cn('grid transition-[grid-template-columns,opacity] duration-(--dur-split) ease-out-expo', finish && !open ? 'grid-cols-[0fr] opacity-0' : 'grid-cols-[1fr]')}>
+              <span className="overflow-hidden">
+                <span key={open ? 'close' : 'menu'} data-letter-roll className="block pr-3 font-mono uppercase tracking-[0.14em]">{open ? 'Close' : 'Menu'}</span>
+              </span>
+            </span>
             <span aria-hidden="true" className="relative block h-2.5 w-5">
               <span className={cn('absolute left-0 top-0 h-[2px] w-full transition-transform duration-(--dur-hit) ease-out-expo', open ? 'translate-y-[4px] rotate-45 bg-ac' : 'bg-current')} />
               <span className={cn('absolute bottom-0 left-0 h-[2px] w-full transition-transform duration-(--dur-hit) ease-out-expo', open ? '-translate-y-[4px] -rotate-45 bg-ac' : 'bg-current')} />

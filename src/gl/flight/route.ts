@@ -7,7 +7,7 @@ import { DROP, HOOK, type Bend } from './bezier';
 // ended, so two moves never write the helmet at once. A window whose `from` and `to`
 // are the same anchor is a hold (it can still turn the helmet).
 
-export type AnchorId = 'hero' | 'slot' | 'away' | 'podium' | 'finale' | 'exit';
+export type AnchorId = 'hero' | 'slot' | 'away' | 'podium' | 'finale' | 'parc' | 'exit';
 
 /** Where a window ends, in scroll terms. */
 export type End =
@@ -30,6 +30,7 @@ export const ANCHOR: Record<AnchorId, { fill: number; stand?: boolean; loose: nu
   away: { fill: 1, loose: 0 },
   podium: { fill: 0.95, stand: true, loose: 0 },
   finale: { fill: 1, loose: 1 },
+  parc: { fill: 1, loose: 1 },
   exit: { fill: 1, loose: 0 },
 };
 
@@ -60,11 +61,13 @@ export const ROUTE: Window[] = [
   { from: 'away', to: 'podium', end: { trigger: '[data-p3step]', start: 'top 75%' }, bend: DROP, rot: [0.12, -7.55, 0] },
   { from: 'podium', to: 'podium', end: { trigger: '[data-p3step]', start: 'top 40%' }, rot: [0.12, -7.55, 0] },
   // Beside 450+ (timed on the number itself, so the hold keeps its length at every
-  // screen size), then down and away, dissolving into sparks. The last window is cut
-  // at the page's end (flight.ts), so the sparks always finish.
+  // screen size), then down into the footer. The last window is cut at the page's end
+  // (flight.ts), so the helmet always lands.
   { from: 'podium', to: 'finale', end: { trigger: '[data-bignum]', start: 'center 60%' }, bend: HOOK, rot: [0.04, -7.85, 0] },
   { from: 'finale', to: 'finale', end: { trigger: '[data-bignum]', start: 'center 25%' }, rot: [0.04, -7.85, 0] },
-  { from: 'finale', to: 'exit', end: { trigger: '#results', start: 'bottom top' }, bend: DROP, rot: [0.6, -9.2, 0.3] },
+  // Parc fermé: down into the footer, turning almost a full circle back to the hero's
+  // pose, parked as the page ends: the lap ends the way it began.
+  { from: 'finale', to: 'parc', end: { trigger: '#contact', start: 'bottom bottom' }, bend: DROP, rot: [START_ROT[0], START_ROT[1] - Math.PI * 4, START_ROT[2]] },
 ];
 
 /** Short screens don't pin About: the helmet lands in the sentence as it passes instead. */
