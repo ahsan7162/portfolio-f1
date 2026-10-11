@@ -30,13 +30,17 @@
       }
     </script>
     <script>
-      // Show the start-lights loader only on a first visit with motion allowed.
+      // Before first paint: classes from the URL flags and the OS setting, and the
+      // start-lights loader, shown only on a first visit with motion allowed.
       (function () {
         try {
           var d = document.documentElement;
           var rm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
           var q = location.search;
           if (q.indexOf('nomotion') >= 0) d.classList.add('no-motion'); // CSS transitions off too (index.css)
+          // The helmet will fly: open its slot in the About sentence before first paint, so
+          // the sentence never reflows (GLCanvas.tsx closes it again if WebGL is out).
+          else if (!rm && q.indexOf('nogl') < 0) d.classList.add('helmet-flight');
           if (!rm && !location.hash && q.indexOf('nointro') < 0 && q.indexOf('nomotion') < 0 && !sessionStorage.getItem('v2-intro-seen')) d.classList.add('intro');
         } catch (e) {}
       })();

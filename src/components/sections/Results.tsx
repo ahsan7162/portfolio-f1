@@ -85,7 +85,7 @@ export function Results() {
             <div aria-hidden="true" className="mt-10 flex items-end gap-1.5">
               {STEPS.map(s => (
                 <div key={s.p} data-step className={`relative flex w-12 items-start justify-center overflow-hidden pt-1 ${s.h} bg-fg/10 text-mute`}>
-                  {s.p === 3 && <span data-p3fill data-p3step className="absolute inset-0 bg-ac" />}
+                  {s.p === 3 && <span data-p3fill data-p3step data-helmet-anchor="podium" className="absolute inset-0 bg-ac" />}
                   <span data-p3num={s.p === 3 || undefined} className={`display relative text-lg font-bold ${s.p === 3 ? 'text-carbon' : ''}`}>{s.p}</span>
                 </div>
               ))}
@@ -105,7 +105,10 @@ export function Results() {
           ))}
         </div>
 
-        <div className="mt-32 md:mt-72">
+        <div className="relative mt-32 md:mt-72">
+          {/* Where the helmet waits beside 450+ before it leaves (gl/flight). */}
+          <div data-helmet-anchor="finale" aria-hidden="true"
+            className="pointer-events-none invisible absolute right-[4%] top-[-4%] size-[min(38vh,26vw)] max-md:-top-[38vw] max-md:right-0 max-md:size-[34vw]" />
           <div data-bigwrap data-speed className="relative w-max">
             {/* The dim ghost the number fills (hidden under it when static). */}
             <div data-bigghost aria-hidden="true" className="display pointer-events-none absolute inset-0 whitespace-nowrap text-[clamp(6rem,25.5vw,22rem)] font-black !leading-[0.8] tracking-[-0.06em] text-fg/[0.07]">

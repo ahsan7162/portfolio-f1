@@ -16,9 +16,9 @@ export function About() {
     const slowChars = slow ? SplitText.create(slow, { type: 'chars' }).chars : [];
     const words = split.words.filter(w => !slow?.contains(w) && !w.contains(slow));
 
-    // The helmet's About move is timed against this pin (helmetPath), so it pins on
-    // every screen but landscape phones, and the statement's size also follows the
-    // screen height so it fits. Short screens light the words up as it scrolls past.
+    // The helmet lands in this sentence and holds through this pin (gl/flight), so it
+    // pins on every screen but landscape phones, and the statement's size also follows
+    // the screen height so it fits. Short screens light the words up as it scrolls past.
     // The pin itself has no animation: the light-up starts earlier, while the hero
     // is still leaving (from the pin's top at 40% of the screen), so there is no dead
     // frame between them, and runs to the end of the pin.
@@ -60,6 +60,8 @@ export function About() {
               {profile.aboutAccent.includes(w)
                 ? <em className="display-em relative isolate inline-block">{w}{w === 'fast.' && <span data-fastline aria-hidden="true" className="absolute inset-x-0 top-1/2 -z-10 h-[0.12em] origin-left scale-x-0 bg-ac/60" />}</em>
                 : w}
+              {/* The helmet lands here, after "fast." (gl/flight); no room unless it flies. */}
+              {w === 'fast.' && <span data-helmet-anchor="slot" aria-hidden="true" className="helmet-slot" />}
               {i < words.length - 1 ? ' ' : ''}
             </span>
           ))}

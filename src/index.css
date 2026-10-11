@@ -228,6 +228,28 @@ html.gl-on .gl-canvas { opacity: 1; }
 }
 html.gl-on .contour-fallback { opacity: 0; transition: opacity 1s; }
 
+/* The helmet's canvas: above the page so it can fly in front of the text, never in the
+   way of the pointer. Layers: content < helmet 30 < track map 40 < nav 50 < scroll rail 60
+   < dialogs 70/75 < loader 80 < cursor 85. Hidden while the helmet is off screen
+   (data-off); it fades back while it covers the keyboard focus (data-dim). */
+.gl-helmet {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  width: 100%;
+  height: 100lvh;
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity var(--dur-split) var(--ease-out-expo);
+}
+html.gl-on .gl-helmet { visibility: visible; opacity: 1; }
+html.gl-on .gl-helmet[data-off] { visibility: hidden; }
+html.gl-on .gl-helmet[data-dim] { opacity: 0.2; }
+/* Its landing slot in the About sentence, after "fast.": no room unless the helmet flies. */
+.helmet-slot { display: inline-block; width: 0; height: 0.8em; }
+html.helmet-flight .helmet-slot { width: 1.7em; margin-left: 0.2em; }
+
 /* Career timeline: static list by default; with motion it becomes one pinned
    screen where the stages replace each other over the 3D lap. */
 .lap-live .lap-pin { height: 100dvh; padding-top: calc(var(--navh) + 1.5rem); padding-bottom: 1.5rem; overflow: hidden; }

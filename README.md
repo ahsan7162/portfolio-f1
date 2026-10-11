@@ -24,17 +24,23 @@ breaks a rule on purpose, an `oxlint-disable-next-line` comment says why.
 - **Scroll:** Lenis smooth scroll runs from the GSAP ticker and updates ScrollTrigger in the
   same frame (`src/motion/SmoothScroll.tsx`), so pins, scrubbed tweens and WebGL never drift.
 - **Motion patterns:** `src/motion/patterns.ts` (SplitText masked reveals, clip-path wipes,
-  scrubbed parallax, digit rolls, DrawSVG lines, and `gridSlot`, the scrubbed letter-by-letter
-  heading entrance). Sections use them through `useSectionMotion`, which does nothing with
+  scrubbed parallax, digit rolls, DrawSVG lines, `gridSlot`, the scrubbed letter-by-letter
+  heading entrance, `barReveal`, the red bar line reveal, and `curtainReveal`, the oval curtain
+  on project visuals). Sections use them through `useSectionMotion`, which does nothing with
   reduced motion. Display headings marked `data-speed` lean with scroll speed
-  (`src/motion/useSpeedSkew.ts`); Projects becomes a CSS-sticky card deck when a card fits the
-  screen; the custom cursor is `src/components/Cursor.tsx` (states via `data-cursor`).
+  (`src/motion/useSpeedSkew.ts`); button and menu labels marked `data-letter-roll` roll their
+  letters on hover (`src/motion/useLetterRoll.ts`); Projects becomes a CSS-sticky card deck when
+  a card fits the screen; the custom cursor is `src/components/Cursor.tsx` (states via `data-cursor`).
 - **Intro:** F1 start lights (`src/components/Intro.tsx`) play the shared timeline in
   `src/motion/intro.ts`. First visit only; skipped with a URL hash, `?nointro` or reduced motion.
-- **WebGL:** one lazy-loaded three.js renderer (`src/gl/Stage.ts`) draws the contour-line
-  background, the procedural helmet (`src/gl/helmet/`, built entirely in code) and the 3D lap.
-  It only renders while something moves and pauses when the tab is hidden or a dialog is open.
-  The helmet's per-section poses are in `src/gl/helmetPath.ts`.
+- **WebGL:** lazy-loaded three.js (`src/gl/Stage.ts`) on two canvases. Behind the page: the
+  contour-line background, or the 3D lap while it is pinned (light pulses run along its racing
+  line with the scroll; its S1/S2/S3 marks are DOM, projected from the track). Above the page,
+  see-through and click-through: the procedural helmet (`src/gl/helmet/`, built entirely in
+  code), so it can fly in front of the text. It flies cubic Béziers between layout boxes marked
+  `data-helmet-anchor` (the hero, a slot after "fast." in About, the P3 step, beside 450+), in
+  back-to-back scroll windows (`src/gl/flight/route.ts`, `flight.ts`). Both render only while
+  something moves and pause when the tab is hidden or a dialog is open.
 - **One animation engine:** every JS animation is GSAP (plus Lenis on its ticker). Counters use
   `digitRoll`, scrambled labels `ScrambleTextPlugin` (`src/components/Scramble.tsx`), project
   cards play a short SVG scene of the product in use (`src/components/ProjectVisuals.tsx`: the

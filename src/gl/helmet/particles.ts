@@ -70,7 +70,11 @@ export function createParticles(shell: THREE.Mesh, livery: HTMLCanvasElement | u
         if (vAlpha <= 0.0 || r > 0.5) discard;
         outColor = vec4(vCol * vAlpha * smoothstep(0.5, 0.1, r), 1.0);
       }`,
-    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    // Additive light that leaves the canvas's alpha alone: the helmet's canvas is see-through
+    // over the page, and plain additive blending would write alpha 1 over each spark's whole
+    // disc, a dark square over the text. The colour is already scaled by vAlpha above.
+    transparent: true, depthWrite: false, blending: THREE.CustomBlending,
+    blendSrc: THREE.OneFactor, blendDst: THREE.OneFactor, blendSrcAlpha: THREE.ZeroFactor, blendDstAlpha: THREE.OneFactor,
   });
   const points = new THREE.Points(geo, mat);
   points.visible = false;

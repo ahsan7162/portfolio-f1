@@ -54,6 +54,10 @@ export function Hero() {
         04
       </div>
 
+      {/* Where the 3D helmet sits in the hero (gl/flight). Placed by layout only, no transforms. */}
+      <div data-helmet-anchor="hero" aria-hidden="true"
+        className="pointer-events-none invisible absolute left-[78%] top-[55%] -ml-[22vh] -mt-[22vh] size-[44vh] max-lg:left-auto max-lg:right-4 max-lg:top-[calc(var(--navh)+1rem)] max-lg:m-0 max-lg:size-[min(40vw,20svh)]" />
+
       <div data-hbody className="mx-auto flex w-full max-w-[1400px] flex-1 flex-col justify-center pb-10">
         {/* Status pill: the one live fact, clickable into the full Careem breakdown. The dot is static. */}
         <button data-hfade data-pill data-cursor="magnet" data-cursor-pull="0.35" type="button" onClick={e => { if (current) openDetails(current, originOf(e)); }}

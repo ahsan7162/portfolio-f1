@@ -8,8 +8,8 @@ import { isMobile, isTouch } from '@/motion/prefs';
 import { scrollState } from '@/motion/SmoothScroll';
 import { EASE } from '@/motion/tokens';
 import { createField } from './field';
+import { bindFlight, type Flight } from './flight/flight';
 import { garageScene } from './garage';
-import { bindHelmetPath, exit, perch, type Pose } from './helmetPath';
 import { buildHelmet, type Helmet } from './helmet/buildHelmet';
 import { createParticles } from './helmet/particles';
 import { createLap } from './lap';
@@ -22,30 +22,45 @@ const FOV = 30, CAM_Z = 8;
  * well inside the budget, and at 1.5x on a 3x screen the lines and the helmet edge go soft.
  */
 const MAX_DPR = 1.5, MAX_DPR_PHONE = 2, MAX_PIXELS = 3.2e6, MIN_SCALE = 0.55;
+/** World units per CSS pixel at the helmet's depth (z = 0), per pixel of viewport height. */
+const HALF_H = Math.tan(THREE.MathUtils.degToRad(FOV / 2)) * CAM_Z;
 
 /**
- * The single WebGL renderer for the page. Draw order per frame:
- *   1. contour background  2. helmet  (or the lap scene while it is pinned)
- * It renders only when something changes: scrolling, a tween, the pointer, or
- * a steady 30fps idle drift. It stops entirely
- * when the tab is hidden or a dialog has locked scrolling.
+ * The page's WebGL, on two canvases:
+ *   - behind the page: the contour background, or the lap scene alone while it is pinned;
+ *   - above the page (see-through, click-through): the helmet, so it can fly in front of
+ *     the text and land in layout boxes (flight/flight.ts), as on landonorris.com.
+ * They render only when something changes: scrolling, a tween, the pointer, or the
+ * background's steady 30fps idle drift (the helmet holds still then, so its canvas keeps
+ * its last frame). Everything stops while the tab is hidden or a dialog has locked
+ * scrolling, and the helmet's canvas is hidden while the helmet is off screen.
  */
 export class Stage {
   private renderer: THREE.WebGLRenderer;
+  /** The helmet's own renderer, on the see-through canvas above the page. */
+  private hr: THREE.WebGLRenderer;
   private camera = new THREE.PerspectiveCamera(FOV, 1, 0.1, 50);
   private scene = new THREE.Scene();
   private field = createField();
   private lap = createLap();
   private helmet: Helmet | null = null;
   private sparks: ReturnType<typeof createParticles> | null = null;
+  private flight: ReturnType<typeof bindFlight> | null = null;
+  private at: Flight = { x: 0, y: 0, size: 1, stand: 0, rx: 0, ry: 0, rz: 0, loose: 1, exit: 0 };
   /** The intro's reveal (0..1.05); the shell shows the lower of this and the exit's dissolve. */
   private intro = { value: 0 };
-  /** The helmet's size at scale 1, in world units (for perching it on a DOM element). */
-  private base = { w: 1, cx: 0, minY: 0 };
-  private pose: Pose = { x: 0.5, y: 0, s: 1, rx: 0, ry: -0.65, rz: 0 };
+  /** The helmet's box at scale 1 and rotation 0, in world units (for fitting it to a layout box). */
+  private base = { w: 1, cx: 0, cy: 0, minY: 0 };
   private pointer = { x: 0, y: 0, tx: 0, ty: 0 };
   /** The contour lens under the cursor: a quicker copy of the pointer, and its strength (desktop only). */
   private lens = { x: 0.5, y: 0.5, on: 0, target: 0 };
+  /** The keyboard-focused element's box in page px: the helmet steps back if it covers it. */
+  private focus: { l: number; t: number; r: number; b: number } | null = null;
+  private overlay = { shown: true, dim: false };
+  /** The helmet changed without anything moving (its reveal ended, a resize): draw it on the next frame. */
+  private helmetDirty = true;
+  /** The flight as last drawn: idle frames redraw only if it changed (a jump, the podium building). */
+  private drawn = { x: Infinity, y: Infinity, size: Infinity, ry: Infinity, exit: Infinity };
   private cleanups: Array<() => void> = [];
   private busy = 0;
   private lastRender = 0;
@@ -66,23 +81,26 @@ export class Stage {
   /** Touchscreens keep the contour background still while scrolling (no scroll parallax or stretch). */
   private still = isTouch();
 
-  constructor(canvas: HTMLCanvasElement) {
+  constructor(canvas: HTMLCanvasElement, overlay: HTMLCanvasElement) {
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
-    this.renderer.outputColorSpace = THREE.SRGBColorSpace;
-    this.renderer.toneMapping = THREE.NeutralToneMapping;
-    this.renderer.toneMappingExposure = 1.0;
-    this.renderer.autoClear = false;
+    this.hr = new THREE.WebGLRenderer({ canvas: overlay, antialias: true, alpha: true, premultipliedAlpha: true, powerPreference: 'high-performance' });
+    for (const r of [this.renderer, this.hr]) {
+      r.outputColorSpace = THREE.SRGBColorSpace;
+      r.toneMapping = THREE.NeutralToneMapping;
+      r.toneMappingExposure = 1.0;
+      r.autoClear = false;
+    }
+    this.hr.setClearColor(0x000000, 0);
 
-    const pmrem = new THREE.PMREMGenerator(this.renderer);
+    // No scene lights: the helmet is lit only by the baked garage map (image-based
+    // reflections), which keeps shading cheap. Baked on the helmet's own renderer.
+    const pmrem = new THREE.PMREMGenerator(this.hr);
     const garage = garageScene();
     const env = pmrem.fromScene(garage.scene, 0.02).texture;
     this.scene.environment = env;
     garage.dispose();
     pmrem.dispose();
     this.cleanups.push(() => env.dispose());
-
-    // No scene lights: the helmet is lit only by the baked garage map
-    // (image-based reflections), which keeps shading cheap.
     this.camera.position.set(0, 0, CAM_Z);
 
     this.resize();
@@ -104,11 +122,26 @@ export class Stage {
       this.cleanups.push(() => { window.removeEventListener('pointermove', onMove); document.removeEventListener('pointerout', onLeave); });
     }
 
-    // Without a context the canvas would stay blank over the hidden fallbacks: dropping
-    // `gl-on` brings back the contour pattern and the Lap's flat circuit.
-    const onLost = (e: Event) => { e.preventDefault(); this.dead = true; document.documentElement.classList.remove('gl-on'); };
-    canvas.addEventListener('webglcontextlost', onLost);
-    this.cleanups.push(() => canvas.removeEventListener('webglcontextlost', onLost));
+    // The helmet must never hide a focus ring: it fades back while it covers the focused element.
+    const onFocus = (e: FocusEvent) => {
+      const el = e.target instanceof HTMLElement && e.target.matches(':focus-visible') ? e.target : null;
+      const r = el?.getBoundingClientRect();
+      this.focus = r ? { l: r.left, t: r.top + scrollY, r: r.right, b: r.bottom + scrollY } : null;
+      this.kick();
+    };
+    const onBlur = () => { this.focus = null; this.kick(); };
+    document.addEventListener('focusin', onFocus);
+    document.addEventListener('focusout', onBlur);
+    this.cleanups.push(() => { document.removeEventListener('focusin', onFocus); document.removeEventListener('focusout', onBlur); });
+
+    // Without a context a canvas would stay blank over the hidden fallbacks: dropping
+    // `gl-on` brings back the contour pattern and the Lap's flat circuit, and closes the
+    // About sentence's helmet slot (GLCanvas.tsx).
+    const onLost = (e: Event) => { e.preventDefault(); this.dead = true; this.onLost?.(); };
+    for (const c of [canvas, overlay]) {
+      c.addEventListener('webglcontextlost', onLost);
+      this.cleanups.push(() => c.removeEventListener('webglcontextlost', onLost));
+    }
 
     this.bindSectionColours();
     const tick = () => this.frame();
@@ -117,12 +150,15 @@ export class Stage {
 
     this.lastInput = performance.now();
     // The loader counts the helmet in once it is built and compiled (or failed).
-    void this.loadHelmet().finally(() => loaded('helmet'));
+    void this.loadHelmet().catch(err => { console.warn('[gl] helmet failed', err); this.onLost?.(); }).finally(() => loaded('helmet'));
     if (import.meta.env.DEV) Object.assign(window, { __stage: this });
   }
 
+  /** Called when WebGL goes away (a lost context, the helmet failing to build). */
+  onLost?: () => void;
+
   /** Ask for renders for a short while (after resizes, tweens starting, etc.). */
-  private kick(ms = 600) { this.lastInput = Math.max(this.lastInput, performance.now() + ms - 1500); }
+  private kick(ms = 600) { this.lastInput = Math.max(this.lastInput, performance.now() + ms - 1500); this.helmetDirty = true; }
 
   private resize() {
     // The canvas's own size (100lvh), not the window's: on phones innerHeight changes as the
@@ -133,37 +169,40 @@ export class Stage {
     this.size = { w, h, scale: this.quality.scale };
     const dpr = Math.min(devicePixelRatio, isMobile() ? MAX_DPR_PHONE : MAX_DPR, Math.sqrt(MAX_PIXELS / (w * h)));
     // Adaptive scaling never takes the canvas below 1x CSS pixels (unless the budget already does).
-    this.renderer.setPixelRatio(Math.max(Math.min(1, dpr), dpr * this.quality.scale));
-    this.renderer.setSize(w, h, false);
-    this.sparks?.setPixelRatio(this.renderer.getPixelRatio());
+    const pr = Math.max(Math.min(1, dpr), dpr * this.quality.scale);
+    for (const r of [this.renderer, this.hr]) { r.setPixelRatio(pr); r.setSize(w, h, false); }
+    this.helmetDirty = true; // resizing cleared its canvas
+    this.sparks?.setPixelRatio(this.hr.getPixelRatio());
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
     this.field.uniforms.uRes.value.set(w, h);
   }
 
   private async loadHelmet() {
-    const helmet = await buildHelmet({ anisotropy: Math.min(8, this.renderer.capabilities.getMaxAnisotropy()) });
+    const helmet = await buildHelmet({ anisotropy: Math.min(8, this.hr.capabilities.getMaxAnisotropy()) });
     if (this.dead) { helmet.dispose(); return; }
     this.helmet = helmet;
     this.scene.add(helmet.group);
     const box = new THREE.Box3().setFromObject(helmet.group), dims = box.getSize(new THREE.Vector3());
-    this.base = { w: dims.x || 1, cx: (box.min.x + box.max.x) / 2, minY: box.min.y };
-    this.cleanups.push(bindHelmetPath(this.pose), () => helmet.dispose());
+    this.base = { w: dims.x || 1, cx: (box.min.x + box.max.x) / 2, cy: (box.min.y + box.max.y) / 2, minY: box.min.y };
+    const flight = bindFlight();
+    this.flight = flight;
+    this.cleanups.push(() => flight.dispose(), () => helmet.dispose());
     // Compile shaders before the reveal so the first frames don't stutter.
-    this.renderer.compile(this.scene, this.camera);
+    this.hr.compile(this.scene, this.camera);
     onIntroDone(() => this.playReveal());
     // The exit sparks are sampled in idle time; fewer on phones (smaller screen, weaker GPU).
     whenIdle(() => {
       if (this.dead || !this.helmet) return;
       const sparks = createParticles(helmet.shell, helmet.livery, isMobile() ? 2500 : 6000, helmet.reveal);
-      sparks.setPixelRatio(this.renderer.getPixelRatio());
+      sparks.setPixelRatio(this.hr.getPixelRatio());
       helmet.shell.parent!.add(sparks.points);
       this.sparks = sparks;
       this.cleanups.push(() => sparks.dispose());
       // Warm up what first appears mid-scroll (the sparks, the lap's car and run-off logos), so
       // their shader compiles and texture uploads don't land on a scrolling frame.
       sparks.points.visible = true;
-      void Promise.all([this.renderer.compileAsync(this.scene, this.camera), this.renderer.compileAsync(this.lap.scene, this.lap.camera)])
+      void Promise.all([this.hr.compileAsync(this.scene, this.camera), this.renderer.compileAsync(this.lap.scene, this.lap.camera)])
         .catch(() => {}).finally(() => { if (!this.dead) { sparks.points.visible = false; this.lap.warm(this.renderer); } });
     }, 3000, 1000);
   }
@@ -172,7 +211,8 @@ export class Stage {
   private playReveal() {
     const h = this.helmet!;
     this.busy++;
-    gsap.timeline({ onComplete: () => { this.busy--; } })
+    // Ends dirty: a reveal that finished in one tick (a background tab) still gets drawn.
+    gsap.timeline({ onComplete: () => { this.busy--; this.helmetDirty = true; } })
       .fromTo(h.wire, { draw: 0 }, { draw: 1, duration: 1.3, ease: EASE.wipe })
       .fromTo(this.intro, { value: 0 }, { value: 1.05, duration: 1.6, ease: 'power2.inOut' }, 0.7)
       .to(h.wire, { opacity: 0, duration: 0.8, ease: 'power2.out' }, 1.8);
@@ -239,14 +279,67 @@ export class Stage {
       this.lapMore = this.lap.update(this.lapP, this.size.w, this.size.h, this.lapV, lapState.stage);
       lapMarks.sink?.(); // the DOM sector marks follow in this same frame
       r.render(scene, camera);
+      this.showHelmet(false); // away while the lap has the canvas
       return;
     }
     r.render(this.field.scene, this.camera);
-    if (this.helmet) {
-      this.applyPose(this.helmetClock);
-      r.clearDepth();
-      r.render(this.scene, this.camera);
-    }
+    if (this.helmet) this.drawHelmet(moving);
+  }
+
+  /**
+   * Place the helmet on its flight and draw it on its own canvas, or hide that canvas while
+   * it is off screen. While nothing moves, it redraws only if the flight changed: an instant
+   * jump (a deep link, a rail drag) or the layout moving under it.
+   */
+  private drawHelmet(moving: boolean) {
+    const h = this.helmet!, g = h.group, f = this.at, { w: W, h: H } = this.size;
+    this.flight!.sample(scrollState.y, W, H, f);
+    const d = this.drawn;
+    const changed = Math.abs(f.x - d.x) > 0.1 || Math.abs(f.y - d.y) > 0.1 || Math.abs(f.size - d.size) > 0.1 || Math.abs(f.ry - d.ry) > 1e-4 || f.exit !== d.exit;
+    if (!moving && !this.helmetDirty && !changed) return;
+    this.helmetDirty = false;
+    d.x = f.x; d.y = f.y; d.size = f.size; d.ry = f.ry; d.exit = f.exit;
+    const unit = (2 * HALF_H) / H; // world units per CSS px at z = 0
+    const s = (f.size * unit) / this.base.w;
+    // Gentle pointer follow (desktop), eased every drawn frame, and a slow float.
+    this.pointer.x += (this.pointer.tx - this.pointer.x) * 0.06;
+    this.pointer.y += (this.pointer.ty - this.pointer.y) * 0.06;
+    const t = this.helmetClock, loose = f.loose;
+    // The anchor point is the box's centre, or for a standing anchor its top edge (the
+    // helmet's bottom goes there); the group's origin is offset by the helmet's own box.
+    const offY = this.base.cy + (this.base.minY - this.base.cy) * f.stand;
+    const x = f.x - (this.base.cx * s) / unit, y = f.y + (offY * s) / unit;
+    g.position.set((x - W / 2) * unit, (H / 2 - y) * unit + Math.sin(t * 0.9) * 0.03 * loose, 0);
+    g.rotation.set(f.rx + this.pointer.y * 0.14 * loose, f.ry + (this.pointer.x * 0.2 + Math.sin(t * 0.6) * 0.03) * loose, f.rz);
+    g.scale.setScalar(s);
+    // The exit runs the reveal backwards (top first) while the sparks fly off. It overshoots
+    // below 0 so the last sparks finish fading: the shell is gone at about exit = 0.6.
+    h.reveal.value = Math.min(this.intro.value, 1.05 - 1.7 * f.exit);
+    h.seam.value = f.exit > 0.001 ? 0.05 : 1; // a faint ember: the sparks carry the heat
+    if (this.sparks) this.sparks.points.visible = f.exit > 0.001;
+    h.update();
+
+    // On screen at all (the sparks travel well beyond the shell)?
+    const half = f.size * (f.exit > 0.001 ? 1.5 : 0.75);
+    const on = h.reveal.value > -0.6 && f.x + half > 0 && f.x - half < W && f.y + half > 0 && f.y - half < H;
+    this.showHelmet(on);
+    if (!on) return;
+    const fb = this.focus, top = scrollY;
+    this.dimHelmet(!!fb && fb.r > f.x - half && fb.l < f.x + half && fb.b - top > f.y - half && fb.t - top < f.y + half);
+    this.hr.clear();
+    this.hr.render(this.scene, this.camera);
+  }
+
+  private showHelmet(on: boolean) {
+    if (on === this.overlay.shown) return;
+    this.overlay.shown = on;
+    this.hr.domElement.toggleAttribute('data-off', !on);
+  }
+
+  private dimHelmet(dim: boolean) {
+    if (dim === this.overlay.dim) return;
+    this.overlay.dim = dim;
+    this.hr.domElement.toggleAttribute('data-dim', dim);
   }
 
   /**
@@ -274,48 +367,13 @@ export class Stage {
     }
   }
 
-  private applyPose(t: number) {
-    const h = this.helmet!, p = this.pose, g = h.group;
-    const halfH = Math.tan(THREE.MathUtils.degToRad(FOV / 2)) * CAM_Z;
-    const halfW = halfH * this.camera.aspect;
-    // Gentle pointer follow (desktop), eased every frame.
-    this.pointer.x += (this.pointer.tx - this.pointer.x) * 0.06;
-    this.pointer.y += (this.pointer.ty - this.pointer.y) * 0.06;
-    let { x, y, s, rx, ry, rz } = p;
-    // Perched: sit on the element's top edge, about its width, facing the page.
-    const k = perch.el ? perch.k : 0;
-    if (k > 0.001) {
-      const r = perch.el!.getBoundingClientRect(), W = this.size.w, H = this.size.h;
-      // Scale so the helmet is about the step's width, then place its measured bottom
-      // edge on the step's top edge and its centre over the step's centre.
-      const as = ((r.width * 0.95) / W) * 2 * halfW / this.base.w, world = as;
-      const at = {
-        x: (((r.left + r.width / 2) / W) * 2 - 1 - (this.base.cx * world) / halfW),
-        y: (1 - (r.top / H) * 2) - (this.base.minY * world) / halfH,
-        s: as,
-        rx: 0.12, ry: -7.55, rz: 0,
-      };
-      const mix = (a: number, b: number) => a + (b - a) * k;
-      x = mix(x, at.x); y = mix(y, at.y); s = mix(s, at.s); rx = mix(rx, at.rx); ry = mix(ry, at.ry); rz = mix(rz, at.rz);
-    }
-    const loose = 1 - k; // no float or pointer follow while it sits on the step
-    g.position.set(x * halfW, y * halfH + Math.sin(t * 0.9) * 0.03 * loose, 0);
-    g.rotation.set(rx + this.pointer.y * 0.14 * loose, ry + (this.pointer.x * 0.2 + Math.sin(t * 0.6) * 0.03) * loose, rz);
-    g.scale.setScalar(s);
-    // The exit runs the reveal backwards (top first) while the sparks fly off. It overshoots
-    // below 0 so the last sparks finish fading: the shell is gone at about k = 0.6.
-    h.reveal.value = Math.min(this.intro.value, 1.05 - 1.7 * exit.k);
-    h.seam.value = exit.k > 0.001 ? 0.05 : 1; // a faint ember: the sparks carry the heat
-    if (this.sparks) this.sparks.points.visible = exit.k > 0.001;
-    g.visible = exit.k > 0.001 ? h.reveal.value > -0.6 : y > -1.6;
-    h.update();
-  }
-
   dispose() {
     this.dead = true;
     this.cleanups.splice(0).reverse().forEach(f => f());
     this.field.dispose();
     this.lap.dispose();
     this.renderer.dispose();
+    this.hr.dispose();
+    this.hr.forceContextLoss();
   }
 }

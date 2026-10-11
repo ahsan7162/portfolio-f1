@@ -9,6 +9,8 @@ export const EASE = {
   in: 'power2.in',
   wipe: 'expo.inOut',
   settle: 'back.out(1.15)',
+  /** The helmet's scrubbed flight between two layout boxes (gl/flight): eases out of one, into the next. */
+  fly: 'power1.inOut',
 } as const;
 
 // hit: hover, press, toggles (also CSS --dur-hit). split: UI events (menu rows,
