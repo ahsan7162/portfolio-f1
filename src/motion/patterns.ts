@@ -102,6 +102,58 @@ export function clipReveal(el: Target, opts: { from?: string; trigger?: Element;
       scrollTrigger: opts.scrollTrigger ?? (opts.trigger ? inView(opts.trigger) : undefined) });
 }
 
+/**
+ * Red bar line reveal (landonorris.com's highlight bar, in our one red): line by line,
+ * the text wipes in from the left with a red bar over it, and the bar then retracts to
+ * the right. Kept to a few labels and the hero lede. Plays once on view, or on
+ * `timeline` at `at`; `delay` waits before the first line (the site it comes from parses
+ * a delay and drops it).
+ */
+export function barReveal(el: HTMLElement | null, opts: { delay?: number; scrollTrigger?: ST | false; timeline?: gsap.core.Timeline; at?: gsap.Position } = {}) {
+  if (!el) return;
+  SplitText.create(el, {
+    type: 'lines',
+    linesClass: 'bar-line',
+    autoSplit: true,
+    // Lines only, so words stay whole and readable; no aria-label on a <p>, where it is not allowed.
+    aria: 'none',
+    onSplit(self) {
+      const st = opts.timeline || opts.scrollTrigger === false ? undefined : inView(el, { start: 'top 90%', ...opts.scrollTrigger });
+      const tl = gsap.timeline({ delay: opts.delay ?? 0, scrollTrigger: st });
+      self.lines.forEach((line, i) => {
+        const bar = document.createElement('span');
+        bar.className = 'bar-line-bar';
+        bar.setAttribute('aria-hidden', 'true');
+        line.appendChild(bar);
+        const at = i * STAGGER.line * 2;
+        tl.fromTo(line, { clipPath: 'inset(0% 100% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: DUR.wipe, ease: EASE.out, clearProps: 'clipPath' }, at)
+          .fromTo(bar, { scaleX: 1 }, { scaleX: 0, duration: DUR.wipe, ease: EASE.wipe }, at + DUR.split);
+      });
+      // Returned so SplitText can revert it on a re-split (fonts, resize) and keep its progress.
+      if (opts.timeline) opts.timeline.add(tl, opts.at ?? 0);
+      return tl;
+    },
+  });
+}
+
+/**
+ * Elliptical colour curtain (landonorris.com's image reveal): the element opens downward
+ * through a widening oval while a red panel over it drains away through a second oval,
+ * so a red curve sweeps down and lifts off. The panel is removed when it is done.
+ * Returns a cleanup for onRevert.
+ */
+export function curtainReveal(el: HTMLElement | null, opts: { trigger?: Element; scrollTrigger?: ST; color?: string } = {}) {
+  if (!el) return;
+  const panel = document.createElement('span');
+  panel.setAttribute('aria-hidden', 'true');
+  Object.assign(panel.style, { position: 'absolute', inset: '0', zIndex: '1', pointerEvents: 'none', background: opts.color ?? PALETTE.ac });
+  el.appendChild(panel);
+  gsap.timeline({ scrollTrigger: opts.scrollTrigger ?? inView(opts.trigger ?? el), onComplete: () => panel.remove() })
+    .fromTo(el, { clipPath: 'ellipse(120% 0% at 50% 0%)' }, { clipPath: 'ellipse(120% 120% at 50% 0%)', duration: DUR.reveal, ease: EASE.wipe, clearProps: 'clipPath' }, 0)
+    .fromTo(panel, { clipPath: 'ellipse(120% 120% at 50% 100%)' }, { clipPath: 'ellipse(120% 0% at 50% 100%)', duration: DUR.wipe, ease: EASE.wipe }, DUR.reveal - 0.4);
+  return () => panel.remove();
+}
+
 /** Scroll-linked drift. `scrub: true` keeps it locked to the page. */
 export function scrubParallax(el: Target, trigger: Element, opts: { from?: gsap.TweenVars; to: gsap.TweenVars; start?: string; end?: string; scrub?: boolean | number }) {
   return gsap.fromTo(el, { ...opts.from }, {

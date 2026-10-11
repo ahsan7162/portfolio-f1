@@ -176,6 +176,23 @@
   .btn-ghost:hover {
     border-color: var(--fg);
   }
+  /* Letter roll (useLetterRoll.ts): each letter carries its own copy as a text-shadow one
+     line below; .roll clips vertically only, so tracked letters can overhang sideways.
+     1lh is the label's own line height, so buttons and the big menu rows both work. */
+  .has-roll [data-letter-roll] { font-kerning: none; }
+  .roll { display: inline-block; overflow: visible clip; vertical-align: top; }
+  .roll-char { display: inline-block; text-shadow: 0 1lh currentColor; }
+  /* Red bar line reveal (barReveal): each line is as wide as its text, and its bar covers
+     the letters' 1em box, centred in the line. */
+  .bar-line { width: fit-content; }
+  .bar-line-bar {
+    position: absolute;
+    inset-inline: 0;
+    inset-block: calc((1lh - 1em) / 2);
+    background: var(--ac);
+    transform-origin: 100% 50%;
+    pointer-events: none;
+  }
   /* SplitText mask wrappers keep descenders */
   .split-mask {
     padding-bottom: 0.08em;

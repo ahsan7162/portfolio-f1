@@ -1,7 +1,7 @@
 import { education, stats } from '@/content/data';
 import { thousands } from '@/lib/format';
 import { gsap, SplitText } from '@/motion/gsap';
-import { digitRoll, gridSlot, inView, scrubParallax, splitReveal } from '@/motion/patterns';
+import { barReveal, digitRoll, gridSlot, inView, scrubParallax, splitReveal } from '@/motion/patterns';
 import { DUR, EASE } from '@/motion/tokens';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 
@@ -16,7 +16,7 @@ const award = education.award;
  * finished state.
  */
 export function Results() {
-  const ref = useSectionMotion(({ root, q, qa, onRevert }) => {
+  const ref = useSectionMotion(({ root, q, qa, desktop, onRevert }) => {
     gridSlot(q('h2'));
     const row = q('[data-row]')!;
     // Several one-off reveals share the row's one trigger, timed by their delays.
@@ -34,6 +34,11 @@ export function Results() {
 
     // 3. The numbers: sector-timer digits, after the award.
     qa('[data-roll]').forEach((el, i) => onRevert(digitRoll(el, { delay: 0.45 + i * 0.12, scrollTrigger: once })));
+
+    // Each column's label wipes in under the red bar as its column starts. On phones the
+    // columns stack, so each label waits for its own column to scroll in instead.
+    const starts = [0, 0.15, 0.45, 0.57];
+    qa('[data-eyebrow]').forEach((el, i) => barReveal(el, desktop ? { delay: starts[i] ?? 0, scrollTrigger: once } : {}));
 
     // The ghost P3 drifts behind the row.
     scrubParallax(q('[data-p3ghost]'), root, { from: { yPercent: 20 }, to: { yPercent: -20 } });
@@ -67,7 +72,7 @@ export function Results() {
         {/* One row: education, the award, then the numbers. The helmet perches on the P3 step. */}
         <div data-row className="grid gap-x-10 gap-y-12 sm:grid-cols-2 xl:grid-cols-4">
           <div id="education" tabIndex={-1} className="border-t border-line pt-5">
-            <p className="label mb-3">{education.years}</p>
+            <p data-eyebrow className="label mb-3">{education.years}</p>
             <h3 className="text-xl font-semibold font-stretch-semi-expanded">{education.degree}</h3>
             <p data-edutxt className="mt-3 text-sm leading-relaxed text-mute">
               {education.school}. {education.gpa}. {education.deansList}.
@@ -75,7 +80,7 @@ export function Results() {
           </div>
 
           <div className="border-t border-line pt-5">
-            <p className="label mb-3">{award.year}</p>
+            <p data-eyebrow className="label mb-3">{award.year}</p>
             <h3 className="text-xl font-semibold font-stretch-semi-expanded">3rd place, {award.name}</h3>
             <div aria-hidden="true" className="mt-10 flex items-end gap-1.5">
               {STEPS.map(s => (
@@ -92,7 +97,7 @@ export function Results() {
 
           {stats.grid.map(s => (
             <dl key={s.label} className="border-t border-line pt-5">
-              <dt className="label mb-3">{s.label}</dt>
+              <dt data-eyebrow className="label mb-3">{s.label}</dt>
               <dd className="display whitespace-nowrap text-display-stat">
                 {s.prefix}<span data-roll className="tracking-tight">{s.value}</span>{s.suffix}
               </dd>

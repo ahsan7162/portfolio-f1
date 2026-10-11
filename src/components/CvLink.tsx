@@ -7,5 +7,5 @@ import { CV_FILE } from '@/content/data';
  * value, and it still works when the site is served from a subfolder.
  */
 export function CvLink(props: AnchorHTMLAttributes<HTMLAnchorElement>) {
-  return <a href={CV_FILE} download={CV_FILE} {...props}>Download CV</a>;
+  return <a href={CV_FILE} download={CV_FILE} {...props}><span data-letter-roll>Download CV</span></a>;
 }

@@ -123,7 +123,9 @@ export function Nav() {
   // Section links: unlock first so the page-wide anchor handler can scroll.
   const go = () => hide(false);
 
-  const rowText = 'display block text-[clamp(1.6rem,3.9vw,3.3rem)] transition-[color,transform] duration-(--dur-hit) ease-out-expo group-hover:translate-x-3 group-hover:text-ac group-focus-visible:translate-x-3 group-focus-visible:text-ac';
+  // Hover nudges the row right, unless the letter roll runs (useLetterRoll): then the
+  // letters roll instead. Keyboard focus always nudges.
+  const rowText = 'display block text-[clamp(1.6rem,3.9vw,3.3rem)] transition-[color,transform] duration-(--dur-hit) ease-out-expo [html:not(.has-roll)_.group:hover_&]:translate-x-3 group-hover:text-ac group-focus-visible:translate-x-3 group-focus-visible:text-ac';
 
   return (
     // oxlint-disable-next-line jsx-a11y/no-static-element-interactions -- Esc and the Tab trap for the bar and the open menu
@@ -146,7 +148,7 @@ export function Nav() {
                           <button type="button" onClick={e => { const o = originOf(e); hide(false); openArchive(o); }}
                             className="group flex flex-1 items-start py-3 text-left md:py-4">
                             {n}
-                            <span className={rowText}>{m.menu}</span>
+                            <span data-letter-roll className={rowText}>{m.menu}</span>
                             <span className="ml-4 self-center rounded-full bg-ac px-2.5 py-0.5 font-mono text-xs text-carbon">{projects.length + archive.length}</span>
                             {dot}
                             <span aria-hidden="true" className="ml-auto self-center font-mono text-sm text-mute transition-colors group-hover:text-ac">See all <Arrow /></span>
@@ -155,7 +157,7 @@ export function Nav() {
                           <a href={`#${m.id}`} onClick={go} aria-current={current === m.id ? 'location' : undefined}
                             className="group flex flex-1 items-start py-3 md:py-4">
                             {n}
-                            <span className={rowText}>{m.menu}</span>
+                            <span data-letter-roll className={rowText}>{m.menu}</span>
                             {dot}
                           </a>
                         )}
@@ -212,7 +214,7 @@ export function Nav() {
           <button ref={btn} type="button" onClick={() => (open ? hide() : show())}
             aria-expanded={open} aria-controls="site-menu"
             className="btn btn-ghost group min-h-11 !gap-3 !px-4 !py-2">
-            <span className="font-mono uppercase tracking-[0.14em]">{open ? 'Close' : 'Menu'}</span>
+            <span key={open ? 'close' : 'menu'} data-letter-roll className="font-mono uppercase tracking-[0.14em]">{open ? 'Close' : 'Menu'}</span>
             <span aria-hidden="true" className="relative block h-2.5 w-5">
               <span className={cn('absolute left-0 top-0 h-[2px] w-full transition-transform duration-(--dur-hit) ease-out-expo', open ? 'translate-y-[4px] rotate-45 bg-ac' : 'bg-current')} />
               <span className={cn('absolute bottom-0 left-0 h-[2px] w-full transition-transform duration-(--dur-hit) ease-out-expo', open ? '-translate-y-[4px] -rotate-45 bg-ac' : 'bg-current')} />

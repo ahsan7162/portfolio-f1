@@ -5,7 +5,7 @@ import { CvLink } from '@/components/CvLink';
 import { originOf, useDialogs } from '@/components/dialog-context';
 import { gsap } from '@/motion/gsap';
 import { introTimeline } from '@/motion/intro';
-import { drawPath, magnet, proximityChars, scrubParallax, splitReveal } from '@/motion/patterns';
+import { barReveal, drawPath, magnet, proximityChars, scrubParallax, splitReveal } from '@/motion/patterns';
 import { DUR, EASE, STAGGER } from '@/motion/tokens';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 
@@ -18,7 +18,9 @@ export function Hero() {
     qa('[data-hline]').forEach((line, i) =>
       splitReveal(line, { type: 'chars', timeline: tl, at: `reveal+=${0.1 + i * 0.12}`, stagger: STAGGER.char * 1.6, duration: DUR.show }));
     splitReveal(q('[data-hsub]'), { type: 'words', timeline: tl, at: 'reveal+=0.45' });
-    tl.from(qa('[data-hfade]'), { autoAlpha: 0, y: 24, duration: DUR.reveal, ease: EASE.out, stagger: 0.08 }, 'reveal+=0.6');
+    // The pill and the buttons rise; between them the lede wipes in under the red bar.
+    tl.from(qa('[data-hfade]'), { autoAlpha: 0, y: 24, duration: DUR.reveal, ease: EASE.out, stagger: 0.16 }, 'reveal+=0.6');
+    barReveal(q('[data-hlede]'), { timeline: tl, at: 'reveal+=0.68' });
     tl.from(q('[data-hnum]'), { yPercent: 40, autoAlpha: 0, duration: DUR.show, ease: EASE.out }, 'reveal+=0.2');
     drawPath(q('[data-hcircuit] path'), { timeline: tl, at: 'reveal+=0.3', duration: DUR.show });
 
@@ -72,9 +74,9 @@ export function Hero() {
           </span>
         </h1>
 
-        <p data-hfade className="mt-6 max-w-[42ch] text-base leading-relaxed text-mute md:text-lg">{profile.lede}</p>
+        <p data-hlede className="mt-6 max-w-[42ch] text-base leading-relaxed text-mute md:text-lg">{profile.lede}</p>
         <div data-hfade className="mt-8 flex flex-wrap gap-3">
-          <a href="#projects" className="btn btn-primary">View projects</a>
+          <a href="#projects" className="btn btn-primary"><span data-letter-roll>View projects</span></a>
           <CvLink className="btn btn-ghost" />
         </div>
       </div>

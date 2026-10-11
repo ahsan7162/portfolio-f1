@@ -7,7 +7,7 @@ import { archive, archiveBreakdown, projects, type Breakdown } from '@/content/d
 import { gsap, ScrollTrigger } from '@/motion/gsap';
 import { isTouch, motionEnabled } from '@/motion/prefs';
 import { useBentoPointer } from '@/motion/useBentoPointer';
-import { clipReveal, gridSlot, inView, magnet } from '@/motion/patterns';
+import { clipReveal, curtainReveal, gridSlot, inView, magnet } from '@/motion/patterns';
 import { DUR, EASE } from '@/motion/tokens';
 import { navHeight } from '@/motion/useNavHeight';
 import { useSectionMotion } from '@/motion/useSectionMotion';
@@ -34,7 +34,9 @@ export function Projects() {
     clipReveal(more, { trigger: more, from: 'inset(0% 100% 0% 0%)' });
     const cards = qa('[data-card]');
     cards.forEach(card => {
-      clipReveal(card.querySelector('[data-cardvis]'), { trigger: card });
+      // The visual opens through an oval while a red curtain drains off it; its scene
+      // starts once the curtain has lifted (data-scene-delay).
+      onRevert(curtainReveal(card.querySelector('[data-cardvis]'), { trigger: card }));
       gsap.from(card.querySelectorAll('[data-cardtxt]'), { autoAlpha: 0, y: 24, stagger: 0.06, ease: EASE.out, clearProps: 'transform', scrollTrigger: inView(card, { start: 'top 80%' }) });
     });
 
@@ -104,14 +106,14 @@ export function Projects() {
             <span className="mt-5 block h-0.5 w-full max-w-[280px] bg-line"><span data-pbar className="block h-full origin-left bg-ac" /></span>
           </div>
           <button type="button" onClick={e => openArchive(originOf(e))} className="btn btn-primary">
-            All projects <span className="rounded-full bg-carbon/20 px-2 py-0.5">{projects.length + archive.length}</span>
+            <span data-letter-roll>All projects</span> <span className="rounded-full bg-carbon/20 px-2 py-0.5">{projects.length + archive.length}</span>
           </button>
         </div>
 
         <div ref={grid} className="proj-cards grid grid-cols-1 gap-16 md:grid-cols-2 md:gap-x-8 lg:grid-cols-12">
           {projects.map((p, i) => (
             <ProjectCard key={p.id} index={i} className={cn(LAYOUT[i].col, LAYOUT[i].offset)}>
-                <div data-cardvis className="relative aspect-[16/10] overflow-hidden border-b border-line bg-carbon">
+                <div data-cardvis data-scene-delay={DUR.reveal} className="relative aspect-[16/10] overflow-hidden border-b border-line bg-carbon">
                   <div data-cardin className="h-full w-full"><ProjectVisual project={p} /></div>
                 </div>
                 <div className="p-6 md:p-8">
@@ -123,7 +125,7 @@ export function Projects() {
                   <div data-cardtxt className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-5">
                     <span className="font-mono text-[0.9375rem] font-semibold text-ac">{p.headline}</span>
                     <button type="button" onClick={e => openDetails(p, { ...originOf(e), title: e.currentTarget.closest('[data-card]')?.querySelector('h3')?.getBoundingClientRect() })} data-details data-cursor="view" aria-label={`${p.title} details`}
-                      className="btn btn-ghost [.card:hover_&]:border-ac [.card:hover_&]:text-ac">Details</button>
+                      className="btn btn-ghost [.card:hover_&]:border-ac [.card:hover_&]:text-ac"><span data-letter-roll>Details</span></button>
                   </div>
                 </div>
             </ProjectCard>

@@ -50,8 +50,10 @@ function Scene({ build, children }: { build: (fx: Fx) => void; children: ReactNo
     const reset = () => resets.forEach(r => r());
     let tl!: gsap.core.Timeline;
     let started = false;
+    // A wrapper can hold the first play back (Projects: until its reveal curtain has lifted).
+    const delay = Number(svg.closest<HTMLElement>('[data-scene-delay]')?.dataset.sceneDelay ?? 0);
     const ctx = gsap.context(() => {
-      tl = gsap.timeline({ paused: true, repeat: touch ? 0 : -1, repeatDelay: 2.5, defaults: { ease: EASE.out, duration: 0.4 }, onRepeat: reset });
+      tl = gsap.timeline({ paused: true, delay, repeat: touch ? 0 : -1, repeatDelay: 2.5, defaults: { ease: EASE.out, duration: 0.4 }, onRepeat: reset });
       const fx: Fx = {
         tl,
         q: sel => svg.querySelector(sel)!,
@@ -89,7 +91,7 @@ function Scene({ build, children }: { build: (fx: Fx) => void; children: ReactNo
         trigger: svg, start: 'top 85%', end: 'bottom top',
         onToggle: self => {
           if (!self.isActive) tl.pause();
-          else if (!started) { started = true; reset(); tl.restart(); }
+          else if (!started) { started = true; reset(); tl.restart(true); }
           else tl.resume();
         },
       });

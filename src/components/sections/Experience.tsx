@@ -70,7 +70,7 @@ export function Experience() {
                     {/* The button's ::after covers the block, so the whole tile opens the breakdown. */}
                     <button type="button" data-cursor="open" onClick={e => openDetails(j, originOf(e))} aria-label={`${j.company} breakdown`}
                       className="btn btn-ghost outline-none after:absolute after:inset-0 after:content-[''] [.tile:hover_&]:border-ac [.tile:hover_&]:text-ac">
-                      Breakdown <Arrow />
+                      <span data-letter-roll>Breakdown</span> <Arrow />
                     </button>
                   </div>
                 </div>

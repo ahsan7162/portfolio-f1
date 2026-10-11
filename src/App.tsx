@@ -20,6 +20,7 @@ import { GLCanvas } from '@/gl/GLCanvas';
 import { ensureGsap, ScrollTrigger } from '@/motion/gsap';
 import { SmoothScroll, useSmoothScroll } from '@/motion/SmoothScroll';
 import { useAnchorNav } from '@/motion/useAnchorNav';
+import { useLetterRoll } from '@/motion/useLetterRoll';
 import { useSpeedSkew } from '@/motion/useSpeedSkew';
 
 type Open = { sel: { b: Breakdown; o?: Origin } | null; arch: { o?: Origin } | null };
@@ -28,6 +29,7 @@ function Page() {
   const { lock, unlock } = useSmoothScroll();
   useAnchorNav();
   useSpeedSkew();
+  useLetterRoll();
   const [open, setOpen] = useState<Open>({ sel: null, arch: null });
   const selRef = useRef<HTMLDivElement>(null), archRef = useRef<HTMLDivElement>(null);
   const returns = useRef<(HTMLElement | null)[]>([]);

@@ -23,7 +23,8 @@ function CopyPhone() {
   };
   return (
     <button type="button" onClick={copy} aria-live="polite" className="btn btn-ghost">
-      {state === 'shown' ? PHONE_DISPLAY : state === 'copied' ? 'Copied' : 'Copy phone'}
+      {/* Keyed by state: a new label mounts unsplit when the text changes (useLetterRoll). */}
+      <span key={state} data-letter-roll>{state === 'shown' ? PHONE_DISPLAY : state === 'copied' ? 'Copied' : 'Copy phone'}</span>
     </button>
   );
 }
@@ -80,9 +81,9 @@ export function Contact() {
         <p data-laptotal hidden className="label mt-10">Lap complete <span aria-hidden="true">/</span> <span data-lapclock className="tabular-nums text-fg" /></p>
         <div className="mt-12 flex flex-wrap gap-3">
           <ContactLink><CvLink className="btn btn-primary" /></ContactLink>
-          <ContactLink><a href={`mailto:${EMAIL}`} className="btn btn-ghost">Email</a></ContactLink>
+          <ContactLink><a href={`mailto:${EMAIL}`} className="btn btn-ghost"><span data-letter-roll>Email</span></a></ContactLink>
           {SOCIAL.map(s => (
-            <ContactLink key={s.label}><a href={s.href} target="_blank" rel="noreferrer" className="btn btn-ghost">{s.label}</a></ContactLink>
+            <ContactLink key={s.label}><a href={s.href} target="_blank" rel="noreferrer" className="btn btn-ghost"><span data-letter-roll>{s.label}</span></a></ContactLink>
           ))}
           <ContactLink><CopyPhone /></ContactLink>
         </div>

@@ -6,6 +6,7 @@ import { lapState } from '@/gl/state';
 import { lapTime } from '@/lib/format';
 import { glEnabled } from '@/motion/prefs';
 import { gsap, ScrollTrigger } from '@/motion/gsap';
+import { barReveal } from '@/motion/patterns';
 import { DUR, EASE } from '@/motion/tokens';
 import { useSmoothScroll } from '@/motion/SmoothScroll';
 import { useSectionMotion } from '@/motion/useSectionMotion';
@@ -35,6 +36,9 @@ export function Lap() {
     if (flat) gsap.set(svgPath, { drawSVG: '0%' });
     gsap.set(stages, { autoAlpha: 0, y: 60 });
     gsap.set(q('[data-laphead]'), { autoAlpha: 0, y: 30 });
+    // The label wipes in under the red bar as the heading arrives, once (see onEnter below).
+    const label = gsap.timeline({ paused: true });
+    barReveal(q('[data-laphead] h2'), { timeline: label, at: 0.1 });
 
     // The track is scroll: the camera and the car are scrubbed to the pin (1:1 with a
     // short catch-up), so the lap stops when you stop. The stage cards are the
@@ -104,7 +108,11 @@ export function Lap() {
     ScrollTrigger.create({
       trigger: pin, start: 'top 35%', end: () => st.end,
       onToggle: self => { lapState.active = self.isActive; },
-      onEnter: () => { gsap.to(q('[data-laphead]'), { autoAlpha: 1, y: 0, duration: DUR.split, ease: EASE.out, overwrite: true }); show(at(st.progress)); },
+      onEnter: () => {
+        gsap.to(q('[data-laphead]'), { autoAlpha: 1, y: 0, duration: DUR.split, ease: EASE.out, overwrite: true });
+        if (!label.progress()) label.play();
+        show(at(st.progress));
+      },
     });
     gsap.fromTo(lapState, { veil: 1 }, { veil: 0, ease: EASE.none, scrollTrigger: { trigger: pin, start: 'top 35%', end: 'top top', scrub: true } });
     gsap.fromTo(lapState, { veil: 0 }, { veil: 1, ease: EASE.none, immediateRender: false,
@@ -158,7 +166,7 @@ export function Lap() {
                 <button type="button" data-cursor="open" aria-label={`${t.company} details`}
                   onClick={e => { const j = jobs.find(x => x.id === t.job); if (j) openDetails(j, originOf(e)); }}
                   className="btn btn-primary mt-5 md:mt-6">
-                  Details <Arrow />
+                  <span data-letter-roll>Details</span> <Arrow />
                 </button>
               </li>
             ))}
