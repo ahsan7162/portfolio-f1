@@ -52,7 +52,7 @@ export function About() {
       <div data-pin className="mx-auto flex min-h-[100dvh] max-w-[1400px] flex-col justify-center py-24">
         <div data-pinbody>
         <h2 className="sr-only">About me</h2>
-        <p data-statement className="display max-w-[20ch] text-[clamp(2.2rem,min(6.2vw,calc(15svh_-_45px)),6rem)] !leading-[0.95]">
+        <p data-statement className="display max-w-[20ch] text-[clamp(1.875rem,min(5.3vw,calc(12.75svh_-_38px)),5.1rem)] !leading-[0.95]">
           {words.map((w, i) => (
             // The statement is static and repeats words, so the position is the key.
             // oxlint-disable-next-line react/no-array-index-key

@@ -178,7 +178,7 @@ export function Intro() {
           </div>
           <div className="mt-4 flex items-end justify-between gap-6">
             <span data-icap className="label">Loading fonts</span>
-            <span className="display text-[clamp(2.5rem,6vw,4.5rem)] !leading-[0.8] tabular-nums">
+            <span className="display text-[clamp(2.125rem,5.1vw,3.8rem)] !leading-[0.8] tabular-nums">
               <span data-icount>000</span><span className="text-ac">%</span>
             </span>
           </div>

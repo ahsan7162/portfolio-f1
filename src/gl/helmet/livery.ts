@@ -40,7 +40,7 @@ function sideText(c: Ctx, u: number, theta: number, text: string, size: number, 
   c.save();
   c.translate(u * W, yAt(theta));
   c.scale(squeeze, 1);
-  c.font = `italic 800 ${size}px "Mona Sans Variable", "Arial Black", sans-serif`;
+  c.font = `italic 800 ${size}px "Hubot Sans", "Arial Black", sans-serif`;
   c.fontStretch = 'expanded';
   c.textAlign = 'center';
   c.textBaseline = 'middle';
@@ -93,7 +93,7 @@ function canvas() {
 }
 
 export async function liveryTextures(anisotropy: number) {
-  try { await document.fonts.load('italic 800 100px "Mona Sans Variable"'); } catch { /* fallback font */ }
+  try { await document.fonts.load('italic 800 100px "Hubot Sans"'); } catch { /* fallback font */ }
   // Colour only: the matte shell has uniform roughness, so no roughness map is painted.
   const color = canvas();
   paint(color.getContext('2d')!, false);

@@ -103,13 +103,13 @@ export function Results() {
         <div className="mt-32 md:mt-72">
           <div data-bigwrap data-speed className="relative w-max">
             {/* The dim ghost the number fills (hidden under it when static). */}
-            <div data-bigghost aria-hidden="true" className="display pointer-events-none absolute inset-0 whitespace-nowrap text-[clamp(7rem,30vw,26rem)] font-black !leading-[0.8] tracking-[-0.06em] text-fg/[0.07]">
+            <div data-bigghost aria-hidden="true" className="display pointer-events-none absolute inset-0 whitespace-nowrap text-[clamp(6rem,25.5vw,22rem)] font-black !leading-[0.8] tracking-[-0.06em] text-fg/[0.07]">
               {stats.headline.value}{stats.headline.suffix}
             </div>
             {/* Motion only: the red edge that leads the fill. */}
             <div data-bigedge aria-hidden="true" className="pointer-events-none invisible absolute -top-[6%] bottom-0 left-0 z-10 w-1.5 bg-ac" />
             <div data-bignum aria-label={`${stats.headline.value}${stats.headline.suffix}`}
-              className="display relative whitespace-nowrap text-[clamp(7rem,30vw,26rem)] font-black !leading-[0.8] tracking-[-0.06em]">
+              className="display relative whitespace-nowrap text-[clamp(6rem,25.5vw,22rem)] font-black !leading-[0.8] tracking-[-0.06em]">
               {stats.headline.value}{stats.headline.suffix}
             </div>
           </div>

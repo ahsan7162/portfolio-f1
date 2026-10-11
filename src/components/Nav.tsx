@@ -123,7 +123,7 @@ export function Nav() {
   // Section links: unlock first so the page-wide anchor handler can scroll.
   const go = () => hide(false);
 
-  const rowText = 'display block text-[clamp(1.9rem,4.6vw,3.9rem)] transition-[color,transform] duration-(--dur-hit) ease-out-expo group-hover:translate-x-3 group-hover:text-ac group-focus-visible:translate-x-3 group-focus-visible:text-ac';
+  const rowText = 'display block text-[clamp(1.6rem,3.9vw,3.3rem)] transition-[color,transform] duration-(--dur-hit) ease-out-expo group-hover:translate-x-3 group-hover:text-ac group-focus-visible:translate-x-3 group-focus-visible:text-ac';
 
   return (
     // oxlint-disable-next-line jsx-a11y/no-static-element-interactions -- Esc and the Tab trap for the bar and the open menu

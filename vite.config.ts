@@ -26,7 +26,7 @@ function preloadFonts(files: string[]): Plugin {
 
 export default defineConfig({
   base: './',
-  plugins: [react(), tailwindcss(), preloadFonts(['mona-sans.woff2', 'monaspace-krypton.woff2'])],
+  plugins: [react(), tailwindcss(), preloadFonts(['hubot-sans.woff2', 'mona-sans.woff2', 'monaspace-krypton.woff2'])],
   resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
   server: { port: 5174, strictPort: true },
   build: {

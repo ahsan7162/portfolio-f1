@@ -4,6 +4,12 @@
 
 > **Status: done on branch `fix/fonts`.** Every item in section 4 is in, plus the phone scale-up
 > for the project scenes (3.4). Changes from the plan below:
+> - **Heading font: Hubot Sans** (added after this report). Mona Sans's mechanical sibling,
+>   picked from a side-by-side preview against Archivo, Saira and Anybody (branch
+>   `preview/heading-fonts`). Mona Sans stays for text and small headings. Hubot runs about 15%
+>   wider, so the display sizes are retuned to keep the same footprint. Its zero has a bar
+>   across the middle, which `scripts/fonts.py` removes, so "450+" and the helmet's "04"
+>   read cleanly.
 > - **Mono font: Monaspace Krypton**, using its plain zero (alternate `cv01=1`), which is built
 >   into the font file. Neon was the other option; Krypton's chamfered shapes read more like a
 >   timing screen.
@@ -13,9 +19,10 @@
 > - **Detail dialog titles:** long project names ("modernization", "notifications") were wider
 >   than a phone screen at the old size too. The title now uses the lead size on phones.
 > - **Letter-spacing:** one size-aware rule, `calc(0.7px - 0.043em)`, instead of fixed steps.
-> - **Fonts:** 238 KB → **112 KB**. The Krypton file is smaller than the trimmed JetBrains
->   Mono would have been.
-> - **Not changed:** `motion-lab/` (the social card and films) still uses JetBrains Mono.
+> - **Fonts:** 238 KB → **136 KB** (four files: Hubot upright and italic, Mona Sans, Krypton).
+>   The Krypton file is smaller than the trimmed JetBrains Mono would have been.
+> - **Not changed:** `motion-lab/` (the social card and films) still uses Mona Sans for
+>   headings and JetBrains Mono for labels.
 
 **What was checked**
 

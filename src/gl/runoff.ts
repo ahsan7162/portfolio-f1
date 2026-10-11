@@ -23,16 +23,16 @@ function atlas(labels: string[]) {
     labels.forEach((label, i) => {
       const text = label.toUpperCase();
       let size = 170;
-      ctx.font = `800 ${size}px "Mona Sans Variable", sans-serif`;
+      ctx.font = `800 ${size}px "Hubot Sans", sans-serif`;
       const w = ctx.measureText(text).width;
-      if (w > ROW_W * 0.92) { size *= (ROW_W * 0.92) / w; ctx.font = `800 ${size}px "Mona Sans Variable", sans-serif`; }
+      if (w > ROW_W * 0.92) { size *= (ROW_W * 0.92) / w; ctx.font = `800 ${size}px "Hubot Sans", sans-serif`; }
       ctx.fillText(text, ROW_W / 2, ROW_H * (i + 0.54));
     });
     tex.needsUpdate = true;
   };
   draw();
   // The site font is normally loaded long before the Stage; redraw once it is, just in case.
-  document.fonts?.load('800 170px "Mona Sans Variable"').then(draw).catch(() => {});
+  document.fonts?.load('800 170px "Hubot Sans"').then(draw).catch(() => {});
   return tex;
 }
 
