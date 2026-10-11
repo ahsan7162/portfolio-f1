@@ -61,7 +61,7 @@ export function Nav() {
     return () => triggers.forEach(t => t.kill());
   }, []);
 
-  // Open: the panel wipes down from the top, then the rows rise in (under 0.5 s).
+  // Open: the panel wipes down from the top, then the rows rise in (about 0.8 s in all).
   // Close is its own quicker move: rows and side drop out, then the wipe closes.
   useEffect(() => {
     const p = panel.current!;

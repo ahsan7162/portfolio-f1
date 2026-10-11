@@ -10,18 +10,32 @@ export function motionEnabled() {
 
 export const debug = () => isBrowser() && q().has('debug');
 
-/** WebGL scenes: off for reduced motion, Save-Data, weak devices, or `?nogl`. */
+let webgl2: boolean | undefined;
+
+/**
+ * three.js (r163+) needs WebGL2. Probed once: each probe opens a real context, and browsers
+ * drop the oldest live one past their limit (which could be the Stage's), so it is released.
+ */
+function hasWebGL2() {
+  if (webgl2 === undefined) {
+    try {
+      const gl = document.createElement('canvas').getContext('webgl2');
+      webgl2 = !!gl;
+      gl?.getExtension('WEBGL_lose_context')?.loseContext();
+    } catch {
+      webgl2 = false;
+    }
+  }
+  return webgl2;
+}
+
+/** WebGL scenes: off for reduced motion, Save-Data, weak devices, no WebGL2, or `?nogl`. */
 export function glEnabled() {
   if (!motionEnabled() || q().has('nogl')) return false;
   const nav = navigator as Navigator & { connection?: { saveData?: boolean } };
   if (nav.connection?.saveData) return false;
   if ((nav.hardwareConcurrency ?? 8) <= 4) return false;
-  try {
-    const c = document.createElement('canvas');
-    return !!(c.getContext('webgl2') || c.getContext('webgl'));
-  } catch {
-    return false;
-  }
+  return hasWebGL2();
 }
 
 /**

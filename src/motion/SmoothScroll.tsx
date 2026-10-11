@@ -2,7 +2,6 @@ import { createContext, useContext, useEffect, useMemo, useRef, type ReactNode }
 import Lenis from 'lenis';
 import { ensureGsap, gsap, ScrollTrigger } from './gsap';
 import { motionEnabled } from './prefs';
-import { navHeight } from './useNavHeight';
 
 /** Live scroll numbers shared with non-React code (WebGL stage, track map). */
 export const scrollState = { y: 0, progress: 0, velocity: 0, locked: false };
@@ -47,7 +46,8 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
       return () => window.removeEventListener('scroll', onScroll);
     }
 
-    const lenis = new Lenis({ lerp: 0.1, smoothWheel: true, syncTouch: false, touchMultiplier: 1.25, autoRaf: false });
+    // Touch keeps the browser's own scrolling (syncTouch off), so no touch multiplier applies.
+    const lenis = new Lenis({ lerp: 0.1, smoothWheel: true, syncTouch: false, autoRaf: false });
     lenisRef.current = lenis;
     if (import.meta.env.DEV) Object.assign(window, { lenis });
     lenis.on('scroll', (l: Lenis) => {
@@ -58,7 +58,9 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     // runs) used the overflow fallback: move it over to Lenis, or touch scrolling stays blocked.
     if (locks.current > 0) { lenis.stop(); document.documentElement.style.overflow = ''; }
     const tick = (t: number) => lenis.raf(t * 1000);
-    gsap.ticker.add(tick);
+    // Prioritized: Lenis runs first in every tick, so everything else on the ticker (the
+    // rail, the marquee, speed skew, the WebGL stage) reads this frame's scroll, not the last.
+    gsap.ticker.add(tick, false, true);
     void document.fonts?.ready.then(() => ScrollTrigger.refresh());
     return () => {
       gsap.ticker.remove(tick);
@@ -73,7 +75,8 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
       const lenis = lenisRef.current;
       const el = typeof target === 'string' ? document.querySelector<HTMLElement>(target) : target;
       if (lenis) {
-        lenis.scrollTo(el ?? 0, { offset: typeof el === 'number' ? 0 : -navHeight(), duration: 1.2, easing: expoOut, immediate: opts?.immediate });
+        // No offset: Lenis subtracts the target's scroll-margin-top (the nav height, index.css).
+        lenis.scrollTo(el ?? 0, { duration: 1.2, easing: expoOut, immediate: opts?.immediate });
       } else if (typeof el === 'number') {
         window.scrollTo(0, el);
       } else {

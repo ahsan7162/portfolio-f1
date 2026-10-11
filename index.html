@@ -36,6 +36,7 @@
           var d = document.documentElement;
           var rm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
           var q = location.search;
+          if (q.indexOf('nomotion') >= 0) d.classList.add('no-motion'); // CSS transitions off too (index.css)
           if (!rm && !location.hash && q.indexOf('nointro') < 0 && q.indexOf('nomotion') < 0 && !sessionStorage.getItem('v2-intro-seen')) d.classList.add('intro');
         } catch (e) {}
       })();

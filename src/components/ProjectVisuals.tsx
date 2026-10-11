@@ -120,7 +120,8 @@ function Scene({ build, children }: { build: (fx: Fx) => void; children: ReactNo
 }
 
 const Cursor = () => (
-  <g data-cursor opacity="0">
+  // data-pointer, not data-cursor: that one sets the real cursor's state (Cursor.tsx).
+  <g data-pointer opacity="0">
     <path d="M0 0 L0 11 L3 8.5 L5.5 13 L7.5 12 L5 7.5 L9 7.5 Z" fill={FG} stroke={CARBON} strokeWidth="0.8" strokeLinejoin="round" />
   </g>
 );
@@ -136,7 +137,7 @@ const Chip = ({ x, y, w, text, on }: { x: number; y: number; w: number; text: st
 /* ---------- AI agent platform: build an agent in a form, deploy it, it answers in Slack ---------- */
 
 function buildAgents({ tl, q, qa, type, count, click }: Fx) {
-  const cur = q('[data-cursor]'), chips = qa('[data-chip]'), lines = qa('[data-reply]');
+  const cur = q('[data-pointer]'), chips = qa('[data-chip]'), lines = qa('[data-reply]');
   // Name, prompt, pick MCP tools, pick where people chat with it, post. Then it answers
   // in Slack and the live count ticks to 450.
   tl.fromTo(q('[data-form]'), { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0 }, 0);
@@ -231,7 +232,7 @@ const ROWS = [
 ];
 
 function buildOps({ tl, q, qa, count, scramble, from, click }: Fx) {
-  const cur = q('[data-cursor]'), rows = qa('[data-row]'), flash = qa('[data-flash]'), exp = q('[data-exp]');
+  const cur = q('[data-pointer]'), rows = qa('[data-row]'), flash = qa('[data-flash]'), exp = q('[data-exp]');
   const A = 0.6, B = 1.6;
   tl.fromTo(q('[data-dash]'), { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0 }, 0)
     .fromTo(q('[data-dot]'), { opacity: 1 }, { opacity: 0.25, duration: 0.5, repeat: 9, yoyo: true, ease: 'sine.inOut' }, 0)

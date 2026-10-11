@@ -55,7 +55,7 @@ export class Stage {
   private helmetClock = 0;
   private lastInput = 0;
   private dead = false;
-  /** Eased copy of the lap progress, so the camera glides instead of stepping. */
+  /** The lap progress and veil last drawn, to tell when the lap needs a new frame. */
   private lapP = 0;
   private lapV = 1;
   /** The lap asked for another frame (its car's rain light is still settling). */
@@ -104,7 +104,9 @@ export class Stage {
       this.cleanups.push(() => { window.removeEventListener('pointermove', onMove); document.removeEventListener('pointerout', onLeave); });
     }
 
-    const onLost = (e: Event) => { e.preventDefault(); this.dead = true; };
+    // Without a context the canvas would stay blank over the hidden fallbacks: dropping
+    // `gl-on` brings back the contour pattern and the Lap's flat circuit.
+    const onLost = (e: Event) => { e.preventDefault(); this.dead = true; document.documentElement.classList.remove('gl-on'); };
     canvas.addEventListener('webglcontextlost', onLost);
     this.cleanups.push(() => canvas.removeEventListener('webglcontextlost', onLost));
 
@@ -278,7 +280,6 @@ export class Stage {
     // Gentle pointer follow (desktop), eased every frame.
     this.pointer.x += (this.pointer.tx - this.pointer.x) * 0.06;
     this.pointer.y += (this.pointer.ty - this.pointer.y) * 0.06;
-    const fit = Math.min(1.25, halfH / 2.14);
     let { x, y, s, rx, ry, rz } = p;
     // Perched: sit on the element's top edge, about its width, facing the page.
     const k = perch.el ? perch.k : 0;
@@ -286,7 +287,7 @@ export class Stage {
       const r = perch.el!.getBoundingClientRect(), W = this.size.w, H = this.size.h;
       // Scale so the helmet is about the step's width, then place its measured bottom
       // edge on the step's top edge and its centre over the step's centre.
-      const as = ((r.width * 0.95) / W) * 2 * halfW / (this.base.w * fit), world = as * fit;
+      const as = ((r.width * 0.95) / W) * 2 * halfW / this.base.w, world = as;
       const at = {
         x: (((r.left + r.width / 2) / W) * 2 - 1 - (this.base.cx * world) / halfW),
         y: (1 - (r.top / H) * 2) - (this.base.minY * world) / halfH,
@@ -299,7 +300,7 @@ export class Stage {
     const loose = 1 - k; // no float or pointer follow while it sits on the step
     g.position.set(x * halfW, y * halfH + Math.sin(t * 0.9) * 0.03 * loose, 0);
     g.rotation.set(rx + this.pointer.y * 0.14 * loose, ry + (this.pointer.x * 0.2 + Math.sin(t * 0.6) * 0.03) * loose, rz);
-    g.scale.setScalar(s * fit);
+    g.scale.setScalar(s);
     // The exit runs the reveal backwards (top first) while the sparks fly off. It overshoots
     // below 0 so the last sparks finish fading: the shell is gone at about k = 0.6.
     h.reveal.value = Math.min(this.intro.value, 1.05 - 1.7 * exit.k);

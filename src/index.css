@@ -106,7 +106,8 @@
     outline: 2px solid var(--ac);
     outline-offset: 3px;
   }
-  section[id] {
+  /* Every anchor target clears the nav. Lenis reads this too, so scrollTo adds no offset. */
+  section[id], footer[id], #education {
     scroll-margin-top: var(--navh);
   }
 }
@@ -192,6 +193,12 @@ html.gl-on .lap-flat { opacity: 0; }
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+/* ?nomotion: the same, for checking the static page without changing the OS setting. */
+html.no-motion *, html.no-motion *::before, html.no-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
 }
 
 /* WebGL stage fades in once ready. Without it, a static contour pattern shows. */

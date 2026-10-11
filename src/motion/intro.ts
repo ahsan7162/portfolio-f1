@@ -1,8 +1,9 @@
 import { gsap } from './gsap';
 import { motionEnabled } from './prefs';
 
-// One master intro timeline. The loader plays it; the hero (and the WebGL
-// helmet) add their reveals at the 'reveal' label, so everything lands together.
+// One master intro timeline. The loader plays it; the hero and the nav add their
+// reveals at the 'reveal' label, so they land together. The WebGL helmet starts its
+// own reveal once this finishes (onIntroDone).
 let tl: gsap.core.Timeline | null = null;
 let done = false;
 const waiters: Array<() => void> = [];

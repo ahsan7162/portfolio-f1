@@ -80,10 +80,10 @@ export function createLap() {
     scene.add(new THREE.Mesh(keep(ribbon(edge, 0.035, 0.004, 700, i => (Math.floor(i / 3) % 2 ? red : white))), kerbMat));
   }
 
-  // Centre line.
-  const dashMat = keep(new THREE.MeshBasicMaterial({ color: PALETTE.fg, transparent: true, opacity: 0.7, fog: true }));
-  const dashGeo = keep(ribbon(curve, 0.008, 0.003, 700));
-  scene.add(new THREE.Mesh(dashGeo, dashMat));
+  // Centre line (solid).
+  const centreMat = keep(new THREE.MeshBasicMaterial({ color: PALETTE.fg, transparent: true, opacity: 0.7, fog: true }));
+  const centreGeo = keep(ribbon(curve, 0.008, 0.003, 700));
+  scene.add(new THREE.Mesh(centreGeo, centreMat));
 
   // Trackside light posts for a sense of speed.
   const postGeo = keep(new THREE.BoxGeometry(0.02, 0.5, 0.02));

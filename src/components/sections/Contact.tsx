@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { PALETTE } from '@/art/palette';
 import { CvLink } from '@/components/CvLink';
 import { LazyMap } from '@/components/LazyMap';
@@ -28,6 +28,15 @@ function CopyPhone() {
   );
 }
 
+/**
+ * Two wrappers: the outer one rises in (batchReveal), the inner one follows the pointer
+ * (magnet). The button itself is left alone, so its CSS transform transition and press
+ * scale never fight the magnet's inline transform.
+ */
+function ContactLink({ children }: { children: ReactNode }) {
+  return <span data-clink className="inline-flex"><span data-cmag className="inline-flex">{children}</span></span>;
+}
+
 export function Contact() {
   const ref = useSectionMotion(({ root, q, qa, onRevert }) => {
     // Crossing the line: a chequered band sweeps across once as Contact reaches the
@@ -46,7 +55,7 @@ export function Contact() {
     // 'top bottom': the strip sits in the last screen, so 85% may never be reached.
     clipReveal(q('[data-finish]'), { scrollTrigger: inView(q('[data-finish]')!, { start: 'top bottom' }), from: 'inset(0% 100% 0% 0%)' });
     batchReveal(qa('[data-clink]'), { y: 16, stagger: 0.05 });
-    qa('[data-clink]').forEach(w => onRevert(magnet(w, w.firstElementChild as HTMLElement, 0.3)));
+    qa('[data-clink]').forEach(w => onRevert(magnet(w, w.querySelector<HTMLElement>('[data-cmag]'), 0.3)));
   });
 
   return (
@@ -70,12 +79,12 @@ export function Contact() {
         {/* Filled in on the client (never prerendered with a made-up time). */}
         <p data-laptotal hidden className="label mt-10">Lap complete <span aria-hidden="true">/</span> <span data-lapclock className="tabular-nums text-fg" /></p>
         <div className="mt-12 flex flex-wrap gap-3">
-          <span data-clink className="inline-flex"><CvLink className="btn btn-primary" /></span>
-          <span data-clink className="inline-flex"><a href={`mailto:${EMAIL}`} className="btn btn-ghost">Email</a></span>
+          <ContactLink><CvLink className="btn btn-primary" /></ContactLink>
+          <ContactLink><a href={`mailto:${EMAIL}`} className="btn btn-ghost">Email</a></ContactLink>
           {SOCIAL.map(s => (
-            <span key={s.label} data-clink className="inline-flex"><a href={s.href} target="_blank" rel="noreferrer" className="btn btn-ghost">{s.label}</a></span>
+            <ContactLink key={s.label}><a href={s.href} target="_blank" rel="noreferrer" className="btn btn-ghost">{s.label}</a></ContactLink>
           ))}
-          <span data-clink className="inline-flex"><CopyPhone /></span>
+          <ContactLink><CopyPhone /></ContactLink>
         </div>
 
         <div data-finish aria-hidden="true" className="checker mt-20 w-full" />

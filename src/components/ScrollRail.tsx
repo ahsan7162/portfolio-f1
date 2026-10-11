@@ -24,6 +24,7 @@ export function ScrollRail() {
     const root = document.documentElement;
     root.classList.add('has-rail');
     let H = 0, T = 0, limit = 1, lastY = -1, lastV = 0;
+    let dots: HTMLElement[] = [];
     const clamp = gsap.utils.clamp(0, 1);
     const setY = gsap.quickSetter(th, 'y', 'px');
     const wobble = { duration: 0.9, ease: 'elastic.out(1, 0.35)' };
@@ -34,7 +35,7 @@ export function ScrollRail() {
       setY(p * (H - T));
       const s = Math.min(0.6, Math.abs(scrollState.velocity) * 0.012);
       sY(1 + s); sX(1 - s * 0.4);
-      r.querySelectorAll<HTMLElement>('[data-mark]').forEach(m => m.toggleAttribute('data-passed', p >= +m.dataset.p! - 0.002));
+      dots.forEach(m => m.toggleAttribute('data-passed', p >= +m.dataset.p! - 0.002));
     };
     const layout = () => {
       H = r.clientHeight;
@@ -48,9 +49,11 @@ export function ScrollRail() {
       }));
       lastY = -1;
     };
-    // Only does work on frames where the scroll moved or its speed changed.
+    // Only does work on frames where the scroll moved or its speed changed. The section dots
+    // are React's (keyed, so the nodes stay put); look them up until they have rendered.
     const tick = () => {
       if (scrollState.y === lastY && scrollState.velocity === lastV) return;
+      if (dots.length !== SECTIONS.length || !dots[0].isConnected) dots = [...r.querySelectorAll<HTMLElement>('[data-mark]')];
       lastY = scrollState.y; lastV = scrollState.velocity;
       place();
     };
@@ -59,6 +62,8 @@ export function ScrollRail() {
     let grab = -1;
     const at = (e: PointerEvent, off: number) => clamp((e.clientY - r.getBoundingClientRect().top - off) / (H - T));
     const go = (p: number, immediate: boolean) => {
+      // `force` gets past Lenis's stopped state, so check the page lock (menu, dialogs) here.
+      if (scrollState.locked) return;
       const l = lenis();
       if (l) l.scrollTo(p * limit, immediate ? { immediate: true, force: true } : { duration: 1.1, force: true });
       else window.scrollTo(0, p * limit);

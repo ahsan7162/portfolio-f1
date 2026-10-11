@@ -34,7 +34,9 @@ const SEGMENTS: Array<{ from: string; to: string; trigger: string; start: string
   // Results and education: the base path turns toward the finale pose across the
   // section; on the way the helmet perches on the P3 step (see `perch` below).
   { from: 'away', to: 'results', trigger: '#results', start: 'top bottom', endTrigger: '#results [data-bignum]', end: 'center 25%' },
-  { from: 'results', to: 'exit', trigger: '#results', start: 'bottom 85%', end: 'bottom top' },
+  // Starts exactly where the arrival ends: two scrubbed tweens writing the pose at once
+  // made it jump on the way back up (they overlapped by about 200 px at 1440x900).
+  { from: 'results', to: 'exit', trigger: '#results [data-bignum]', start: 'center 25%', endTrigger: '#results', end: 'bottom top' },
 ];
 
 /**
@@ -79,7 +81,7 @@ export function bindHelmetPath(pose: Pose) {
     const fin = segments[segments.length - 1];
     if (document.querySelector(fin.trigger)) {
       gsap.fromTo(exit, { k: 0 }, { k: 1, ease: EASE.none, immediateRender: false,
-        scrollTrigger: { trigger: fin.trigger, start: fin.start, end: fin.end, scrub: 1, markers: debug() } });
+        scrollTrigger: { trigger: fin.trigger, endTrigger: fin.endTrigger, start: fin.start, end: fin.end, scrub: 1, markers: debug() } });
     }
     // These triggers were created after the sections' own pins: re-sort by page position.
     ScrollTrigger.sort();

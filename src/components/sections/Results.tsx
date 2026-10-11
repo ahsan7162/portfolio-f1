@@ -19,8 +19,8 @@ export function Results() {
   const ref = useSectionMotion(({ root, q, qa, onRevert }) => {
     gridSlot(q('h2'));
     const row = q('[data-row]')!;
-    // Several one-off reveals share the row: preventOverlaps finishes the earlier ones first.
-    const once = inView(row, { start: 'top 80%', preventOverlaps: 'row' });
+    // Several one-off reveals share the row's one trigger, timed by their delays.
+    const once = inView(row, { start: 'top 80%' });
 
     // 1. Education: its lines rise.
     splitReveal(q('[data-edutxt]'), { type: 'lines', scrollTrigger: once });
