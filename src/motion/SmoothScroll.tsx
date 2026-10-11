@@ -75,6 +75,10 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
       const lenis = lenisRef.current;
       const el = typeof target === 'string' ? document.querySelector<HTMLElement>(target) : target;
       if (lenis) {
+        // An instant jump (a #link on load) can come in the same tick as the pins changing
+        // the page's height, before Lenis's resize observer has run: re-measure first, or
+        // it clamps the jump to the old, shorter page.
+        if (opts?.immediate) lenis.resize();
         // No offset: Lenis subtracts the target's scroll-margin-top (the nav height, index.css).
         lenis.scrollTo(el ?? 0, { duration: 1.2, easing: expoOut, immediate: opts?.immediate });
       } else if (typeof el === 'number') {

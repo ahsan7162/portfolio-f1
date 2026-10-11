@@ -11,11 +11,23 @@ import { DUR, EASE, STAGGER } from './tokens';
 type Target = gsap.TweenTarget;
 type ST = ScrollTrigger.Vars;
 
+/** Every trigger made by inView, so an anchor jump can finish them (finishRevealsAbove). */
+const reveals = new WeakSet<ST>();
+
 /**
  * One-off reveal trigger. `fastScrollEnd`: when a visitor flings past, the reveal
- * jumps to its end instead of being left half played behind them.
+ * jumps to its end instead of being left half played behind them. It plays the first
+ * time it is reached or passed, then does nothing (ScrollTrigger's default toggle
+ * actions are just "play"). Not `once`: a once trigger kills itself as it fires, and on
+ * a page that loads already scrolled down (a #link) that happens while ScrollTrigger is
+ * still measuring the triggers made in the same tick (timelines measure a tick late), so
+ * its list shrinks under it and it throws.
  */
-export const inView = (trigger: Element | string, extra?: ST): ST => ({ trigger, start: 'top 85%', once: true, fastScrollEnd: true, ...extra });
+export const inView = (trigger: Element | string, extra?: ST): ST => {
+  const vars: ST = { trigger, start: 'top 85%', fastScrollEnd: true, ...extra };
+  reveals.add(vars);
+  return vars;
+};
 
 /** Masked rise of lines, words or chars (Lando's headline reveal). */
 export function splitReveal(
@@ -88,8 +100,8 @@ const batchTriggers = new WeakSet<ScrollTrigger>();
 export function finishRevealsAbove(y: number) {
   const limit = y + window.innerHeight * 0.2;
   ScrollTrigger.getAll().forEach(t => {
-    if (!t.vars.once || t.start > limit) return;
-    if (t.animation) t.animation.progress(1);
+    if (t.start > limit) return;
+    if (t.animation && reveals.has(t.vars)) t.animation.progress(1);
     else if (batchTriggers.has(t)) { gsap.set(t.trigger!, { autoAlpha: 1, y: 0, overwrite: true }); t.kill(); }
   });
 }

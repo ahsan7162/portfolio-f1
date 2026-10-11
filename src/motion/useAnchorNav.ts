@@ -20,16 +20,26 @@ export function useAnchorNav() {
       window.setTimeout(() => el.focus({ preventScroll: true }), 900);
     };
     document.addEventListener('click', onClick);
-    // Deep link: jump now, then again after ScrollTrigger measures the pins
-    // (pin spacers change the page height, so the first position is stale).
+    // Deep link: jump now (the sections' pins already exist; Lenis may not yet, so this
+    // one can be the browser's own), on the next frame, and after every ScrollTrigger
+    // refresh until the visitor takes over. On the prerendered page the browser has
+    // already jumped, to where the target was before the pin spacers moved it, and each
+    // later refresh (fonts, the fit sections' rebuild) lifts the pins while it measures,
+    // which clamps the scroll to the shorter page for a moment.
     let off = () => {};
     const el = location.hash ? document.getElementById(location.hash.slice(1)) : null;
     if (el) {
       const jump = () => { finishRevealsAbove(el.getBoundingClientRect().top + window.scrollY); scrollTo(el, { immediate: true }); };
+      jump();
       requestAnimationFrame(jump);
-      const onRefresh = () => { jump(); off(); };
-      ScrollTrigger.addEventListener('refresh', onRefresh);
-      off = () => ScrollTrigger.removeEventListener('refresh', onRefresh);
+      const inputs = ['wheel', 'touchstart', 'keydown', 'pointerdown'] as const;
+      const release = () => off();
+      ScrollTrigger.addEventListener('refresh', jump);
+      inputs.forEach(e => window.addEventListener(e, release, { passive: true }));
+      off = () => {
+        ScrollTrigger.removeEventListener('refresh', jump);
+        inputs.forEach(e => window.removeEventListener(e, release));
+      };
     }
     return () => { document.removeEventListener('click', onClick); off(); };
   }, [scrollTo]);

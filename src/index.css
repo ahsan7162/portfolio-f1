@@ -106,8 +106,10 @@
     outline: 2px solid var(--ac);
     outline-offset: 3px;
   }
-  /* Every anchor target clears the nav. Lenis reads this too, so scrollTo adds no offset. */
-  section[id], footer[id], #education {
+  /* Every anchor target clears the nav. Lenis reads this too, so scrollTo adds no offset.
+     Not the footer: it is the last screen, built to sit flush with the page's end (the
+     nav goes clear over it), so a #contact jump lands with its legal line on screen. */
+  section[id], #education {
     scroll-margin-top: var(--navh);
   }
 }
