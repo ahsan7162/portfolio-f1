@@ -82,7 +82,7 @@ export const profile = {
   name: 'Muhammad Ahsan',
   title: 'Full Stack / AI Developer',
   lede: 'I build React front ends and Go, Python and .NET back ends that scale.',
-  now: 'Currently at Careem, building an AI agent platform used company-wide.',
+  now: 'Currently at Careem, building SuperAgent, an AI agent platform used company-wide.',
   location: 'Karachi, Pakistan',
   about:
     'I find the slowest part of a system and make it fast. Front end or back end, I measure first, fix the real bottleneck, and ship it to production.',
@@ -100,10 +100,10 @@ export const stats = {
 
 export const jobs: Job[] = [
   { id: 'careem', company: 'Careem', role: 'Software Engineer', dates: 'October 2025 to present', years: '2025 to now', loc: 'Karachi, Pakistan', place: 'Karachi',
-    summary: 'Software engineer. AI agent platform used company-wide, partner ops dashboard, booking concurrency, Go notification service.',
+    summary: 'Software engineer. SuperAgent, the AI agent platform used company-wide; the Dineout partner operations dashboard; booking concurrency; a Go notification service.',
     result: '450+ AI agents, 35% dashboard adoption', highlights: [
-    { stat: '450+', title: 'AI agent platform, company-wide', text: 'Internal platform in Go, Python and React with chat, semantic search and Slack integration. Teams create, version and deploy custom AI assistants self-service, with deployment to CI/CD pipelines, Slack channels and threads, and Jira automation. Agent build time fell from 2 to 3 days to 10 minutes.' },
-    { stat: '35%', title: 'Partner operations dashboard', text: 'Real-time booking and walk-in visibility on DynamoDB, Kafka and OpenSearch through a React microfrontend, with CSV and Excel export. Launched during a 2026 campaign of 50K bookings: adoption rose from under 2% to 35%, support chat groups fell from 500+ to under 20, and email queries dropped 70%.', delta: { from: 2, to: 35, fromLabel: 'under 2%', toLabel: '35%' } },
+    { stat: '450+', title: 'SuperAgent: AI agent platform, company-wide', text: 'Internal platform in Go, Python and React with chat, semantic search and Slack integration. Teams create, version and deploy custom AI assistants self-service, with deployment to CI/CD pipelines, Slack channels and threads, and Jira automation. Agent build time fell from 2 to 3 days to 10 minutes.' },
+    { stat: '35%', title: 'Dineout partner operations dashboard', text: 'Real-time booking and walk-in visibility on DynamoDB, Kafka and OpenSearch through a React microfrontend, with CSV and Excel export. Launched during a 2026 campaign of 50K bookings: adoption rose from under 2% to 35%, support chat groups fell from 500+ to under 20, and email queries dropped 70%.', delta: { from: 2, to: 35, fromLabel: 'under 2%', toLabel: '35%' } },
     { stat: '1,500+', title: 'Booking concurrency fix', text: 'Two writers could claim the same booking at the same time, leaving partner payouts wrong until someone fixed them by hand. Optimistic locking and structured logging closed the race: 50+ partner payouts delivered accurately across 1,500+ transactions.' },
     { stat: '500+', title: 'In-platform notifications', text: 'Go service (Gin, PostgreSQL) with AWS S3 and CloudFront media, delivered to 500+ partners.' },
     { stat: 'R19', title: 'Frontend modernization', text: 'Upgraded to React 19, migrated tooling, replaced hand-written fetch clients with OpenAPI-generated ones, and added the first automated unit tests.' },
@@ -127,7 +127,7 @@ export const jobs: Job[] = [
 ];
 
 export const projects: Project[] = [
-  { id: 'agents', company: 'AI agent platform', title: 'AI agent platform', role: 'Go, Python, React, Slack API', dates: '2025 to present', loc: 'Careem, in production',
+  { id: 'agents', company: 'SuperAgent: AI agent platform', title: 'SuperAgent: AI agent platform', role: 'Go, Python, React, Slack API', dates: '2025 to present', loc: 'Careem, in production',
     stack: ['Go', 'Python', 'React', 'Slack API'], headline: '450+ agents, built in 10 minutes',
     summary: 'A self-service platform to create, version and deploy AI assistants with chat, semantic search, Slack and Jira integrations.',
     highlights: [
@@ -138,7 +138,7 @@ export const projects: Project[] = [
     { stat: '4', title: 'Deployment targets', text: 'CI/CD pipelines, Slack channels and threads, Jira automation, and in-platform chat.' },
     { stat: 'Go+Py', title: 'Architecture', text: 'Go services for the platform core, Python for the agent runtime, React front end. Versioning built in from day one.' },
   ] },
-  { id: 'partner-ops', company: 'Partner operations dashboard', title: 'Partner operations dashboard', role: 'Kafka, DynamoDB, OpenSearch, React', dates: '2026', loc: 'Careem',
+  { id: 'partner-ops', company: 'Dineout partner operations dashboard', title: 'Dineout partner operations dashboard', role: 'Kafka, DynamoDB, OpenSearch, React', dates: '2026', loc: 'Careem',
     stack: ['Kafka', 'DynamoDB', 'OpenSearch', 'React'], headline: '50K bookings, 2% to 35% adoption',
     summary: 'Real-time booking and walk-in visibility. Kafka streams into OpenSearch, DynamoDB is the source of truth, and a React microfrontend serves it.',
     highlights: [
@@ -232,5 +232,5 @@ export const timeline = [
     text: 'Performance work on a .NET Core and React product: 250 s loads down to 30 s, 30 s field checks down to 100 ms.' },
   { sector: 'S3', job: 'careem', years: '2025 to now', company: 'Careem', role: 'Software Engineer',
     stat: '450+', statLabel: 'AI agents shipped',
-    text: 'An AI agent platform used company-wide, and a real-time partner dashboard on Kafka, OpenSearch and React.' },
+    text: 'SuperAgent, an AI agent platform used company-wide, and the real-time Dineout partner operations dashboard on Kafka, OpenSearch and React.' },
 ];

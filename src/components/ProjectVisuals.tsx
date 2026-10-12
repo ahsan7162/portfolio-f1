@@ -136,7 +136,7 @@ const Chip = ({ x, y, w, text, on }: { x: number; y: number; w: number; text: st
   </g>
 );
 
-/* ---------- AI agent platform: build an agent in a form, deploy it, it answers in Slack ---------- */
+/* ---------- SuperAgent, the AI agent platform: build an agent in a form, deploy it, it answers in Slack ---------- */
 
 function buildAgents({ tl, q, qa, type, count, click }: Fx) {
   const cur = q('[data-pointer]'), chips = qa('[data-chip]'), lines = qa('[data-reply]');
@@ -224,7 +224,7 @@ function AgentsScene() {
   );
 }
 
-/* ---------- Partner ops dashboard: bookings arrive live, export a CSV, support chats fade away ---------- */
+/* ---------- Dineout partner operations dashboard: bookings arrive live, export a CSV, support chats fade away ---------- */
 
 const ROWS = [
   { time: '20:45', what: 'Table for 2', tag: 'BOOKED' },

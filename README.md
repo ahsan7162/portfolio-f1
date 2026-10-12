@@ -19,7 +19,7 @@ see a plain developer portfolio. The look takes cues from landonorris.com.
 
 | The lap: career timeline | Projects |
 | --- | --- |
-| ![The 3D circuit seen from above, the car in sector 3, Careem painted on the run-off and its card](docs/screenshots/lap.jpg) | ![A project card playing an SVG scene of the AI agent platform](docs/screenshots/projects.jpg) |
+| ![The 3D circuit seen from above, the car in sector 3, Careem painted on the run-off and its card](docs/screenshots/lap.jpg) | ![A project card playing an SVG scene of SuperAgent, the AI agent platform](docs/screenshots/projects.jpg) |
 
 **The finish:** the last screen is a card in a red frame, with the helmet parked in it and
 your lap time in the tab at the top.
