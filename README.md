@@ -11,6 +11,12 @@ npm run preview    # http://localhost:4174
 npm run check      # typecheck + lint (both must pass with no warnings)
 ```
 
+## Deploy
+
+Vercel builds `main` with `npm run build` and serves `dist/` (`vercel.json`; hashed files under
+`assets/` are cached for a year). The prerender writes the canonical and OG tags for the
+production domain Vercel passes in, or for `SITE_URL` when it is set.
+
 ## Linting
 
 `npm run lint` runs [oxlint](https://oxc.rs/docs/guide/usage/linter) with type-aware rules

@@ -44,7 +44,7 @@ export type ArchiveItem = {
   highlights: Highlight[];
 };
 
-/** Public URL of the deployed site (used for canonical/OG tags). TODO: set before deploying. */
+/** Public URL of the site (canonical and OG tags). Empty: on Vercel the prerender uses the production domain. */
 export const SITE_URL = '';
 export const CV_FILE = 'Muhammad-Ahsan-CV.pdf';
 export const EMAIL = 'imranahsan716@gmail.com';

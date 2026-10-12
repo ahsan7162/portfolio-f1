@@ -13,8 +13,10 @@ if (!html.includes('<!--app-->')) throw new Error('prerender: <!--app--> placeho
 if (!html.includes('<!--seo-->')) throw new Error('prerender: <!--seo--> placeholder missing');
 
 // Canonical and the social card. Crawlers need absolute URLs and the build is relative
-// (base './'), so these are only written once the site's address is known.
-const site = (process.env.SITE_URL || SITE_URL).replace(/\/+$/, '');
+// (base './'), so these are only written once the site's address is known. On Vercel
+// every build is told the production domain (the custom one, once there is one).
+const vercel = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+const site = (process.env.SITE_URL || SITE_URL || (vercel ? `https://${vercel}` : '')).replace(/\/+$/, '');
 const card = 'Muhammad Ahsan, Senior Full-Stack Developer: React, Go, Python, .NET and AI agents, 450+ AI agents shipped. The 04 helmet.';
 const seo = site ? [
   `<link rel="canonical" href="${site}/" />`,
