@@ -102,10 +102,12 @@ export function Lap() {
     gsap.fromTo(lapState, { progress: 0 }, { progress: 1, ease: EASE.none, scrollTrigger: lap, onUpdate: tickClock });
     if (flat) gsap.fromTo(svgPath, { drawSVG: '0%' }, { drawSVG: '100%', ease: EASE.none, scrollTrigger: lap });
 
-    // Arrival and exit. The 3D scene takes over the canvas before the pin, behind a
-    // veil in its own background colour that clears as the section scrolls up, and the
-    // veil closes over the last quarter screen of the pin, so it never cuts in or out.
+    // Arrival and exit, mirrored. The 3D scene takes over the canvas before the pin, behind
+    // a veil in its own background colour that clears as the section scrolls up. The lap
+    // then runs to the line in full view, and the veil closes only after the pin, as the
+    // section scrolls away, so it never cuts in or out and never dims the last sector.
     // The heading and the first stage arrive with it, not after the pin starts.
+    const FADE = 0.35; // of a screen, before the pin and again after it
     // Sector marks (desktop, with the 3D lap): each sector's start, projected from the
     // track by the render loop, as a dot with a leader and its name. Written only on lap
     // frames, by transform, and faded with the veil so they come and go with the scene.
@@ -136,7 +138,7 @@ export function Lap() {
     }
 
     ScrollTrigger.create({
-      trigger: pin, start: 'top 35%', end: () => st.end,
+      trigger: pin, start: `top ${FADE * 100}%`, end: () => st.end + innerHeight * FADE,
       onToggle: self => { lapState.active = self.isActive; if (!self.isActive) hideMarks(); },
       onEnter: () => {
         gsap.to(q('[data-laphead]'), { autoAlpha: 1, y: 0, duration: DUR.split, ease: EASE.out, overwrite: true });
@@ -144,9 +146,9 @@ export function Lap() {
         show(at(st.progress));
       },
     });
-    gsap.fromTo(lapState, { veil: 1 }, { veil: 0, ease: EASE.none, scrollTrigger: { trigger: pin, start: 'top 35%', end: 'top top', scrub: true } });
+    gsap.fromTo(lapState, { veil: 1 }, { veil: 0, ease: EASE.none, scrollTrigger: { trigger: pin, start: `top ${FADE * 100}%`, end: 'top top', scrub: true } });
     gsap.fromTo(lapState, { veil: 0 }, { veil: 1, ease: EASE.none, immediateRender: false,
-      scrollTrigger: { trigger: pin, start: () => st.end - innerHeight * 0.25, end: () => st.end, scrub: true } });
+      scrollTrigger: { trigger: pin, start: () => st.end, end: () => st.end + innerHeight * FADE, scrub: true } });
     onRevert(() => { lapState.active = false; lapState.veil = 1; lapState.progress = 0; lapState.stage = -1; });
 
     // Snap: when scrolling settles inside the pin, glide to the middle of the stage
@@ -217,7 +219,8 @@ export function Lap() {
 
         <div aria-hidden="true" className="lap-meta absolute inset-x-4 top-[calc(var(--navh)+1.5rem)] mx-auto hidden max-w-[1400px] items-end justify-end font-mono text-xs uppercase tracking-[0.14em] text-mute md:inset-x-8 md:top-auto md:bottom-8">
           <span className="flex items-baseline gap-4">
-            <span data-lapflag className="font-semibold text-fg">Lap 1</span>
+            {/* Phones: the HUD shares the label's line, which has no room for the flag. */}
+            <span data-lapflag className="font-semibold text-fg max-md:hidden">Lap 1</span>
             <span data-laptime className="lap-time text-fg">0:00.000</span>
             {timeline.map(t => <span key={t.sector} data-sector className="transition-colors duration-(--dur-split)">{t.sector}</span>)}
           </span>
