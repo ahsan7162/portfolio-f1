@@ -64,9 +64,8 @@ breaks a rule on purpose, an `oxlint-disable-next-line` comment says why.
   (text). Arrows are the `<Arrow />` SVG, because the → character isn't in the fonts.
 - **SEO:** the page is prerendered to static HTML (`scripts/prerender.ts`) and hydrated.
   Headings and copy use plain developer terms; F1 details are decorative and `aria-hidden`.
-- **Social card and touch icon:** HyperFrames stills in `motion-lab/` (the site's own type,
-  contours and helmet); `node motion-lab/build.mjs` rebuilds `public/og.jpg` and
-  `public/apple-touch-icon.png`. No video is used on the site.
+- **Social card and touch icon:** `public/og.jpg` and `public/apple-touch-icon.png` are stills
+  made from the site's own type, contours and helmet. No video is used on the site.
 
 ## Debug flags
 
