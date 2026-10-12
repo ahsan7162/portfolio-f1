@@ -45,7 +45,7 @@ export type ArchiveItem = {
 };
 
 /** Public URL of the site (canonical and OG tags). Empty: on Vercel the prerender uses the production domain. */
-export const SITE_URL = '';
+export const SITE_URL = 'https://muhammad-ahsan-dev.vercel.app';
 export const CV_FILE = 'Muhammad-Ahsan-CV.pdf';
 export const EMAIL = 'imranahsan716@gmail.com';
 export const PHONE = '+923110237524';

@@ -1,6 +1,7 @@
 # Portfolio v2
 
-F1-themed portfolio for a senior full-stack developer, inspired by landonorris.com.
+F1-themed portfolio for a full stack / AI developer, inspired by landonorris.com.
+Live at https://muhammad-ahsan-dev.vercel.app.
 The v1 site in `../portfolio` is untouched.
 
 ```bash

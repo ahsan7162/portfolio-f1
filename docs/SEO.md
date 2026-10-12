@@ -35,7 +35,7 @@ Fix options, best first:
 ## 2. Must-do at launch (needs the domain)
 
 1. **Set `SITE_URL`** in `src/content/data.ts` (or `SITE_URL=https://… npm run build`).
-   > **Status: wired.** `scripts/prerender.ts` then writes `<link rel="canonical">`, `og:url`,
+   > **Status: done** (`https://muhammad-ahsan-dev.vercel.app`). `scripts/prerender.ts` then writes `<link rel="canonical">`, `og:url`,
    > `og:image` (+ width, height, alt) and `twitter:image`; until it is set the build warns and
    > writes none of them. The **OG image** is `public/og.jpg` (1200×630: name, title, skills,
    > 450+ and the helmet), made with HyperFrames in `motion-lab/`. `twitter:card` is
