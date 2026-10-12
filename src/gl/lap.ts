@@ -227,79 +227,91 @@ export function createLap() {
   const roll = new THREE.Quaternion();
   let lastP = -1, movedAt = 0;
   let glowK = 0, glowP = -1, glowAt = 0;
+  /** progress 0..1 through the lap (scrubbed to the pin); veil 0..1 fades the scene out. Returns true while it needs more frames. */
+  function update(progress: number, w: number, h: number, veilAmount = 0, stage = -1) {
+    veilMat.uniforms.uVeil.value = veilAmount;
+    veil.visible = veilAmount > 0.001;
+    camera.aspect = w / h;
+    // Desktop: the stage cards sit on the right, so frame the circuit left of centre.
+    // Portrait: the card covers the lower half, so the car rides in the band above it.
+    if (w / h > 1.2) camera.setViewOffset(w, h, w * 0.2, 0, w, h);
+    else if (h > w) camera.setViewOffset(w, h, 0, h * 0.22, w, h);
+    else camera.clearViewOffset();
+    camera.updateProjectionMatrix();
+
+    const t = (START + progress * LAP) % 1;
+    curve.getPointAt(t, carPos);
+    // Face along the track (pitching with its elevation) and lean into corners.
+    curve.getTangentAt(t, fwd);
+    curve.getTangentAt((t + 0.012) % 1, ahead);
+    side.crossVectors(fwd, up).normalize();
+    upV.crossVectors(side, fwd).normalize();
+    basis.makeBasis(fwd, upV, side);
+    const g = car.group;
+    g.quaternion.setFromRotationMatrix(basis);
+    const turn = fwd.x * ahead.z - fwd.z * ahead.x; // + = turning right
+    g.quaternion.multiply(roll.setFromAxisAngle(fwd.set(1, 0, 0), THREE.MathUtils.clamp(turn * 2.2, -0.14, 0.14)));
+    g.position.copy(carPos).setY(carPos.y + 0.005);
+    halo.position.copy(carPos).setY(carPos.y + 0.008);
+    const now = performance.now();
+    if (progress !== lastP) { lastP = progress; movedAt = now; }
+    const blinking = now - movedAt < 250;
+    car.setLight(blinking, now);
+    lineGeo.setDrawRange(0, Math.floor(t * SEGS) * 6); // up to the car
+
+    // The pulses' strength follows how fast the lap moves, easing over about 0.2 s.
+    const dt = Math.min(0.05, (now - glowAt) / 1000);
+    glowAt = now;
+    const speed = glowP < 0 || dt <= 0 ? 0 : Math.abs(progress - glowP) / dt;
+    glowP = progress;
+    glowK += (Math.min(1, speed / 0.5) - glowK) * (1 - Math.exp(-dt / 0.2));
+    if (glowK < 0.004) glowK = 0;
+    glowMat.uniforms.uPhase.value = progress * LAP * PULSES * PULSE_RATE;
+    glowMat.uniforms.uGlow.value = glowK;
+    glowMat.uniforms.uHead.value = t;
+    glowGeo.setDrawRange(0, Math.floor(t * SEGS) * 6);
+    glow.visible = glowK > 0;
+
+    // Helicopter camera: a slow quarter orbit across the whole timeline, closer than a
+    // full-circuit shot and leaning towards the car so it reads (the minimap shows the
+    // whole circuit). The same framing on phones, where the circuit fills the width anyway.
+    const a = orbit(progress);
+    look.copy(centre).lerp(carPos, FOLLOW).setY(centre.y - 0.2);
+    eye.set(look.x + Math.sin(a) * R * 1.3 * ZOOM, centre.y + R * 1.5 * ZOOM, look.z + Math.cos(a) * R * 1.3 * ZOOM);
+    camera.position.copy(eye);
+    camera.lookAt(look);
+    // Project the sector starts now (render() would update the camera matrices only
+    // later, and the marks would trail by a frame). The view offset is already in the
+    // projection, so NDC maps straight onto the canvas.
+    camera.updateMatrixWorld();
+    marks.forEach((mark, k) => {
+      proj.copy(mark).project(camera);
+      const o = k * 3;
+      lapMarks.xy[o] = (proj.x * w) / 2;
+      lapMarks.xy[o + 1] = (-proj.y * h) / 2;
+      lapMarks.xy[o + 2] = proj.z < 1 && Math.abs(proj.x) < 1.05 && Math.abs(proj.y) < 1.05 ? 1 : 0;
+    });
+    // Still blinking or glowing: ask for more frames, so the light settles to steady
+    // and the pulses fade out when the lap stops.
+    const lighting = runoff.update(stage);
+    return blinking || lighting || glowK > 0;
+  }
+
   return {
-    scene, camera,
-    /** progress 0..1 through the lap (scrubbed to the pin); veil 0..1 fades the scene out. Returns true while it needs more frames. */
-    update(progress: number, w: number, h: number, veilAmount = 0, stage = -1) {
-      veilMat.uniforms.uVeil.value = veilAmount;
-      veil.visible = veilAmount > 0.001;
-      camera.aspect = w / h;
-      // Desktop: the stage cards sit on the right, so frame the circuit left of centre.
-      // Portrait: the card covers the lower half, so the car rides in the band above it.
-      if (w / h > 1.2) camera.setViewOffset(w, h, w * 0.2, 0, w, h);
-      else if (h > w) camera.setViewOffset(w, h, 0, h * 0.22, w, h);
-      else camera.clearViewOffset();
-      camera.updateProjectionMatrix();
-
-      const t = (START + progress * LAP) % 1;
-      curve.getPointAt(t, carPos);
-      // Face along the track (pitching with its elevation) and lean into corners.
-      curve.getTangentAt(t, fwd);
-      curve.getTangentAt((t + 0.012) % 1, ahead);
-      side.crossVectors(fwd, up).normalize();
-      upV.crossVectors(side, fwd).normalize();
-      basis.makeBasis(fwd, upV, side);
-      const g = car.group;
-      g.quaternion.setFromRotationMatrix(basis);
-      const turn = fwd.x * ahead.z - fwd.z * ahead.x; // + = turning right
-      g.quaternion.multiply(roll.setFromAxisAngle(fwd.set(1, 0, 0), THREE.MathUtils.clamp(turn * 2.2, -0.14, 0.14)));
-      g.position.copy(carPos).setY(carPos.y + 0.005);
-      halo.position.copy(carPos).setY(carPos.y + 0.008);
-      const now = performance.now();
-      if (progress !== lastP) { lastP = progress; movedAt = now; }
-      const blinking = now - movedAt < 250;
-      car.setLight(blinking, now);
-      lineGeo.setDrawRange(0, Math.floor(t * SEGS) * 6); // up to the car
-
-      // The pulses' strength follows how fast the lap moves, easing over about 0.2 s.
-      const dt = Math.min(0.05, (now - glowAt) / 1000);
-      glowAt = now;
-      const speed = glowP < 0 || dt <= 0 ? 0 : Math.abs(progress - glowP) / dt;
-      glowP = progress;
-      glowK += (Math.min(1, speed / 0.5) - glowK) * (1 - Math.exp(-dt / 0.2));
-      if (glowK < 0.004) glowK = 0;
-      glowMat.uniforms.uPhase.value = progress * LAP * PULSES * PULSE_RATE;
-      glowMat.uniforms.uGlow.value = glowK;
-      glowMat.uniforms.uHead.value = t;
-      glowGeo.setDrawRange(0, Math.floor(t * SEGS) * 6);
-      glow.visible = glowK > 0;
-
-      // Helicopter camera: a slow quarter orbit across the whole timeline, closer than a
-      // full-circuit shot and leaning towards the car so it reads (the minimap shows the
-      // whole circuit). The same framing on phones, where the circuit fills the width anyway.
-      const a = orbit(progress);
-      look.copy(centre).lerp(carPos, FOLLOW).setY(centre.y - 0.2);
-      eye.set(look.x + Math.sin(a) * R * 1.3 * ZOOM, centre.y + R * 1.5 * ZOOM, look.z + Math.cos(a) * R * 1.3 * ZOOM);
-      camera.position.copy(eye);
-      camera.lookAt(look);
-      // Project the sector starts now (render() would update the camera matrices only
-      // later, and the marks would trail by a frame). The view offset is already in the
-      // projection, so NDC maps straight onto the canvas.
-      camera.updateMatrixWorld();
-      marks.forEach((mark, k) => {
-        proj.copy(mark).project(camera);
-        const o = k * 3;
-        lapMarks.xy[o] = (proj.x * w) / 2;
-        lapMarks.xy[o + 1] = (-proj.y * h) / 2;
-        lapMarks.xy[o + 2] = proj.z < 1 && Math.abs(proj.x) < 1.05 && Math.abs(proj.y) < 1.05 ? 1 : 0;
-      });
-      // Still blinking or glowing: ask for more frames, so the light settles to steady
-      // and the pulses fade out when the lap stops.
-      const lighting = runoff.update(stage);
-      return blinking || lighting || glowK > 0;
+    scene, camera, update,
+    /**
+     * Get the scene ready ahead of its first frame: upload the run-off atlas and draw it once
+     * (the caller paints over it in the same frame), so the GPU sets up each material's
+     * pipeline now, in idle time, not on the first scrolling frame of the lap.
+     */
+    warm(r: THREE.WebGLRenderer, w: number, h: number) {
+      r.initTexture(runoff.texture);
+      update(0, w, h, 1);
+      glow.visible = true;
+      r.render(scene, camera);
+      glow.visible = false;
+      lastP = glowP = -1; // forget this frame: the lap's first real one starts afresh
     },
-    /** Upload the run-off atlas ahead of the first lap frame. */
-    warm: (r: THREE.WebGLRenderer) => r.initTexture(runoff.texture),
     dispose,
   };
 }

@@ -73,6 +73,8 @@ export class Stage {
   private lapV = 1;
   /** The lap asked for another frame (its car's rain light is still settling). */
   private lapMore = false;
+  /** Draw the lap once, unseen, on the next background frame (see frame()). */
+  private warmLap = false;
   /** Adaptive resolution: drops when frames miss vsync while moving, recovers slowly. */
   private quality = { scale: 1, vsync: 1000 / 60, slow: 0, fast: 0, cooldown: 0 };
   private size = { w: 0, h: 0, scale: 0 };
@@ -193,7 +195,7 @@ export class Stage {
     whenIdle(() => {
       if (this.dead) return;
       void this.renderer.compileAsync(this.lap.scene, this.lap.camera)
-        .catch(() => {}).finally(() => { if (!this.dead) this.lap.warm(this.renderer); });
+        .catch(() => {}).finally(() => { if (!this.dead) this.warmLap = true; });
     }, 3000, 1000);
   }
 
@@ -269,9 +271,13 @@ export class Stage {
       this.lapMore = this.lap.update(this.lapP, this.size.w, this.size.h, this.lapV, lapState.stage);
       lapMarks.sink?.(); // the DOM sector marks follow in this same frame
       r.render(scene, camera);
+      this.warmLap = false;
       this.showHelmet(false); // away while the lap has the canvas
       return;
     }
+    // Once, after the idle warm-up: the lap drawn under this frame's background, so its
+    // first real frame (mid-scroll, as the section arrives) doesn't stall on GPU setup.
+    if (this.warmLap) { this.warmLap = false; this.lap.warm(r, this.size.w, this.size.h); r.clear(); }
     r.render(this.field.scene, this.camera);
     if (this.helmet) this.drawHelmet(moving);
   }
