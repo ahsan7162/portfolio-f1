@@ -38,9 +38,13 @@ export function ScrollRail() {
       dots.forEach(m => m.toggleAttribute('data-passed', p >= +m.dataset.p! - 0.002));
     };
     const layout = () => {
+      // A page that hasn't been laid out yet (opened in a background view) reports 0 for
+      // these, and 0 / 0 would make every mark's top NaN. The next refresh lays it out.
+      const sh = root.scrollHeight;
       H = r.clientHeight;
-      limit = Math.max(1, root.scrollHeight - innerHeight);
-      T = Math.max(44, (H * innerHeight) / root.scrollHeight);
+      if (!H || !sh) return;
+      limit = Math.max(1, sh - innerHeight);
+      T = Math.max(44, (H * innerHeight) / sh);
       th.style.height = `${T}px`;
       setMarks(SECTIONS.map(({ id, short }) => {
         const el = document.getElementById(id);
