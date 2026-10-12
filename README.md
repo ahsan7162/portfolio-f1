@@ -21,14 +21,14 @@ see a plain developer portfolio. The look takes cues from landonorris.com.
 | --- | --- |
 | ![The 3D circuit seen from above, the car in sector 3, Careem painted on the run-off and its card](docs/screenshots/lap.jpg) | ![A project card playing an SVG scene of the AI agent platform](docs/screenshots/projects.jpg) |
 
-**The finish:** the last screen is a card in a red frame, with the helmet parked in it and
-your lap time in the tab at the top.
+**The finish** (left): the last screen is a card in a red frame, with the helmet parked in it
+and your lap time in the tab at the top. **On a phone** (right): the same page, with the helmet
+above the name.
 
-![The finish card: "Let's build something fast.", the parked helmet and the lap time](docs/screenshots/finish.jpg)
-
-**On a phone:** the same page, with the helmet above the name.
-
-<p align="center"><img src="docs/screenshots/phone.jpg" width="300" alt="The hero on a phone: the helmet above the name, the title and the two buttons"></p>
+<p align="center">
+  <img src="docs/screenshots/finish.jpg" width="600" alt="The finish card: &quot;Let's build something fast.&quot;, the parked helmet and the lap time">
+  <img src="docs/screenshots/phone.jpg" width="222" alt="The hero on a phone: the helmet above the name, the title and the two buttons">
+</p>
 
 ## Design decisions
 
