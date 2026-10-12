@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
+import { Analytics } from '@vercel/analytics/react';
 import { DialogCtx, type Origin } from '@/components/dialog-context';
 import { Cursor } from '@/components/Cursor';
 import { ArchiveDialog, closeWithWipe, DetailsDialog } from '@/components/Dialogs';
@@ -106,6 +107,8 @@ export default function App() {
   return (
     <SmoothScroll>
       <Page />
+      {/* Vercel Web Analytics: renders nothing; cookieless page views, sent only from the deployed site. */}
+      <Analytics />
     </SmoothScroll>
   );
 }
