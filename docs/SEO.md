@@ -5,8 +5,8 @@ Status and plan for search visibility of the portfolio. Audited against the buil
 ## Already done
 
 - **Prerendered HTML:** `scripts/prerender.ts` renders the full page, so crawlers read it without running JavaScript.
-- **Title:** "Muhammad Ahsan, Senior Full-Stack Developer (React, Go, Python, .NET)".
-- **Meta description:** about 155 characters.
+- **Title:** "Muhammad Ahsan, Full Stack / AI Developer".
+- **Meta description:** about 145 characters, leading with "full stack and AI developer".
 - **Headings:** one `h1` and 10 section `h2`s in order.
 - **Structured data:** JSON-LD `Person` (`jobTitle`, `worksFor`, `alumniOf`, `knowsAbout`, `sameAs` GitHub and LinkedIn).
 - **Crawl file:** `public/robots.txt`.

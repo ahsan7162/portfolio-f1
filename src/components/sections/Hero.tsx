@@ -74,7 +74,7 @@ export function Hero() {
           </span>
           <span className="sr-only">, </span>
           <span data-hsub className="mt-5 block font-sans text-xl font-medium tracking-tight font-stretch-semi-expanded text-fg md:text-3xl">
-            Senior <em className="display-em font-bold">Full-Stack</em> Developer
+            <em className="display-em font-bold">Full Stack / AI</em> Developer
           </span>
         </h1>
 

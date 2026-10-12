@@ -80,7 +80,7 @@ export const SECTIONS: Section[] = [
 
 export const profile = {
   name: 'Muhammad Ahsan',
-  title: 'Senior Full-Stack Developer',
+  title: 'Full Stack / AI Developer',
   lede: 'I build React front ends and Go, Python and .NET back ends that scale.',
   now: 'Currently at Careem, building an AI agent platform used company-wide.',
   location: 'Karachi, Pakistan',
