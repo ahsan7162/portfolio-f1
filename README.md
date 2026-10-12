@@ -84,4 +84,4 @@ breaks a rule on purpose, an `oxlint-disable-next-line` comment says why.
   the menu, the track map and the scroll rail read.
 - Project screenshots: add files to `src/assets/projects/` and set `image` on each project.
 - Set `SITE_URL` in `src/content/data.ts` (or pass it to the build): the prerender then writes
-  canonical, `og:url` and `og:image`. A sitemap is still to do.
+  canonical, `og:url` and `og:image`, plus `sitemap.xml` and its line in `robots.txt`.

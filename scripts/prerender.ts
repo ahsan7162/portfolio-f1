@@ -27,7 +27,22 @@ const seo = site ? [
   `<meta property="og:image:alt" content="${card}" />`,
   `<meta name="twitter:image" content="${site}/og.jpg" />`,
 ].join('\n    ') : '';
-if (!site) console.warn('prerender: SITE_URL is empty, so no canonical or og:image tags (they need an absolute URL). Set it in src/content/data.ts or pass SITE_URL=https://…');
+if (!site) console.warn('prerender: SITE_URL is empty, so no canonical or og:image tags and no sitemap (they need an absolute URL). Set it in src/content/data.ts or pass SITE_URL=https://…');
 writeFileSync(resolve(dist, 'index.html'), html.replace('<!--seo-->', seo).replace('<!--app-->', app));
+
+// The sitemap, and robots.txt pointing at it, need the absolute address too. One URL:
+// the sections are #anchors on the same page, which crawlers don't list separately.
+if (site) {
+  const built = new Date().toISOString().slice(0, 10);
+  writeFileSync(resolve(dist, 'sitemap.xml'), [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    `  <url><loc>${site}/</loc><lastmod>${built}</lastmod></url>`,
+    '</urlset>',
+    '',
+  ].join('\n'));
+  const robots = resolve(dist, 'robots.txt');
+  writeFileSync(robots, `${readFileSync(robots, 'utf8').trimEnd()}\n\nSitemap: ${site}/sitemap.xml\n`);
+}
 rmSync(resolve('dist-ssr'), { recursive: true, force: true });
 console.log(`prerender: wrote ${(app.length / 1024).toFixed(1)} KB of HTML`);

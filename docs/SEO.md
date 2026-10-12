@@ -40,7 +40,9 @@ Fix options, best first:
    > writes none of them. The **OG image** is `public/og.jpg` (1200×630: name, title, skills,
    > 450+ and the helmet), made with HyperFrames in `motion-lab/`. `twitter:card` is
    > `summary_large_image`.
-2. **`public/sitemap.xml`**: list the home page (plus project and job pages if 1a is done). Reference it from `robots.txt`.
+2. **`sitemap.xml`**: list the home page (plus project and job pages if 1a is done). Reference it from `robots.txt`.
+   > **Status: done.** `scripts/prerender.ts` writes `dist/sitemap.xml` (the home page, dated by
+   > the build) and adds its `Sitemap:` line to `dist/robots.txt`, both from the site URL.
 3. **Google Search Console:**
    - Verify the domain, submit the sitemap, and watch indexing and search terms.
    - Also add Bing Webmaster Tools (import from Search Console).
