@@ -184,7 +184,7 @@ export function Contact() {
         <p className="footer-text right-(--nh) pl-[calc(var(--fw)+1rem)] md:pl-[calc(var(--fw)+1.5rem)]"><span>&copy; {YEAR} {profile.name}<span className="max-xl:hidden">, {profile.location.split(',')[0]}</span></span></p>
       </div>
       <div data-fnotch="r" className="footer-notch right-0">
-        <p className="footer-text left-(--nh) justify-end pr-[calc(var(--fw)+1rem)] text-right md:pr-[calc(var(--fw)+1.5rem)]"><span>Open to senior <span className="whitespace-nowrap">full-stack roles</span></span></p>
+        <p className="footer-text left-(--nh) justify-end pr-[calc(var(--fw)+1rem)] text-right md:pr-[calc(var(--fw)+1.5rem)]"><span>Open to <span className="whitespace-nowrap">full stack / AI roles</span></span></p>
       </div>
     </footer>
   );
