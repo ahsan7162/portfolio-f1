@@ -1,11 +1,10 @@
 // What the first-visit loader waits for. Each part reports in when it is done;
 // the loader's lights and counter follow the weighted share that has.
-// Parts that won't run (no WebGL, say) report done straight away.
+// The 3D isn't one of them: the helmet runs its own reveal once it is ready
+// (Stage.ts), so a slow device never holds the start for it.
 const PARTS = {
   fonts: { weight: 1, label: 'Fonts' },
   page: { weight: 1, label: 'Page assets' },
-  engine: { weight: 2, label: '3D engine' },
-  helmet: { weight: 3, label: 'Helmet' },
 } as const;
 
 export type LoadPart = keyof typeof PARTS;

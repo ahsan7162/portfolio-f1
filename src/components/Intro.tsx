@@ -7,15 +7,15 @@ import { useSmoothScroll } from '@/motion/SmoothScroll';
 
 const LIGHTS = 5;
 const MIN_FILL = 1.4; // seconds: the lights never fill faster than this, however quick the load
-const MAX_WAIT = 7; // seconds of lights before the start goes ahead without whatever is still loading
+const MAX_WAIT = 2; // seconds of lights before the start goes ahead without whatever is still loading
 
 /**
  * F1 start sequence, tied to the real load. The gantry lowers in over a
  * timing-screen grid, then each light comes on as another fifth of the page
- * has loaded (fonts, page assets, the 3D engine, the helmet: see loading.ts),
- * with the counter and caption showing what is in. Once everything is, the
- * lights hold for a random beat and go out; a red line draws across the middle
- * and the screen splits open on it while the hero reveal plays underneath.
+ * has loaded (fonts and page assets: see loading.ts), with the counter and
+ * caption showing what is in. Once everything is, the lights hold for a
+ * random beat and go out; a red line draws across the middle and the screen
+ * splits open on it while the hero reveal plays underneath.
  * The h1 is already rendered, so content is never held back; any click, key
  * or scroll stops waiting and fast-forwards to the start.
  */

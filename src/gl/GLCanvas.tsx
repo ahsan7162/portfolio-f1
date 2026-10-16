@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { whenIdle } from '@/lib/idle';
 import { ensureGsap, ScrollTrigger } from '@/motion/gsap';
-import { loaded } from '@/motion/loading';
 import { glEnabled } from '@/motion/prefs';
 
 /**
@@ -25,12 +24,11 @@ export function GLCanvas() {
       ensureGsap();
       ScrollTrigger.refresh();
     };
-    if (!glEnabled()) { grounded(); loaded('engine'); loaded('helmet'); return; }
+    if (!glEnabled()) { grounded(); return; }
     let stop: (() => void) | undefined;
     let cancelled = false;
     whenIdle(async () => {
       const { Stage } = await import('./Stage');
-      loaded('engine');
       if (cancelled || !ref.current || !over.current) return;
       try {
         const stage = new Stage(ref.current, over.current);
@@ -40,7 +38,6 @@ export function GLCanvas() {
       } catch (err) {
         console.warn('[gl] disabled', err);
         grounded();
-        loaded('helmet');
       }
     }, 1500, 300);
     return () => {

@@ -15,14 +15,21 @@ export function Hero() {
   const ref = useSectionMotion(({ root, q, qa, onRevert }) => {
     const tl = introTimeline();
     // Entrance: joins the loader's master timeline so it lands as the lights go out.
+    // The fades and the circuit draw start hidden, so they join only while the loader
+    // runs: otherwise the prerendered first paint is final, and a rebuild after the
+    // intro (a resize across a breakpoint) can't leave them at their hidden start.
+    // The split text always joins: the name's hover works on its letters.
+    const intro = document.documentElement.classList.contains('intro');
     qa('[data-hline]').forEach((line, i) =>
       splitReveal(line, { type: 'chars', timeline: tl, at: `reveal+=${0.1 + i * 0.12}`, stagger: STAGGER.char * 1.6, duration: DUR.show }));
     splitReveal(q('[data-hsub]'), { type: 'words', timeline: tl, at: 'reveal+=0.45' });
     // The pill and the buttons rise; between them the lede wipes in under the red bar.
-    tl.from(qa('[data-hfade]'), { autoAlpha: 0, y: 24, duration: DUR.reveal, ease: EASE.out, stagger: 0.16 }, 'reveal+=0.6');
+    if (intro) tl.from(qa('[data-hfade]'), { autoAlpha: 0, y: 24, duration: DUR.reveal, ease: EASE.out, stagger: 0.16 }, 'reveal+=0.6');
     barReveal(q('[data-hlede]'), { timeline: tl, at: 'reveal+=0.68' });
-    tl.from(q('[data-hnum]'), { yPercent: 40, autoAlpha: 0, duration: DUR.show, ease: EASE.out }, 'reveal+=0.2');
-    drawPath(q('[data-hcircuit] path'), { timeline: tl, at: 'reveal+=0.3', duration: DUR.show });
+    if (intro) {
+      tl.from(q('[data-hnum]'), { yPercent: 40, autoAlpha: 0, duration: DUR.show, ease: EASE.out }, 'reveal+=0.2');
+      drawPath(q('[data-hcircuit] path'), { timeline: tl, at: 'reveal+=0.3', duration: DUR.show });
+    }
 
     onRevert(magnet(q('[data-pill]'), q('[data-pillarrow]')));
     // Hover: the name's letters lean and warm to red around the cursor, until the

@@ -3,7 +3,6 @@ import { PALETTE } from '@/art/palette';
 import { whenIdle } from '@/lib/idle';
 import { gsap, ScrollTrigger } from '@/motion/gsap';
 import { onIntroDone } from '@/motion/intro';
-import { loaded } from '@/motion/loading';
 import { isMobile, isTouch } from '@/motion/prefs';
 import { scrollState } from '@/motion/SmoothScroll';
 import { EASE } from '@/motion/tokens';
@@ -21,6 +20,8 @@ const FOV = 30, CAM_Z = 8;
  * well inside the budget, and at 1.5x on a 3x screen the lines and the helmet edge go soft.
  */
 const MAX_DPR = 1.5, MAX_DPR_PHONE = 2, MAX_PIXELS = 3.2e6, MIN_SCALE = 0.55;
+/** A frame this long (ms) is far over budget: the page can't keep up with the scenes at all. */
+const OVER_BUDGET = 50;
 /** World units per CSS pixel at the helmet's depth (z = 0), per pixel of viewport height. */
 const HALF_H = Math.tan(THREE.MathUtils.degToRad(FOV / 2)) * CAM_Z;
 
@@ -62,6 +63,8 @@ export class Stage {
   private cleanups: Array<() => void> = [];
   private busy = 0;
   private lastRender = 0;
+  /** The last ticker call, drawn or not: a frame right after a drawn one measures that frame. */
+  private lastTick = 0;
   /** Animation clock that only advances while frames render, so drift resumes without a jump. */
   private clock = 0;
   /** The helmet's float clock: only advances while something moves, so it holds still when idle. */
@@ -76,7 +79,7 @@ export class Stage {
   /** Draw the lap once, unseen, on the next background frame (see frame()). */
   private warmLap = false;
   /** Adaptive resolution: drops when frames miss vsync while moving, recovers slowly. */
-  private quality = { scale: 1, vsync: 1000 / 60, slow: 0, fast: 0, cooldown: 0 };
+  private quality = { scale: 1, vsync: 1000 / 60, slow: 0, fast: 0, cooldown: 0, over: 0 };
   private size = { w: 0, h: 0, scale: 0 };
   /** Touchscreens keep the contour background still while scrolling (no scroll parallax or stretch). */
   private still = isTouch();
@@ -137,7 +140,7 @@ export class Stage {
     // Without a context a canvas would stay blank over the hidden fallbacks: dropping
     // `gl-on` brings back the contour pattern and the Lap's flat circuit, and closes the
     // About sentence's helmet slot (GLCanvas.tsx).
-    const onLost = (e: Event) => { e.preventDefault(); this.dead = true; this.onLost?.(); };
+    const onLost = (e: Event) => { e.preventDefault(); this.goDark(); };
     for (const c of [canvas, overlay]) {
       c.addEventListener('webglcontextlost', onLost);
       this.cleanups.push(() => c.removeEventListener('webglcontextlost', onLost));
@@ -149,13 +152,14 @@ export class Stage {
     this.cleanups.push(() => gsap.ticker.remove(tick));
 
     this.lastInput = performance.now();
-    // The loader counts the helmet in once it is built and compiled (or failed).
-    void this.loadHelmet().catch(err => { console.warn('[gl] helmet failed', err); this.onLost?.(); }).finally(() => loaded('helmet'));
+    void this.loadHelmet().catch(err => { console.warn('[gl] helmet failed', err); this.onLost?.(); });
     if (import.meta.env.DEV) Object.assign(window, { __stage: this });
   }
 
-  /** Called when WebGL goes away (a lost context, the helmet failing to build). */
+  /** Called when WebGL goes away (a lost context, the helmet failing to build, frames far too slow). */
   onLost?: () => void;
+
+  private goDark() { this.dead = true; this.onLost?.(); }
 
   /** Ask for renders for a short while (after resizes, tweens starting, etc.). */
   private kick(ms = 600) { this.lastInput = Math.max(this.lastInput, performance.now() + ms - 1500); this.helmetDirty = true; }
@@ -235,13 +239,16 @@ export class Stage {
   }
 
   private frame() {
+    const now = performance.now(), prevTick = this.lastTick;
+    this.lastTick = now;
     if (this.dead || document.hidden || scrollState.locked) return;
-    const now = performance.now();
     const lapEasing = lapState.active && (this.lapMore || lapState.progress !== this.lapP || lapState.veil !== this.lapV);
     const moving = Math.abs(scrollState.velocity) > 0.01 || this.busy > 0 || lapEasing || now - this.lastInput < 1500;
     // Idle: the contour lines keep a steady 30fps drift; the helmet holds still until
     // something moves. The lap scene has no drift, so it draws nothing while idle.
     if (!moving && (lapState.active || now - this.lastRender < 33)) return;
+    // Back to back with the last drawn frame, so the gap is what that frame cost.
+    if (prevTick === this.lastRender && this.overBudget(now - this.lastRender)) return;
     if (moving) this.adapt(now - this.lastRender);
     const dt = Math.min(now - this.lastRender, 50) / 1000;
     this.clock += dt;
@@ -357,6 +364,28 @@ export class Stage {
       this.resize();
       q.slow = q.fast = 0; q.cooldown = 30;
     }
+  }
+
+  /**
+   * The backup to the software-renderer check in prefs.ts: frames far over budget, moving
+   * or idle, first take the render scale straight to its floor; if they stay that slow
+   * there, WebGL is as good as drawn on the CPU, and it is turned off like a lost context
+   * (the page falls back to the contour pattern and the flat circuit). Single long frames
+   * (a shader compile, a texture upload) are paid back by the quick ones around them.
+   */
+  private overBudget(delta: number) {
+    const q = this.quality;
+    if (delta > 1000) return false; // a stall or a tab switch, not a frame
+    if (delta <= OVER_BUDGET) { q.over = Math.max(0, q.over - 1); return false; }
+    if (++q.over < 8) return false;
+    q.over = 0;
+    if (q.scale > MIN_SCALE) {
+      q.scale = MIN_SCALE;
+      this.resize();
+      return false;
+    }
+    this.goDark();
+    return true;
   }
 
   dispose() {
