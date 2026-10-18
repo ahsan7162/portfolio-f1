@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { PALETTE } from '@/art/palette';
 import { whenIdle } from '@/lib/idle';
 import { gsap, ScrollTrigger } from '@/motion/gsap';
 import { onIntroDone } from '@/motion/intro';
@@ -223,17 +222,13 @@ export class Stage {
 
   private bindSectionColours() {
     const u = this.field.uniforms;
-    const light = new THREE.Color(PALETTE.fg), dark = new THREE.Color('#141416');
     const to = (a: string, b: string) => {
       const A = new THREE.Color(a), B = new THREE.Color(b);
-      const isLight = A.r + A.g + A.b > 1.5;
+    // Every section's ground is dark, so the lines keep their colour: only the two ground colours move.
       this.busy++;
-      const L = isLight ? dark : light;
       gsap.timeline({ onComplete: () => { this.busy--; } })
         .to(u.uColA.value, { r: A.r, g: A.g, b: A.b, duration: 0.9, ease: EASE.wipe }, 0)
-        .to(u.uColB.value, { r: B.r, g: B.g, b: B.b, duration: 0.9, ease: EASE.wipe }, 0)
-        .to(u.uLine.value, { r: L.r, g: L.g, b: L.b, duration: 0.9, ease: EASE.wipe }, 0)
-        .to(u.uLineAlpha, { value: isLight ? 0.13 : 0.09, duration: 0.9 }, 0);
+        .to(u.uColB.value, { r: B.r, g: B.g, b: B.b, duration: 0.9, ease: EASE.wipe }, 0);
     };
     document.querySelectorAll<HTMLElement>('[data-bg]').forEach(sec => {
       const [a, b] = sec.dataset.bg!.split(',');

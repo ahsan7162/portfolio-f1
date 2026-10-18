@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import { CIRCUIT_PATH, CIRCUIT_VIEWBOX } from '@/art/circuit';
-import { PALETTE } from '@/art/palette';
 import { CvLink } from '@/components/CvLink';
 import { LazyMap } from '@/components/LazyMap';
 import { EMAIL, PHONE, PHONE_DISPLAY, profile, SECTIONS, SOCIAL } from '@/content/data';
@@ -113,7 +112,7 @@ export function Contact() {
       {/* Texture: the career map (Karachi, Dubai, Milan), faint behind everything. Not on
           phones, where its arcs would run through the lists. */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-[10%] -z-10 mx-auto hidden w-[min(90%,1250px)] text-fg/[0.13] md:block">
-        <LazyMap markerColor={PALETTE.ac} />
+        <LazyMap />
       </div>
 
       {/* The headline, signed with the circuit. */}

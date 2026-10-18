@@ -1,3 +1,4 @@
+import { PALETTE } from '@/art/palette';
 import { WORLD, WORLD_DOTS, WORLD_MARKERS } from '@/art/worldDots';
 import { gsap, ScrollTrigger } from '@/motion/gsap';
 import { drawPath } from '@/motion/patterns';
@@ -21,7 +22,8 @@ const arc = (m: { x: number; y: number }) => {
  * small SVG, so drawing them never repaints the 1.8k dots; the pulse is HTML rings
  * (scale and opacity only). The markup is the final frame: map shown, arcs drawn.
  */
-export function WorldMap({ markerColor }: { markerColor: string }) {
+export function WorldMap() {
+  const markerColor = PALETTE.ac;
   const ref = useSectionMotion<HTMLDivElement>(({ root, qa }) => {
     const at = `${pct(home.x, WORLD.width)} ${pct(home.y, WORLD.height)}`;
     const arcs = qa<SVGPathElement>('[data-arc]'), runners = qa<SVGCircleElement>('[data-runner]');
