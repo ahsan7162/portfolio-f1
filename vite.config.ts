@@ -26,6 +26,9 @@ function preloadFonts(files: string[]): Plugin {
 
 export default defineConfig({
   base: './',
+  // The year the site was built, written into both bundles, so the prerendered footer and
+  // the client agree (a live new Date() would differ once the year turns: a hydration error).
+  define: { 'import.meta.env.BUILD_YEAR': JSON.stringify(String(new Date().getFullYear())) },
   plugins: [react(), tailwindcss(), preloadFonts(['hubot-sans.woff2', 'mona-sans.woff2', 'monaspace-krypton.woff2'])],
   resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
   server: { port: 5174, strictPort: true },

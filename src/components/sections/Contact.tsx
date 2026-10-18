@@ -13,7 +13,8 @@ import { useSectionMotion } from '@/motion/useSectionMotion';
 
 /** Every section but this one, by its short name: the footer's page list. */
 const PAGES = SECTIONS.filter(s => s.menu && s.id !== 'contact');
-const YEAR = new Date().getFullYear();
+/** The build's year (vite.config.ts), the same in the prerendered HTML and on the client. */
+const YEAR: string = import.meta.env.BUILD_YEAR;
 
 /** One row of the footer's two lists: big expanded caps that roll and turn red on hover. */
 const row = 'display inline-block py-1 text-display-small leading-none transition-colors duration-(--dur-hit) hover:text-ac focus-visible:text-ac';
