@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { PALETTE } from '@/art/palette';
+import { disposables } from './dispose';
 
 // A low-poly F1 car built from boxes and cylinders (no model download): red body
 // with black wings, floor and halo in one vertex-coloured mesh, four wheels in a
@@ -19,8 +20,9 @@ function part(geo: THREE.BufferGeometry, color: THREE.Color, x: number, y: numbe
 }
 
 export function buildCar() {
+  const { keep, dispose } = disposables();
   const B = (w: number, h: number, d: number) => new THREE.BoxGeometry(w, h, d);
-  const body = mergeGeometries([
+  const body = keep(mergeGeometries([
     part(B(0.4, 0.05, 0.11), RED, 0, 0.05),            // monocoque
     part(B(0.18, 0.035, 0.05), RED, 0.27, 0.04),       // nose
     part(B(0.2, 0.05, 0.22), RED, -0.04, 0.045),       // sidepods
@@ -33,20 +35,20 @@ export function buildCar() {
     part(B(0.08, 0.1, 0.01), BLACK, -0.29, 0.11, -0.125),
     part(B(0.07, 0.012, 0.07), BLACK, 0.06, 0.11),     // halo
     part(B(0.012, 0.035, 0.012), BLACK, 0.095, 0.09),
-  ]);
+  ]));
   const wheel = (x: number, z: number, r: number, w: number) => {
     const g = new THREE.CylinderGeometry(r, r, w, 14);
     g.rotateX(Math.PI / 2);
     return part(g, BLACK, x, r, z);
   };
-  const wheels = mergeGeometries([
+  const wheels = keep(mergeGeometries([
     wheel(0.19, 0.15, 0.05, 0.05), wheel(0.19, -0.15, 0.05, 0.05),
     wheel(-0.19, 0.15, 0.056, 0.065), wheel(-0.19, -0.15, 0.056, 0.065),
-  ]);
-  const bodyMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.35, metalness: 0.2, fog: false });
-  const wheelMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.9, fog: false });
-  const lightGeo = new THREE.BoxGeometry(0.02, 0.03, 0.05);
-  const lightMat = new THREE.MeshBasicMaterial({ color: PALETTE.ac, fog: false, toneMapped: false });
+  ]));
+  const bodyMat = keep(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.35, metalness: 0.2, fog: false }));
+  const wheelMat = keep(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.9, fog: false }));
+  const lightGeo = keep(new THREE.BoxGeometry(0.02, 0.03, 0.05));
+  const lightMat = keep(new THREE.MeshBasicMaterial({ color: PALETTE.ac, fog: false, toneMapped: false }));
 
   const group = new THREE.Group();
   const light = new THREE.Mesh(lightGeo, lightMat);
@@ -61,6 +63,6 @@ export function buildCar() {
     setLight(blinking: boolean, now: number) {
       lightMat.color.copy(blinking && Math.floor(now / 110) % 2 ? off : on);
     },
-    dispose() { [body, wheels, lightGeo, bodyMat, wheelMat, lightMat].forEach(d => d.dispose()); },
+    dispose,
   };
 }

@@ -1,4 +1,5 @@
 import { CIRCUIT_PATH, CIRCUIT_VIEWBOX } from '@/art/circuit';
+import { PALETTE } from '@/art/palette';
 import { jobs, profile } from '@/content/data';
 import { Arrow } from '@/components/Arrow';
 import { CvLink } from '@/components/CvLink';
@@ -50,7 +51,7 @@ export function Hero() {
   });
 
   return (
-    <section ref={ref} id="top" tabIndex={-1} data-bg="#0b0b0c,#141417" className="relative isolate flex min-h-[100dvh] flex-col overflow-hidden px-4 pt-24 md:px-8">
+    <section ref={ref} id="top" tabIndex={-1} data-bg={`${PALETTE.carbon},${PALETTE.panel}`} className="relative isolate flex min-h-[100dvh] flex-col overflow-hidden px-4 pt-24 md:px-8">
       <svg data-hcircuit aria-hidden="true" viewBox={CIRCUIT_VIEWBOX} fill="none"
         className="pointer-events-none absolute left-[-6%] top-[14%] -z-10 w-[92%] max-w-[1100px] opacity-50 md:left-[2%] md:w-[70%]">
         <path d={CIRCUIT_PATH} stroke="var(--ac)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />

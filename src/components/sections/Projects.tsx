@@ -7,10 +7,11 @@ import { archive, archiveBreakdown, projects, type Breakdown } from '@/content/d
 import { gsap, ScrollTrigger } from '@/motion/gsap';
 import { isTouch, motionEnabled } from '@/motion/prefs';
 import { useBentoPointer } from '@/motion/useBentoPointer';
-import { clipReveal, curtainReveal, gridSlot, inView, magnet } from '@/motion/patterns';
+import { clipReveal, curtainReveal, gridSlot, inView, magnet, scrubParallax } from '@/motion/patterns';
 import { DUR, EASE } from '@/motion/tokens';
 import { navHeight } from '@/motion/useNavHeight';
 import { useSectionMotion } from '@/motion/useSectionMotion';
+import { twoDigits } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
 // Staggered offsets, like Lando's helmet grid: each card sits at its own height
@@ -57,8 +58,8 @@ export function Projects() {
     root.classList.remove('proj-stack');
     if (!desktop) return;
     cards.forEach((card, i) => {
-      gsap.fromTo(card, { yPercent: 0 }, { yPercent: LAYOUT[i].speed, ease: 'none', scrollTrigger: { trigger: card, start: 'top bottom', end: 'bottom top', scrub: true } });
-      gsap.fromTo(card.querySelector('[data-cardin]'), { yPercent: -6, scale: 1.08 }, { yPercent: 6, scale: 1.08, ease: 'none', scrollTrigger: { trigger: card, start: 'top bottom', end: 'bottom top', scrub: true } });
+      scrubParallax(card, card, { from: { yPercent: 0 }, to: { yPercent: LAYOUT[i].speed } });
+      scrubParallax(card.querySelector('[data-cardin]'), card, { from: { yPercent: -6, scale: 1.08 }, to: { yPercent: 6, scale: 1.08 } });
     });
 
     function stack() {
@@ -77,7 +78,7 @@ export function Projects() {
         if (i === cur) return;
         const dir = i > cur ? 1 : -1;
         cur = i;
-        gsap.to(idx, { scrambleText: { text: String(i + 1).padStart(2, '0'), chars: '0123456789' }, duration: DUR.split, ease: EASE.none, overwrite: true });
+        gsap.to(idx, { scrambleText: { text: twoDigits(i + 1), chars: '0123456789' }, duration: DUR.split, ease: EASE.none, overwrite: true });
         swap?.kill();
         swap = gsap.timeline()
           .to(title, { yPercent: -110 * dir, duration: DUR.hit, ease: EASE.in })
@@ -89,7 +90,7 @@ export function Projects() {
       }));
       gsap.fromTo(q('[data-pbar]'), { scaleX: 1 / n }, { scaleX: 1, ease: EASE.none,
         scrollTrigger: { trigger: cards[0], start: `top ${top(0)}px`, endTrigger: cards[n - 1], end: `top ${top(n - 1)}px`, scrub: true } });
-      onRevert(() => { idx.textContent = '01'; title.textContent = projects[0].title; });
+      onRevert(() => { idx.textContent = twoDigits(1); title.textContent = projects[0].company; });
     }
   }, [], { fit: true });
 
@@ -101,8 +102,8 @@ export function Projects() {
           <h2 data-speed className="display text-display-section">Projects</h2>
           {/* Stack mode only (see the CSS): which card is on top of the deck. */}
           <div aria-hidden="true" className="proj-now">
-            <span className="label"><span data-pidx className="text-fg">01</span> / {String(projects.length).padStart(2, '0')}</span>
-            <span className="display mt-3 block overflow-hidden text-display-small font-bold"><span data-ptitle className="block">{projects[0].title}</span></span>
+            <span className="label"><span data-pidx className="text-fg">{twoDigits(1)}</span> / {twoDigits(projects.length)}</span>
+            <span className="display mt-3 block overflow-hidden text-display-small font-bold"><span data-ptitle className="block">{projects[0].company}</span></span>
             <span className="mt-5 block h-0.5 w-full max-w-[280px] bg-line"><span data-pbar className="block h-full origin-left bg-ac" /></span>
           </div>
           <button type="button" onClick={e => openArchive(originOf(e))} className="btn btn-primary">

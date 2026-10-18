@@ -402,7 +402,7 @@ html:not(.gl-on) .lap-marks { display: none; }
     padding: 0.25rem 0.75rem;
     font-family: var(--font-mono);
     font-size: 0.75rem;
-    transition: border-color 0.3s, color 0.3s;
+    transition: border-color var(--dur-split), color var(--dur-split);
   }
   .tile:hover .pill { border-color: rgb(244 244 237 / 0.25); }
 }

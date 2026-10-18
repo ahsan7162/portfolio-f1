@@ -5,6 +5,7 @@ import { Scramble } from '@/components/Scramble';
 import { originOf, useDialogs } from '@/components/dialog-context';
 import { archive, EMAIL, jobs, projects, SECTIONS, SOCIAL, type Section } from '@/content/data';
 import { FOCUSABLE, trapTab } from '@/lib/focus';
+import { twoDigits } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { Flip, gsap, ScrollTrigger } from '@/motion/gsap';
 import { introDone, introTimeline } from '@/motion/intro';
@@ -144,7 +145,7 @@ export function Nav() {
           <nav aria-label="Sections">
             <ol className="border-t border-line">
               {MENU.map((m, i) => {
-                const n = <span aria-hidden="true" className="w-8 shrink-0 pt-[0.6em] font-mono text-xs text-mute md:w-12">{String(i + 1).padStart(2, '0')}</span>;
+                const n = <span aria-hidden="true" className="w-8 shrink-0 pt-[0.6em] font-mono text-xs text-mute md:w-12">{twoDigits(i + 1)}</span>;
                 const dot = current === m.id && <span aria-hidden="true" className="ml-3 inline-block size-2 shrink-0 self-center rounded-full bg-ac" />;
                 return (
                   <li key={m.id} data-mflip className="border-b border-line">

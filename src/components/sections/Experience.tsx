@@ -3,7 +3,7 @@ import { Arrow } from '@/components/Arrow';
 import { CrawlableDetails } from '@/components/CrawlableDetails';
 import { originOf, useDialogs } from '@/components/dialog-context';
 import { gsap } from '@/motion/gsap';
-import { digitRoll, gridSlot, inView } from '@/motion/patterns';
+import { digitRoll, gridSlot } from '@/motion/patterns';
 import { useBentoPointer } from '@/motion/useBentoPointer';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 import { cn } from '@/lib/utils';
@@ -44,7 +44,7 @@ export function Experience() {
         scrollTrigger: { trigger: t, start: 'top 98%', end: 'top 70%', scrub: 0.6 },
       }));
     }
-    onRevert(digitRoll(q('[data-langs]'), { scrollTrigger: inView(q('[data-langs]')!) }));
+    onRevert(digitRoll(q('[data-langs]')));
   });
 
   return (

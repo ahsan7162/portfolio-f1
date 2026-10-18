@@ -1,7 +1,7 @@
 import { education, stats } from '@/content/data';
 import { thousands } from '@/lib/format';
 import { gsap, SplitText } from '@/motion/gsap';
-import { barReveal, digitRoll, gridSlot, inView, scrubParallax, splitReveal } from '@/motion/patterns';
+import { barReveal, clipReveal, digitRoll, gridSlot, inView, scrubParallax, splitReveal } from '@/motion/patterns';
 import { DUR, EASE } from '@/motion/tokens';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 
@@ -28,7 +28,7 @@ export function Results() {
     // 2. The award: the podium builds 2nd, 1st, 3rd, the P3 step fills red and its 3 rises in.
     gsap.timeline({ delay: 0.15, scrollTrigger: once })
       .fromTo(qa('[data-step]'), { scaleY: 0.05 }, { scaleY: 1, transformOrigin: '50% 100%', duration: DUR.split, ease: EASE.settle, stagger: 0.08 })
-      .fromTo(q('[data-p3fill]'), { clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: DUR.split, ease: EASE.wipe }, '-=0.1')
+      .add(clipReveal(q('[data-p3fill]'), { duration: DUR.split }), '-=0.1')
       .fromTo(q('[data-p3num]'), { yPercent: 120 }, { yPercent: 0, duration: DUR.split, ease: EASE.out }, '-=0.15')
       .fromTo(q('[data-awtxt]'), { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: DUR.split, ease: EASE.out }, '-=0.2');
 
@@ -58,7 +58,7 @@ export function Results() {
       .fromTo(big, { clipPath: 'inset(-30% 100% -2% -10%)' }, { clipPath: 'inset(-30% -10% -2% -10%)', ease: EASE.none, duration: 0.75 }, 0.05)
       .fromTo(edge, { x: 0, autoAlpha: 1 }, { x: () => big.offsetWidth, ease: EASE.none, duration: 0.75 }, 0.05)
       .to(edge, { autoAlpha: 0, ease: EASE.none, duration: 0.1 }, 0.8);
-    gsap.fromTo(q('[data-bigwrap]'), { xPercent: -3 }, { xPercent: 4, ease: EASE.none, scrollTrigger: { trigger: big, start: 'top bottom', end: 'bottom top', scrub: true } });
+    scrubParallax(q('[data-bigwrap]'), big, { from: { xPercent: -3 }, to: { xPercent: 4 } });
     splitReveal(q('[data-biglabel]'), { type: 'words' });
   });
 

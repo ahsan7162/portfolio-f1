@@ -6,7 +6,7 @@ import { LazyMap } from '@/components/LazyMap';
 import { EMAIL, PHONE, PHONE_DISPLAY, profile, SECTIONS, SOCIAL } from '@/content/data';
 import { lapTime } from '@/lib/format';
 import { gsap } from '@/motion/gsap';
-import { batchReveal, gridSlot, inView, magnet } from '@/motion/patterns';
+import { batchReveal, drawPath, gridSlot, inView, magnet } from '@/motion/patterns';
 import { motionEnabled } from '@/motion/prefs';
 import { DUR, EASE } from '@/motion/tokens';
 import { useSectionMotion } from '@/motion/useSectionMotion';
@@ -65,9 +65,9 @@ export function Contact() {
     // The signature: the hero's circuit draws itself over the headline, then a light runs
     // one lap of it. The time freezes as it crosses the line, and the tab flashes chalk.
     const light = q('[data-siglight]');
-    gsap.timeline({ scrollTrigger: inView(title, { start: 'top 70%' }) })
-      .fromTo(q('[data-sig]'), { drawSVG: '0%' }, { drawSVG: '100%', duration: DUR.show, ease: EASE.wipe })
-      .fromTo(q('[data-sigline]'), { autoAlpha: 0 }, { autoAlpha: 1, duration: DUR.split }, '-=0.4')
+    const sig = gsap.timeline({ scrollTrigger: inView(title, { start: 'top 70%' }) });
+    drawPath(q('[data-sig]'), { timeline: sig });
+    sig.fromTo(q('[data-sigline]'), { autoAlpha: 0 }, { autoAlpha: 1, duration: DUR.split }, '-=0.4')
       .fromTo(light, { strokeDashoffset: 0, autoAlpha: 1 }, { strokeDashoffset: -1, duration: 1.3, ease: 'power1.inOut', immediateRender: false }, '-=0.35')
       .add(freeze)
       .fromTo(q('[data-tabflash]'), { autoAlpha: 0.9 }, { autoAlpha: 0, duration: DUR.wipe, ease: EASE.out, immediateRender: false }, '<')

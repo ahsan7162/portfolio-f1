@@ -1,4 +1,5 @@
 import { CIRCUIT_PATH, CIRCUIT_VIEWBOX } from '@/art/circuit';
+import { PALETTE } from '@/art/palette';
 import { jobs, timeline } from '@/content/data';
 import { Arrow } from '@/components/Arrow';
 import { originOf, useDialogs } from '@/components/dialog-context';
@@ -6,7 +7,7 @@ import { lapMarks, lapState } from '@/gl/state';
 import { lapTime } from '@/lib/format';
 import { glEnabled } from '@/motion/prefs';
 import { gsap, ScrollTrigger } from '@/motion/gsap';
-import { barReveal } from '@/motion/patterns';
+import { barReveal, drawPath } from '@/motion/patterns';
 import { DUR, EASE } from '@/motion/tokens';
 import { useSmoothScroll } from '@/motion/SmoothScroll';
 import { useSectionMotion } from '@/motion/useSectionMotion';
@@ -100,7 +101,7 @@ export function Lap() {
     });
     const lap = { trigger: pin, start: 'top top', end: () => st.end, scrub: 0.5 };
     gsap.fromTo(lapState, { progress: 0 }, { progress: 1, ease: EASE.none, scrollTrigger: lap, onUpdate: tickClock });
-    if (flat) gsap.fromTo(svgPath, { drawSVG: '0%' }, { drawSVG: '100%', ease: EASE.none, scrollTrigger: lap });
+    if (flat) drawPath(svgPath, { scrollTrigger: lap });
 
     // Arrival and exit, mirrored. The 3D scene takes over the canvas before the pin, behind
     // a veil in its own background colour that clears as the section scrolls up. The lap
@@ -169,7 +170,7 @@ export function Lap() {
   }, [], { fit: true });
 
   return (
-    <section ref={ref} id="timeline" tabIndex={-1} data-bg="#070708,#0b0b0c" data-lap className="relative">
+    <section ref={ref} id="timeline" tabIndex={-1} data-bg={`${PALETTE.pit},${PALETTE.carbon}`} data-lap className="relative">
       {/* Sector marks over the 3D track (motion, desktop): the same box as the canvas,
           outside the pin, so pinning never moves it. Placed by the render loop. */}
       <div data-lapmarks aria-hidden="true" className="lap-marks pointer-events-none invisible fixed inset-0 hidden h-[100lvh] w-full opacity-0 md:block">
