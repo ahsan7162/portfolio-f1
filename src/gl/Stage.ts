@@ -71,6 +71,7 @@ export class Stage {
   private helmetClock = 0;
   private lastInput = 0;
   private dead = false;
+  private disposed = false;
   /** The lap progress and veil last drawn, to tell when the lap needs a new frame. */
   private lapP = 0;
   private lapV = 1;
@@ -152,14 +153,20 @@ export class Stage {
     this.cleanups.push(() => gsap.ticker.remove(tick));
 
     this.lastInput = performance.now();
-    void this.loadHelmet().catch(err => { console.warn('[gl] helmet failed', err); this.onLost?.(); });
+    // goDark, not just onLost: the page falls back, and the render loop stops drawing to a hidden canvas.
+    void this.loadHelmet().catch(err => { console.warn('[gl] helmet failed', err); this.goDark(); });
     if (import.meta.env.DEV) Object.assign(window, { __stage: this });
   }
 
   /** Called when WebGL goes away (a lost context, the helmet failing to build, frames far too slow). */
   onLost?: () => void;
 
-  private goDark() { this.dead = true; this.onLost?.(); }
+  /** WebGL is out for this visit: free everything (contexts, listeners, triggers), then fall back. */
+  private goDark() {
+    if (this.dead) return;
+    this.dispose();
+    this.onLost?.();
+  }
 
   /** Ask for renders for a short while (after resizes, tweens starting, etc.). */
   private kick(ms = 600) { this.lastInput = Math.max(this.lastInput, performance.now() + ms - 1500); this.helmetDirty = true; }
@@ -193,7 +200,7 @@ export class Stage {
     this.cleanups.push(() => flight.dispose(), () => helmet.dispose());
     // Compile shaders before the reveal so the first frames don't stutter.
     this.hr.compile(this.scene, this.camera);
-    onIntroDone(() => this.playReveal());
+    onIntroDone(() => { if (!this.dead) this.playReveal(); });
     // Warm up what first appears mid-scroll (the lap's car and run-off logos) in idle time,
     // so their shader compiles and texture uploads don't land on a scrolling frame.
     whenIdle(() => {
@@ -388,13 +395,16 @@ export class Stage {
     return true;
   }
 
+  /** Safe to call twice: going dark disposes, and so does unmounting (GLCanvas). */
   dispose() {
-    this.dead = true;
+    if (this.disposed) return;
+    this.disposed = this.dead = true;
     this.cleanups.splice(0).reverse().forEach(f => f());
     this.field.dispose();
     this.lap.dispose();
     this.renderer.dispose();
     this.hr.dispose();
-    this.hr.forceContextLoss();
+    // A context that is already lost can't be lost again (the browser warns).
+    if (!this.hr.getContext().isContextLost()) this.hr.forceContextLoss();
   }
 }

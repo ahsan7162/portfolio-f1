@@ -22,17 +22,20 @@ const SOFTWARE_GL = /swiftshader|llvmpipe|software|basic render/i;
  */
 function hasWebGL2() {
   if (webgl2 === undefined) {
+    let gl: WebGL2RenderingContext | null = null;
     try {
-      const gl = document.createElement('canvas').getContext('webgl2');
+      gl = document.createElement('canvas').getContext('webgl2');
       // Chrome and Safari mask RENDERER ("WebKit WebGL") and name the GPU in the debug
       // extension; Firefox names it in RENDERER and deprecates the extension.
       const masked = !!gl && /webkit webgl/i.test(String(gl.getParameter(gl.RENDERER)));
-      const info = masked ? gl.getExtension('WEBGL_debug_renderer_info') : null;
+      const info = masked ? gl!.getExtension('WEBGL_debug_renderer_info') : null;
       const renderer = gl ? String(gl.getParameter(info ? info.UNMASKED_RENDERER_WEBGL : gl.RENDERER)) : '';
       webgl2 = !!gl && !SOFTWARE_GL.test(renderer);
-      gl?.getExtension('WEBGL_lose_context')?.loseContext();
     } catch {
       webgl2 = false;
+    } finally {
+      // Released even when a query above throws, or the probe would hold a live context.
+      try { gl?.getExtension('WEBGL_lose_context')?.loseContext(); } catch { /* already gone */ }
     }
   }
   return webgl2;

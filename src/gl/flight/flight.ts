@@ -68,7 +68,8 @@ export function bindFlight() {
     if (!r) { out.p.x = W * 1.3; out.p.y = H * 0.3; out.w = H * 0.3; out.stand = 0; return out; }
     out.p.x = r.left + r.width / 2;
     out.p.y = a.stand ? r.top : r.top + r.height / 2;
-    out.w = r.width * a.fill;
+    // Never 0 (an anchor inside something hidden): the size is interpolated by ratio (logLerp).
+    out.w = Math.max(1, r.width * a.fill);
     out.stand = a.stand ? 1 : 0;
     return out;
   };
