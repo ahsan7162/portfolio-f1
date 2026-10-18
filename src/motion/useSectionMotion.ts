@@ -74,6 +74,6 @@ export function useSectionMotion<T extends HTMLElement = HTMLElement>(build: (c:
     let cancel = () => {};
     if (opts.eager) start(); else cancel = afterStartup(start);
     return () => { live = false; cancel(); mm?.revert(); };
-  }, { scope: ref, dependencies: deps });
+  }, { scope: ref, dependencies: deps, revertOnUpdate: true }); // a change in deps undoes the old setup first
   return ref;
 }

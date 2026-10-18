@@ -3,9 +3,9 @@ import { PALETTE } from '@/art/palette';
 import { jobs, timeline } from '@/content/data';
 import { Arrow } from '@/components/Arrow';
 import { originOf, useDialogs } from '@/components/dialog-context';
+import { gl3d, use3dVersion } from '@/gl/gl3d';
 import { lapMarks, lapState } from '@/gl/state';
 import { lapTime } from '@/lib/format';
-import { glEnabled } from '@/motion/prefs';
 import { gsap, ScrollTrigger } from '@/motion/gsap';
 import { barReveal, drawPath } from '@/motion/patterns';
 import { DUR, EASE } from '@/motion/tokens';
@@ -20,13 +20,15 @@ import { useSectionMotion } from '@/motion/useSectionMotion';
 export function Lap() {
   const { lenis } = useSmoothScroll();
   const { openDetails } = useDialogs();
+  // Rebuilt when the 3D is switched: the flat circuit draws itself only while the 3D is off.
+  const v3d = use3dVersion();
   const ref = useSectionMotion(({ root, q, qa, desktop, markers, onRevert }) => {
     const pin = q('[data-lappin]')!;
     const stages = qa('[data-stage]');
     // The sector names, twice: in the timing bar and on the track marks (same order).
     const sectorSets = [qa('[data-sector]'), qa('[data-marksector]')];
     const svgPath = q('[data-lapsvg] path');
-    const flat = !glEnabled();
+    const flat = !gl3d().on;
     const n = stages.length;
 
     // Live mode: stages stack on top of each other over the track. If the tallest
@@ -167,7 +169,7 @@ export function Lap() {
     };
     ScrollTrigger.addEventListener('scrollEnd', settle);
     onRevert(() => ScrollTrigger.removeEventListener('scrollEnd', settle));
-  }, [], { fit: true });
+  }, [v3d], { fit: true });
 
   return (
     <section ref={ref} id="timeline" tabIndex={-1} data-bg={`${PALETTE.pit},${PALETTE.carbon}`} data-lap className="relative">

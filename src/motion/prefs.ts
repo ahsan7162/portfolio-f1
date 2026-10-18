@@ -41,13 +41,38 @@ function hasWebGL2() {
   return webgl2;
 }
 
-/** WebGL scenes: off for reduced motion, Save-Data, weak devices, no WebGL2 or no GPU, or `?nogl`. */
-export function glEnabled() {
-  if (!motionEnabled() || q().has('nogl')) return false;
+/** The WebGL scenes can run here: motion allowed, no `?nogl`, WebGL2 on a real GPU. */
+export const glPossible = () => motionEnabled() && !q().has('nogl') && hasWebGL2();
+
+/**
+ * A phone: touch only, with a small screen whichever way it is held. Tablets and
+ * touch laptops keep the 3D. index.html makes the same check before first paint.
+ */
+export const isPhone = () => isBrowser() && window.matchMedia('(hover: none) and (pointer: coarse)').matches && Math.min(screen.width, screen.height) < 768;
+
+const GL_PREF = 'v2-3d';
+
+/** The visitor's pick from the nav's 2D / 3D toggle, kept for later visits; null leaves it to the device. */
+export function glPref(): 'on' | 'off' | null {
+  try {
+    const v = localStorage.getItem(GL_PREF);
+    return v === 'on' || v === 'off' ? v : null;
+  } catch { return null; }
+}
+
+export function setGlPref(v: 'on' | 'off' | null) {
+  try { if (v) localStorage.setItem(GL_PREF, v); else localStorage.removeItem(GL_PREF); } catch { /* private mode */ }
+}
+
+/**
+ * Whether the 3D starts on: the visitor's pick if they made one, else off on phones,
+ * weak devices and Save-Data (their GPUs can't keep up, and three.js is never loaded).
+ */
+export function glWanted() {
+  const pref = glPref();
+  if (pref) return pref === 'on';
   const nav = navigator as Navigator & { connection?: { saveData?: boolean } };
-  if (nav.connection?.saveData) return false;
-  if ((nav.hardwareConcurrency ?? 8) <= 4) return false;
-  return hasWebGL2();
+  return !isPhone() && (nav.hardwareConcurrency ?? 8) > 4 && !nav.connection?.saveData;
 }
 
 /**

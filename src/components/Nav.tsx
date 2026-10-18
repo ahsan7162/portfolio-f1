@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { Arrow } from '@/components/Arrow';
 import { CvLink } from '@/components/CvLink';
+import { GlToggle } from '@/components/GlToggle';
 import { Scramble } from '@/components/Scramble';
 import { originOf, useDialogs } from '@/components/dialog-context';
 import { archive, EMAIL, jobs, projects, SECTIONS, SOCIAL, type Section } from '@/content/data';
@@ -216,9 +217,11 @@ export function Nav() {
           <Scramble text="AHSAN" on="hover" />
           <span className="sr-only">Muhammad Ahsan</span>
         </a>
-        {/* At the finish the footer has the CV and every link, so the bar steps back: the CV
-            button slides away and Menu folds to its icon (its label comes back when open). */}
+        {/* At the finish the footer has the CV and every link, so the bar steps back: the 3D
+            toggle (phones) and the CV button slide away and Menu folds to its icon (its label comes back when open). */}
         <div className="flex items-center gap-3">
+          <GlToggle inert={open || finish || undefined}
+            className={cn('transition-[opacity,translate] duration-(--dur-split) ease-out-expo', (open || finish) && 'pointer-events-none translate-x-3 opacity-0')} />
           <CvLink inert={open || finish || undefined} tabIndex={open || finish ? -1 : 0}
             className={cn('btn btn-primary !px-4 !py-2 max-sm:hidden transition-[opacity,translate,background-color] duration-(--dur-split) ease-out-expo', (open || finish) && 'pointer-events-none translate-x-3 opacity-0')} />
           <button ref={btn} type="button" onClick={() => (open ? hide() : show())}

@@ -1,56 +1,77 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { whenIdle } from '@/lib/idle';
 import { ensureGsap } from '@/motion/gsap';
-import { glEnabled } from '@/motion/prefs';
 import { refreshSoon } from '@/motion/startup';
+import { gl3d, lost3d, onGl3d } from './gl3d';
 
 /**
  * Two fixed full-screen WebGL canvases: one behind the page (contour background and the
  * lap), one above it, see-through and click-through (the helmet, which flies in front of
- * the text). three.js is loaded only after the page is idle, so it never delays the first
- * paint or the h1.
+ * the text). three.js is loaded only while the 3D is on (gl3d.ts: off on phones until the
+ * nav's toggle turns it on), and on load only once the page is idle, so it never delays
+ * the first paint or the h1.
  *
- * `html.helmet-flight` (set before first paint by index.html when motion is allowed) opens
- * the helmet's slot in the About sentence. It is dropped, and the page re-measured, when
- * the helmet can't fly here after all: no WebGL2, a weak device, a lost context.
+ * `html.helmet-flight` (set before first paint by index.html when the 3D will start) opens
+ * the helmet's slot in the About sentence. It opens and closes with the 3D: the toggle,
+ * no WebGL2, a lost context, frames far too slow.
  */
 export function GLCanvas() {
   const ref = useRef<HTMLCanvasElement>(null), over = useRef<HTMLCanvasElement>(null);
+  // A stopped stage gives its contexts back, and a canvas can't get a new one: a start
+  // after a stop gets fresh canvases (new keys), and this effect runs again with them.
+  const [gen, setGen] = useState(0);
   useEffect(() => {
     const root = document.documentElement;
-    const grounded = () => {
-      root.classList.remove('gl-on');
-      if (!root.classList.contains('helmet-flight')) return;
-      root.classList.remove('helmet-flight');
+    const slot = (open: boolean) => {
+      if (root.classList.contains('helmet-flight') === open) return;
+      root.classList.toggle('helmet-flight', open);
       ensureGsap();
       refreshSoon();
     };
-    if (!glEnabled()) { grounded(); return; }
-    let stop: (() => void) | undefined;
-    let cancelled = false;
-    whenIdle(async () => {
-      const { Stage } = await import('./Stage');
-      if (cancelled || !ref.current || !over.current) return;
-      try {
-        const stage = new Stage(ref.current, over.current);
-        stage.onLost = grounded;
-        stop = () => stage.dispose();
-        root.classList.add('gl-on');
-      } catch (err) {
-        console.warn('[gl] disabled', err);
-        grounded();
-      }
-    }, 1500, 300);
-    return () => {
-      cancelled = true;
-      stop?.();
-      root.classList.remove('gl-on');
+    // On load the stage waits for an idle moment; from the toggle it starts straight away.
+    const start = (idle: boolean) => {
+      slot(true);
+      let stop: (() => void) | undefined;
+      let cancelled = false;
+      const go = async () => {
+        const { Stage } = await import('./Stage');
+        if (cancelled || !ref.current || !over.current) return;
+        try {
+          const stage = new Stage(ref.current, over.current);
+          stage.onLost = lost3d;
+          stop = () => stage.dispose();
+          root.classList.add('gl-on');
+        } catch (err) {
+          console.warn('[gl] disabled', err);
+          lost3d();
+        }
+      };
+      if (idle) whenIdle(() => void go(), 1500, 300);
+      else void go();
+      return () => { cancelled = true; stop?.(); root.classList.remove('gl-on'); };
     };
-  }, []);
+    let on = gl3d().on;
+    let used = false;
+    let stop: (() => void) | undefined;
+    const apply = (idle: boolean) => {
+      stop?.();
+      stop = undefined;
+      if (on) { used = true; stop = start(idle); } else slot(false);
+    };
+    apply(gen === 0);
+    const off = onGl3d(() => {
+      const next = gl3d().on;
+      if (next === on) return;
+      if (next && used) { setGen(g => g + 1); return; }
+      on = next;
+      apply(false);
+    });
+    return () => { off(); stop?.(); };
+  }, [gen]);
   return (
     <>
-      <canvas ref={ref} aria-hidden="true" className="gl-canvas pointer-events-none fixed inset-0 -z-10 h-[100lvh] w-full opacity-0 transition-opacity duration-1000" />
-      <canvas ref={over} aria-hidden="true" className="gl-helmet" />
+      <canvas key={`bg${gen}`} ref={ref} aria-hidden="true" className="gl-canvas pointer-events-none fixed inset-0 -z-10 h-[100lvh] w-full opacity-0 transition-opacity duration-1000" />
+      <canvas key={`hl${gen}`} ref={over} aria-hidden="true" className="gl-helmet" />
     </>
   );
 }
