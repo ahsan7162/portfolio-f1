@@ -19,8 +19,9 @@ import { Results } from '@/components/sections/Results';
 import { TechStack } from '@/components/sections/TechStack';
 import type { Breakdown } from '@/content/data';
 import { GLCanvas } from '@/gl/GLCanvas';
-import { ensureGsap, ScrollTrigger } from '@/motion/gsap';
+import { ensureGsap } from '@/motion/gsap';
 import { SmoothScroll, useSmoothScroll } from '@/motion/SmoothScroll';
+import { refreshSoon } from '@/motion/startup';
 import { useAnchorNav } from '@/motion/useAnchorNav';
 import { useLetterRoll } from '@/motion/useLetterRoll';
 import { useSpeedSkew } from '@/motion/useSpeedSkew';
@@ -61,11 +62,10 @@ function Page() {
   }, [open, closeSel, closeArch]);
 
   // Nav and track-map triggers are created before the sections' pins; once every
-  // section has mounted, re-sort all triggers by page position and re-measure.
+  // section is set up, re-sort all triggers by page position and re-measure.
   useEffect(() => {
     ensureGsap();
-    ScrollTrigger.sort();
-    ScrollTrigger.refresh();
+    refreshSoon();
   }, []);
 
   const api = useMemo(() => ({ openDetails, openArchive }), [openDetails, openArchive]);

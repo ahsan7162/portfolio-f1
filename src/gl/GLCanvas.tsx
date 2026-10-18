@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { whenIdle } from '@/lib/idle';
-import { ensureGsap, ScrollTrigger } from '@/motion/gsap';
+import { ensureGsap } from '@/motion/gsap';
 import { glEnabled } from '@/motion/prefs';
+import { refreshSoon } from '@/motion/startup';
 
 /**
  * Two fixed full-screen WebGL canvases: one behind the page (contour background and the
@@ -22,7 +23,7 @@ export function GLCanvas() {
       if (!root.classList.contains('helmet-flight')) return;
       root.classList.remove('helmet-flight');
       ensureGsap();
-      ScrollTrigger.refresh();
+      refreshSoon();
     };
     if (!glEnabled()) { grounded(); return; }
     let stop: (() => void) | undefined;

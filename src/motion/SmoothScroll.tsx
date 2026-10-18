@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useRef, type ReactNode }
 import Lenis from 'lenis';
 import { ensureGsap, gsap, ScrollTrigger } from './gsap';
 import { motionEnabled } from './prefs';
+import { refreshSoon } from './startup';
 
 /** Live scroll numbers shared with non-React code (WebGL stage, track map). */
 export const scrollState = { y: 0, progress: 0, velocity: 0, locked: false };
@@ -61,7 +62,7 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     // Prioritized: Lenis runs first in every tick, so everything else on the ticker (the
     // rail, the marquee, speed skew, the WebGL stage) reads this frame's scroll, not the last.
     gsap.ticker.add(tick, false, true);
-    void document.fonts?.ready.then(() => ScrollTrigger.refresh());
+    void document.fonts?.ready.then(refreshSoon);
     return () => {
       gsap.ticker.remove(tick);
       lenis.destroy();

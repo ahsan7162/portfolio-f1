@@ -3,6 +3,7 @@ import { SECTIONS } from '@/content/data';
 import { gsap, ScrollTrigger } from '@/motion/gsap';
 import { finePointer, motionEnabled } from '@/motion/prefs';
 import { scrollState, useSmoothScroll } from '@/motion/SmoothScroll';
+import { refreshSoon } from '@/motion/startup';
 
 type Mark = { id: string; name: string; top: number; p: number };
 
@@ -90,7 +91,7 @@ export function ScrollRail() {
     r.addEventListener('pointercancel', up);
 
     ScrollTrigger.addEventListener('refresh', layout);
-    ScrollTrigger.refresh(); // the page just got 10px wider
+    refreshSoon(); // the page just got 10px wider
     gsap.ticker.add(tick);
     return () => {
       gsap.ticker.remove(tick);

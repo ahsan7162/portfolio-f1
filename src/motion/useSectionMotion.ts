@@ -1,6 +1,7 @@
 import { useRef, type RefObject } from 'react';
-import { ensureGsap, gsap, ScrollTrigger, useGSAP } from './gsap';
+import { ensureGsap, gsap, useGSAP } from './gsap';
 import { debug, motionEnabled, SHORT_SCREEN } from './prefs';
+import { afterStartup, refreshSoon } from './startup';
 
 export type MotionCtx = {
   root: HTMLElement;
@@ -19,15 +20,18 @@ export type MotionCtx = {
 /**
  * Scoped GSAP setup for one section. Nothing runs with reduced motion, so the
  * markup's resting state (fully visible) is the final state. Content is never
- * hidden in CSS; GSAP sets start states before first paint.
+ * hidden in CSS; GSAP sets start states before the content comes on screen.
+ *
+ * `eager`: set up in the first render (the hero). Every other section is set up a
+ * little later, after the web fonts, one per task (startup.ts).
  *
  * `fit`: for sections that pin only when their content fits the screen.
  * Their setup is rebuilt when the viewport height crosses a
- * few steps, and once more when web fonts finish loading: the first measure
- * can run on the wider fallback font and wrongly skip the pin, which would
+ * few steps, and once more when web fonts finish loading if it ran before they
+ * did: a measure on the wider fallback font can wrongly skip the pin, which would
  * also throw off the helmet path timed against it.
  */
-export function useSectionMotion<T extends HTMLElement = HTMLElement>(build: (c: MotionCtx) => void, deps: unknown[] = [], opts: { fit?: boolean } = {}): RefObject<T | null> {
+export function useSectionMotion<T extends HTMLElement = HTMLElement>(build: (c: MotionCtx) => void, deps: unknown[] = [], opts: { fit?: boolean; eager?: boolean } = {}): RefObject<T | null> {
   const ref = useRef<T>(null);
   useGSAP(() => {
     ensureGsap();
@@ -53,19 +57,23 @@ export function useSectionMotion<T extends HTMLElement = HTMLElement>(build: (c:
       });
       return mm;
     };
-    let mm = setup();
+    let mm: ReturnType<typeof setup> | null = null;
     let live = true;
-    if (opts.fit && document.fonts && document.fonts.status !== 'loaded') {
-      void document.fonts.ready.then(() => {
-        if (!live) return;
-        mm.revert();
-        mm = setup();
-        // Pins may have changed: put every trigger (helmet path included) back in page order.
-        ScrollTrigger.sort();
-        ScrollTrigger.refresh();
-      });
-    }
-    return () => { live = false; mm.revert(); };
+    const start = () => {
+      mm = setup();
+      if (opts.fit && document.fonts && document.fonts.status !== 'loaded') {
+        void document.fonts.ready.then(() => {
+          if (!live) return;
+          mm?.revert();
+          mm = setup();
+          // Pins may have changed: put every trigger (helmet path included) back in page order.
+          refreshSoon();
+        });
+      }
+    };
+    let cancel = () => {};
+    if (opts.eager) start(); else cancel = afterStartup(start);
+    return () => { live = false; cancel(); mm?.revert(); };
   }, { scope: ref, dependencies: deps });
   return ref;
 }

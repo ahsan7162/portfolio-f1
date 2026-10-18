@@ -48,7 +48,7 @@ export function Hero() {
     scrubParallax(q('[data-hnum]'), root, { to: { yPercent: -25 }, ...opts });
     scrubParallax(q('[data-hcircuit]'), root, { to: { yPercent: 18, scale: 1.08 }, ...opts });
     gsap.to(q('[data-hbody]'), { autoAlpha: 0.15, ease: 'none', scrollTrigger: { trigger: root, start: 'center top', end: 'bottom top', scrub: true } });
-  });
+  }, [], { eager: true });
 
   return (
     <section ref={ref} id="top" tabIndex={-1} data-bg={`${PALETTE.carbon},${PALETTE.panel}`} className="relative isolate flex min-h-[100dvh] flex-col overflow-hidden px-4 pt-24 md:px-8">
