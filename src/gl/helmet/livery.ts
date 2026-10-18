@@ -12,14 +12,19 @@ const yAt = (theta: number) => (theta / THETA_LEN) * H;
 type Ctx = CanvasRenderingContext2D;
 
 function carbonWeave(c: Ctx) {
-  c.fillStyle = CARBON;
-  c.fillRect(0, 0, W, H);
-  const s = 6;
-  for (let y = 0; y < H; y += s) for (let x = 0; x < W; x += s) {
-    const on = ((x / s + y / s) & 3) < 2;
-    c.fillStyle = on ? 'rgba(255,255,255,0.035)' : 'rgba(0,0,0,0.25)';
-    c.fillRect(x, y, s, s);
+  // The twill repeats every 4 cells both ways, so one 4 x 4 cell tile, filled as a pattern,
+  // gives the same pixels as painting the ~58k cells one by one (which cost a long task).
+  const s = 6, tile = document.createElement('canvas');
+  tile.width = tile.height = s * 4;
+  const t = tile.getContext('2d')!;
+  t.fillStyle = CARBON;
+  t.fillRect(0, 0, s * 4, s * 4);
+  for (let y = 0; y < 4; y++) for (let x = 0; x < 4; x++) {
+    t.fillStyle = ((x + y) & 3) < 2 ? 'rgba(255,255,255,0.035)' : 'rgba(0,0,0,0.25)';
+    t.fillRect(x * s, y * s, s, s);
   }
+  c.fillStyle = c.createPattern(tile, 'repeat')!;
+  c.fillRect(0, 0, W, H);
 }
 
 /** Sweeping side stripe from the chin up toward the back of the head. */
@@ -50,57 +55,50 @@ function sideText(c: Ctx, u: number, theta: number, text: string, size: number, 
   c.restore();
 }
 
-function paint(c: Ctx, rough: boolean) {
-  // In the roughness pass every colour becomes a grey level (lighter = rougher).
-  const col = (colour: string, r: number) => (rough ? `rgb(${r},${r},${r})` : colour);
-  if (rough) { c.fillStyle = 'rgb(120,120,120)'; c.fillRect(0, 0, W, H); } else carbonWeave(c);
+function paint(c: Ctx) {
+  carbonWeave(c);
 
   // Centre stripe over the crown, front to back.
-  c.fillStyle = col(AC, 40);
+  c.fillStyle = AC;
   c.fillRect(W * 0.5 - W * 0.022, 0, W * 0.044, yAt(Math.PI * 0.37));
   c.fillRect(0, 0, W * 0.02, yAt(Math.PI * 0.72));
   c.fillRect(W - W * 0.02, 0, W * 0.02, yAt(Math.PI * 0.72));
-  c.fillStyle = col(FG, 50);
+  c.fillStyle = FG;
   c.fillRect(W * 0.5 - W * 0.03, 0, W * 0.006, yAt(Math.PI * 0.36));
   c.fillRect(W * 0.5 + W * 0.024, 0, W * 0.006, yAt(Math.PI * 0.36));
 
   // Side swooshes with a white pinstripe.
   for (const m of [false, true]) {
-    swoosh(c, m, col(AC, 40), 70);
-    swoosh(c, m, col(FG, 50), 8, 58);
+    swoosh(c, m, AC, 70);
+    swoosh(c, m, FG, 8, 58);
   }
 
   // Driver number and initials on both sides.
   for (const u of [0.25, 0.75]) {
-    sideText(c, u, Math.PI * 0.5, '04', 190, col(FG, 60), rough ? undefined : AC);
-    sideText(c, u, Math.PI * 0.335, 'MA', 64, col(AC, 45));
+    sideText(c, u, Math.PI * 0.5, '04', 190, FG, AC);
+    sideText(c, u, Math.PI * 0.335, 'MA', 64, AC);
   }
   // Name across the back seam (drawn on both edges so the halves meet).
-  for (const u of [0, 1]) sideText(c, u, Math.PI * 0.6, 'AHSAN', 70, col(FG, 60));
+  for (const u of [0, 1]) sideText(c, u, Math.PI * 0.6, 'AHSAN', 70, FG);
 
   // Checkered band just above the neck line.
   const y0 = yAt(THETA_LEN - Math.PI * 0.05), sq = 14;
   for (let row = 0; row < 2; row++) for (let x = 0; x < W; x += sq) {
-    c.fillStyle = ((x / sq + row) & 1) ? col(FG, 60) : col(PALETTE.carbon, 90);
+    c.fillStyle = ((x / sq + row) & 1) ? FG : PALETTE.carbon;
     c.fillRect(x, y0 + row * sq, sq, sq);
   }
 }
 
-function canvas() {
-  const el = document.createElement('canvas');
-  el.width = W; el.height = H;
-  return el;
-}
-
-export async function liveryTextures(anisotropy: number) {
+/** The shell's paint, as one texture: colour only, since the matte shell has uniform roughness. */
+export async function liveryTexture(anisotropy: number) {
   try { await document.fonts.load('italic 800 100px "Hubot Sans"'); } catch { /* fallback font */ }
-  // Colour only: the matte shell has uniform roughness, so no roughness map is painted.
-  const color = canvas();
-  paint(color.getContext('2d')!, false);
-  const map = new THREE.CanvasTexture(color);
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  paint(canvas.getContext('2d')!);
+  const map = new THREE.CanvasTexture(canvas);
   map.colorSpace = THREE.SRGBColorSpace;
   map.anisotropy = anisotropy;
-  return { map };
+  return map;
 }
 
 /** Rounded-rectangle alpha mask for the visor and its seal. */

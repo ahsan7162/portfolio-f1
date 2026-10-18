@@ -2,15 +2,13 @@ import * as THREE from 'three';
 import { PALETTE } from '@/art/palette';
 import { disposables } from '../dispose';
 import { DISSOLVE_GLSL, vec3 } from '../glsl';
-import { liveryTextures, roundedMask } from './livery';
+import { liveryTexture, roundedMask } from './livery';
 import { FRONT_PHI, PHI_START, shellGeometry, shellNormal, shellPoint, THETA_LEN, VISOR } from './shape';
 
 export type Helmet = {
   group: THREE.Group;
   /** 0 = nothing, 1 = fully built. Drives the dissolve on every solid part. */
   reveal: { value: number };
-  /** Strength of the glowing seam at the dissolve edge (1, the intro's). */
-  seam: { value: number };
   /** 0..1 how much of the wireframe is drawn; wireOpacity fades it out. */
   wire: { draw: number; opacity: number };
   update: () => void;
@@ -19,24 +17,22 @@ export type Helmet = {
 
 // Dissolve-in shader chunk: parts appear bottom to top through a noisy edge
 // with a glowing accent seam, like Lando's wireframe-to-solid hero helmet.
-const seam = { value: 1 };
 function withReveal<T extends THREE.Material>(mat: T, reveal: { value: number }): T {
   mat.onBeforeCompile = shader => {
     shader.uniforms.uReveal = reveal;
-    shader.uniforms.uSeam = seam;
     shader.vertexShader = shader.vertexShader
       .replace('#include <common>', '#include <common>\nvarying vec3 vObjPos;')
       .replace('#include <begin_vertex>', '#include <begin_vertex>\nvObjPos = position;');
     shader.fragmentShader = shader.fragmentShader
       .replace('#include <common>', `#include <common>
-uniform float uReveal, uSeam;
+uniform float uReveal;
 varying vec3 vObjPos;
 ${DISSOLVE_GLSL}`)
       .replace('#include <clipping_planes_fragment>', '#include <clipping_planes_fragment>\nif (dissolveEdge(vObjPos) > uReveal) discard;')
       // The inside of the shell (seen while it dissolves) is a dark liner, not the painted livery.
       .replace('#include <map_fragment>', '#include <map_fragment>\nif (!gl_FrontFacing) diffuseColor.rgb = vec3(0.025);')
       .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
-totalEmissiveRadiance += ${vec3(PALETTE.ac)} * smoothstep(uReveal - 0.035, uReveal, dissolveEdge(vObjPos)) * step(uReveal, 1.0) * 4.0 * uSeam;`);
+totalEmissiveRadiance += ${vec3(PALETTE.ac)} * smoothstep(uReveal - 0.035, uReveal, dissolveEdge(vObjPos)) * step(uReveal, 1.0) * 4.0;`);
   };
   return mat;
 }
@@ -49,8 +45,7 @@ export async function buildHelmet(opts: { anisotropy: number }): Promise<Helmet>
   const group = new THREE.Group();
   const { keep, dispose } = disposables();
 
-  const { map } = await liveryTextures(opts.anisotropy);
-  keep(map);
+  const map = keep(await liveryTexture(opts.anisotropy));
 
   // Matte satin shell over carbon (no clear coat); the glossy visor contrasts with it.
   const shellMat = keep(withReveal(new THREE.MeshStandardMaterial({
@@ -167,7 +162,6 @@ export async function buildHelmet(opts: { anisotropy: number }): Promise<Helmet>
   return {
     group: pivot,
     reveal,
-    seam,
     wire,
     update() {
       wireGeo.setDrawRange(0, Math.floor(wireCount * wire.draw / 2) * 2);
