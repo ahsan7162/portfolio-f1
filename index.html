@@ -40,8 +40,10 @@
           var q = location.search;
           if (q.indexOf('nomotion') >= 0) d.classList.add('no-motion'); // CSS transitions off too (index.css)
           // The helmet will fly: open its slot in the About sentence before first paint, so
-          // the sentence never reflows (GLCanvas.tsx closes it again if WebGL is out).
-          else if (!rm && q.indexOf('nogl') < 0) d.classList.add('helmet-flight');
+          // the sentence never reflows (GLCanvas.tsx closes it again if WebGL is out). The
+          // checks glEnabled() can make this early (prefs.ts) are made here too, so on those
+          // devices the slot never opens just to close again.
+          else if (!rm && q.indexOf('nogl') < 0 && (navigator.hardwareConcurrency || 8) > 4 && !(navigator.connection && navigator.connection.saveData)) d.classList.add('helmet-flight');
           if (!rm && !location.hash && q.indexOf('nointro') < 0 && q.indexOf('nomotion') < 0 && !sessionStorage.getItem('v2-intro-seen')) d.classList.add('intro');
         } catch (e) {}
       })();
