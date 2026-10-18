@@ -31,8 +31,8 @@ function atlas(labels: string[]) {
     tex.needsUpdate = true;
   };
   draw();
-  // The site font is normally loaded long before the Stage; redraw once it is, just in case.
-  document.fonts?.load('800 170px "Hubot Sans"').then(draw).catch(() => {});
+  // The site font is normally loaded long before this; if it isn't yet, redraw once it is.
+  if (document.fonts && !document.fonts.check('800 170px "Hubot Sans"')) document.fonts.load('800 170px "Hubot Sans"').then(draw).catch(() => {});
   return tex;
 }
 
@@ -42,6 +42,12 @@ function atlas(labels: string[]) {
  */
 export function createRunoff(curve: THREE.CatmullRomCurve3, labels: string[], at: number[], view: number[], clearance: number) {
   const track = curve.getSpacedPoints(400).map(p => new THREE.Vector2(p.x, p.z));
+  /** How far q is from the nearest point of the track. */
+  const clearOf = (q: THREE.Vector2) => {
+    let d = Infinity;
+    for (const t of track) d = Math.min(d, t.distanceToSquared(q));
+    return Math.sqrt(d);
+  };
   const up = new THREE.Vector3(0, 1, 0), side = new THREE.Vector3();
   const pos: number[] = [], uv: number[] = [], stage: number[] = [], idx: number[] = [];
 
@@ -58,7 +64,8 @@ export function createRunoff(curve: THREE.CatmullRomCurve3, labels: string[], at
     search: for (const d of [1.2, 1.5, 1.8, 2.2, 2.7]) for (const s of [1, -1]) for (const slide of [0, 0.4, -0.4]) {
       const c = new THREE.Vector2(p.x + side.x * d * s, p.z + side.z * d * s).addScaledVector(new THREE.Vector2(tan.x, tan.z).normalize(), slide);
       const probes = [c, ...corners(c), ...corners(c).map(k => k.clone().add(c).multiplyScalar(0.5))];
-      const gap = Math.min(...probes.map(q => Math.min(...track.map(t => t.distanceTo(q)))));
+      let gap = Infinity;
+      for (const q of probes) gap = Math.min(gap, clearOf(q));
       if (gap > bestGap) { bestGap = gap; best = c; }
       if (gap > clearance) { best = c; break search; }
     }

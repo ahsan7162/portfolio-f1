@@ -175,8 +175,9 @@ function ProjectCard({ index, className, children }: { index: number; className:
     const el = box.current, r = line.current;
     if (!el || !r || !motionEnabled()) return;
     if (on) {
-      r.setAttribute('width', String(el.offsetWidth - 1));
-      r.setAttribute('height', String(el.offsetHeight - 1));
+      const w = el.offsetWidth, h = el.offsetHeight; // both read before either write
+      r.setAttribute('width', String(w - 1));
+      r.setAttribute('height', String(h - 1));
       gsap.fromTo(r, { drawSVG: '0%' }, { drawSVG: '100%', duration: DUR.wipe, ease: EASE.out, overwrite: true });
     } else {
       gsap.to(r, { drawSVG: '100% 100%', duration: DUR.split, ease: EASE.in, overwrite: true });

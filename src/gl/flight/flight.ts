@@ -27,7 +27,10 @@ type Box = { p: Pt; w: number; stand: number };
  */
 export function bindFlight() {
   const marks = new Map<string, ScrollTrigger>();
-  const pinOf = (sel: string) => ScrollTrigger.getAll().find(t => t.pin === document.querySelector(sel));
+  const pinOf = (sel: string) => {
+    const el = document.querySelector(sel);
+    return el ? ScrollTrigger.getAll().find(t => t.pin === el) : undefined;
+  };
   const endOf = (e: End) => {
     if ('pin' in e) {
       const p = pinOf(e.pin);

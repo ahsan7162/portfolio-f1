@@ -41,7 +41,9 @@ export class Stage {
   private camera = new THREE.PerspectiveCamera(FOV, 1, 0.1, 50);
   private scene = new THREE.Scene();
   private field = createField();
-  private lap = createLap();
+  /** The lap scene: built in idle time after start-up, or on first use if that comes sooner (a #timeline link). */
+  private lapScene: ReturnType<typeof createLap> | null = null;
+  private get lap() { return (this.lapScene ??= createLap()); }
   private helmet: Helmet | null = null;
   private flight: ReturnType<typeof bindFlight> | null = null;
   private at: Flight = { x: 0, y: 0, size: 1, stand: 0, rx: 0, ry: 0, rz: 0, loose: 1 };
@@ -150,6 +152,9 @@ export class Stage {
     const tick = () => this.frame();
     gsap.ticker.add(tick);
     this.cleanups.push(() => gsap.ticker.remove(tick));
+    // The lap is only drawn once the visitor reaches the Timeline: keep building it out of
+    // this start-up task (curve sampling, ribbons, the run-off layout and atlas).
+    whenIdle(() => { if (!this.dead) this.lapScene ??= createLap(); }, 2000, 500);
 
     this.lastInput = performance.now();
     // goDark, not just onLost: the page falls back, and the render loop stops drawing to a hidden canvas.
@@ -221,10 +226,10 @@ export class Stage {
   }
 
   private bindSectionColours() {
+    // Every section's ground is dark, so the lines keep their colour: only the two ground colours move.
     const u = this.field.uniforms;
     const to = (a: string, b: string) => {
       const A = new THREE.Color(a), B = new THREE.Color(b);
-    // Every section's ground is dark, so the lines keep their colour: only the two ground colours move.
       this.busy++;
       gsap.timeline({ onComplete: () => { this.busy--; } })
         .to(u.uColA.value, { r: A.r, g: A.g, b: A.b, duration: 0.9, ease: EASE.wipe }, 0)
@@ -396,7 +401,7 @@ export class Stage {
     this.disposed = this.dead = true;
     this.cleanups.splice(0).reverse().forEach(f => f());
     this.field.dispose();
-    this.lap.dispose();
+    this.lapScene?.dispose();
     this.renderer.dispose();
     this.hr.dispose();
     // A context that is already lost can't be lost again (the browser warns).

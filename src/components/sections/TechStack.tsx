@@ -68,8 +68,8 @@ export function TechStack() {
     const touch = isTouch();
     let offs: number[] = [], half = 0, left = 0;
     const shiftOf = () => ((gsap.getProperty(row, 'xPercent') as number) / 100) * half * 2;
+    // A logo scales about its centre, so its centre reads the same at any emphasis: no reset first.
     const measure = () => {
-      gsap.set(logos, { scale: 1 });
       const r = row.getBoundingClientRect();
       half = row.offsetWidth / 2;
       left = r.left - shiftOf();
@@ -108,7 +108,7 @@ export function TechStack() {
     };
     ScrollTrigger.create({
       trigger: q('[data-marqueebox]')!, start: 'top bottom', end: 'bottom top',
-      onRefresh: () => { measure(); last.fill(-1); emphasise(); },
+      onRefresh: () => { measure(); emphasise(); },
       onToggle: self => { if (self.isActive) gsap.ticker.add(tick); else { gsap.ticker.remove(tick); speed = 0; } },
     });
     onRevert(() => gsap.ticker.remove(tick));

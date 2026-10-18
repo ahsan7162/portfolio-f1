@@ -301,9 +301,10 @@ export function proximityChars(host: HTMLElement | null, lines: HTMLElement[], o
   let chars: C[] = [], measuredAt = -1;
   const v = { duration: DUR.wipe, ease: EASE.out };
   const collect = () => {
-    // SplitText may have re-split (fonts, resize): the leaves are the current letters.
-    const els = lines.flatMap(l => [...l.querySelectorAll<HTMLElement>('*')].filter(n => !n.children.length && n.textContent?.trim()));
-    if (els.length !== chars.length || els.some((el, i) => chars[i].el !== el)) {
+    // SplitText may have re-split a line (fonts, resize), which replaces its letters: walk
+    // the lines for the current ones only then, not on every move.
+    if (!chars.length || chars.some(c => !c.el.isConnected)) {
+      const els = lines.flatMap(l => [...l.querySelectorAll<HTMLElement>('*')].filter(n => !n.children.length && n.textContent?.trim()));
       chars = els.map(el => {
         const h = { v: 0 };
         return { el, cx: 0, cy: 0, skew: gsap.quickTo(el, 'skewX', v), x: gsap.quickTo(el, 'x', v),

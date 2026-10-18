@@ -16,6 +16,14 @@ export function useBentoPointer<T extends HTMLElement>() {
   useEffect(() => {
     const host = ref.current;
     if (!host || isTouch() || !motionEnabled()) return;
+    // Only a .bento grid draws the trailing spotlight (index.css), and only a tile's .card-spot
+    // reads the cursor in tile space: other grids and tiles get no writes nothing would read.
+    const spotlight = host.classList.contains('bento');
+    const cardSpots = new Map<HTMLElement, HTMLElement | null>();
+    const cardSpotOf = (el: HTMLElement) => {
+      if (!cardSpots.has(el)) cardSpots.set(el, el.querySelector<HTMLElement>('.card-spot'));
+      return cardSpots.get(el) ?? null;
+    };
     const spot = { x: -999, y: -999 };
     const paint = () => {
       host.style.setProperty('--mx', `${spot.x.toFixed(0)}px`);
@@ -42,29 +50,32 @@ export function useBentoPointer<T extends HTMLElement>() {
     };
     let first = true;
     const onMove = (e: PointerEvent) => {
-      const r = host.getBoundingClientRect();
-      const x = e.clientX - r.left, y = e.clientY - r.top;
-      // Jump on entry so the spotlight doesn't slide in from the last exit point.
-      if (first) { first = false; spot.x = x; spot.y = y; paint(); }
-      mx(x); my(y);
       const t = (e.target as Element).closest<HTMLElement>('[data-tilt]');
+      // Both layout reads before any style write below, so they never force a style recalc.
+      const r = spotlight ? host.getBoundingClientRect() : null, b = t?.getBoundingClientRect();
+      if (r) {
+        const x = e.clientX - r.left, y = e.clientY - r.top;
+        // Jump on entry so the spotlight doesn't slide in from the last exit point.
+        if (first) { first = false; spot.x = x; spot.y = y; paint(); }
+        mx(x); my(y);
+      }
       if (t !== tile) {
         if (tile) release(tile);
         tile = t;
         if (t) t.dataset.tilting = '';
       }
-      if (!t) return;
-      const b = t.getBoundingClientRect();
-      // The cursor in the tile's own space, for per-tile spotlights (.card-spot).
-      t.style.setProperty('--tx', `${(e.clientX - b.left).toFixed(0)}px`);
-      t.style.setProperty('--ty', `${(e.clientY - b.top).toFixed(0)}px`);
+      if (!t || !b) return;
+      // The cursor in the tile's own space, for its spotlight (.card-spot), when it has one.
+      const cs = cardSpotOf(t);
+      cs?.style.setProperty('--tx', `${(e.clientX - b.left).toFixed(0)}px`);
+      cs?.style.setProperty('--ty', `${(e.clientY - b.top).toFixed(0)}px`);
       const px = (e.clientX - b.left) / b.width - 0.5, py = (e.clientY - b.top) / b.height - 0.5;
       const q = tiltOf(t);
       q.rx(-py * 4); q.ry(px * 4); q.s(1.015);
     };
-    const onEnter = () => host.style.setProperty('--spot', '1');
+    const onEnter = () => { if (spotlight) host.style.setProperty('--spot', '1'); };
     const onLeave = () => {
-      host.style.setProperty('--spot', '0');
+      if (spotlight) host.style.setProperty('--spot', '0');
       first = true;
       if (tile) release(tile);
       tile = null;
