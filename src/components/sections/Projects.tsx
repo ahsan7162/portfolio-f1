@@ -82,7 +82,7 @@ export function Projects() {
         swap?.kill();
         swap = gsap.timeline()
           .to(title, { yPercent: -110 * dir, duration: DUR.hit, ease: EASE.in })
-          .call(() => { title.textContent = projects[i].title; })
+          .call(() => { title.textContent = projects[i].company; })
           .fromTo(title, { yPercent: 110 * dir }, { yPercent: 0, duration: DUR.split, ease: EASE.out });
       };
       cards.slice(1).forEach((card, k) => ScrollTrigger.create({
@@ -118,14 +118,14 @@ export function Projects() {
                   <div data-cardin className="h-full w-full"><ProjectVisual project={p} /></div>
                 </div>
                 <div className="p-6 md:p-8">
-                  <h3 data-cardtxt className="display text-display-card">{p.title}</h3>
+                  <h3 data-cardtxt className="display text-display-card">{p.company}</h3>
                   <p data-cardtxt className="mt-4 max-w-[52ch] leading-relaxed text-mute">{p.summary}</p>
-                  <ul data-cardtxt className="mt-5 flex flex-wrap gap-2" aria-label={`${p.title} stack`}>
+                  <ul data-cardtxt className="mt-5 flex flex-wrap gap-2" aria-label={`${p.company} stack`}>
                     {p.stack.map(s => <li key={s} className="rounded-full border border-line px-3 py-1 font-mono text-xs">{s}</li>)}
                   </ul>
                   <div data-cardtxt className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-5">
                     <span className="font-mono text-[0.9375rem] font-semibold text-ac">{p.headline}</span>
-                    <button type="button" onClick={e => openDetails(p, { ...originOf(e), title: e.currentTarget.closest('[data-card]')?.querySelector('h3')?.getBoundingClientRect() })} data-details data-cursor="view" aria-label={`${p.title} details`}
+                    <button type="button" onClick={e => openDetails(p, { ...originOf(e), title: e.currentTarget.closest('[data-card]')?.querySelector('h3')?.getBoundingClientRect() })} data-details data-cursor="view" aria-label={`${p.company} details`}
                       className="btn btn-ghost [.card:hover_&]:border-ac [.card:hover_&]:text-ac"><span data-letter-roll>Details</span></button>
                   </div>
                 </div>

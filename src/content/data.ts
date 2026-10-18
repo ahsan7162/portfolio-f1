@@ -27,7 +27,6 @@ export type Job = Breakdown & { id: string; years: string; result: string; place
 
 export type Project = Breakdown & {
   id: 'agents' | 'partner-ops' | 'llm-server';
-  title: string;
   summary: string;
   stack: string[];
   headline: string;
@@ -127,7 +126,7 @@ export const jobs: Job[] = [
 ];
 
 export const projects: Project[] = [
-  { id: 'agents', company: 'SuperAgent: AI agent platform', title: 'SuperAgent: AI agent platform', role: 'Go, Python, React, Slack API', dates: '2025 to present', loc: 'Careem, in production',
+  { id: 'agents', company: 'SuperAgent: AI agent platform', role: 'Go, Python, React, Slack API', dates: '2025 to present', loc: 'Careem, in production',
     stack: ['Go', 'Python', 'React', 'Slack API'], headline: '450+ agents, built in 10 minutes',
     summary: 'A self-service platform to create, version and deploy AI assistants with chat, semantic search, Slack and Jira integrations.',
     highlights: [
@@ -138,7 +137,7 @@ export const projects: Project[] = [
     { stat: '4', title: 'Deployment targets', text: 'CI/CD pipelines, Slack channels and threads, Jira automation, and in-platform chat.' },
     { stat: 'Go+Py', title: 'Architecture', text: 'Go services for the platform core, Python for the agent runtime, React front end. Versioning built in from day one.' },
   ] },
-  { id: 'partner-ops', company: 'Dineout partner operations dashboard', title: 'Dineout partner operations dashboard', role: 'Kafka, DynamoDB, OpenSearch, React', dates: '2026', loc: 'Careem',
+  { id: 'partner-ops', company: 'Dineout partner operations dashboard', role: 'Kafka, DynamoDB, OpenSearch, React', dates: '2026', loc: 'Careem',
     stack: ['Kafka', 'DynamoDB', 'OpenSearch', 'React'], headline: '50K bookings, 2% to 35% adoption',
     summary: 'Real-time booking and walk-in visibility. Kafka streams into OpenSearch, DynamoDB is the source of truth, and a React microfrontend serves it.',
     highlights: [
@@ -147,7 +146,7 @@ export const projects: Project[] = [
     { stat: 'Live', title: 'Kafka to OpenSearch pipeline', text: 'Events stream through Kafka into OpenSearch with DynamoDB as the source of truth, served via a React microfrontend.' },
     { stat: 'CSV', title: 'Self-serve exports', text: 'CSV and Excel export so ops teams stopped asking engineers for data pulls.' },
   ] },
-  { id: 'llm-server', company: 'Multi-LLM API server', title: 'Multi-LLM API server', role: 'FastAPI, LangChain, Pydantic', dates: '2024', loc: 'Astera',
+  { id: 'llm-server', company: 'Multi-LLM API server', role: 'FastAPI, LangChain, Pydantic', dates: '2024', loc: 'Astera',
     stack: ['FastAPI', 'LangChain', 'Pydantic', 'RAG'], headline: '4 LLM providers, 1 API',
     summary: 'One FastAPI gateway for OpenAI, Anthropic, Llama and HuggingFace with streaming, image I/O and structured requests.',
     highlights: [
@@ -219,18 +218,18 @@ export const education = {
   years: '2018 to 2022',
   gpa: 'CGPA 3.58 / 4.00',
   deansList: "Dean's list, semesters five to eight",
-  award: { year: '2021', place: 3, of: 2520, name: 'Alibaba Cloud Global Challenge', text: 'Third place with a weather-forecasting solution.' },
+  award: { year: '2021', of: 2520, name: 'Alibaba Cloud Global Challenge' },
 };
 
-/** One lap through the career: each sector of the 3D lap is one stage. */
+/** One lap through the career: each sector of the 3D lap is one stage. Company, role and years come from its job. */
 export const timeline = [
-  { sector: 'S1', job: 'astera', years: '2022 to 2024', company: 'Astera', role: 'Associate to Software Engineer II',
-    stat: '4 LLMs', statLabel: 'providers behind one API',
+  { sector: 'S1', job: 'astera', stat: '4 LLMs', statLabel: 'providers behind one API',
     text: 'Built a multi-LLM FastAPI server, an enterprise catalog on .NET 6 and an ETL workflow marketplace.' },
-  { sector: 'S2', job: 'xtel', years: '2025', company: 'Xtel', role: 'Senior Software Engineer',
-    stat: '8×', statLabel: 'faster document loads',
+  { sector: 'S2', job: 'xtel', stat: '8×', statLabel: 'faster document loads',
     text: 'Performance work on a .NET Core and React product: 250 s loads down to 30 s, 30 s field checks down to 100 ms.' },
-  { sector: 'S3', job: 'careem', years: '2025 to now', company: 'Careem', role: 'Software Engineer',
-    stat: '450+', statLabel: 'AI agents shipped',
+  { sector: 'S3', job: 'careem', stat: '450+', statLabel: 'AI agents shipped',
     text: 'SuperAgent, an AI agent platform used company-wide, and the real-time Dineout partner operations dashboard on Kafka, OpenSearch and React.' },
-];
+].map(t => {
+  const j = jobs.find(x => x.id === t.job)!;
+  return Object.assign(t, { company: j.company, role: j.role, years: j.years });
+});
