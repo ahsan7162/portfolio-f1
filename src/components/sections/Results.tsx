@@ -49,7 +49,8 @@ export function Results() {
     // No per-letter masks (they would cut the overlapping digits): the number's own
     // clip-path masks the rise (open above and at the sides, closed at the bottom).
     const big = q('[data-bignum]')!, edge = q('[data-bigedge]')!;
-    const split = SplitText.create(big, { type: 'chars', aria: 'auto' });
+    // Hidden from screen readers in the markup (they read the copy above it), so no aria-label.
+    const split = SplitText.create(big, { type: 'chars', aria: 'none' });
     // Split the ghost the same way (letters lose kerning when split), so they line up.
     SplitText.create(q('[data-bigghost]'), { type: 'chars', aria: 'none' });
     gsap.timeline({ scrollTrigger: { trigger: big, start: 'top 95%', end: 'top 35%', scrub: true, invalidateOnRefresh: true } })
@@ -109,19 +110,21 @@ export function Results() {
           {/* Where the helmet waits beside 450+ before it leaves (gl/flight). */}
           <div data-helmet-anchor="finale" aria-hidden="true"
             className="pointer-events-none invisible absolute right-[4%] top-[-4%] size-[min(38vh,26vw)] max-md:-top-[38vw] max-md:right-0 max-md:size-[34vw]" />
-          <div data-bigwrap data-speed className="relative w-max">
+          {/* What screen readers hear: the number is split into letters and its label into words. */}
+          <p className="sr-only">{stats.headline.value}{stats.headline.suffix} {stats.headline.label}</p>
+          <div data-bigwrap data-speed aria-hidden="true" className="relative w-max">
             {/* The dim ghost the number fills (hidden under it when static). */}
-            <div data-bigghost aria-hidden="true" className="display pointer-events-none absolute inset-0 whitespace-nowrap text-[clamp(6rem,25.5vw,22rem)] font-black !leading-[0.8] tracking-[-0.06em] text-fg/[0.07]">
+            <div data-bigghost className="display pointer-events-none absolute inset-0 whitespace-nowrap text-[clamp(6rem,25.5vw,22rem)] font-black !leading-[0.8] tracking-[-0.06em] text-fg/[0.07]">
               {stats.headline.value}{stats.headline.suffix}
             </div>
             {/* Motion only: the red edge that leads the fill. */}
-            <div data-bigedge aria-hidden="true" className="pointer-events-none invisible absolute -top-[6%] bottom-0 left-0 z-10 w-1.5 bg-ac" />
-            <div data-bignum aria-label={`${stats.headline.value}${stats.headline.suffix}`}
+            <div data-bigedge className="pointer-events-none invisible absolute -top-[6%] bottom-0 left-0 z-10 w-1.5 bg-ac" />
+            <div data-bignum
               className="display relative whitespace-nowrap text-[clamp(6rem,25.5vw,22rem)] font-black !leading-[0.8] tracking-[-0.06em]">
               {stats.headline.value}{stats.headline.suffix}
             </div>
           </div>
-          <p data-biglabel className="mt-5 max-w-[26ch] text-xl font-medium tracking-tight font-stretch-semi-expanded text-mute md:text-3xl">
+          <p data-biglabel aria-hidden="true" className="mt-5 max-w-[26ch] text-xl font-medium tracking-tight font-stretch-semi-expanded text-mute md:text-3xl">
             {stats.headline.label}
           </p>
         </div>

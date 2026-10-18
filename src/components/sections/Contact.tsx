@@ -117,11 +117,13 @@ export function Contact() {
 
       {/* The headline, signed with the circuit. */}
       <div className="relative mx-auto w-fit text-center">
-        <p data-ctitle data-speed className="display text-display-section">
-          <a href={`mailto:${EMAIL}`} className="transition-colors duration-(--dur-hit) hover:text-ac">
+        {/* The link holds the headline (not the other way round): the headline is split into
+            letters, which are hidden from screen readers, so the link carries its own name. */}
+        <a href={`mailto:${EMAIL}`} aria-label="Let's build something fast. Email me" className="block transition-colors duration-(--dur-hit) hover:text-ac">
+          <p data-ctitle data-speed aria-hidden="true" className="display text-display-section">
             Let's build<br className="max-sm:hidden" /> something <em className="display-em">fast</em>.
-          </a>
-        </p>
+          </p>
+        </a>
         <svg aria-hidden="true" viewBox={CIRCUIT_VIEWBOX} fill="none"
           className="pointer-events-none absolute -top-[46%] right-[4%] w-[23%] min-w-28 -rotate-[7deg] overflow-visible max-sm:-top-[30%] max-sm:right-0">
           <path data-sig d={CIRCUIT_PATH} stroke="var(--ac)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />

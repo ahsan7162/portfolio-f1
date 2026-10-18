@@ -9,11 +9,12 @@ export function About() {
     const text = q('[data-statement]')!;
     const pin = q('[data-pin]')!;
     // Pinned statement: words light up and rise into place as you scroll (Lando's manifesto).
-    const split = SplitText.create(text, { type: 'words', aria: 'auto' });
+    // Hidden from screen readers in the markup (they read the copy above it), so no aria-label.
+    const split = SplitText.create(text, { type: 'words', aria: 'none' });
     // The accent words carry the joke: "slowest" trickles in letter by letter, late;
     // "fast." snaps in at once with a kick and a red streak behind it.
     const [slow, fast] = qa('[data-statement] em');
-    const slowChars = slow ? SplitText.create(slow, { type: 'chars' }).chars : [];
+    const slowChars = slow ? SplitText.create(slow, { type: 'chars', aria: 'none' }).chars : [];
     const words = split.words.filter(w => !slow?.contains(w) && !w.contains(slow));
 
     // The helmet lands in this sentence and holds through this pin (gl/flight), so it
@@ -52,16 +53,18 @@ export function About() {
       <div data-pin className="mx-auto flex min-h-[100dvh] max-w-[1400px] flex-col justify-center py-24">
         <div data-pinbody>
         <h2 className="sr-only">About me</h2>
-        <p data-statement className="display max-w-[20ch] text-[clamp(1.875rem,min(5.3vw,calc(12.75svh_-_38px)),5.1rem)] !leading-[0.95]">
+        {/* What screen readers hear: the statement below is split into words for the light-up. */}
+        <p className="sr-only">{profile.about}</p>
+        <p data-statement aria-hidden="true" className="display max-w-[20ch] text-[clamp(1.875rem,min(5.3vw,calc(12.75svh_-_38px)),5.1rem)] !leading-[0.95]">
           {words.map((w, i) => (
             // The statement is static and repeats words, so the position is the key.
             // oxlint-disable-next-line react/no-array-index-key
             <span key={i}>
               {profile.aboutAccent.includes(w)
-                ? <em className="display-em relative isolate inline-block">{w}{w === 'fast.' && <span data-fastline aria-hidden="true" className="absolute inset-x-0 top-1/2 -z-10 h-[0.12em] origin-left scale-x-0 bg-ac/60" />}</em>
+                ? <em className="display-em relative isolate inline-block">{w}{w === 'fast.' && <span data-fastline className="absolute inset-x-0 top-1/2 -z-10 h-[0.12em] origin-left scale-x-0 bg-ac/60" />}</em>
                 : w}
               {/* The helmet lands here, after "fast." (gl/flight); no room unless it flies. */}
-              {w === 'fast.' && <span data-helmet-anchor="slot" aria-hidden="true" className="helmet-slot" />}
+              {w === 'fast.' && <span data-helmet-anchor="slot" className="helmet-slot" />}
               {i < words.length - 1 ? ' ' : ''}
             </span>
           ))}

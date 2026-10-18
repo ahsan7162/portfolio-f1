@@ -29,6 +29,15 @@ export const inView = (trigger: Element | string, extra?: ST): ST => {
   return vars;
 };
 
+/**
+ * SplitText's aria mode for an element. 'auto' moves the text into an aria-label and hides
+ * the pieces, but ARIA allows aria-label only where there is a role to name (a heading here):
+ * on a span, p or div screen readers skip it, and the text would be lost. Those split with
+ * 'none', and their markup does the reading: a lines-only split keeps words whole and stays
+ * readable; a word or letter split is aria-hidden, with a screen-reader copy beside it.
+ */
+export const splitAria = (el: Element) => (/^H[1-6]$/.test(el.tagName) ? 'auto' : 'none');
+
 /** Masked rise of lines, words or chars (Lando's headline reveal). */
 export function splitReveal(
   el: HTMLElement | null,
@@ -42,7 +51,7 @@ export function splitReveal(
     mask: 'lines',
     linesClass: 'split-mask',
     autoSplit: true,
-    aria: 'auto',
+    aria: splitAria(el),
     onSplit(self) {
       const parts = type === 'chars' ? self.chars : type === 'words' ? self.words : self.lines;
       const vars: gsap.TweenVars = { yPercent: 115, duration: opts.duration ?? DUR.reveal, ease: EASE.out, stagger, delay: opts.delay ?? 0 };
@@ -69,7 +78,7 @@ export function gridSlot(el: HTMLElement | null, opts: { start?: string; end?: s
     linesClass: 'split-mask',
     wordsClass: 'split-word',
     autoSplit: true,
-    aria: 'auto',
+    aria: splitAria(el),
     onSplit: self => gsap.fromTo(self.chars, { xPercent: 60, skewX: -18, autoAlpha: 0 }, {
       // A wide stagger (each letter spans about half the range) so the word builds left to right.
       xPercent: 0, skewX: 0, autoAlpha: 1, ease: 'power2.out', duration: 1, stagger: { amount: 0.9 },

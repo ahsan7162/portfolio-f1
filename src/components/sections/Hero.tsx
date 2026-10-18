@@ -75,12 +75,13 @@ export function Hero() {
           <span data-pillarrow aria-hidden="true" className="inline-block"><span data-cursor-target className="grid size-8 place-items-center rounded-full bg-ac text-carbon transition-transform duration-(--dur-hit) ease-out-expo group-hover:-rotate-45"><Arrow className="size-4" /></span></span>
         </button>
         <h1 data-cursor="heat">
-          <span data-hline="0" data-speed className="display block text-display-hero font-black">Muhammad</span>{' '}
-          <span data-hline="1" data-speed className="display block text-display-hero font-black">
-            Ahsan<span aria-hidden="true" className="text-ac">.</span>
+          {/* What screen readers hear: the visible lines are split into letters and hidden from them (splitAria). */}
+          <span className="sr-only">{profile.name}, {profile.title}</span>
+          <span data-hline="0" data-speed aria-hidden="true" className="display block text-display-hero font-black">Muhammad</span>{' '}
+          <span data-hline="1" data-speed aria-hidden="true" className="display block text-display-hero font-black">
+            Ahsan<span className="text-ac">.</span>
           </span>
-          <span className="sr-only">, </span>
-          <span data-hsub className="mt-5 block font-sans text-xl font-medium tracking-tight font-stretch-semi-expanded text-fg md:text-3xl">
+          <span data-hsub aria-hidden="true" className="mt-5 block font-sans text-xl font-medium tracking-tight font-stretch-semi-expanded text-fg md:text-3xl">
             <em className="display-em font-bold">Full Stack / AI</em> Developer
           </span>
         </h1>
