@@ -163,15 +163,17 @@ export function barReveal(el: HTMLElement | null, opts: { delay?: number; scroll
  * so a red curve sweeps down and lifts off. The panel is removed when it is done.
  * Returns a cleanup for onRevert.
  */
-export function curtainReveal(el: HTMLElement | null, opts: { trigger?: Element; scrollTrigger?: ST; color?: string } = {}) {
+export function curtainReveal(el: HTMLElement | null, opts: { trigger?: Element; scrollTrigger?: ST; color?: string; timeline?: gsap.core.Timeline; at?: number } = {}) {
   if (!el) return;
   const panel = document.createElement('span');
   panel.setAttribute('aria-hidden', 'true');
   Object.assign(panel.style, { position: 'absolute', inset: '0', zIndex: '1', pointerEvents: 'none', background: opts.color ?? PALETTE.ac });
   el.appendChild(panel);
-  gsap.timeline({ scrollTrigger: opts.scrollTrigger ?? inView(opts.trigger ?? el), onComplete: () => panel.remove() })
-    .fromTo(el, { clipPath: 'ellipse(120% 0% at 50% 0%)' }, { clipPath: 'ellipse(120% 120% at 50% 0%)', duration: DUR.reveal, ease: EASE.wipe, clearProps: 'clipPath' }, 0)
-    .fromTo(panel, { clipPath: 'ellipse(120% 120% at 50% 100%)' }, { clipPath: 'ellipse(120% 0% at 50% 100%)', duration: DUR.wipe, ease: EASE.wipe }, DUR.reveal - 0.4);
+  // On its own scroll trigger, or inside a caller's timeline at `at` (a reveal the caller times).
+  const at = opts.timeline ? (opts.at ?? 0) : 0, lift = at + DUR.reveal - 0.4;
+  (opts.timeline ?? gsap.timeline({ scrollTrigger: opts.scrollTrigger ?? inView(opts.trigger ?? el) }))
+    .fromTo(el, { clipPath: 'ellipse(120% 0% at 50% 0%)' }, { clipPath: 'ellipse(120% 120% at 50% 0%)', duration: DUR.reveal, ease: EASE.wipe, clearProps: 'clipPath' }, at)
+    .fromTo(panel, { clipPath: 'ellipse(120% 120% at 50% 100%)' }, { clipPath: 'ellipse(120% 0% at 50% 100%)', duration: DUR.wipe, ease: EASE.wipe, onComplete: () => panel.remove() }, lift);
   return () => panel.remove();
 }
 

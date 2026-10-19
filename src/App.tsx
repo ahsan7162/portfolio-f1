@@ -4,7 +4,8 @@ import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { DialogCtx, type Origin } from '@/components/dialog-context';
 import { Cursor } from '@/components/Cursor';
-import { ArchiveDialog, closeWithWipe, DetailsDialog } from '@/components/Dialogs';
+import { closeWithWipe, DetailsDialog } from '@/components/Dialogs';
+import { ArchiveGate } from '@/components/archive/ArchiveGate';
 import { Intro } from '@/components/Intro';
 import { Nav } from '@/components/Nav';
 import { ScrollRail } from '@/components/ScrollRail';
@@ -97,7 +98,8 @@ function Page() {
       {gl}
       <div inert={anyOpen || undefined}>{page}</div>
       {intro}
-      {open.arch && <ArchiveDialog dref={archRef} origin={open.arch.o} onClose={closeArch} onOpenItem={openDetails} />}
+      {/* All projects loads its own code the first time it opens (ArchiveGate). */}
+      {open.arch && <ArchiveGate dref={archRef} origin={open.arch.o} onClose={closeArch} />}
       {open.sel && <DetailsDialog dref={selRef} sel={open.sel.b} origin={open.sel.o} onClose={closeSel} />}
       {cursor}
     </DialogCtx.Provider>

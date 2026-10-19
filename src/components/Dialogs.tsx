@@ -1,7 +1,6 @@
 import { useLayoutEffect, type ReactNode, type RefObject } from 'react';
-import { archive, archiveBreakdown, type Breakdown, type Delta } from '@/content/data';
-import { Arrow } from '@/components/Arrow';
-import { originOf, type Origin } from '@/components/dialog-context';
+import type { Breakdown, Delta } from '@/content/data';
+import type { Origin } from '@/components/dialog-context';
 import { trapTab } from '@/lib/focus';
 import { cn } from '@/lib/utils';
 import { gsap } from '@/motion/gsap';
@@ -41,9 +40,10 @@ function rowIn(row: Element, tl: gsap.core.Timeline) {
 
 /**
  * Wipe in from the click point, then the rows land: the ones on screen right after
- * the wipe starts, the rest as they scroll into view inside the dialog.
+ * the wipe starts, the rest as they scroll into view inside the dialog. Without the
+ * wipe (`wipe` false: a loader already covers the screen) only the rows land.
  */
-function useDialogIn(ref: RefObject<HTMLDivElement | null>, origin: Origin | undefined) {
+function useDialogIn(ref: RefObject<HTMLDivElement | null>, origin: Origin | undefined, wipe = true) {
   useLayoutEffect(() => {
     const el = ref.current!;
     el.querySelector<HTMLElement>('[data-dclose]')?.focus({ preventScroll: true });
@@ -58,7 +58,7 @@ function useDialogIn(ref: RefObject<HTMLDivElement | null>, origin: Origin | und
     const restores: (() => void)[] = [];
     opening.set(el, state);
     const ctx = gsap.context(() => {
-      gsap.set(el, { clipPath: clip(o, 0) });
+      if (wipe) gsap.set(el, { clipPath: clip(o, 0) });
       // Each row's entrance, built paused up front: digitRoll rewrites the stats before the title is measured.
       const rows = new Map(items.map(it => {
         const tl = gsap.timeline({ paused: true });
@@ -77,20 +77,20 @@ function useDialogIn(ref: RefObject<HTMLDivElement | null>, origin: Origin | und
       // ctx.add: this runs after the context function returned, and must still be reverted with it.
       raf = requestAnimationFrame(() => ctx.add(() => {
         if (state.cancelled) return;
-        state.tl = gsap.timeline({ onComplete: () => { gsap.set(el, { clearProps: 'clipPath' }); } })
-          // Fast-start ease: the circle's area grows with its radius squared, so an ease-in would look stuck.
-          .to(el, { clipPath: clip(o, reach(o)), duration: DUR.open, ease: EASE.out });
+        state.tl = gsap.timeline({ onComplete: () => { gsap.set(el, { clearProps: 'clipPath' }); } });
+        // Fast-start ease: the circle's area grows with its radius squared, so an ease-in would look stuck.
+        if (wipe) state.tl.to(el, { clipPath: clip(o, reach(o)), duration: DUR.open, ease: EASE.out });
         if (head) state.tl.to(head, { x: 0, y: 0, scale: 1, duration: DUR.open, ease: EASE.out }, 0);
         onScreen.forEach((it, i) => gsap.delayedCall(0.15 + (0.15 * i) / Math.max(1, onScreen.length - 1), () => rows.get(it)!.play()));
         stop = revealWithin(el, below, batch => ctx.add(() => batch.forEach((it, i) => gsap.delayedCall(i * 0.06, () => rows.get(it)!.play()))));
       }));
     }, el);
     return () => { cancelAnimationFrame(raf); stop?.(); ctx.revert(); restores.forEach(r => r()); };
-  }, [ref, origin]);
+  }, [ref, origin, wipe]);
 }
 
 /** Before and after on one scale (aria-hidden: the highlight's own text states both). */
-function Bars({ d }: { d: Delta }) {
+export function Bars({ d }: { d: Delta }) {
   const max = Math.max(d.from, d.to);
   const rows = [['Before', d.fromLabel, d.from], ['After', d.toLabel, d.to]] as const;
   return (
@@ -132,13 +132,17 @@ const TONE = {
   carbon: { box: 'z-[75] bg-carbon', head: 'bg-carbon/95' },
 };
 
-type DialogProps = { origin?: Origin; onClose: () => void; dref: RefObject<HTMLDivElement | null> };
+export type DialogProps = {
+  origin?: Origin; onClose: () => void; dref: RefObject<HTMLDivElement | null>;
+  /** false: no circle wipe, because something else (a loader) already covers the screen. */
+  wipe?: boolean;
+};
 
 /** The full-screen dialog shell: sticky header with its label and Close, Tab kept inside, the wipe in. */
-function DialogFrame({ origin, onClose, dref, label, titleId, tone, width, children }: DialogProps & {
+export function DialogFrame({ origin, onClose, dref, wipe, label, titleId, tone, width, children }: DialogProps & {
   label: string; titleId: string; tone: keyof typeof TONE; width: string; children: ReactNode;
 }) {
-  useDialogIn(dref, origin);
+  useDialogIn(dref, origin, wipe);
   return (
     // oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- the dialog keeps Tab inside itself
     <div ref={dref} role="dialog" aria-modal="true" aria-labelledby={titleId} onKeyDown={e => trapTab(e, e.currentTarget)} data-lenis-prevent
@@ -149,33 +153,6 @@ function DialogFrame({ origin, onClose, dref, label, titleId, tone, width, child
       </div>
       <div className={cn('mx-auto px-4 py-12 md:px-8', width)}>{children}</div>
     </div>
-  );
-}
-
-export function ArchiveDialog({ onOpenItem, ...frame }: DialogProps & { onOpenItem: (b: Breakdown, o: Origin) => void }) {
-  return (
-    <DialogFrame {...frame} label="All projects" titleId="archTitle" tone="graphite" width="max-w-[1400px]">
-      <h2 id="archTitle" data-din className="display text-display-section">All projects</h2>
-      <p data-din className="mt-3 text-mute">Everything else I have shipped, 2021 to now.</p>
-      <ul className="mt-12 border-t border-line">
-        {archive.map(a => (
-          <li key={a.name} data-din className="border-b border-line">
-            <button type="button" onClick={e => onOpenItem(archiveBreakdown(a), originOf(e))}
-              className="group relative grid w-full grid-cols-[4rem_1fr] gap-4 py-5 text-left transition-colors hover:bg-fg/[0.03] md:grid-cols-[5rem_1.3fr_1fr_auto] md:items-center">
-              {/* Sector line: draws in from the left on hover, leaves to the right, quicker. */}
-              <span aria-hidden="true" className="absolute inset-x-0 -bottom-px h-px origin-right scale-x-0 bg-ac transition-transform duration-(--dur-split) ease-out-expo group-hover:origin-left group-hover:scale-x-100 group-hover:duration-(--dur-wipe) group-focus-visible:origin-left group-focus-visible:scale-x-100" />
-              <span className="font-mono text-sm text-mute group-hover:text-ac">{a.year}</span>
-              <span>
-                <span className="block text-lg font-semibold font-stretch-semi-expanded">{a.name}</span>
-                <span className="block font-mono text-xs text-mute">{a.stack}</span>
-              </span>
-              <span className="col-start-2 text-mute md:col-start-auto">{a.note}</span>
-              <span className="col-start-2 font-mono text-xs uppercase tracking-[0.12em] text-ac md:col-start-auto">Details <span aria-hidden="true" className="inline-block transition-transform duration-(--dur-split) ease-out-expo group-hover:translate-x-1.5"><Arrow /></span></span>
-            </button>
-          </li>
-        ))}
-      </ul>
-    </DialogFrame>
   );
 }
 
