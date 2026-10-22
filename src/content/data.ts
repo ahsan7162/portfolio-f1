@@ -49,7 +49,7 @@ export const CV_FILE = 'Muhammad-Ahsan-CV.pdf';
 export const EMAIL = 'imranahsan716@gmail.com';
 export const PHONE = '+923110237524';
 export const PHONE_DISPLAY = '+92 311 023 7524';
-export const GITHUB = 'https://www.github.com/ahsan7162';
+export const GITHUB = 'https://github.com/ahsan7162';
 export const LINKEDIN = 'https://www.linkedin.com/in/ahsan-imran-';
 export const SOCIAL = [{ label: 'GitHub', href: GITHUB }, { label: 'LinkedIn', href: LINKEDIN }];
 
