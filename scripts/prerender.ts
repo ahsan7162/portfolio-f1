@@ -18,7 +18,9 @@ if (!html.includes('<!--seo-->')) throw new Error('prerender: <!--seo--> placeho
 const vercel = process.env.VERCEL_PROJECT_PRODUCTION_URL;
 const site = (process.env.SITE_URL || SITE_URL || (vercel ? `https://${vercel}` : '')).replace(/\/+$/, '');
 const card = 'Muhammad Ahsan, Senior Full-Stack Developer: React, Go, Python, .NET and AI agents, 450+ AI agents shipped. The 04 helmet.';
-const built = new Date().toISOString().slice(0, 10);
+// The build's time: full ISO 8601 for the JSON-LD (Google rejects a bare date there), the day for the sitemap.
+const builtAt = new Date().toISOString();
+const built = builtAt.slice(0, 10);
 /** The <title> in index.html, so the profile page's name never drifts from it. */
 const pageTitle = (/<title>(.*?)<\/title>/.exec(html)?.[1] ?? profile.name).replace(/&amp;/g, '&');
 
@@ -41,7 +43,7 @@ const person = {
 const graph = site ? [
   { '@type': 'WebSite', '@id': `${site}/#website`, url: `${site}/`, name: profile.name, inLanguage: 'en' },
   { '@type': 'ProfilePage', '@id': `${site}/#page`, url: `${site}/`, name: pageTitle, inLanguage: 'en',
-    isPartOf: { '@id': `${site}/#website` }, mainEntity: { '@id': `${site}/#person` }, dateModified: built },
+    isPartOf: { '@id': `${site}/#website` }, mainEntity: { '@id': `${site}/#person` }, dateModified: builtAt },
   person,
 ] : [person];
 // `<` escaped, so no string in the data can close the script tag.
