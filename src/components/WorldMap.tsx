@@ -53,11 +53,11 @@ export function WorldMap() {
   const ring = 'pointer-events-none absolute aspect-square -translate-x-1/2 -translate-y-1/2 rounded-full border opacity-0';
   return (
     <div ref={ref} className="relative size-full">
-      <svg viewBox={`0 0 ${WORLD.width} ${WORLD.height}`} className="block size-full">
+      <svg aria-hidden="true" viewBox={`0 0 ${WORLD.width} ${WORLD.height}`} className="block size-full">
         <path d={WORLD_DOTS} fill="none" stroke="currentColor" strokeWidth={WORLD.dot} strokeLinecap="round" />
         {WORLD_MARKERS.map(m => <circle key={`${m.x}-${m.y}`} cx={m.x} cy={m.y} r={m.r} fill={markerColor} />)}
       </svg>
-      <svg viewBox={`0 0 ${WORLD.width} ${WORLD.height}`} className="pointer-events-none absolute inset-0 size-full overflow-visible">
+      <svg aria-hidden="true" viewBox={`0 0 ${WORLD.width} ${WORLD.height}`} className="pointer-events-none absolute inset-0 size-full overflow-visible">
         {away.map(m => <path key={`${m.x}-${m.y}`} data-arc d={arc(m)} fill="none" stroke={markerColor} strokeWidth={1.25} strokeLinecap="round" vectorEffect="non-scaling-stroke" />)}
         {/* Motion only: they sit at the map's corner until GSAP moves them onto an arc. */}
         {away.map(m => <circle key={`${m.x}-${m.y}`} data-runner r={0.9} fill={markerColor} className="invisible" />)}

@@ -1,3 +1,14 @@
+/* Hallmark · checked: 2026-10-23 · genre: atmospheric (inferred)
+ * floor: 0 FAIL · fixed: 23 (10a, 19, 24b, 26b, 33, 34, 38i, 38ii, 39b, 47a, 48, 49a, 49b, 54, 55a, 63, 64, 67, 69, 73, F1, F3, F26) · structural: 1 printed (9)
+ * finish-review: subagent · fix · 5 findings · 4 resolved · 1 left to the owner (23: the red languages tile, on main before this polish)
+ * built: the project · redesign: polish · v2.0.0 */
+/* Hallmark · waive 39b · two controls, neither a button bar · the See all projects band is a whole card that opens the archive, and Copy phone is a row of the footer's link list, set like its links */
+/* Hallmark · dismissed 28a · the lazy image is a project scene below the fold; the hero has no image and the name is its largest paint */
+/* Hallmark · dismissed 46a · 8x (250 s to 30 s) and 80% faster are the owner's own figures in content/data.ts */
+/* Hallmark · dismissed 49 · the long label is the See all projects card's own text, not a button label */
+/* Hallmark · answered F1 · the straight quotes left are code: a Python call and a JSON file inside the project scenes */
+/* Hallmark · answered F3 · balance sits on .display, which every display head carries; the flagged rule only resizes one */
+/* Hallmark · answered F19 · display runs 800 (900 on the name) and text 450 and 600; the 500 and 700 are two small roles left as found */
 @import "tailwindcss";
 @import "lenis/dist/lenis.css";
 
@@ -8,14 +19,6 @@
   src: url("./assets/fonts/hubot-sans.woff2") format("woff2");
   font-style: normal;
   font-weight: 700 900;
-  font-stretch: 125%;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Hubot Sans";
-  src: url("./assets/fonts/hubot-sans-italic.woff2") format("woff2");
-  font-style: italic;
-  font-weight: 700 800;
   font-stretch: 125%;
   font-display: swap;
 }
@@ -45,6 +48,26 @@
   --dim: #85857e;
   --line: rgb(244 244 237 / 0.12);
   --ac: #ff2438;
+  /* Raised panels and the darkest ground (PALETTE.panel and PALETTE.pit). */
+  --panel: #141417;
+  --pit: #070708;
+  --lift: #18181b;   /* a tile under the pointer; the loader's light pods */
+  --raise: #1a1a1e;  /* the lead work tile */
+  --shade: #080002;  /* shadows: near black, tinted toward the red */
+  /* The start lights (Intro.tsx): the unlit lens, its socket, and the lit lens's highlight and rim. */
+  --lamp-off: #1f0a0d;
+  --lamp-socket: #2a0a0e;
+  --lamp-hot: #ffd6da;
+  --lamp-rim: #a80f1d;
+  /* The footer frame's ramp, clear at the top to deep red at the bottom. */
+  --frame-0: #300b12;
+  --frame-1: #3a0b14;
+  --frame-2: #5e0e19;
+  --frame-3: #a4142a;
+  --frame-4: #c8162a;
+  /* Timing-screen colours: a sector done (green) and the fastest sector (purple). */
+  --timing-done: #2fd27a;
+  --timing-best: #b26bff;
   --navh: 64px;
 }
 
@@ -56,6 +79,10 @@
   --color-dim: var(--dim);
   --color-line: var(--line);
   --color-ac: var(--ac);
+  --color-panel: var(--panel);
+  --color-lift: var(--lift);
+  --color-lamp-off: var(--lamp-off);
+  --color-lamp-socket: var(--lamp-socket);
 
   --font-sans: "Mona Sans Variable", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Hubot Sans", "Mona Sans Variable", ui-sans-serif, system-ui, sans-serif;
@@ -84,6 +111,7 @@
 
 @layer base {
   html {
+    overflow-x: clip;
     background: var(--carbon);
     color: var(--fg);
     font-family: var(--font-sans);
@@ -119,26 +147,32 @@
      in all: expanded (125%) here, semi-expanded (112.5%) for small headings in Mona
      Sans, normal for text.
      The tracking follows the size: about 0 at 16 px, -0.02em at 32 px and
-     -0.035em from 90 px, so small caps don't crowd and big ones stay tight. */
+     -0.035em from 90 px, so small caps don't crowd and big ones stay tight. Solid
+     leading (1.0), so a wrapped caps line never touches the next; balanced, so a
+     wrapped head never ends on one short word. */
   .display {
     font-family: var(--font-display);
     font-stretch: expanded;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: calc(0.7px - 0.043em);
-    line-height: 0.88;
+    line-height: 1;
+    text-wrap: balance;
+    overflow-wrap: break-word;
+    min-width: 0;
   }
+  /* The About statement's two motion words ("slowest", "fast."): the display's own roman
+     and colour. Red stays a mark, the full stop, as on the name and the sign-off. */
   .display-em {
     font-family: var(--font-display);
-    font-style: italic;
+    font-style: normal;
     font-stretch: expanded;
-    color: var(--ac);
   }
+  /* Labels in the text face, a step under the body, sentence case and untracked. Real
+     data (lap times, sector codes, counts) keeps Krypton, set where it is used. */
   .label {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
+    font-size: 0.875rem;
+    line-height: 1.4;
     color: var(--mute);
   }
   .checker {
@@ -147,22 +181,29 @@
     background-size: 10px 10px;
     opacity: 0.85;
   }
+  /* Buttons keep the display's caps (the one place small caps stay), tracked lightly,
+     and stand 44 px at least. */
   .btn {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
+    min-height: 2.75rem;
     white-space: nowrap;
     border-radius: 999px;
     padding: 0.7rem 1.25rem;
     font-family: var(--font-mono);
     font-size: 0.75rem;
     font-weight: 600;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
     transition: transform var(--dur-hit) var(--ease-out-expo), background-color var(--dur-hit) var(--ease-out-expo), color var(--dur-hit) var(--ease-out-expo);
   }
   .btn:active {
     transform: scale(0.98);
+  }
+  .btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
   }
   .btn-primary {
     background: var(--ac);
@@ -248,6 +289,23 @@ html.gl-on .contour-fallback { opacity: 0; transition: opacity 1s; }
 html.gl-on .gl-helmet { visibility: visible; opacity: 1; }
 html.gl-on .gl-helmet[data-off] { visibility: hidden; }
 html.gl-on .gl-helmet[data-dim] { opacity: 0.2; }
+/* Its spot in the hero (Hero.tsx), on wide screens: a square of up to 44vh, centred 78%
+   across and 55% down, moved right where it would cover the name's longest line
+   (MUHAMMAD runs 8.1em of the hero size, min(8.9vw, 8rem) here, from the content edge)
+   and shrunk where it would run off screen (in its hero pose the helmet draws about 15%
+   wider than its box). Across in vw, since the hero is full width and a % inside the
+   height would read the hero's height. */
+@media (min-width: 1024px) {
+  .hero-helmet {
+    --name-end: calc(max(2rem, 50vw - 700px) + 8.1 * min(8.9vw, 8rem) + 2.5rem);
+    --hx: max(calc(78vw - 22vh), var(--name-end));
+    --hs: min(44vh, calc((100vw - var(--hx) - 1rem) * 0.85));
+    left: var(--hx);
+    top: calc(55% - var(--hs) / 2);
+    width: var(--hs);
+    height: var(--hs);
+  }
+}
 /* Its landing slot in the About sentence, after "fast.": no room unless the helmet flies. */
 .helmet-slot { display: inline-block; width: 0; height: 0.8em; }
 html.helmet-flight .helmet-slot { width: 1.7em; margin-left: 0.2em; }
@@ -283,16 +341,16 @@ html.helmet-flight .helmet-slot { width: 1.7em; margin-left: 0.2em; }
 }
 .footer-frame {
   position: absolute; inset: 0;
-  background: linear-gradient(180deg, rgb(48 11 18 / 0) 0%, rgb(48 11 18 / 0.45) 24%, #3a0b14 48%, #5e0e19 70%, #a4142a 91%, #c8162a 100%);
+  background: linear-gradient(180deg, transparent 0%, color-mix(in srgb, var(--frame-0) 45%, transparent) 24%, var(--frame-1) 48%, var(--frame-2) 70%, var(--frame-3) 91%, var(--frame-4) 100%);
 }
 /* The shadow wrapper: static, so its filter is drawn once. */
 .footer-card {
   position: absolute; inset: 0;
-  filter: drop-shadow(0 0 1px rgb(244 244 237 / 0.3)) drop-shadow(0 14px 30px rgb(8 0 2 / 0.75));
+  filter: drop-shadow(0 0 1px color-mix(in srgb, var(--fg) 30%, transparent)) drop-shadow(0 14px 30px color-mix(in srgb, var(--shade) 75%, transparent));
 }
 .footer-card-shape {
   position: absolute; inset: 0;
-  background: linear-gradient(180deg, #151517, var(--carbon) 45%, #070708);
+  background: linear-gradient(180deg, var(--panel), var(--carbon) 45%, var(--pit));
   clip-path: polygon(var(--card));
 }
 /* The site's contour drawing, inside the card. */
@@ -307,15 +365,15 @@ html.helmet-flight .helmet-slot { width: 1.7em; margin-left: 0.2em; }
   width: calc(var(--tw) + 2 * var(--td)); height: calc(var(--fw) + var(--td));
   clip-path: polygon(0 0, 100% 0, 100% var(--fw), calc(100% - var(--td)) 100%, var(--td) 100%, 0 var(--fw));
 }
-.footer-notch { position: absolute; bottom: 0; width: var(--nw); height: calc(var(--fw) + var(--nh)); }
+.footer-corner { position: absolute; bottom: 0; width: var(--nw); height: calc(var(--fw) + var(--nh)); }
 .footer-text {
   position: absolute; inset: 0 0 auto; height: var(--nh);
   display: flex; align-items: center; gap: 0.75em;
-  font: 600 10px/1.25 var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase;
+  font: 600 12px/1.25 var(--font-sans);
   color: var(--fg);
 }
 .footer-tab .footer-text { top: var(--fw); height: var(--td); padding-inline: var(--td); }
-@media (min-width: 768px) { .footer-text { font-size: 11px; letter-spacing: 0.14em; } }
+@media (min-width: 768px) { .footer-text { font-size: 13px; } }
 
 /* Career timeline: static list by default; with motion it becomes one pinned
    screen where the stages replace each other over the 3D lap. */
@@ -326,8 +384,8 @@ html.helmet-flight .helmet-slot { width: 1.7em; margin-left: 0.2em; }
 .lap-live .lap-meta { display: flex; }
 /* HUD lap timer: fixed-width digits in a contained box, so each text write never re-lays out the page. */
 .lap-time { display: inline-block; min-width: 8ch; text-align: right; font-variant-numeric: tabular-nums; contain: layout paint; }
-:is(.lap-meta, .lap-marks) .sector-done { color: #2fd27a; }
-:is(.lap-meta, .lap-marks) .sector-best { color: #b26bff; }
+:is(.lap-meta, .lap-marks) .sector-done { color: var(--timing-done); }
+:is(.lap-meta, .lap-marks) .sector-best { color: var(--timing-best); }
 html:not(.gl-on) .lap-marks { display: none; }
 @media (min-width: 768px) {
   .lap-live .lap-pin { padding-top: calc(var(--navh) + 2rem); padding-bottom: 5rem; }
@@ -355,21 +413,21 @@ html:not(.gl-on) .lap-marks { display: none; }
     pointer-events: none;
     opacity: var(--spot, 0);
     transition: opacity var(--dur-split) var(--ease-out-expo);
-    background: radial-gradient(320px circle at var(--mx, -999px) var(--my, -999px), rgb(255 36 56 / 0.14), rgb(255 36 56 / 0.03) 40%, transparent 70%);
+    background: radial-gradient(320px circle at var(--mx, -999px) var(--my, -999px), color-mix(in srgb, var(--ac) 14%, transparent), color-mix(in srgb, var(--ac) 3%, transparent) 40%, transparent 70%);
   }
   .tile {
     position: relative;
     grid-column: span 6;
     border-right: 1px solid var(--line);
     border-bottom: 1px solid var(--line);
-    background: rgb(17 17 19 / 0.55);
+    background: color-mix(in srgb, var(--graphite) 55%, transparent);
     transition: background-color var(--dur-split), box-shadow var(--dur-split);
   }
-  .tile-lead { background: rgb(26 26 30 / 0.7); }
+  .tile-lead { background: color-mix(in srgb, var(--raise) 70%, transparent); }
   .tile[data-tilting] {
     z-index: 2;
-    background: rgb(24 24 28 / 0.94);
-    box-shadow: 0 30px 60px -22px rgb(0 0 0 / 0.85);
+    background: color-mix(in srgb, var(--lift) 94%, transparent);
+    box-shadow: 0 30px 60px -22px color-mix(in srgb, var(--shade) 85%, transparent);
     transition: background-color var(--dur-split), box-shadow var(--dur-split);
   }
   /* Accent rule that draws across the top of a hovered tile. */
@@ -392,7 +450,7 @@ html:not(.gl-on) .lap-marks { display: none; }
     pointer-events: none;
     opacity: 0;
     transition: opacity var(--dur-split) var(--ease-out-expo);
-    background: radial-gradient(280px circle at var(--tx, -999px) var(--ty, -999px), rgb(255 36 56 / 0.1), transparent 70%);
+    background: radial-gradient(280px circle at var(--tx, -999px) var(--ty, -999px), color-mix(in srgb, var(--ac) 10%, transparent), transparent 70%);
   }
   .card[data-tilting] .card-spot { opacity: 1; }
   .pill {
@@ -404,7 +462,7 @@ html:not(.gl-on) .lap-marks { display: none; }
     font-size: 0.75rem;
     transition: border-color var(--dur-split), color var(--dur-split);
   }
-  .tile:hover .pill { border-color: rgb(244 244 237 / 0.25); }
+  .tile:hover .pill { border-color: color-mix(in srgb, var(--fg) 25%, transparent); }
 }
 
 /* Scrollbar: thin carbon track with a hairline edge, a dim graphite thumb that
@@ -418,13 +476,13 @@ html:not(.gl-on) .lap-marks { display: none; }
   min-height: 48px;
   border: 3px solid transparent;
   border-radius: 999px;
-  background: rgb(244 244 237 / 0.18) padding-box;
+  background: color-mix(in srgb, var(--fg) 18%, transparent) padding-box;
 }
 ::-webkit-scrollbar-thumb:hover,
 ::-webkit-scrollbar-thumb:active { background-color: var(--ac); }
 ::-webkit-scrollbar-corner { background: var(--carbon); }
 @supports not selector(::-webkit-scrollbar) {
-  html { scrollbar-width: thin; scrollbar-color: rgb(244 244 237 / 0.22) var(--carbon); }
+  html { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--fg) 22%, transparent) var(--carbon); }
 }
 
 /* Custom scrollbar (ScrollRail): desktop with JS and motion only; the native
@@ -439,27 +497,33 @@ html.has-rail .rail {
 html.intro .rail { opacity: 0; pointer-events: none; }
 .rail-line { position: absolute; top: 0; bottom: 0; left: 50%; width: 1px; background: var(--line); }
 .rail-mark {
-  position: absolute; left: 50%; width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px; border-radius: 999px;
-  background: rgb(244 244 237 / 0.25); transition: background-color var(--dur-hit), transform var(--dur-hit);
+  position: absolute; left: 50%; width: 5px; height: 5px; translate: -50% -50%; border-radius: 999px;
+  background: color-mix(in srgb, var(--fg) 25%, transparent); transition: background-color var(--dur-hit), transform var(--dur-hit);
 }
 .rail-mark[data-passed] { background: var(--ac); }
 .rail-mark:hover { transform: scale(1.6); }
 .rail-label {
   position: absolute; right: 14px; top: 50%; translate: 4px -50%; white-space: nowrap; pointer-events: none;
-  font: 600 10px/1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--mute);
-  background: var(--carbon); padding: 4px 6px; border-radius: 3px; opacity: 0;
+  font: 600 12px/1 var(--font-sans); color: var(--mute);
+  background: var(--carbon); padding: 4px 8px; border-radius: 4px; opacity: 0;
   transition: opacity var(--dur-hit), translate var(--dur-hit);
 }
 .rail:hover .rail-label { opacity: 1; translate: 0 -50%; }
 .rail-mark:hover .rail-label { color: var(--fg); }
+/* The thumb is GSAP's (position and stretch, inline transforms); the pill it carries is
+   its ::before, which widens on hover and drag by scaling, never by animating a width. */
 .rail-thumb {
-  position: absolute; top: 0; left: 50%; width: 6px; margin-left: -3px; border-radius: 999px;
-  background: var(--ac); box-shadow: 0 0 0 2px var(--carbon); pointer-events: none;
-  transition: width var(--dur-hit), margin-left var(--dur-hit); will-change: transform;
+  position: absolute; top: 0; left: calc(50% - 3px); width: 6px; pointer-events: none; will-change: transform;
 }
-.rail:hover .rail-thumb, .rail.dragging .rail-thumb { width: 10px; margin-left: -5px; }
+.rail-thumb::before {
+  content: ""; position: absolute; inset: 0; border-radius: 999px;
+  background: var(--ac); box-shadow: 0 0 0 2px var(--carbon);
+}
+.rail-thumb::before, .rail-flag { transition: scale var(--dur-hit); }
+.rail:hover .rail-thumb::before, .rail.dragging .rail-thumb::before,
+.rail:hover .rail-flag, .rail.dragging .rail-flag { scale: 1.667 1; }
 .rail-flag {
-  position: absolute; left: 0; right: 0; top: 50%; height: 10px; margin-top: -5px;
+  position: absolute; left: 0; right: 0; top: 50%; height: 10px; translate: 0 -50%;
   background: conic-gradient(var(--carbon) 25%, transparent 0 50%, var(--carbon) 0 75%, transparent 0) 0 0 / 5px 5px;
 }
 
@@ -503,17 +567,17 @@ html.has-cursor.intro .cursor { opacity: 0; }
 .cursor-ring {
   --s: 1; --p: 1;
   position: absolute; left: -17px; top: -17px; width: 34px; height: 34px; border-radius: 999px;
-  border: 1.5px solid rgb(244 244 237 / 0.6); background: rgb(255 36 56 / 0);
+  border: 1.5px solid color-mix(in srgb, var(--fg) 60%, transparent); background: color-mix(in srgb, var(--ac) 0%, transparent);
   transform: scale(calc(var(--s) * var(--p)));
   transition: transform var(--dur-split) var(--ease-out-expo), background-color var(--dur-split), border-color var(--dur-split), border-radius var(--dur-split), opacity var(--dur-hit);
 }
 .cursor[data-down] .cursor-ring { --p: 0.8; }
 .cursor-label, .cursor-chev {
   position: absolute; left: 0; top: 0; translate: -50% -50%; opacity: 0; transition: opacity var(--dur-hit);
-  color: var(--carbon); font: 700 10px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; white-space: nowrap;
+  color: var(--carbon); font: 600 12px/1 var(--font-sans); white-space: nowrap;
 }
 .cursor-chev { width: 12px; translate: -50% 10px; color: var(--fg); }
-.cursor[data-state="link"] .cursor-ring { --s: 1.65; background: rgb(255 36 56 / 0.12); border-color: rgb(255 36 56 / 0.6); }
+.cursor[data-state="link"] .cursor-ring { --s: 1.65; background: color-mix(in srgb, var(--ac) 12%, transparent); border-color: color-mix(in srgb, var(--ac) 60%, transparent); }
 .cursor:is([data-state="view"], [data-state="open"]) .cursor-ring { --s: 2.47; background: var(--ac); border-color: var(--ac); }
 .cursor:is([data-state="view"], [data-state="open"], [data-state="drag"]) .cursor-label { opacity: 1; }
 .cursor:is([data-state="view"], [data-state="open"]) .cursor-dot { transform: scale(0); }
@@ -521,7 +585,7 @@ html.has-cursor.intro .cursor { opacity: 0; }
 .cursor[data-state="drag"] .cursor-label { translate: calc(-100% - 34px) -50%; color: var(--fg); }
 .cursor[data-state="heat"] .cursor-ring { opacity: 0; --s: 0.4; }
 .cursor[data-state="heat"] .cursor-dot { transform: scale(1.75); }
-.cursor[data-state="magnet"] .cursor-ring { --s: var(--ms, 2); border-color: rgb(244 244 237 / 0.9); }
+.cursor[data-state="magnet"] .cursor-ring { --s: var(--ms, 2); border-color: color-mix(in srgb, var(--fg) 90%, transparent); }
 .cursor[data-state="magnet"] .cursor-dot { transform: scale(0.6); }
 .cursor[data-state="scroll"] .cursor-ring { --s: 1.9; }
 .cursor[data-state="scroll"] .cursor-label { opacity: 1; color: var(--fg); translate: -50% -22px; }

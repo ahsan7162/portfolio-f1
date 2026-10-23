@@ -29,6 +29,8 @@ export function Nav() {
   const [expOpen, setExpOpen] = useState(false);
   const [current, setCurrent] = useState<string | null>(null);
   const [finish, setFinish] = useState(false);
+  // On the hero, which has its own CV button, the bar's CV waits until the hero scrolls away.
+  const [start, setStart] = useState(true);
   const ref = useRef<HTMLElement>(null);
   const panel = useRef<HTMLDivElement>(null);
   const subRef = useRef<HTMLUListElement>(null);
@@ -66,6 +68,9 @@ export function Nav() {
     const contact = document.getElementById('contact');
     const atFinish = (s: ScrollTrigger) => setFinish(s.isActive);
     if (contact) triggers.push(ScrollTrigger.create({ trigger: contact, start: 'top 15%', refreshPriority: -1, onToggle: atFinish, onRefresh: atFinish }));
+    const hero = document.getElementById('top');
+    const atStart = (s: ScrollTrigger) => setStart(s.isActive);
+    if (hero) triggers.push(ScrollTrigger.create({ trigger: hero, start: 'top bottom', end: 'bottom 40%', refreshPriority: -1, onToggle: atStart, onRefresh: atStart }));
     return () => triggers.forEach(t => t.kill());
   }, []);
 
@@ -159,7 +164,7 @@ export function Nav() {
                             <span data-letter-roll className={rowText}>{m.menu}</span>
                             <span className="ml-4 self-center rounded-full bg-ac px-2.5 py-0.5 font-mono text-xs text-carbon">{projects.length + archive.length}</span>
                             {dot}
-                            <span aria-hidden="true" className="ml-auto self-center font-mono text-sm text-mute transition-colors group-hover:text-ac">See all <Arrow /></span>
+                            <span aria-hidden="true" className="ml-auto self-center text-sm font-semibold text-mute transition-colors group-hover:text-ac">See all <Arrow /></span>
                           </button>
                         ) : (
                           <a href={`#${m.id}`} onClick={go} aria-current={current === m.id ? 'location' : undefined}
@@ -187,7 +192,7 @@ export function Nav() {
                               className="group flex w-full items-baseline gap-4 py-3 pl-8 text-left md:pl-12">
                               <span className="text-xl font-semibold tracking-tight font-stretch-semi-expanded transition-colors group-hover:text-ac md:text-2xl">{j.company}</span>
                               <span className="text-sm text-mute">{j.role}</span>
-                              <span className="ml-auto font-mono text-xs uppercase tracking-[0.12em] text-mute">{j.years}</span>
+                              <span className="ml-auto text-sm text-mute">{j.years}</span>
                             </button>
                           </li>
                         ))}
@@ -204,7 +209,7 @@ export function Nav() {
               <div className="label mb-3">Get in touch</div>
               <a href={`mailto:${EMAIL}`} className="inline-flex min-h-11 items-center text-lg transition-colors hover:text-ac">{EMAIL}</a>
             </div>
-            <div data-mside className="flex gap-6 font-mono text-xs uppercase tracking-[0.14em]">
+            <div data-mside className="flex gap-6 text-sm font-semibold">
               {SOCIAL.map(s => <a key={s.label} href={s.href} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center transition-colors hover:text-ac">{s.label}</a>)}
             </div>
             <CvLink data-mside className="btn btn-primary self-start" />
@@ -218,19 +223,20 @@ export function Nav() {
           <span className="sr-only">Muhammad Ahsan</span>
         </a>
         {/* At the finish the footer has the CV and every link, so the bar steps back: the 3D
-            toggle (phones) and the CV button slide away and Menu folds to its icon (its label comes back when open). */}
+            toggle (phones) and the CV button slide away and Menu folds to its icon (its label comes back when open).
+            On the hero, which has its own CV button, the bar's CV stays away too. */}
         <div className="flex items-center gap-3">
           <GlToggle inert={open || finish || undefined}
             className={cn('transition-[opacity,translate] duration-(--dur-split) ease-out-expo', (open || finish) && 'pointer-events-none translate-x-3 opacity-0')} />
-          <CvLink inert={open || finish || undefined} tabIndex={open || finish ? -1 : 0}
-            className={cn('btn btn-primary !px-4 !py-2 max-sm:hidden transition-[opacity,translate,background-color] duration-(--dur-split) ease-out-expo', (open || finish) && 'pointer-events-none translate-x-3 opacity-0')} />
+          <CvLink inert={open || finish || start || undefined} tabIndex={open || finish || start ? -1 : 0}
+            className={cn('btn btn-primary !px-4 !py-2 max-sm:hidden transition-[opacity,translate,background-color] duration-(--dur-split) ease-out-expo', (open || finish || start) && 'pointer-events-none translate-x-3 opacity-0')} />
           <button ref={btn} type="button" onClick={() => (open ? hide() : show())}
             aria-expanded={open} aria-controls="site-menu"
             className={cn('btn btn-ghost group min-h-11 !gap-0 !py-2 transition-[padding,border-color,transform] duration-(--dur-split) ease-out-expo', finish && !open ? '!px-[11px]' : '!px-4')}>
             {/* The label folds to nothing (0fr) and back; it stays the button's accessible name. */}
             <span className={cn('grid transition-[grid-template-columns,opacity] duration-(--dur-split) ease-out-expo', finish && !open ? 'grid-cols-[0fr] opacity-0' : 'grid-cols-[1fr]')}>
               <span className="overflow-hidden">
-                <span key={open ? 'close' : 'menu'} data-letter-roll className="block pr-3 font-mono uppercase tracking-[0.14em]">{open ? 'Close' : 'Menu'}</span>
+                <span key={open ? 'close' : 'menu'} data-letter-roll className="block pr-3">{open ? 'Close' : 'Menu'}</span>
               </span>
             </span>
             <span aria-hidden="true" className="relative block h-2.5 w-5">

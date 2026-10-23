@@ -146,9 +146,9 @@ export function Projects() {
               </span>
               <span className="mt-6 flex flex-wrap gap-2">
                 {archive.slice(0, 5).map(a => (
-                  <span key={a.name} className="rounded-full border border-line px-3 py-1 font-mono text-xs text-mute transition-colors duration-(--dur-hit) group-hover:border-carbon/30 group-hover:text-carbon">{a.name}</span>
+                  <span key={a.name} className="rounded-full border border-line px-3 py-1 text-xs text-mute transition-colors duration-(--dur-hit) group-hover:border-carbon/30 group-hover:text-carbon">{a.name}</span>
                 ))}
-                <span className="rounded-full px-3 py-1 font-mono text-xs text-mute transition-colors duration-(--dur-hit) group-hover:text-carbon">+{archive.length - 5} more</span>
+                <span className="rounded-full px-3 py-1 text-xs text-mute transition-colors duration-(--dur-hit) group-hover:text-carbon">+{archive.length - 5} more</span>
               </span>
             </span>
             <span data-morearrow aria-hidden="true" className="shrink-0">

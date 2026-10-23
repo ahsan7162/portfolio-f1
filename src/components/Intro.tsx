@@ -138,11 +138,11 @@ export function Intro() {
         <div className={`${grid} bottom-0`} />
         <div className="checker absolute inset-x-0 bottom-0 opacity-30" />
       </div>
-      <div data-iline className="absolute inset-x-0 top-[calc(50%-1px)] h-[2px] bg-ac shadow-[0_0_24px_4px_rgb(255_36_56/0.6)]" style={{ transform: 'scaleX(0)' }} />
+      <div data-iline className="absolute inset-x-0 top-[calc(50%-1px)] h-[2px] bg-ac shadow-[0_0_24px_4px_color-mix(in_srgb,var(--ac)_60%,transparent)]" style={{ transform: 'scaleX(0)' }} />
 
       <div data-icontent className="absolute inset-0 flex flex-col justify-between px-4 py-8 md:px-8 md:py-10">
         {/* The room warms red as the lights come on. */}
-        <div data-iglow className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_45%_at_50%_50%,rgb(255_36_56/0.16),transparent_70%)] opacity-0" />
+        <div data-iglow className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_45%_at_50%_50%,color-mix(in_srgb,var(--ac)_16%,transparent),transparent_70%)] opacity-0" />
 
         <div className="relative flex items-start justify-between gap-6">
           <span data-iframe className="display text-sm">Ahsan<span className="text-ac">.</span></span>
@@ -151,16 +151,16 @@ export function Intro() {
 
         <div className="relative flex flex-col items-center gap-8 md:gap-10">
           <div className="relative flex gap-3 px-3 md:gap-5 md:px-5">
-            <div data-ibeam className="absolute inset-x-0 top-1/2 h-3 -translate-y-1/2 bg-[#141417] shadow-[inset_0_1px_0_rgb(255_255_255/0.05)] md:h-4" />
+            <div data-ibeam className="absolute inset-x-0 top-1/2 h-3 -translate-y-1/2 bg-panel shadow-[inset_0_1px_0_color-mix(in_srgb,var(--fg)_5%,transparent)] md:h-4" />
             {Array.from({ length: LIGHTS }, (_, i) => (
-              <div key={i} data-ipod className="relative flex flex-col gap-2 bg-[#18181b] p-2 shadow-[inset_0_1px_0_rgb(255_255_255/0.06),0_20px_40px_-12px_rgb(0_0_0/0.8)] md:gap-3 md:p-3">
-                <span className="block size-6 rounded-full bg-[#1f0a0d] md:size-10" />
+              <div key={i} data-ipod className="relative flex flex-col gap-2 bg-lift p-2 shadow-[inset_0_1px_0_color-mix(in_srgb,var(--fg)_6%,transparent),0_20px_40px_-12px_color-mix(in_srgb,var(--shade)_80%,transparent)] md:gap-3 md:p-3">
+                <span className="block size-6 rounded-full bg-lamp-off md:size-10" />
                 <span className="relative block size-6 md:size-10">
                   <span data-halo className="absolute -inset-3 rounded-full bg-ac opacity-0 blur-xl md:-inset-5" />
-                  <span className="absolute inset-0 rounded-full bg-[#2a0a0e]" />
-                  <span data-light className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_38%_32%,#ffd6da,#ff2438_45%,#a80f1d)] opacity-0" />
+                  <span className="absolute inset-0 rounded-full bg-lamp-socket" />
+                  <span data-light className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_38%_32%,var(--lamp-hot),var(--ac)_45%,var(--lamp-rim))] opacity-0" />
                 </span>
-                <span className="block size-6 rounded-full bg-[#1f0a0d] md:size-10" />
+                <span className="block size-6 rounded-full bg-lamp-off md:size-10" />
               </div>
             ))}
           </div>

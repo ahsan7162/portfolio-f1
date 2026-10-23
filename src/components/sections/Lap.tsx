@@ -7,7 +7,7 @@ import { gl3d, use3dVersion } from '@/gl/gl3d';
 import { lapMarks, lapState } from '@/gl/state';
 import { lapTime } from '@/lib/format';
 import { gsap, ScrollTrigger } from '@/motion/gsap';
-import { barReveal, drawPath } from '@/motion/patterns';
+import { drawPath } from '@/motion/patterns';
 import { DUR, EASE } from '@/motion/tokens';
 import { useSmoothScroll } from '@/motion/SmoothScroll';
 import { useSectionMotion } from '@/motion/useSectionMotion';
@@ -40,9 +40,6 @@ export function Lap() {
     if (flat) gsap.set(svgPath, { drawSVG: '0%' });
     gsap.set(stages, { autoAlpha: 0, y: 60 });
     gsap.set(q('[data-laphead]'), { autoAlpha: 0, y: 30 });
-    // The label wipes in under the red bar as the heading arrives, once (see onEnter below).
-    const label = gsap.timeline({ paused: true });
-    barReveal(q('[data-laphead] h2'), { timeline: label, at: 0.1 });
 
     // The track is scroll: the camera and the car are scrubbed to the pin (1:1 with a
     // short catch-up), so the lap stops when you stop. The stage cards are the
@@ -145,7 +142,6 @@ export function Lap() {
       onToggle: self => { lapState.active = self.isActive; if (!self.isActive) hideMarks(); },
       onEnter: () => {
         gsap.to(q('[data-laphead]'), { autoAlpha: 1, y: 0, duration: DUR.split, ease: EASE.out, overwrite: true });
-        if (!label.progress()) label.play();
         show(at(st.progress));
       },
     });
@@ -181,7 +177,7 @@ export function Lap() {
           <div key={t.sector} className="absolute left-1/2 top-1/2 text-mute">
             <span className="absolute -left-[3px] -top-[3px] size-1.5 rounded-full bg-fg" />
             <span className="absolute bottom-[3px] left-0 h-7 w-px bg-fg/40" />
-            <span data-marksector className="absolute bottom-[calc(1.75rem+6px)] left-0 -translate-x-1/2 font-mono text-xs uppercase tracking-[0.14em] transition-colors duration-(--dur-split)">{t.sector}</span>
+            <span data-marksector className="absolute bottom-[calc(1.75rem+6px)] left-0 -translate-x-1/2 font-mono text-xs transition-colors duration-(--dur-split)">{t.sector}</span>
           </div>
         ))}
       </div>
@@ -193,21 +189,20 @@ export function Lap() {
 
         <div className="lap-inner mx-auto flex w-full max-w-[1400px] flex-col">
           <div data-laphead className="lap-head">
-            <h2 className="label">Career timeline</h2>
-            <p className="display mt-3 text-display-lead">One lap, three teams.</p>
+            <h2 className="display text-display-lead"><span className="sr-only">Career timeline: </span>One lap, three teams.</h2>
           </div>
 
           <ol className="lap-stages mt-10 grid gap-10">
             {timeline.map(t => (
               <li key={t.company} data-stage className="lap-stage max-w-[560px] border border-line bg-carbon/90 p-5 md:p-8">
-                <div className="flex items-center justify-between font-mono text-xs uppercase tracking-[0.14em] text-mute">
-                  <span className="text-ac">{t.sector}</span><span>{t.years}</span>
+                <div className="flex items-center justify-between text-sm text-mute">
+                  <span className="font-mono text-xs text-ac">{t.sector}</span><span>{t.years}</span>
                 </div>
                 <h3 className="display mt-4 text-display-stat">{t.company}</h3>
                 <p className="mt-2 text-mute">{t.role}</p>
                 <div className="mt-5 flex items-end gap-4 overflow-hidden border-t border-line pt-5 md:mt-6 md:pt-6">
                   <span data-stat className="display inline-block whitespace-nowrap text-display-stat text-ac">{t.stat}</span>
-                  <span data-stat className="inline-block pb-2 font-mono text-xs uppercase tracking-[0.12em] text-mute">{t.statLabel}</span>
+                  <span data-stat className="inline-block pb-1.5 text-sm text-mute">{t.statLabel}</span>
                 </div>
                 <p className="mt-4 leading-relaxed md:mt-5">{t.text}</p>
                 <button type="button" data-cursor="open" aria-label={`${t.company} details`}
@@ -220,7 +215,7 @@ export function Lap() {
           </ol>
         </div>
 
-        <div aria-hidden="true" className="lap-meta absolute inset-x-4 top-[calc(var(--navh)+1.5rem)] mx-auto hidden max-w-[1400px] items-end justify-end font-mono text-xs uppercase tracking-[0.14em] text-mute md:inset-x-8 md:top-auto md:bottom-8">
+        <div aria-hidden="true" className="lap-meta absolute inset-x-4 top-[calc(var(--navh)+1.5rem)] mx-auto hidden max-w-[1400px] items-end justify-end font-mono text-xs text-mute md:inset-x-8 md:top-auto md:bottom-8">
           <span className="flex items-baseline gap-4">
             {/* Phones: the HUD shares the label's line, which has no room for the flag. */}
             <span data-lapflag className="font-semibold text-fg max-md:hidden">Lap 1</span>

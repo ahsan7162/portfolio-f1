@@ -1,5 +1,5 @@
 import { useEffect, useRef, type ReactNode } from 'react';
-import { DIM, type Fx, label, LINE, makeFx, PANEL, SceneSvg, setText } from '@/components/scene-kit';
+import { type Fx, label, LINE, makeFx, PANEL, SceneSvg, setText } from '@/components/scene-kit';
 import { ensureGsap, gsap } from '@/motion/gsap';
 import { isTouch, motionEnabled } from '@/motion/prefs';
 import { EASE } from '@/motion/tokens';
@@ -64,8 +64,7 @@ export const Win = ({ x, y, w, h, title, right, fill = PANEL }: { x: number; y: 
     <rect x={x} y={y} width={w} height={h} rx="4" fill={fill} stroke={LINE} />
     {title !== undefined && (
       <>
-        {[0, 8, 16].map(d => <circle key={d} cx={x + 10 + d} cy={y + 10} r="2" fill={DIM} />)}
-        <text x={x + 38} y={y + 12.2} {...label()}>{title}</text>
+        <text x={x + 12} y={y + 12.2} {...label()}>{title}</text>
         {right}
         <line x1={x} y1={y + 19} x2={x + w} y2={y + 19} stroke={LINE} />
       </>

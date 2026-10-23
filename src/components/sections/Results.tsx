@@ -65,7 +65,7 @@ export function Results() {
   return (
     <section ref={ref} id="results" tabIndex={-1} data-bg="#0b0b0c,#101114" className="relative overflow-hidden px-4 py-24 md:px-8 md:py-32">
       <div data-p3ghost aria-hidden="true" className="display pointer-events-none absolute -right-[0.05em] top-24 -z-10 select-none text-[40vw] leading-none text-transparent md:text-[28vw]"
-        style={{ WebkitTextStroke: '1px rgb(244 244 237 / 0.07)' }}>P3</div>
+        style={{ WebkitTextStroke: '1px color-mix(in srgb, var(--fg) 7%, transparent)' }}>P3</div>
 
       <div className="mx-auto max-w-[1400px]">
         <h2 data-speed className="display mb-14 max-w-[14ch] text-display-section">Results and education</h2>
@@ -74,7 +74,7 @@ export function Results() {
         <div data-row className="grid gap-x-10 gap-y-12 sm:grid-cols-2 xl:grid-cols-4">
           <div id="education" tabIndex={-1} className="border-t border-line pt-5">
             <p data-eyebrow className="label mb-3">{education.years}</p>
-            <h3 className="text-xl font-semibold font-stretch-semi-expanded">{education.degree}</h3>
+            <h3 className="text-balance text-xl font-semibold font-stretch-semi-expanded">{education.degree}</h3>
             <p data-edutxt className="mt-3 text-sm leading-relaxed text-mute">
               {education.school}. {education.gpa}. {education.deansList}.
             </p>
@@ -82,7 +82,7 @@ export function Results() {
 
           <div className="border-t border-line pt-5">
             <p data-eyebrow className="label mb-3">{award.year}</p>
-            <h3 className="text-xl font-semibold font-stretch-semi-expanded">3rd place, {award.name}</h3>
+            <h3 className="text-balance text-xl font-semibold font-stretch-semi-expanded">3rd place, {award.name}</h3>
             <div aria-hidden="true" className="mt-10 flex items-end gap-1.5">
               {STEPS.map(s => (
                 <div key={s.p} data-step className={`relative flex w-12 items-start justify-center overflow-hidden pt-1 ${s.h} bg-fg/10 text-mute`}>
@@ -124,7 +124,7 @@ export function Results() {
               {stats.headline.value}{stats.headline.suffix}
             </div>
           </div>
-          <p data-biglabel aria-hidden="true" className="mt-5 max-w-[26ch] text-xl font-medium tracking-tight font-stretch-semi-expanded text-mute md:text-3xl">
+          <p data-biglabel aria-hidden="true" className="mt-5 max-w-[26ch] text-balance text-xl font-medium tracking-tight font-stretch-semi-expanded text-mute md:text-3xl">
             {stats.headline.label}
           </p>
         </div>

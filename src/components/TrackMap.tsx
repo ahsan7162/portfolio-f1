@@ -40,11 +40,11 @@ export function TrackMap() {
         {/* Starts hidden; motion reveals it. With reduced motion it stays out of the way. */}
         <div data-mapin className="invisible opacity-0">
         <svg viewBox={CIRCUIT_VIEWBOX} fill="none" className="w-full overflow-visible">
-          <path data-track d={CIRCUIT_PATH} stroke="rgb(244 244 237 / 0.35)" strokeWidth="6" strokeLinejoin="round" />
+          <path data-track d={CIRCUIT_PATH} className="stroke-fg/35" strokeWidth="6" strokeLinejoin="round" />
           <circle data-dot r="10" fill="var(--ac)" />
         </svg>
         {/* Scrambles into the new name whenever the section changes. */}
-        <Scramble text={name} className="mt-2 block font-mono text-[10px] uppercase tracking-[0.14em] text-mute" />
+        <Scramble text={name} className="mt-2 block text-xs font-semibold text-mute" />
         </div>
       </div>
     </div>

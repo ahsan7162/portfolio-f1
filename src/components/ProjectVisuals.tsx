@@ -107,7 +107,7 @@ function AgentsScene() {
         <rect x="24" y="76" width="118" height="26" rx="2" fill={CARBON} stroke={LINE} />
         <text data-prompt x="30" y="87" {...t(6.4)}>Summarize merged PRs</text>
         <text data-prompt x="30" y="96.5" {...t(6.4)}>for the weekly release</text>
-        <text x="26" y="110" {...t(6, MUTE)}>Tools · MCP</text>
+        <text x="26" y="110" {...t(6, MUTE)}>MCP tools</text>
         <Chip x={24} y={114} w={32} text="github" on />
         <Chip x={60} y={114} w={46} text="confluence" on />
         <Chip x={110} y={114} w={32} text="+ add" />
@@ -119,8 +119,8 @@ function AgentsScene() {
           <rect x="24" y="163" width="118" height="15" rx="2" fill={AC} />
           <text x="83" y="173" textAnchor="middle" {...t(6.6, CARBON, 700)} letterSpacing="0.8">POST</text>
         </g>
-        <text x="26" y="187.5" {...t(6, MUTE)}>2–3 days</text>
-        <line data-strike x1="25" y1="185.4" x2="55" y2="185.4" stroke={MUTE} strokeWidth="0.8" />
+        <text x="26" y="187.5" {...t(6, MUTE)}>2 to 3 days</text>
+        <line data-strike x1="25" y1="185.4" x2="66" y2="185.4" stroke={MUTE} strokeWidth="0.8" />
         <text data-ten x="142" y="187.5" textAnchor="end" {...t(6.6, AC, 700)}>10 min</text>
       </g>
 
@@ -140,8 +140,8 @@ function AgentsScene() {
         <text x="275" y="89" textAnchor="middle" {...t(4.8, MUTE, 700)}>APP</text>
       </g>
       <text data-reply x="192" y="100" {...t(6.8)}>3 features, 12 fixes:</text>
-      <text data-reply x="192" y="110" {...t(6.8, MUTE)}>· Partner CSV export</text>
-      <text data-reply x="192" y="120" {...t(6.8, MUTE)}>· Faster booking search</text>
+      <text data-reply x="192" y="110" {...t(6.8, MUTE)}>Partner CSV export</text>
+      <text data-reply x="192" y="120" {...t(6.8, MUTE)}>Faster booking search</text>
       <line x1="172" y1="158" x2="296" y2="158" stroke={LINE} />
       <text x="174" y="178" {...label()}>AGENTS LIVE</text>
       <text data-live x="296" y="180" textAnchor="end" {...t(14, AC, 700)}>450+</text>
@@ -154,7 +154,7 @@ function AgentsScene() {
 
 const ROWS = [
   { time: '20:45', what: 'Table for 2', tag: 'BOOKED' },
-  { time: '20:40', what: 'Walk-in · 3 guests', tag: 'WALK-IN' },
+  { time: '20:40', what: 'Walk-in, 3 guests', tag: 'WALK-IN' },
   { time: '20:30', what: 'Table for 4', tag: 'BOOKED' },
   { time: '20:15', what: 'Table for 6', tag: 'BOOKED' },
 ];
@@ -193,7 +193,7 @@ function OpsScene() {
     <Scene build={buildOps}>
       <g data-dash>
         <rect x="14" y="16" width="292" height="168" rx="4" fill={PANEL} stroke={LINE} />
-        <text x="26" y="33" {...label()}>BOOKINGS · TODAY</text>
+        <text x="26" y="33" {...label()}>BOOKINGS TODAY</text>
         <circle data-dot cx="272" cy="31" r="2.2" fill={AC} />
         <text x="296" y="33" textAnchor="end" {...label(AC)}>LIVE</text>
 
@@ -276,9 +276,8 @@ function LlmScene() {
     <Scene build={buildLlm}>
       <g data-editor>
         <rect x="14" y="14" width="292" height="116" rx="4" fill={PANEL} stroke={LINE} />
-        {[24, 32, 40].map(x => <circle key={x} cx={x} cy="24" r="2" fill={DIM} />)}
-        <text x="52" y="26.2" {...label()}>app.py</text>
-        <text x="296" y="26.2" textAnchor="end" {...label(AC)}>4 PROVIDERS · 1 API</text>
+        <text x="26" y="26.2" {...label()}>app.py</text>
+        <text x="296" y="26.2" textAnchor="end" {...label(AC)}>4 PROVIDERS, 1 API</text>
         <line x1="14" y1="33" x2="306" y2="33" stroke={LINE} />
         <rect data-hl x="32" y="78.5" width="268" height="12" rx="1.5" fill={AC} opacity="0" />
         {code(1, 48, <><tspan fill={MUTE}>from</tspan> gateway <tspan fill={MUTE}>import</tspan> llm</>)}

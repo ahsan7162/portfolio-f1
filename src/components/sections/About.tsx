@@ -56,13 +56,13 @@ export function About() {
         <h2 className="sr-only">About me</h2>
         {/* What screen readers hear: the statement below is split into words for the light-up. */}
         <p className="sr-only">{profile.about}</p>
-        <p data-statement aria-hidden="true" className="display max-w-[20ch] text-[clamp(1.875rem,min(5.3vw,calc(12.75svh_-_38px)),5.1rem)] !leading-[0.95]">
+        <p data-statement aria-hidden="true" className="display max-w-[20ch] text-[clamp(1.875rem,min(5.3vw,calc(12.75svh_-_38px)),5.1rem)]">
           {words.map((w, i) => (
             // The statement is static and repeats words, so the position is the key.
             // oxlint-disable-next-line react/no-array-index-key
             <span key={i}>
               {profile.aboutAccent.includes(w)
-                ? <em className="display-em relative isolate inline-block">{w}{w === 'fast.' && <span data-fastline className="absolute inset-x-0 top-1/2 -z-10 h-[0.12em] origin-left scale-x-0 bg-ac/60" />}</em>
+                ? <em className="display-em relative isolate inline-block">{w === 'fast.' ? <>fast<span className="text-ac">.</span></> : w}{w === 'fast.' && <span data-fastline className="absolute inset-x-0 top-1/2 -z-10 h-[0.12em] origin-left scale-x-0 bg-ac/60" />}</em>
                 : w}
               {/* The helmet lands here, after "fast." (gl/flight); no room unless it flies. */}
               {w === 'fast.' && <span data-helmet-anchor="slot" className="helmet-slot" />}

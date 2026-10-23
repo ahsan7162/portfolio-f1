@@ -16,7 +16,7 @@ const PAGES = SECTIONS.filter(s => s.menu && s.id !== 'contact');
 const YEAR: string = import.meta.env.BUILD_YEAR;
 
 /** One row of the footer's two lists: big expanded caps that roll and turn red on hover. */
-const row = 'display inline-block py-1 text-display-small leading-none transition-colors duration-(--dur-hit) hover:text-ac focus-visible:text-ac';
+const row = 'display inline-block whitespace-nowrap py-1 text-display-small leading-none transition-colors duration-(--dur-hit) hover:text-ac focus-visible:text-ac';
 
 function CopyPhone() {
   const [state, setState] = useState<'idle' | 'copied' | 'shown'>('idle');
@@ -119,9 +119,9 @@ export function Contact() {
       <div className="relative mx-auto w-fit text-center">
         {/* The link holds the headline (not the other way round): the headline is split into
             letters, which are hidden from screen readers, so the link carries its own name. */}
-        <a href={`mailto:${EMAIL}`} aria-label="Let's build something fast. Email me" className="block transition-colors duration-(--dur-hit) hover:text-ac">
+        <a href={`mailto:${EMAIL}`} aria-label="Let’s build something fast. Email me" className="block transition-colors duration-(--dur-hit) hover:text-ac">
           <p data-ctitle data-speed aria-hidden="true" className="display text-display-section">
-            Let's build<br className="max-sm:hidden" /> something <em className="display-em">fast</em>.
+            Let’s build<br className="max-sm:hidden" /> something fast<span className="text-ac">.</span>
           </p>
         </a>
         <svg aria-hidden="true" viewBox={CIRCUIT_VIEWBOX} fill="none"
@@ -148,7 +148,7 @@ export function Contact() {
         <div className="relative col-span-2 grid place-items-center self-center md:col-span-1">
           {/* The race number, the helmet's stand-in when there is no WebGL. */}
           <div aria-hidden="true" className="display pointer-events-none absolute select-none text-[min(36vw,24vh)] leading-none text-transparent md:text-[min(23vw,36vh)]"
-            style={{ WebkitTextStroke: '1px rgb(244 244 237 / 0.14)' }}>04</div>
+            style={{ WebkitTextStroke: '1px color-mix(in srgb, var(--fg) 14%, transparent)' }}>04</div>
           {/* Where the helmet parks (gl/flight). Placed by layout only, no transforms. */}
           <div data-helmet-anchor="parc" aria-hidden="true" className="pointer-events-none invisible size-[min(38vw,21vh)] md:size-[min(21vw,32vh)]" />
         </div>
@@ -179,13 +179,13 @@ export function Contact() {
         {/* Filled in on the client (never prerendered with a made-up time). */}
         <p data-laptotal hidden className="footer-text justify-center">
           <span className="text-mute"><span className="max-sm:hidden">Lap complete</span><span className="sm:hidden">Lap</span></span>
-          <span data-lapclock className="tabular-nums" />
+          <span data-lapclock className="font-mono tabular-nums" />
         </p>
       </div>
-      <div data-fnotch="l" className="footer-notch left-0">
+      <div data-fnotch="l" className="footer-corner left-0">
         <p className="footer-text right-(--nh) pl-[calc(var(--fw)+1rem)] md:pl-[calc(var(--fw)+1.5rem)]"><span>&copy; {YEAR} {profile.name}<span className="max-xl:hidden">, {profile.location.split(',')[0]}</span></span></p>
       </div>
-      <div data-fnotch="r" className="footer-notch right-0">
+      <div data-fnotch="r" className="footer-corner right-0">
         <p className="footer-text left-(--nh) justify-end pr-[calc(var(--fw)+1rem)] text-right md:pr-[calc(var(--fw)+1.5rem)]"><span>Open to <span className="whitespace-nowrap">full stack / AI roles</span></span></p>
       </div>
     </footer>

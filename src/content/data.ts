@@ -100,7 +100,7 @@ export const stats = {
 export const jobs: Job[] = [
   { id: 'careem', company: 'Careem', role: 'Software Engineer', dates: 'October 2025 to present', years: '2025 to now', loc: 'Karachi, Pakistan', place: 'Karachi',
     summary: 'Software engineer. SuperAgent, the AI agent platform used company-wide; the Dineout partner operations dashboard; booking concurrency; a Go notification service.',
-    result: '450+ AI agents, 35% dashboard adoption', highlights: [
+    result: '35% dashboard adoption', highlights: [
     { stat: '450+', title: 'SuperAgent: AI agent platform, company-wide', text: 'Internal platform in Go, Python and React with chat, semantic search and Slack integration. Teams create, version and deploy custom AI assistants self-service, with deployment to CI/CD pipelines, Slack channels and threads, and Jira automation. Agent build time fell from 2 to 3 days to 10 minutes.' },
     { stat: '35%', title: 'Dineout partner operations dashboard', text: 'Real-time booking and walk-in visibility on DynamoDB, Kafka and OpenSearch through a React microfrontend, with CSV and Excel export. Launched during a 2026 campaign of 50K bookings: adoption rose from under 2% to 35%, support chat groups fell from 500+ to under 20, and email queries dropped 70%.', delta: { from: 2, to: 35, fromLabel: 'under 2%', toLabel: '35%' } },
     { stat: '1,500+', title: 'Booking concurrency fix', text: 'Two writers could claim the same booking at the same time, leaving partner payouts wrong until someone fixed them by hand. Optimistic locking and structured logging closed the race: 50+ partner payouts delivered accurately across 1,500+ transactions.' },

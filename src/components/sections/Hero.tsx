@@ -58,13 +58,14 @@ export function Hero() {
       </svg>
       <div data-hnum aria-hidden="true"
         className="display pointer-events-none absolute -bottom-[0.12em] right-[-0.04em] -z-10 select-none text-[42vw] leading-none text-transparent md:text-[30vw]"
-        style={{ WebkitTextStroke: '1px rgb(244 244 237 / 0.1)' }}>
+        style={{ WebkitTextStroke: '1px color-mix(in srgb, var(--fg) 10%, transparent)' }}>
         04
       </div>
 
-      {/* Where the 3D helmet sits in the hero (gl/flight). Placed by layout only, no transforms. */}
+      {/* Where the 3D helmet sits in the hero (gl/flight). Placed by layout only, no transforms;
+          on wide screens .hero-helmet keeps it clear of the name. */}
       <div data-helmet-anchor="hero" aria-hidden="true"
-        className="pointer-events-none invisible absolute left-[78%] top-[55%] -ml-[22vh] -mt-[22vh] size-[44vh] max-lg:left-auto max-lg:right-4 max-lg:top-[calc(var(--navh)+1rem)] max-lg:m-0 max-lg:size-[min(40vw,20svh)]" />
+        className="hero-helmet pointer-events-none invisible absolute max-lg:right-4 max-lg:top-[calc(var(--navh)+1rem)] max-lg:size-[min(40vw,20svh)]" />
 
       <div data-hbody className="mx-auto flex w-full max-w-[1400px] flex-1 flex-col justify-center pb-10">
         {/* Status pill: the one live fact, clickable into the full Careem breakdown. The dot is static. */}
@@ -83,7 +84,7 @@ export function Hero() {
             Ahsan<span className="text-ac">.</span>
           </span>
           <span data-hsub aria-hidden="true" className="mt-5 block font-sans text-xl font-medium tracking-tight font-stretch-semi-expanded text-fg md:text-3xl">
-            <em className="display-em font-bold">Full Stack / AI</em> Developer
+            Full Stack / AI Developer
           </span>
         </h1>
 

@@ -20,10 +20,10 @@ const LOGOS: SimpleIcon[] = [
 
 const slash = (xs: string[]) => xs.join(' / ');
 
-function Tile({ name, accent, className, children }: { name: string; accent?: boolean; className?: string; children: ReactNode }) {
+function Tile({ name, className, children }: { name: string; className?: string; children: ReactNode }) {
   return (
     <div data-tile data-tilt className={cn('tile flex flex-col gap-5 p-6 md:p-8', className)}>
-      <h3 className={cn('label', accent && '!text-ac')}>{name}</h3>
+      <h3 className="label">{name}</h3>
       {children}
     </div>
   );
@@ -149,11 +149,11 @@ export function TechStack() {
       </div>
       <div className="mx-auto mt-16 max-w-[1400px] px-4 md:px-8">
         <div ref={grid} className="bento">
-          <Tile name="Core languages" accent className="tile-lead md:flex-row md:flex-wrap md:items-center md:justify-between md:gap-6 md:!p-10 md:!pr-16">
+          <Tile name="Core languages" className="tile-lead md:flex-row md:flex-wrap md:items-center md:justify-between md:gap-6 md:!p-10 md:!pr-16">
             <p className="display text-display-stat">{slash(skills.core)}</p>
           </Tile>
           <Tile name="Frameworks" className="md:col-span-3"><List items={skills.frameworks} /></Tile>
-          <Tile name="AI / LLM" accent className="justify-center md:col-span-3 md:row-span-2 md:gap-5">
+          <Tile name="AI / LLM" className="justify-center md:col-span-3 md:row-span-2 md:gap-5">
             <p className="display text-display-small font-bold !leading-[1.05]">{slash(skills.ai.providers)}</p>
             <List items={skills.ai.items} />
           </Tile>

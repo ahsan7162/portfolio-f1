@@ -94,7 +94,7 @@ export function Bars({ d }: { d: Delta }) {
   const max = Math.max(d.from, d.to);
   const rows = [['Before', d.fromLabel, d.from], ['After', d.toLabel, d.to]] as const;
   return (
-    <div aria-hidden="true" className="mt-6 grid max-w-[65ch] gap-2 font-mono text-xs uppercase tracking-[0.14em]">
+    <div aria-hidden="true" className="mt-6 grid max-w-[65ch] gap-2 font-mono text-xs">
       {rows.map(([tag, label, v]) => {
         // At least a sliver, so 100 ms against 30 s still shows on a phone.
         const k = Math.max(v / max, 0.006);
@@ -159,8 +159,8 @@ export function DialogFrame({ origin, onClose, dref, wipe, label, titleId, tone,
 export function DetailsDialog({ sel, ...frame }: DialogProps & { sel: Breakdown }) {
   return (
     <DialogFrame {...frame} label="Details" titleId="selTitle" tone="carbon" width="max-w-[1100px]">
-      <p data-din className="font-mono text-xs uppercase tracking-[0.12em] text-mute">{sel.dates}, {sel.loc}, {sel.role}</p>
-      <h2 id="selTitle" data-din className="display mt-4 break-words text-display-lead md:text-display-section">{sel.company}</h2>
+      <h2 id="selTitle" data-din className="display break-words text-display-lead md:text-display-section">{sel.company}</h2>
+      <p data-din className="mt-4 text-mute">{sel.role}, {sel.loc}, {sel.dates}</p>
       {/* One grid for every row (each row is a subgrid), so the stat column fits the widest
           stat in this breakdown ("OPENAPI", "Jinja2") and the text still lines up row to row. */}
       <div className="mt-12 grid border-t border-line md:grid-cols-[minmax(12rem,max-content)_1fr] md:gap-x-4">

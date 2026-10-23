@@ -42,7 +42,7 @@ export function Cursor() {
       state = next;
       el.dataset.state = next;
       const text = LABEL[next];
-      if (text) gsap.to(label, { scrambleText: { text, chars: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' }, duration: 0.25, ease: EASE.none, overwrite: true });
+      if (text) gsap.to(label, { scrambleText: { text, chars: 'abcdefghijklmnopqrstuvwxyz' }, duration: 0.25, ease: EASE.none, overwrite: true });
     };
 
     const stateOf = (t: EventTarget | null): State => {

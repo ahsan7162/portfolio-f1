@@ -8,7 +8,7 @@ import { EASE } from '@/motion/tokens';
 // palette, played by a GSAP timeline with these text helpers.
 
 export const { fg: FG, mute: MUTE, ac: AC, carbon: CARBON, panel: PANEL } = PALETTE;
-export const DIM = '#2a2a2e', LINE = 'rgb(255 255 255 / 0.12)';
+export const DIM = '#2a2a2e', LINE = 'rgb(255 255 255 / 0.12)', GRID_DOT = 'rgb(255 255 255 / 0.14)';
 export const t = (size: number, fill: string = FG, weight?: number) => ({ className: 'font-mono', fontSize: size, fill, fontWeight: weight });
 export const label = (fill: string = MUTE) => ({ ...t(5.8, fill, 600), letterSpacing: 0.6 });
 
@@ -76,10 +76,10 @@ export function SceneSvg({ ref, className, children }: { ref?: Ref<SVGSVGElement
   // The scene sits at 76% on a dot grid, so it reads as an illustration, apart from the card's own
   // text; phones draw it at 90% so its small UI text stays readable (see .proj-scene in index.css).
   return (
-    <svg ref={ref} viewBox="0 0 320 200" className={className ?? 'h-full w-full'} fill="none">
+    <svg ref={ref} aria-hidden="true" viewBox="0 0 320 200" className={className ?? 'h-full w-full'} fill="none">
       <defs>
         <pattern id={`dots-${id}`} width="8" height="8" patternUnits="userSpaceOnUse">
-          <circle cx="4" cy="4" r="0.45" fill="rgb(255 255 255 / 0.14)" />
+          <circle cx="4" cy="4" r="0.45" fill={GRID_DOT} />
         </pattern>
       </defs>
       <rect width="320" height="200" fill={`url(#dots-${id})`} />

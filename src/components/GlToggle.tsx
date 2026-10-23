@@ -17,7 +17,7 @@ export function GlToggle({ className, inert }: { className?: string; inert?: boo
         const pressed = s.on === m.on;
         return (
           <button key={m.label} type="button" aria-pressed={pressed} onClick={() => choose3d(m.on)}
-            className={cn('flex h-9 items-center rounded-full px-2.5 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] transition-colors duration-(--dur-hit) ease-out-expo md:px-3',
+            className={cn('flex h-9 items-center rounded-full px-2.5 font-mono text-[11px] font-semibold transition-colors duration-(--dur-hit) ease-out-expo md:px-3',
               pressed ? 'bg-fg text-carbon' : 'text-mute hover:text-fg')}>
             {m.label}
           </button>

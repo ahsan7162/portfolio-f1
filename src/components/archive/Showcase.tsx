@@ -221,22 +221,26 @@ const RoundBtn = ({ dir, onClick, label }: { dir: -1 | 1; onClick: () => void; l
 
 const TileText = ({ a }: { a: ArchiveItem }) => (
   <span className="block p-5 md:p-6">
-    <span data-cardtxt className="label block">{a.year} · {a.ctx}</span>
+    <span data-cardtxt className="label block">{a.year}, {a.ctx}</span>
     <span data-cardtxt className="mt-3 block text-lg font-semibold font-stretch-semi-expanded">{a.name}</span>
     <span data-cardtxt className="mt-2 block text-sm leading-relaxed text-mute">{a.note}</span>
-    <span data-cardtxt className="mt-4 flex items-center justify-between gap-4 font-mono text-xs uppercase tracking-[0.12em]">
-      <span className="truncate text-mute">{a.stack}</span>
-      <span className="shrink-0 text-ac">Open <span aria-hidden="true" className="inline-block transition-transform duration-(--dur-split) ease-out-expo group-hover:translate-x-1.5"><Arrow /></span></span>
+    <span data-cardtxt className="mt-4 flex items-center justify-between gap-4 text-sm">
+      <span className="truncate font-mono text-xs text-mute">{a.stack}</span>
+      <span className="shrink-0 font-semibold text-ac">Open <span aria-hidden="true" className="inline-block transition-transform duration-(--dur-split) ease-out-expo group-hover:translate-x-1.5"><Arrow /></span></span>
     </span>
   </span>
 );
 
-/** The project's text: index, name, note, stack, and every highlight with its stat. */
+/** The project's text: name, year and team, note, stack, and every highlight with its stat.
+ *  Phones get the position here, since the bar's counter has no room there. */
 function Info({ a, i }: { a: ArchiveItem; i: number }) {
   return (
     <div>
-      <p className="label">{twoDigits(i + 1)} / {twoDigits(N)} · {a.year} · {a.ctx}</p>
-      <h3 className="display mt-4 break-words text-display-card">{a.name}</h3>
+      <h3 className="display break-words text-display-card">{a.name}</h3>
+      <p className="label mt-3 flex justify-between gap-4">
+        <span>{a.year}, {a.ctx}</span>
+        <span className="font-mono text-xs tabular-nums sm:hidden">{twoDigits(i + 1)} / {twoDigits(N)}</span>
+      </p>
       <p className="mt-4 max-w-[52ch] leading-relaxed text-mute">{a.note}</p>
       <ul className="mt-5 flex flex-wrap gap-2" aria-label={`${a.name} stack`}>
         {a.stack.split(', ').map(s => <li key={s} className="rounded-full border border-line px-3 py-1 font-mono text-xs">{s}</li>)}
