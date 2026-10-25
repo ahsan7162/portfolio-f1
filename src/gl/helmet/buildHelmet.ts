@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { PALETTE } from '@/art/palette';
+import { groundShade, onPalette, PALETTE } from '@/art/palette';
 import { disposables } from '../dispose';
-import { DISSOLVE_GLSL, vec3 } from '../glsl';
+import { DISSOLVE_GLSL, srgb } from '../glsl';
 import { liveryTexture, roundedMask } from './livery';
 import { FRONT_PHI, PHI_START, shellGeometry, shellNormal, shellPoint, THETA_LEN, VISOR } from './shape';
 
@@ -17,22 +17,25 @@ export type Helmet = {
 
 // Dissolve-in shader chunk: parts appear bottom to top through a noisy edge
 // with a glowing accent seam, like Lando's wireframe-to-solid hero helmet.
+const seamColour = { value: srgb(PALETTE.ac) };
 function withReveal<T extends THREE.Material>(mat: T, reveal: { value: number }): T {
   mat.onBeforeCompile = shader => {
     shader.uniforms.uReveal = reveal;
+    shader.uniforms.uSeamColour = seamColour;
     shader.vertexShader = shader.vertexShader
       .replace('#include <common>', '#include <common>\nvarying vec3 vObjPos;')
       .replace('#include <begin_vertex>', '#include <begin_vertex>\nvObjPos = position;');
     shader.fragmentShader = shader.fragmentShader
       .replace('#include <common>', `#include <common>
 uniform float uReveal;
+uniform vec3 uSeamColour;
 varying vec3 vObjPos;
 ${DISSOLVE_GLSL}`)
       .replace('#include <clipping_planes_fragment>', '#include <clipping_planes_fragment>\nif (dissolveEdge(vObjPos) > uReveal) discard;')
       // The inside of the shell (seen while it dissolves) is a dark liner, not the painted livery.
       .replace('#include <map_fragment>', '#include <map_fragment>\nif (!gl_FrontFacing) diffuseColor.rgb = vec3(0.025);')
       .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
-totalEmissiveRadiance += ${vec3(PALETTE.ac)} * smoothstep(uReveal - 0.035, uReveal, dissolveEdge(vObjPos)) * step(uReveal, 1.0) * 4.0;`);
+totalEmissiveRadiance += uSeamColour * smoothstep(uReveal - 0.035, uReveal, dissolveEdge(vObjPos)) * step(uReveal, 1.0) * 4.0;`);
   };
   return mat;
 }
@@ -45,7 +48,8 @@ export async function buildHelmet(opts: { anisotropy: number }): Promise<Helmet>
   const group = new THREE.Group();
   const { keep, dispose } = disposables();
 
-  const map = keep(await liveryTexture(opts.anisotropy));
+  const { map, repaint } = await liveryTexture(opts.anisotropy);
+  keep(map);
 
   // Matte satin shell over carbon (no clear coat); the glossy visor contrasts with it.
   const shellMat = keep(withReveal(new THREE.MeshStandardMaterial({
@@ -86,8 +90,8 @@ export async function buildHelmet(opts: { anisotropy: number }): Promise<Helmet>
   }
 
   // Rear spoiler (Gurney-style lip) across the back of the crown.
-  const accentPaint = keep(withReveal(new THREE.MeshStandardMaterial({ color: PALETTE.ac, roughness: 0.22 }), reveal));
-  const carbonMat = keep(withReveal(new THREE.MeshStandardMaterial({ color: '#141416', roughness: 0.3 }), reveal));
+  const accentPaint = keep(withReveal(new THREE.MeshStandardMaterial({ roughness: 0.22 }), reveal));
+  const carbonMat = keep(withReveal(new THREE.MeshStandardMaterial({ roughness: 0.3 }), reveal));
   {
     const prof = new THREE.Shape();
     prof.moveTo(0, 0); prof.bezierCurveTo(0.06, 0.02, 0.16, 0.05, 0.22, 0.1); prof.lineTo(0.23, 0.13);
@@ -147,12 +151,23 @@ export async function buildHelmet(opts: { anisotropy: number }): Promise<Helmet>
 
   // Wireframe that draws itself before the solid dissolves in.
   const wireGeo = keep(new THREE.WireframeGeometry(shellGeometry({ w: 40, h: 22 })));
-  const wireMat = keep(new THREE.LineBasicMaterial({ color: PALETTE.ac, transparent: true, opacity: 0.9, depthWrite: false }));
+  const wireMat = keep(new THREE.LineBasicMaterial({ transparent: true, opacity: 0.9, depthWrite: false }));
   const wireLines = new THREE.LineSegments(wireGeo, wireMat);
   wireLines.scale.setScalar(1.004);
   group.add(wireLines);
   const wire = { draw: 0, opacity: 0.9 };
   const wireCount = wireGeo.attributes.position.count;
+
+  // The livery's colours, now and on every change: the painted shell, the accent and carbon parts, the seam and wireframe.
+  const paint = (first = false) => {
+    if (!first) repaint();
+    accentPaint.color.set(PALETTE.ac);
+    carbonMat.color.set(groundShade('#141416'));
+    srgb(PALETTE.ac, seamColour.value);
+    wireMat.color.set(PALETTE.ac);
+  };
+  paint(true);
+  keep({ dispose: onPalette(() => paint()) });
 
   // Centre the helmet on its own middle and sit it slightly nose-down.
   group.position.set(0, 0.05, -0.05);

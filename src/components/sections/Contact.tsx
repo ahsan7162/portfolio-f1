@@ -16,7 +16,7 @@ const PAGES = SECTIONS.filter(s => s.menu && s.id !== 'contact');
 const YEAR: string = import.meta.env.BUILD_YEAR;
 
 /** One row of the footer's two lists: big expanded caps that roll and turn red on hover. */
-const row = 'display inline-block whitespace-nowrap py-1 text-display-small leading-none transition-colors duration-(--dur-hit) hover:text-ac focus-visible:text-ac';
+const row = 'display inline-block whitespace-nowrap py-1 text-display-small leading-none transition-colors duration-(--dur-hit) hover:text-ac2 focus-visible:text-ac2';
 
 function CopyPhone() {
   const [state, setState] = useState<'idle' | 'copied' | 'shown'>('idle');
@@ -119,14 +119,14 @@ export function Contact() {
       <div className="relative mx-auto w-fit text-center">
         {/* The link holds the headline (not the other way round): the headline is split into
             letters, which are hidden from screen readers, so the link carries its own name. */}
-        <a href={`mailto:${EMAIL}`} aria-label="Let’s build something fast. Email me" className="block transition-colors duration-(--dur-hit) hover:text-ac">
+        <a href={`mailto:${EMAIL}`} aria-label="Let’s build something fast. Email me" className="block transition-colors duration-(--dur-hit) hover:text-ac2">
           <p data-ctitle data-speed aria-hidden="true" className="display text-display-section">
             Let’s build<br className="max-sm:hidden" /> something fast<span className="text-ac">.</span>
           </p>
         </a>
         <svg aria-hidden="true" viewBox={CIRCUIT_VIEWBOX} fill="none"
           className="pointer-events-none absolute -top-[46%] right-[4%] w-[23%] min-w-28 -rotate-[7deg] overflow-visible max-sm:-top-[30%] max-sm:right-0">
-          <path data-sig d={CIRCUIT_PATH} stroke="var(--ac)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+          <path data-sig d={CIRCUIT_PATH} stroke="var(--ac2)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
           {/* Motion only: the light that runs the lap. */}
           <path data-siglight d={CIRCUIT_PATH} pathLength={1} strokeDasharray="0.05 0.95" stroke="var(--fg)" strokeWidth="3.5" strokeLinecap="round" vectorEffect="non-scaling-stroke" className="invisible" />
           {/* The start and finish line. */}
@@ -148,7 +148,7 @@ export function Contact() {
         <div className="relative col-span-2 grid place-items-center self-center md:col-span-1">
           {/* The race number, the helmet's stand-in when there is no WebGL. */}
           <div aria-hidden="true" className="display pointer-events-none absolute select-none text-[min(36vw,24vh)] leading-none text-transparent md:text-[min(23vw,36vh)]"
-            style={{ WebkitTextStroke: '1px color-mix(in srgb, var(--fg) 14%, transparent)' }}>04</div>
+            style={{ WebkitTextStroke: '1px color-mix(in srgb, var(--letter) 14%, transparent)' }}>04</div>
           {/* Where the helmet parks (gl/flight). Placed by layout only, no transforms. */}
           <div data-helmet-anchor="parc" aria-hidden="true" className="pointer-events-none invisible size-[min(38vw,21vh)] md:size-[min(21vw,32vh)]" />
         </div>

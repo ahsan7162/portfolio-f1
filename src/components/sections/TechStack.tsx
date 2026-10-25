@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { PALETTE } from '@/art/palette';
+import { F1 } from '@/art/palette';
 import {
   siGo, siPython, siDotnet, siReact, siNextdotjs, siJavascript, siNodedotjs, siFastapi, siGin, siPostgresql, siMysql, siApachekafka, siOpensearch, siLangchain, siAnthropic, siHuggingface, siPandas, siVite, siGithub, siJira,
   type SimpleIcon,
@@ -126,7 +126,7 @@ export function TechStack() {
     });
   });
   return (
-    <section ref={ref} id="skills" tabIndex={-1} data-bg={`${PALETTE.carbon},${PALETTE.graphite}`} className="relative py-24 md:py-32">
+    <section ref={ref} id="skills" tabIndex={-1} data-bg={`${F1.carbon},${F1.graphite}`} className="relative py-24 md:py-32">
       <div className="mx-auto max-w-[1400px] px-4 md:px-8">
         <h2 data-speed className="display mb-14 text-display-section">Tech stack</h2>
       </div>

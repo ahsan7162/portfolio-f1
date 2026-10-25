@@ -38,7 +38,12 @@
   font-display: swap;
 }
 
-/* The palette is mirrored in src/art/palette.ts for SVG, canvas and WebGL: change both together. */
+/* The palette is mirrored in src/art/palette.ts for SVG, canvas and WebGL: change both together.
+   The liveries (palette.ts): F1 here, Barça under html[data-theme="barca"], and the rest
+   (ready-made or a visitor's own) as every colour variable below written onto <html>
+   inline, derived from five colours; index.html applies the stored one before first paint.
+   --ac2 is the livery's second colour: accent text (figures, hovers), the scroll rail, the
+   footer's track and the 3D's car and stripes. Red again in F1, where it equals --ac. */
 :root {
   color-scheme: dark;
   --carbon: #0b0b0c;
@@ -48,6 +53,11 @@
   --dim: #85857e;
   --line: rgb(244 244 237 / 0.12);
   --ac: #ff2438;
+  --ac2: #ff2438;
+  /* Lettering: the hero name and the outline numbers (the name and number on a shirt's back). */
+  --letter: var(--fg);
+  /* What a hovered button fills or outlines with. */
+  --hover: var(--fg);
   /* Raised panels and the darkest ground (PALETTE.panel and PALETTE.pit). */
   --panel: #141417;
   --pit: #070708;
@@ -70,6 +80,28 @@
   --timing-best: #b26bff;
   --navh: 64px;
 }
+/* Barça: the 25/26 third kit on F1's carbon grounds. Purple is every accent surface
+   (buttons, bars, dots, lines, glows), the shirt's purple lifted to 4.9:1 on carbon so carbon
+   text on purple buttons reads. Gold is the kit's lettering: every accent text (--ac2,
+   10:1), the hero name and outline numbers (--letter), buttons on hover, the scroll rail,
+   the footer's track, the car and the helmet's stripes and lettering. The footer frame is
+   the same ramp in purple: chalk on its deepest stop, 6.7:1. */
+:root[data-theme="barca"] {
+  --ac: #9061f9;
+  --ac2: #d8b866;
+  --letter: var(--ac2);
+  --hover: var(--ac2);
+  --shade: #04000c;
+  --lamp-off: #120a20;
+  --lamp-socket: #190e2c;
+  --lamp-hot: #efe6ff;
+  --lamp-rim: #4a2296;
+  --frame-0: #1e0d48;
+  --frame-1: #1e0d48;
+  --frame-2: #341a6e;
+  --frame-3: #5a2aa6;
+  --frame-4: #6a32c0;
+}
 
 @theme inline {
   --color-carbon: var(--carbon);
@@ -79,6 +111,7 @@
   --color-dim: var(--dim);
   --color-line: var(--line);
   --color-ac: var(--ac);
+  --color-ac2: var(--ac2);
   --color-panel: var(--panel);
   --color-lift: var(--lift);
   --color-lamp-off: var(--lamp-off);
@@ -210,14 +243,15 @@
     color: var(--carbon);
   }
   .btn-primary:hover {
-    background: var(--fg);
+    background: var(--hover);
   }
   .btn-ghost {
     border: 1px solid var(--line);
     color: var(--fg);
   }
   .btn-ghost:hover {
-    border-color: var(--fg);
+    border-color: var(--hover);
+    color: var(--hover);
   }
   /* Letter roll (useLetterRoll.ts): each letter carries its own copy as a text-shadow one
      line below; .roll clips vertically only, so tracked letters can overhang sideways.
@@ -479,7 +513,7 @@ html:not(.gl-on) .lap-marks { display: none; }
   background: color-mix(in srgb, var(--fg) 18%, transparent) padding-box;
 }
 ::-webkit-scrollbar-thumb:hover,
-::-webkit-scrollbar-thumb:active { background-color: var(--ac); }
+::-webkit-scrollbar-thumb:active { background-color: var(--ac2); }
 ::-webkit-scrollbar-corner { background: var(--carbon); }
 @supports not selector(::-webkit-scrollbar) {
   html { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--fg) 22%, transparent) var(--carbon); }
@@ -500,7 +534,7 @@ html.intro .rail { opacity: 0; pointer-events: none; }
   position: absolute; left: 50%; width: 5px; height: 5px; translate: -50% -50%; border-radius: 999px;
   background: color-mix(in srgb, var(--fg) 25%, transparent); transition: background-color var(--dur-hit), transform var(--dur-hit);
 }
-.rail-mark[data-passed] { background: var(--ac); }
+.rail-mark[data-passed] { background: var(--ac2); }
 .rail-mark:hover { transform: scale(1.6); }
 .rail-label {
   position: absolute; right: 14px; top: 50%; translate: 4px -50%; white-space: nowrap; pointer-events: none;
@@ -517,7 +551,7 @@ html.intro .rail { opacity: 0; pointer-events: none; }
 }
 .rail-thumb::before {
   content: ""; position: absolute; inset: 0; border-radius: 999px;
-  background: var(--ac); box-shadow: 0 0 0 2px var(--carbon);
+  background: var(--ac2); box-shadow: 0 0 0 2px var(--carbon);
 }
 .rail-thumb::before, .rail-flag { transition: scale var(--dur-hit); }
 .rail:hover .rail-thumb::before, .rail.dragging .rail-thumb::before,
@@ -590,3 +624,21 @@ html.has-cursor.intro .cursor { opacity: 0; }
 .cursor[data-state="scroll"] .cursor-ring { --s: 1.9; }
 .cursor[data-state="scroll"] .cursor-label { opacity: 1; color: var(--fg); translate: -50% -22px; }
 .cursor[data-state="scroll"] .cursor-chev { opacity: 1; }
+
+/* Livery panel (LiveryPanel.tsx): hue, intensity and shade are native ranges over a painted
+   track (--track, the colours the slider reaches), the thumb the colour itself (--thumb). */
+.tone-range {
+  -webkit-appearance: none; appearance: none; display: block; width: 100%; height: 12px;
+  border-radius: 999px; background: var(--track); cursor: pointer;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fg) 12%, transparent);
+}
+.tone-range::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 22px; height: 22px; border-radius: 999px;
+  border: 3px solid var(--fg); background: var(--thumb); box-shadow: 0 2px 8px rgb(0 0 0 / 0.5);
+  transition: transform var(--dur-hit) var(--ease-out-expo);
+}
+.tone-range:active::-webkit-slider-thumb { transform: scale(1.15); }
+.tone-range::-moz-range-thumb {
+  width: 16px; height: 16px; border-radius: 999px;
+  border: 3px solid var(--fg); background: var(--thumb); box-shadow: 0 2px 8px rgb(0 0 0 / 0.5);
+}

@@ -1,5 +1,5 @@
 import { SWOOSH_PATH } from '@/art/circuit';
-import { PALETTE } from '@/art/palette';
+import { F1 } from '@/art/palette';
 import { profile } from '@/content/data';
 import { gsap, ScrollTrigger, SplitText } from '@/motion/gsap';
 import { drawPath } from '@/motion/patterns';
@@ -50,7 +50,7 @@ export function About() {
 
   const words = profile.about.split(' ');
   return (
-    <section ref={ref} id="about" tabIndex={-1} data-bg={`${PALETTE.graphite},${PALETTE.carbon}`} className="relative px-4 md:px-8">
+    <section ref={ref} id="about" tabIndex={-1} data-bg={`${F1.graphite},${F1.carbon}`} className="relative px-4 md:px-8">
       <div data-pin className="mx-auto flex min-h-[100dvh] max-w-[1400px] flex-col justify-center py-24">
         <div data-pinbody>
         <h2 className="sr-only">About me</h2>

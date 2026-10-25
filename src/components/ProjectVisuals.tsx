@@ -1,9 +1,13 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import type { Project } from '@/content/data';
-import { AC, CARBON, Cursor, DIM, FG, type Fx, label, LINE, makeFx, MUTE, PANEL, SceneSvg, setText, t } from '@/components/scene-kit';
+import { onPalette, PALETTE } from '@/art/palette';
+import { AC, CARBON, Cursor, DIM, FG, type Fx, INK, label, LINE, makeFx, MUTE, PANEL, SceneSvg, setText, t } from '@/components/scene-kit';
 import { ensureGsap, gsap, ScrollTrigger } from '@/motion/gsap';
 import { isTouch, motionEnabled } from '@/motion/prefs';
 import { EASE } from '@/motion/tokens';
+
+/** A colour at zero alpha, so a fill tweens in without passing through black. */
+const clear = (c: string) => `rgba(${gsap.utils.splitColor(c).join(',')},0)`;
 
 // Each project card plays a tiny scene of the product in use, drawn as one SVG
 // on a fixed 320×200 grid. The markup is the scene's last frame, so it reads the
@@ -26,7 +30,7 @@ function Scene({ build, children }: { build: (fx: Fx) => void; children: ReactNo
     let started = false;
     // A wrapper can hold the first play back (Projects: until its reveal curtain has lifted).
     const delay = Number(svg.closest<HTMLElement>('[data-scene-delay]')?.dataset.sceneDelay ?? 0);
-    const ctx = gsap.context(() => {
+    const scene = () => gsap.context(() => {
       tl = gsap.timeline({ paused: true, delay, repeat: touch ? 0 : -1, repeatDelay: 2.5, defaults: { ease: EASE.out, duration: 0.4 }, onRepeat: reset });
       const fx = makeFx(svg, tl, keep, resets);
       build(fx);
@@ -41,11 +45,22 @@ function Scene({ build, children }: { build: (fx: Fx) => void; children: ReactNo
         },
       });
     }, svg);
+    let ctx = scene();
+    // A livery change rebuilds the timeline once it settles (it holds PALETTE's colours),
+    // from the markup's last frame; the scene plays again if it is on screen.
+    const offPalette = onPalette(() => {
+      ctx.revert();
+      finals.forEach((s, el) => setText(el, s));
+      resets.length = 0;
+      started = false;
+      ctx = scene();
+    }, true);
     // Hover replays a resting scene (never cuts one mid-play).
     const card = !touch && svg.closest('[data-card]');
     const replay = () => { if (started && tl.time() >= tl.duration() - 0.01) { reset(); tl.restart(); } };
     if (card) card.addEventListener('pointerenter', replay);
     return () => {
+      offPalette();
       if (card) card.removeEventListener('pointerenter', replay);
       ctx.revert();
       finals.forEach((s, el) => setText(el, s));
@@ -77,8 +92,8 @@ function buildAgents({ tl, q, qa, type, count, click }: Fx) {
     if (i) tl.to(cur, { ...pos(c), duration: 0.3, ease: 'power2.inOut' }, at - 0.35);
     else tl.fromTo(cur, { autoAlpha: 0, x: 150, y: 200 }, { autoAlpha: 1, ...pos(c), duration: 0.45, ease: 'power2.inOut' }, at - 0.5);
     click(cur, at);
-    tl.fromTo(c.querySelector('rect'), { fill: 'rgba(255,36,56,0)', stroke: LINE }, { fill: AC, stroke: AC, duration: 0.15 }, at + 0.05)
-      .fromTo(c.querySelector('text'), { fill: FG }, { fill: CARBON, duration: 0.15 }, at + 0.05);
+    tl.fromTo(c.querySelector('rect'), { fill: clear(PALETTE.ac), stroke: LINE }, { fill: PALETTE.ac, stroke: PALETTE.ac, duration: 0.15 }, at + 0.05)
+      .fromTo(c.querySelector('text'), { fill: PALETTE.fg }, { fill: PALETTE.carbon, duration: 0.15 }, at + 0.05);
   });
   const post = 2.5 + chips.length * 0.45 + 0.1;
   tl.to(cur, { x: 92, y: 170, duration: 0.35, ease: 'power2.inOut' }, post - 0.4);
@@ -121,7 +136,7 @@ function AgentsScene() {
         </g>
         <text x="26" y="187.5" {...t(6, MUTE)}>2 to 3 days</text>
         <line data-strike x1="25" y1="185.4" x2="66" y2="185.4" stroke={MUTE} strokeWidth="0.8" />
-        <text data-ten x="142" y="187.5" textAnchor="end" {...t(6.6, AC, 700)}>10 min</text>
+        <text data-ten x="142" y="187.5" textAnchor="end" {...t(6.6, INK, 700)}>10 min</text>
       </g>
 
       <rect x="162" y="8" width="144" height="184" rx="4" fill={PANEL} stroke={LINE} />
@@ -129,7 +144,7 @@ function AgentsScene() {
       <g data-msg1>
         <circle cx="180" cy="47" r="6" fill={DIM} />
         <text x="192" y="46" {...t(7, FG, 700)}>Sara</text>
-        <text x="192" y="56" {...t(6.8)}><tspan fill={AC}>@release-bot</tspan> what</text>
+        <text x="192" y="56" {...t(6.8)}><tspan fill={INK}>@release-bot</tspan> what</text>
         <text x="192" y="65" {...t(6.8)}>shipped this week?</text>
       </g>
       <g data-msg2>
@@ -144,7 +159,7 @@ function AgentsScene() {
       <text data-reply x="192" y="120" {...t(6.8, MUTE)}>Faster booking search</text>
       <line x1="172" y1="158" x2="296" y2="158" stroke={LINE} />
       <text x="174" y="178" {...label()}>AGENTS LIVE</text>
-      <text data-live x="296" y="180" textAnchor="end" {...t(14, AC, 700)}>450+</text>
+      <text data-live x="296" y="180" textAnchor="end" {...t(14, INK, 700)}>450+</text>
       <Cursor />
     </Scene>
   );
@@ -176,8 +191,8 @@ function buildOps({ tl, q, qa, count, scramble, from, click }: Fx) {
   // Export: the button flashes and a CSV file pops out.
   tl.fromTo(cur, { autoAlpha: 0, x: 300, y: 196 }, { autoAlpha: 1, x: 252, y: 60, duration: 0.5, ease: 'power2.inOut' }, 2.3);
   click(cur, 2.85);
-  tl.to(exp.querySelector('rect'), { fill: AC, duration: 0.1, yoyo: true, repeat: 1, repeatDelay: 0.15 }, 2.9)
-    .to(exp.querySelector('text'), { fill: CARBON, duration: 0.1, yoyo: true, repeat: 1, repeatDelay: 0.15 }, 2.9)
+  tl.fromTo(exp.querySelector('rect'), { fill: clear(PALETTE.ac) }, { fill: PALETTE.ac, duration: 0.1, yoyo: true, repeat: 1, repeatDelay: 0.15 }, 2.9)
+    .to(exp.querySelector('text'), { fill: PALETTE.carbon, duration: 0.1, yoyo: true, repeat: 1, repeatDelay: 0.15 }, 2.9)
     .fromTo(q('[data-file]'), { autoAlpha: 0, y: 0 }, { autoAlpha: 1, y: -20, duration: 0.35 }, 2.95)
     .to(q('[data-file]'), { autoAlpha: 0, duration: 0.25, ease: EASE.in }, 3.55)
     .to(cur, { autoAlpha: 0, duration: 0.2 }, 3.3)
@@ -195,7 +210,7 @@ function OpsScene() {
         <rect x="14" y="16" width="292" height="168" rx="4" fill={PANEL} stroke={LINE} />
         <text x="26" y="33" {...label()}>BOOKINGS TODAY</text>
         <circle data-dot cx="272" cy="31" r="2.2" fill={AC} />
-        <text x="296" y="33" textAnchor="end" {...label(AC)}>LIVE</text>
+        <text x="296" y="33" textAnchor="end" {...label(INK)}>LIVE</text>
 
         <rect x="24" y="42" width="84" height="32" rx="2" fill={CARBON} stroke={LINE} />
         <text x="32" y="53" {...label()}>BOOKINGS</text>
@@ -204,8 +219,8 @@ function OpsScene() {
         <text x="122" y="53" {...label()}>WALK-INS</text>
         <text data-wi x="122" y="67" {...t(11, FG, 700)}>96</text>
         <g data-exp>
-          <rect x="204" y="42" width="92" height="32" rx="2" fill="rgba(255,36,56,0)" stroke={AC} />
-          <text x="250" y="60.5" textAnchor="middle" {...t(7, AC, 700)} letterSpacing="0.6">EXPORT CSV</text>
+          <rect x="204" y="42" width="92" height="32" rx="2" fill="transparent" stroke={AC} />
+          <text x="250" y="60.5" textAnchor="middle" {...t(7, INK, 700)} letterSpacing="0.6">EXPORT CSV</text>
         </g>
 
         {ROWS.map((r, i) => {
@@ -216,7 +231,7 @@ function OpsScene() {
               <text x="32" y={top + 10.5} {...t(6.5, MUTE)}>{r.time}</text>
               <text x="64" y={top + 10.5} {...t(7)}>{r.what}</text>
               <rect x="246" y={top + 3.5} width="44" height="9" rx="4.5" fill={walk ? 'none' : DIM} stroke={walk ? AC : 'none'} strokeWidth="0.8" />
-              <text x="268" y={top + 10} textAnchor="middle" {...t(5, walk ? AC : FG, 700)}>{r.tag}</text>
+              <text x="268" y={top + 10} textAnchor="middle" {...t(5, walk ? INK : FG, 700)}>{r.tag}</text>
             </g>
           );
         })}
@@ -229,7 +244,7 @@ function OpsScene() {
             <path d="M2 7 L2 9.5 L4.5 7 Z" fill={i ? DIM : MUTE} />
           </g>
         ))}
-        <text data-sup x="296" y="176" textAnchor="end" {...t(9, AC, 700)}>&lt;20</text>
+        <text data-sup x="296" y="176" textAnchor="end" {...t(9, INK, 700)}>&lt;20</text>
       </g>
       <g data-file opacity="0" transform="translate(244 48)">
         <path d="M0 0 H9 L13 4 V16 H0 Z" fill={FG} />
@@ -277,19 +292,19 @@ function LlmScene() {
       <g data-editor>
         <rect x="14" y="14" width="292" height="116" rx="4" fill={PANEL} stroke={LINE} />
         <text x="26" y="26.2" {...label()}>app.py</text>
-        <text x="296" y="26.2" textAnchor="end" {...label(AC)}>4 PROVIDERS, 1 API</text>
+        <text x="296" y="26.2" textAnchor="end" {...label(INK)}>4 PROVIDERS, 1 API</text>
         <line x1="14" y1="33" x2="306" y2="33" stroke={LINE} />
         <rect data-hl x="32" y="78.5" width="268" height="12" rx="1.5" fill={AC} opacity="0" />
         {code(1, 48, <><tspan fill={MUTE}>from</tspan> gateway <tspan fill={MUTE}>import</tspan> llm</>)}
         {code(2, 61, '')}
         {code(3, 74, 'reply = llm.chat(')}
-        {code(4, 87, <>{'    model="'}<tspan data-model fill={AC} fontWeight="700">claude</tspan>{'",'}</>)}
+        {code(4, 87, <>{'    model="'}<tspan data-model fill={INK} fontWeight="700">claude</tspan>{'",'}</>)}
         {code(5, 100, <>{'    prompt='}<tspan fill={MUTE}>"Summarize Q3 sales"</tspan>,</>)}
         {code(6, 113, ')')}
 
         <rect x="14" y="138" width="292" height="46" rx="4" fill={CARBON} stroke={LINE} />
         <text x="24" y="152" {...label()}>OUTPUT</text>
-        <text data-via x="296" y="152" textAnchor="end" {...label(AC)}>via Anthropic</text>
+        <text data-via x="296" y="152" textAnchor="end" {...label(INK)}>via Anthropic</text>
         <text data-out x="24" y="170" {...t(7.5)}>Sales rose 12%, led by partner bookings.</text>
       </g>
     </Scene>

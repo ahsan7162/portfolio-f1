@@ -65,7 +65,7 @@ export function Results() {
   return (
     <section ref={ref} id="results" tabIndex={-1} data-bg="#0b0b0c,#101114" className="relative overflow-hidden px-4 py-24 md:px-8 md:py-32">
       <div data-p3ghost aria-hidden="true" className="display pointer-events-none absolute -right-[0.05em] top-24 -z-10 select-none text-[40vw] leading-none text-transparent md:text-[28vw]"
-        style={{ WebkitTextStroke: '1px color-mix(in srgb, var(--fg) 7%, transparent)' }}>P3</div>
+        style={{ WebkitTextStroke: '1px color-mix(in srgb, var(--letter) 7%, transparent)' }}>P3</div>
 
       <div className="mx-auto max-w-[1400px]">
         <h2 data-speed className="display mb-14 max-w-[14ch] text-display-section">Results and education</h2>

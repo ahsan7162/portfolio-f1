@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
-import { AC, CARBON, Cursor, DIM, FG, type Fx, label, LINE, MUTE, PANEL, t } from '@/components/scene-kit';
+import { PALETTE } from '@/art/palette';
+import { AC, CARBON, Cursor, DIM, FG, type Fx, INK, label, LINE, MUTE, PANEL, t } from '@/components/scene-kit';
 import { EASE } from '@/motion/tokens';
 import { Scene, type SceneApi, Win } from './scene';
 
@@ -13,7 +14,7 @@ const WF_FILL = '#2c2c31', WF_EDGE = '#4a4a52';
 const Pill = ({ x, y, w, text, tone = 'line' }: { x: number; y: number; w: number; text: string; tone?: 'line' | 'ac' | 'dim' }) => (
   <g>
     <rect x={x} y={y} width={w} height="12" rx="6" fill={tone === 'dim' ? DIM : 'none'} stroke={tone === 'ac' ? AC : tone === 'line' ? LINE : 'none'} />
-    <text x={x + w / 2} y={y + 8.2} textAnchor="middle" {...t(5.8, tone === 'ac' ? AC : FG, 600)}>{text}</text>
+    <text x={x + w / 2} y={y + 8.2} textAnchor="middle" {...t(5.8, tone === 'ac' ? INK : FG, 600)}>{text}</text>
   </g>
 );
 
@@ -31,7 +32,7 @@ function buildNotify({ tl, q, qa, type, count, click }: Fx) {
   click(cur, 1.42);
   tl.to(q('[data-send]'), { scale: 0.96, transformOrigin: '50% 50%', duration: 0.08, yoyo: true, repeat: 1, ease: EASE.in }, 1.44)
     // The update fans out across the partner grid from the side it was sent from.
-    .fromTo(dots, { fill: FG, opacity: 0.16 }, { fill: AC, opacity: 1, duration: 0.38, stagger: { each: 0.042, grid: [ROWS, COLS], from: 10 * COLS } }, 1.56)
+    .fromTo(dots, { fill: PALETTE.fg, opacity: 0.16 }, { fill: PALETTE.ac, opacity: 1, duration: 0.38, stagger: { each: 0.042, grid: [ROWS, COLS], from: 10 * COLS } }, 1.56)
     .to(cur, { autoAlpha: 0, duration: 0.2, ease: EASE.in }, 1.7);
   count(q('[data-reach]'), 0, 1.56, 1.3);
   type(q('[data-status]'), 2.9, 0.3);
@@ -62,7 +63,7 @@ function NotifyScene(p: SceneProps) {
         {DOTS.map(d => <circle key={`${d.x} ${d.y}`} data-dot cx={d.x} cy={d.y} r="1.25" fill={AC} />)}
         <line x1="152" y1="156" x2="306" y2="156" stroke={LINE} />
         <text x="162" y="174" {...label()}>REACHED</text>
-        <text data-reach x="296" y="176" textAnchor="end" {...t(14, AC, 700)}>500+</text>
+        <text data-reach x="296" y="176" textAnchor="end" {...t(14, INK, 700)}>500+</text>
       </g>
       <Cursor />
     </Scene>
@@ -104,11 +105,11 @@ function BookingScene(p: SceneProps) {
   );
   return (
     <Scene build={buildBooking} {...p}>
-      <g data-win><Win x={14} y={14} w={292} h={124} title="booking #4821" right={<text x="296" y="26.2" textAnchor="end" {...label(AC)}>OPTIMISTIC LOCK</text>} /></g>
+      <g data-win><Win x={14} y={14} w={292} h={124} title="booking #4821" right={<text x="296" y="26.2" textAnchor="end" {...label(INK)}>OPTIMISTIC LOCK</text>} /></g>
       {lane('a', 42, 'WRITER A', <><Step x={86} y={42} w={44} text="read v7" /><Step x={138} y={42} w={50} text="write v8" /></>,
         <text data-end x="296" y="50.2" textAnchor="end" {...t(6.4, FG, 700)}>saved ✓</text>)}
       {lane('b', 72, 'WRITER B', <><Step x={86} y={72} w={44} text="read v7" /><Step x={138} y={72} w={50} text="write v8" tone="ac" /></>,
-        <text data-end x="296" y="80.2" textAnchor="end" {...t(6.4, AC, 700)}>version conflict</text>)}
+        <text data-end x="296" y="80.2" textAnchor="end" {...t(6.4, INK, 700)}>version conflict</text>)}
       {lane('r', 102, 'RETRY', <><Step x={86} y={102} w={44} text="read v8" /><Step x={138} y={102} w={50} text="write v9" /></>,
         <text data-end x="296" y="110.2" textAnchor="end" {...t(6.4, FG, 700)}>saved ✓</text>)}
       <g data-pay>
@@ -116,7 +117,7 @@ function BookingScene(p: SceneProps) {
         <text x="24" y="160" {...label()}>PAYOUT</text>
         <text data-paid x="24" y="175" {...t(7.2)}>Paid once, traceable</text>
         <text x="296" y="160" textAnchor="end" {...label()}>TRANSACTIONS</text>
-        <text data-tx x="296" y="177" textAnchor="end" {...t(13, AC, 700)}>1,500+</text>
+        <text data-tx x="296" y="177" textAnchor="end" {...t(13, INK, 700)}>1,500+</text>
       </g>
     </Scene>
   );
@@ -157,8 +158,8 @@ function ReactScene(p: SceneProps) {
     <Scene build={buildReact} {...p}>
       <g data-pkg><Win x={14} y={14} w={184} h={124} title="package.json" /></g>
       {line(0, <tspan fill={MUTE}>"dependencies": {'{'}</tspan>)}
-      {line(1, <>{'  "react": "'}<tspan data-ver fill={AC} fontWeight="700">^19.0.0</tspan>{'",'}</>)}
-      {line(2, <>{'  "react-dom": "'}<tspan data-ver fill={AC} fontWeight="700">^19.0.0</tspan>{'"'}</>)}
+      {line(1, <>{'  "react": "'}<tspan data-ver fill={INK} fontWeight="700">^19.0.0</tspan>{'",'}</>)}
+      {line(2, <>{'  "react-dom": "'}<tspan data-ver fill={INK} fontWeight="700">^19.0.0</tspan>{'"'}</>)}
       {line(3, <tspan fill={MUTE}>{'},'}</tspan>)}
       {line(4, <tspan fill={MUTE}>"devDependencies": {'{'}</tspan>)}
       {line(5, <>{'  "vite": "'}<tspan data-ver fontWeight="700">^5.4.0</tspan>{'"'}</>)}
@@ -171,11 +172,11 @@ function ReactScene(p: SceneProps) {
         <Win x={206} y={92} w={100} h={46} />
         <text x="216" y="106" {...label()}>TESTS</text>
         <text data-pass x="216" y="122" {...t(8, FG, 700)}>1 passed ✓</text>
-        <text data-first x="216" y="132" {...label(AC)}>FIRST IN THE REPO</text>
+        <text data-first x="216" y="132" {...label(INK)}>FIRST IN THE REPO</text>
       </g>
       <g data-gen>
         <Win x={14} y={146} w={292} h={40} />
-        <text x="24" y="163" {...t(6.8)} xmlSpace="preserve" style={{ whiteSpace: 'pre' }}><tspan data-call>{'const partners = await '}</tspan><tspan data-fn fill={AC} fontWeight="700">api.partners.list()</tspan></text>
+        <text x="24" y="163" {...t(6.8)} xmlSpace="preserve" style={{ whiteSpace: 'pre' }}><tspan data-call>{'const partners = await '}</tspan><tspan data-fn fill={INK} fontWeight="700">api.partners.list()</tspan></text>
         <text x="24" y="177" {...label()}>GENERATED FROM OPENAPI · TYPE-SAFE</text>
       </g>
     </Scene>
@@ -211,11 +212,11 @@ function XtelScene(p: SceneProps) {
         <text x="24" y="48" {...label()}>DOCUMENT LOAD</text>
         <text data-old1 x="24" y="70" {...t(10, MUTE)}>250 s</text>
         <line data-cut1 x1="23" y1="66.5" x2="54" y2="66.5" stroke={MUTE} strokeWidth="0.9" />
-        <text data-new1 x="66" y="71" {...t(15, AC, 700)}>30 s</text>
+        <text data-new1 x="66" y="71" {...t(15, INK, 700)}>30 s</text>
         <rect x="24" y="82" width="272" height="4" rx="2" fill={DIM} />
         <rect data-bar x="24" y="82" width="272" height="4" rx="2" fill={AC} />
         <text data-opened x="24" y="103" {...label()}>OPENED</text>
-        <text data-x8 x="296" y="103" textAnchor="end" {...label(AC)}>8× FASTER</text>
+        <text data-x8 x="296" y="103" textAnchor="end" {...label(INK)}>8× FASTER</text>
       </g>
       <g data-check>
         <Win x={14} y={122} w={292} h={64} />
@@ -225,7 +226,7 @@ function XtelScene(p: SceneProps) {
         <text data-tick x="168" y="158.6" textAnchor="end" {...t(6.8, FG, 700)}>✓</text>
         <text data-old2 x="206" y="162" {...t(9, MUTE)}>30 s</text>
         <line data-cut2 x1="205" y1="158.8" x2="229" y2="158.8" stroke={MUTE} strokeWidth="0.9" />
-        <text data-new2 x="296" y="163" textAnchor="end" {...t(13, AC, 700)}>100 ms</text>
+        <text data-new2 x="296" y="163" textAnchor="end" {...t(13, INK, 700)}>100 ms</text>
       </g>
     </Scene>
   );
@@ -300,7 +301,7 @@ function EtlScene(p: SceneProps) {
           <path d="M281.6 164 V162 a2.4 2.4 0 0 1 4.8 0 V164" stroke={AC} strokeWidth="1" />
         </g>
       </g>
-      <text x="296" y="148" textAnchor="end" {...label(AC)}>OAUTH · JWT</text>
+      <text x="296" y="148" textAnchor="end" {...label(INK)}>OAUTH · JWT</text>
       <Cursor />
     </Scene>
   );
@@ -369,7 +370,7 @@ function CatalogScene(p: SceneProps) {
         <text data-team x="198" y="132.5" {...t(6.4, MUTE)}>Finance team</text>
         <line x1="150" y1="152" x2="306" y2="152" stroke={LINE} />
         <text data-sharing x="160" y="170" {...label()}>SHARING</text>
-        <text data-rate x="296" y="172" textAnchor="end" {...t(11, AC, 700)}>80% faster</text>
+        <text data-rate x="296" y="172" textAnchor="end" {...t(11, INK, 700)}>80% faster</text>
       </g>
       <Cursor />
     </Scene>
@@ -391,7 +392,7 @@ function buildWpf({ tl, q, qa, from, scramble }: Fx) {
   tl.fromTo(q('[data-frame]'), { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0 }, 0);
   // Same commands on both sides, so GSAP tweens the path data number by number.
   panels.forEach((p, i) => tl.fromTo(p, { attr: { d: WINFORMS[i] } }, { attr: { d: WPF[i] }, duration: 0.75, ease: EASE.wipe }, 0.9 + i * 0.06));
-  tl.fromTo(panels, { fill: WF_FILL, stroke: WF_EDGE }, { fill: CARBON, stroke: 'rgba(255,255,255,0.12)', duration: 0.6 }, 1.0);
+  tl.fromTo(panels, { fill: WF_FILL, stroke: WF_EDGE }, { fill: PALETTE.carbon, stroke: 'rgba(255,255,255,0.12)', duration: 0.6 }, 1.0);
   scramble(file, 'Form1.Designer.cs', 'MainWindow.xaml', 0.95, 0.5);
   scramble(tech, 'WINFORMS', 'WPF · MVVM', 1.05, 0.45);
   tl.fromTo(qa('[data-fill]'), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.25, stagger: 0.04 }, 1.7)
@@ -405,7 +406,7 @@ function WpfScene(p: SceneProps) {
         <rect x="14" y="14" width="292" height="172" rx="4" fill={PANEL} stroke={LINE} />
         {[0, 8, 16].map(d => <circle key={d} cx={24 + d} cy="24" r="2" fill={DIM} />)}
         <text data-file x="52" y="26.2" {...label()}>MainWindow.xaml</text>
-        <text data-tech x="296" y="26.2" textAnchor="end" {...label(AC)}>WPF · MVVM</text>
+        <text data-tech x="296" y="26.2" textAnchor="end" {...label(INK)}>WPF · MVVM</text>
         <line x1="14" y1="33" x2="306" y2="33" stroke={LINE} />
       </g>
       {WPF.map(d => <path key={d} data-panel d={d} fill={CARBON} stroke={LINE} />)}
@@ -435,8 +436,8 @@ function buildTelemetry({ tl, q, qa, from, type, scramble }: Fx) {
     .fromTo(bars[2], { scaleX: 0, transformOrigin: '0% 50%' }, { scaleX: 1, duration: 0.2, ease: EASE.none }, 0.47)
     // One query runs long, and turns red as it does.
     .fromTo(bars[hot], { scaleX: 0, fill: DIM, transformOrigin: '0% 50%' }, { scaleX: 1, duration: 1.3, ease: EASE.none }, 0.69)
-    .to(bars[hot], { fill: AC, duration: 0.3 }, 1.2)
-    .fromTo(names[hot], { fill: MUTE }, { fill: AC, duration: 0.3 }, 1.2)
+    .to(bars[hot], { fill: PALETTE.ac, duration: 0.3 }, 1.2)
+    .fromTo(names[hot], { fill: PALETTE.mute }, { fill: PALETTE.ac2, duration: 0.3 }, 1.2)
     .fromTo(bars[4], { scaleX: 0, transformOrigin: '0% 50%' }, { scaleX: 1, duration: 0.06, ease: EASE.none }, 1.99)
     // Azure Monitor flags it.
     .fromTo(q('[data-alert]'), { autoAlpha: 0, x: 12 }, { autoAlpha: 1, x: 0, duration: 0.35 }, 1.35)
@@ -455,10 +456,10 @@ function buildTelemetry({ tl, q, qa, from, type, scramble }: Fx) {
 function TelemetryScene(p: SceneProps) {
   return (
     <Scene build={buildTelemetry} {...p}>
-      <g data-trace><Win x={14} y={14} w={292} h={118} title="TRACE · GET /catalog" right={<text data-slow x="296" y="26.2" textAnchor="end" {...label(AC)}>SLOW REQUEST</text>} /></g>
+      <g data-trace><Win x={14} y={14} w={292} h={118} title="TRACE · GET /catalog" right={<text data-slow x="296" y="26.2" textAnchor="end" {...label(INK)}>SLOW REQUEST</text>} /></g>
       {SPANS.map((sp, i) => (
         <g key={sp.name}>
-          <text data-sname x="24" y={46 + i * 18} {...t(6.2, sp.hot ? AC : MUTE, sp.hot ? 700 : undefined)}>{sp.name}</text>
+          <text data-sname x="24" y={46 + i * 18} {...t(6.2, sp.hot ? INK : MUTE, sp.hot ? 700 : undefined)}>{sp.name}</text>
           <rect data-sbar x={sp.x} y={40 + i * 18} width={sp.w} height="8" rx="1" fill={sp.hot ? AC : DIM} />
         </g>
       ))}
@@ -470,7 +471,7 @@ function TelemetryScene(p: SceneProps) {
       </g>
       <text data-cause x="24" y="152" {...label()}>ROOT CAUSE</text>
       <text data-why x="24" y="166" {...t(7)}>Slow SQL query</text>
-      <text data-less x="24" y="180" {...label(AC)}>TROUBLESHOOTING −30%</text>
+      <text data-less x="24" y="180" {...label(INK)}>TROUBLESHOOTING −30%</text>
     </Scene>
   );
 }
@@ -494,7 +495,7 @@ function buildI18n({ tl, q, qa, scramble }: Fx) {
     const at = 0.65 + step * 1.1, A = LANGS[order[step]], B = LANGS[li];
     KEYS.forEach((k, j) => scramble(q(`[data-l="${k}"]`), A[k], B[k], at + j * 0.025, 0.4));
     tl.to(mark, { x: li * 18, duration: 0.3 }, at);
-    codes.forEach((c, n) => tl.to(c, { fill: n === li ? FG : MUTE, duration: 0.15 }, at));
+    codes.forEach((c, n) => tl.to(c, { fill: n === li ? PALETTE.fg : PALETTE.mute, duration: 0.15 }, at));
   });
 }
 
@@ -567,14 +568,14 @@ function WeatherScene(p: SceneProps) {
       <rect data-ours x="214" y="78" width="88" height="16" rx="2" fill={DIM} />
       {['01', '02', '03'].map((n, i) => (
         <g key={n} data-place>
-          <text x="220" y={49 + i * 20} {...t(6.6, i === 2 ? AC : MUTE, 700)}>{n}</text>
+          <text x="220" y={49 + i * 20} {...t(6.6, i === 2 ? INK : MUTE, 700)}>{n}</text>
           <rect x="236" y={44.5 + i * 20} width={i === 2 ? 40 : 52 - i * 6} height="3" rx="1.5" fill={i === 2 ? FG : DIM} />
         </g>
       ))}
       <text x="220" y="114" {...t(6.6, MUTE)}>⋮</text>
       <line x1="210" y1="140" x2="306" y2="140" stroke={LINE} />
       <text data-teams x="220" y="156" {...label()}>OF 2,520 TEAMS</text>
-      <text data-third x="296" y="176" textAnchor="end" {...t(14, AC, 700)}>3rd</text>
+      <text data-third x="296" y="176" textAnchor="end" {...t(14, INK, 700)}>3rd</text>
     </Scene>
   );
 }

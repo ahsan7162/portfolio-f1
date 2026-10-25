@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 import { CIRCUIT_PATH } from '@/art/circuit';
-import { PALETTE } from '@/art/palette';
+import { groundShade, onPalette, PALETTE } from '@/art/palette';
 import { timeline } from '@/content/data';
 import { buildCar } from './car';
 import { disposables } from './dispose';
-import { CONTOURS_GLSL, NOISE_GLSL, vec3 } from './glsl';
+import { CONTOURS_GLSL, NOISE_GLSL, srgb } from './glsl';
 import { createRunoff } from './runoff';
 import { lapMarks } from './state';
 
@@ -67,36 +67,39 @@ function offsetCurve(curve: THREE.CatmullRomCurve3, off: number) {
 
 export function createLap() {
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(PALETTE.pit);
-  scene.fog = new THREE.FogExp2(PALETTE.pit, 0.012);
+  const background = new THREE.Color(), fog = new THREE.FogExp2(0, 0.012);
+  scene.background = background;
+  scene.fog = fog;
   const camera = new THREE.PerspectiveCamera(38, 1, 0.5, 80);
   const curve = circuitCurve();
   const { keep, dispose } = disposables();
 
   // Asphalt.
   const road = new THREE.Mesh(keep(ribbon(curve, WIDTH, 0, 700)),
-    keep(new THREE.MeshStandardMaterial({ color: '#34343c', roughness: 0.7, metalness: 0.1 })));
+    keep(new THREE.MeshStandardMaterial({ roughness: 0.7, metalness: 0.1 })));
   scene.add(road);
 
   // Kerbs: alternating red and white blocks on both edges.
-  const red = new THREE.Color(PALETTE.ac), white = new THREE.Color(PALETTE.fg);
+  const red = new THREE.Color(), white = new THREE.Color();
+  const kerbAt = (i: number) => (Math.floor(i / 3) % 2 ? red : white);
   const kerbMat = keep(new THREE.MeshBasicMaterial({ vertexColors: true, fog: true }));
-  for (const s of [-1, 1]) {
-    const edge = offsetCurve(curve, s * (WIDTH + 0.035));
-    scene.add(new THREE.Mesh(keep(ribbon(edge, 0.035, 0.004, 700, i => (Math.floor(i / 3) % 2 ? red : white))), kerbMat));
-  }
+  const kerbs = [-1, 1].map(s => {
+    const geo = keep(ribbon(offsetCurve(curve, s * (WIDTH + 0.035)), 0.035, 0.004, 700, kerbAt));
+    scene.add(new THREE.Mesh(geo, kerbMat));
+    return geo;
+  });
 
   // Centre line (solid).
-  const centreMat = keep(new THREE.MeshBasicMaterial({ color: PALETTE.fg, transparent: true, opacity: 0.7, fog: true }));
+  const centreMat = keep(new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.7, fog: true }));
   const centreGeo = keep(ribbon(curve, 0.008, 0.003, 700));
   scene.add(new THREE.Mesh(centreGeo, centreMat));
 
   // Trackside light posts for a sense of speed.
   const postGeo = keep(new THREE.BoxGeometry(0.02, 0.5, 0.02));
   const capGeo = keep(new THREE.BoxGeometry(0.07, 0.03, 0.07));
-  const postMat = keep(new THREE.MeshStandardMaterial({ color: '#55555e', roughness: 0.6 }));
-  const capA = keep(new THREE.MeshBasicMaterial({ color: PALETTE.ac, fog: true }));
-  const capB = keep(new THREE.MeshBasicMaterial({ color: PALETTE.fg, fog: true }));
+  const postMat = keep(new THREE.MeshStandardMaterial({ roughness: 0.6 }));
+  const capA = keep(new THREE.MeshBasicMaterial({ fog: true }));
+  const capB = keep(new THREE.MeshBasicMaterial({ fog: true }));
   // Instanced: two draw calls for all 90 posts and caps, not 180.
   const POSTS = 90;
   const posts = new THREE.InstancedMesh(postGeo, postMat, POSTS);
@@ -118,7 +121,7 @@ export function createLap() {
   // Racing line: a red ribbon revealed up to the car, plus the car marker.
   const SEGS = 700;
   const lineGeo = keep(ribbon(curve, 0.05, 0.006, SEGS));
-  const lineMat = keep(new THREE.MeshBasicMaterial({ color: PALETTE.ac, fog: false }));
+  const lineMat = keep(new THREE.MeshBasicMaterial({ fog: false }));
   scene.add(new THREE.Mesh(lineGeo, lineMat));
 
   // Pulses of light running along the racing line towards the car (landonorris.com's
@@ -129,7 +132,7 @@ export function createLap() {
   const glowGeo = keep(ribbon(curve, 0.24, 0.007, SEGS, undefined, true));
   const glowMat = keep(new THREE.ShaderMaterial({
     glslVersion: THREE.GLSL3,
-    uniforms: { uPhase: { value: 0 }, uGlow: { value: 0 }, uHead: { value: 0 } },
+    uniforms: { uPhase: { value: 0 }, uGlow: { value: 0 }, uHead: { value: 0 }, uAc: { value: new THREE.Color() }, uFg: { value: new THREE.Color() } },
     vertexShader: /* glsl */ `
       out vec2 vUv;
       void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
@@ -138,6 +141,7 @@ export function createLap() {
       in vec2 vUv;
       out vec4 outColor;
       uniform float uPhase, uGlow, uHead;
+      uniform vec3 uAc, uFg;
       void main() {
         float across = vUv.y * 2.0 - 1.0;
         float core = exp(-across * across * 24.0), halo = exp(-across * across * 3.0);
@@ -145,7 +149,7 @@ export function createLap() {
         float pulse = pow(fract(vUv.x * ${PULSES.toFixed(1)} - uPhase), 3.0);
         float head = smoothstep(0.0, 0.02, uHead - vUv.x); // fades into the car
         float a = uGlow * pulse * head * (core + halo * 0.55);
-        outColor = vec4(mix(${vec3(PALETTE.ac)}, ${vec3(PALETTE.fg)}, core * pulse * 0.7), a);
+        outColor = vec4(mix(uAc, uFg, core * pulse * 0.7), a);
       }`,
     transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
   }));
@@ -154,7 +158,7 @@ export function createLap() {
   scene.add(glow); // left visible until the first lap frame, so the warm-up compiles it
   const car = keep(buildCar());
   // A faint ring under the car, so it is easy to find on the whole circuit.
-  const halo = new THREE.Mesh(keep(new THREE.RingGeometry(0.5, 0.56, 40)), keep(new THREE.MeshBasicMaterial({ color: PALETTE.ac, transparent: true, opacity: 0.3, side: THREE.DoubleSide, fog: false })));
+  const halo = new THREE.Mesh(keep(new THREE.RingGeometry(0.5, 0.56, 40)), keep(new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.3, side: THREE.DoubleSide, fog: false })));
   halo.rotation.x = -Math.PI / 2;
   scene.add(car.group, halo);
 
@@ -162,7 +166,7 @@ export function createLap() {
   // background, laid flat in world space, fading out towards the edges.
   const ground = new THREE.Mesh(keep(new THREE.PlaneGeometry(70, 70)), keep(new THREE.ShaderMaterial({
     glslVersion: THREE.GLSL3,
-    uniforms: { uCentre: { value: new THREE.Vector2() } },
+    uniforms: { uCentre: { value: new THREE.Vector2() }, uPit: { value: new THREE.Color() }, uFg: { value: new THREE.Color() }, uAc: { value: new THREE.Color() } },
     vertexShader: /* glsl */ `
       out vec2 vP;
       void main() { vec4 w = modelMatrix * vec4(position, 1.0); vP = w.xz; gl_Position = projectionMatrix * viewMatrix * w; }`,
@@ -171,6 +175,7 @@ export function createLap() {
       in vec2 vP;
       out vec4 outColor;
       uniform vec2 uCentre;
+      uniform vec3 uPit, uFg, uAc;
       ${NOISE_GLSL}
       ${CONTOURS_GLSL}
       void main() {
@@ -178,9 +183,9 @@ export function createLap() {
         vec2 q = vec2(fbm(p), fbm(p + vec2(5.2, 1.3)));
         Contours c = contours(fbm(p + 1.4 * q) * 14.0);
         float fade = smoothstep(26.0, 6.0, length(vP - uCentre));
-        vec3 col = ${vec3(PALETTE.pit)};
-        col = mix(col, ${vec3(PALETTE.fg)}, c.line * 0.13 * (0.55 + c.index * 0.9) * fade);
-        col = mix(col, ${vec3(PALETTE.ac)}, c.racing * 0.2 * fade);
+        vec3 col = uPit;
+        col = mix(col, uFg, c.line * 0.13 * (0.55 + c.index * 0.9) * fade);
+        col = mix(col, uAc, c.racing * 0.2 * fade);
         outColor = vec4(col, 1.0);
       }`,
   })));
@@ -188,7 +193,8 @@ export function createLap() {
   ground.position.y = -1.1;
   scene.add(ground);
 
-  scene.add(new THREE.HemisphereLight(PALETTE.fg, '#1a1a20', 2.2));
+  const sky = new THREE.HemisphereLight(0xffffff, 0, 2.2);
+  scene.add(sky);
   const key = new THREE.DirectionalLight('#ffffff', 2.4);
   key.position.set(3, 6, 2);
   scene.add(key);
@@ -201,7 +207,7 @@ export function createLap() {
   // Veil: a full-screen quad in the scene's background colour, drawn last, so the
   // scene can fade in and out of the page without a second render pass.
   const veilMat = keep(new THREE.ShaderMaterial({
-    uniforms: { uVeil: { value: 1 }, uCol: { value: new THREE.Color(PALETTE.pit) } },
+    uniforms: { uVeil: { value: 1 }, uCol: { value: new THREE.Color() } },
     vertexShader: 'void main() { gl_Position = vec4(position.xy, 0.0, 1.0); }',
     fragmentShader: 'uniform float uVeil; uniform vec3 uCol; void main() { gl_FragColor = vec4(uCol, uVeil); }',
     transparent: true, depthTest: false, depthWrite: false,
@@ -217,6 +223,29 @@ export function createLap() {
   const n = timeline.length, mid = timeline.map((_, i) => (i + 0.5) / n);
   const runoff = keep(createRunoff(curve, timeline.map(t => t.company), mid.map(p => (START + p * LAP) % 1), mid.map(orbit), WIDTH + 0.35));
   scene.add(runoff.mesh);
+
+  // Every palette colour, set now and again whenever the livery changes.
+  const paint = () => {
+    const P = PALETTE;
+    background.set(P.pit); fog.color.set(P.pit); veilMat.uniforms.uCol.value.set(P.pit);
+    road.material.color.set(groundShade('#34343c'));
+    postMat.color.set(groundShade('#55555e'));
+    red.set(P.ac); white.set(P.fg);
+    for (const geo of kerbs) {
+      const col = geo.getAttribute('color') as THREE.BufferAttribute;
+      for (let k = 0; k < col.count; k++) { const c = kerbAt(k >> 1); col.setXYZ(k, c.r, c.g, c.b); }
+      col.needsUpdate = true;
+    }
+    centreMat.color.set(P.fg); capA.color.set(P.ac); capB.color.set(P.fg);
+    lineMat.color.set(P.ac); halo.material.color.set(P.ac);
+    srgb(P.ac, glowMat.uniforms.uAc.value); srgb(P.fg, glowMat.uniforms.uFg.value);
+    const gu = ground.material.uniforms;
+    srgb(P.pit, gu.uPit.value); srgb(P.fg, gu.uFg.value); srgb(P.ac, gu.uAc.value);
+    sky.color.set(P.fg); sky.groundColor.set(groundShade('#1a1a20'));
+    car.paint(); runoff.paint();
+  };
+  paint();
+  keep({ dispose: onPalette(paint) });
   // Sector starts, for the DOM marks the Lap section draws over the track (lapMarks).
   const marks = timeline.map((_, k) => curve.getPointAt((START + (k / n) * LAP) % 1).add(new THREE.Vector3(0, 0.02, 0)));
   lapMarks.xy = new Float32Array(n * 3);

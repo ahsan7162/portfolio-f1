@@ -60,16 +60,16 @@ export function Experience() {
                   lead ? 'tile-lead md:min-h-[340px] lg:p-11' : 'md:min-h-[300px]', col)}>
                 <div className="flex items-baseline justify-between gap-4">
                   <span className="label">{span(j)}</span>
-                  <span className="font-mono text-xs font-semibold text-ac">{sector(j)}</span>
+                  <span className="font-mono text-xs font-semibold text-ac2">{sector(j)}</span>
                 </div>
                 <div>
                   <h3 className={cn('display', lead ? 'text-display-lead' : 'text-display-stat')}>{j.company}</h3>
                   <p className={cn('mt-5 leading-relaxed text-mute', lead ? 'max-w-[52ch] md:text-lg' : 'max-w-[40ch]')}>{j.summary}</p>
                   <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-5">
-                    <span className="font-mono text-[0.9375rem] font-semibold text-ac">{j.result}</span>
+                    <span className="font-mono text-[0.9375rem] font-semibold text-ac2">{j.result}</span>
                     {/* The button's ::after covers the block, so the whole tile opens the breakdown. */}
                     <button type="button" data-cursor="open" onClick={e => openDetails(j, originOf(e))} aria-label={`${j.company} breakdown`}
-                      className="btn btn-ghost outline-none after:absolute after:inset-0 after:content-[''] [.tile:hover_&]:border-ac [.tile:hover_&]:text-ac">
+                      className="btn btn-ghost outline-none after:absolute after:inset-0 after:content-[''] [.tile:hover_&]:border-ac2 [.tile:hover_&]:text-ac2">
                       <span data-letter-roll>Breakdown</span> <Arrow />
                     </button>
                   </div>

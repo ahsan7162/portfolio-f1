@@ -3,7 +3,7 @@
 //
 // Only transform and opacity are animated, plus two cheap exceptions:
 // clip-path masks and stroke-dashoffset on single SVG paths (DrawSVG).
-import { PALETTE } from '@/art/palette';
+import { onPalette, PALETTE } from '@/art/palette';
 import { gsap, ScrollTrigger, SplitText } from './gsap';
 import { finePointer } from './prefs';
 import { DUR, EASE, STAGGER } from './tokens';
@@ -167,7 +167,7 @@ export function curtainReveal(el: HTMLElement | null, opts: { trigger?: Element;
   if (!el) return;
   const panel = document.createElement('span');
   panel.setAttribute('aria-hidden', 'true');
-  Object.assign(panel.style, { position: 'absolute', inset: '0', zIndex: '1', pointerEvents: 'none', background: opts.color ?? PALETTE.ac });
+  Object.assign(panel.style, { position: 'absolute', inset: '0', zIndex: '1', pointerEvents: 'none', background: opts.color ?? 'var(--ac)' });
   el.appendChild(panel);
   // On its own scroll trigger, or inside a caller's timeline at `at` (a reveal the caller times).
   const at = opts.timeline ? (opts.at ?? 0) : 0, lift = at + DUR.reveal - 0.4;
@@ -291,14 +291,15 @@ export function magnet(host: HTMLElement | null, target: HTMLElement | null, pul
 
 /**
  * Pointer proximity on split display type: letters near the cursor lean, part
- * slightly and warm to red, then settle when it leaves. Transforms and colour
+ * slightly and warm to the accent, then settle when it leaves. Transforms and colour
  * only; letter centres are measured on enter (and again after scrolling), not
  * per move. Desktop, fine pointer only. Returns a cleanup.
  */
 export function proximityChars(host: HTMLElement | null, lines: HTMLElement[], opts: { radius?: number; skew?: number; spread?: number; active?: () => boolean } = {}) {
   if (!host || !finePointer()) return;
   const { radius = 220, skew = -12, spread = 10, active } = opts;
-  const mix = gsap.utils.interpolate(PALETTE.fg, PALETTE.ac);
+  let mix = gsap.utils.interpolate(PALETTE.letter, PALETTE.ac);
+  const offPalette = onPalette(() => { mix = gsap.utils.interpolate(PALETTE.letter, PALETTE.ac); });
   type C = { el: HTMLElement; cx: number; cy: number; skew: (v: number) => void; x: (v: number) => void; heat: (v: number) => void };
   let chars: C[] = [], measuredAt = -1;
   const v = { duration: DUR.wipe, ease: EASE.out };
@@ -338,6 +339,7 @@ export function proximityChars(host: HTMLElement | null, lines: HTMLElement[], o
   host.addEventListener('pointermove', move);
   host.addEventListener('pointerleave', leave);
   return () => {
+    offPalette();
     host.removeEventListener('pointermove', move);
     host.removeEventListener('pointerleave', leave);
     chars.forEach(c => { gsap.set(c.el, { clearProps: 'x,skewX,color' }); });

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { PALETTE } from '@/art/palette';
-import { vec3 } from './glsl';
+import { srgb } from './glsl';
 
 // Run-off logos: each career stage's company painted flat on the ground beside its
 // sector, like the sponsor names on real F1 run-off areas. Flat and facing up, they
@@ -88,7 +88,7 @@ export function createRunoff(curve: THREE.CatmullRomCurve3, labels: string[], at
   const lit = labels.map(() => 0);
   const mat = new THREE.ShaderMaterial({
     glslVersion: THREE.GLSL3,
-    uniforms: { uMap: { value: tex }, uRows: { value: labels.length }, uLit: { value: lit.slice() } },
+    uniforms: { uMap: { value: tex }, uRows: { value: labels.length }, uLit: { value: lit.slice() }, uFg: { value: srgb(PALETTE.fg) }, uAc: { value: srgb(PALETTE.ac) } },
     vertexShader: /* glsl */ `
       in float aStage;
       out vec2 vUv;
@@ -102,12 +102,13 @@ export function createRunoff(curve: THREE.CatmullRomCurve3, labels: string[], at
       uniform sampler2D uMap;
       uniform float uRows;
       uniform float uLit[${labels.length}];
+      uniform vec3 uFg, uAc;
       void main() {
         float a = texture(uMap, vec2(vUv.x, 1.0 - (vStage + 1.0 - vUv.y) / uRows)).a;
         float lit = 0.0;
         for (int i = 0; i < ${labels.length}; i++) if (abs(vStage - float(i)) < 0.5) lit = uLit[i];
         // Painted white at rest, faded into the ground; the active stage glows red.
-        vec3 col = mix(${vec3(PALETTE.fg)}, ${vec3(PALETTE.ac)}, lit);
+        vec3 col = mix(uFg, uAc, lit);
         outColor = vec4(col, a * mix(0.14, 0.95, lit));
       }`,
     transparent: true, depthWrite: false, side: THREE.DoubleSide,
@@ -118,6 +119,8 @@ export function createRunoff(curve: THREE.CatmullRomCurve3, labels: string[], at
   return {
     mesh,
     texture: tex,
+    /** Repaint in the current livery. */
+    paint() { srgb(PALETTE.fg, mat.uniforms.uFg.value); srgb(PALETTE.ac, mat.uniforms.uAc.value); },
     /** Ease each label towards lit (the active stage) or rest. Returns true while still easing. */
     update(active: number) {
       const u = mat.uniforms.uLit.value as number[];

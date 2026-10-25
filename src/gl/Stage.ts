@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { groundShade, onPalette, PALETTE } from '@/art/palette';
 import { whenIdle } from '@/lib/idle';
 import { gsap, ScrollTrigger } from '@/motion/gsap';
 import { onIntroDone } from '@/motion/intro';
@@ -227,11 +228,14 @@ export class Stage {
 
   private bindSectionColours() {
     // Every section's ground is dark, so the lines keep their colour: only the two ground colours move.
+    // Each section's data-bg is in F1's grounds, carried onto the livery's own (groundShade).
     const u = this.field.uniforms;
+    let at = ['#0b0b0c', '#141417'], tween: gsap.core.Timeline | null = null; // F1's carbon and panel, the field's start
     const to = (a: string, b: string) => {
-      const A = new THREE.Color(a), B = new THREE.Color(b);
+      at = [a, b];
+      const A = new THREE.Color(groundShade(a)), B = new THREE.Color(groundShade(b));
       this.busy++;
-      gsap.timeline({ onComplete: () => { this.busy--; } })
+      tween = gsap.timeline({ onComplete: () => { this.busy--; tween = null; } })
         .to(u.uColA.value, { r: A.r, g: A.g, b: A.b, duration: 0.9, ease: EASE.wipe }, 0)
         .to(u.uColB.value, { r: B.r, g: B.g, b: B.b, duration: 0.9, ease: EASE.wipe }, 0);
     };
@@ -243,6 +247,13 @@ export class Stage {
       });
       this.cleanups.push(() => st.kill());
     });
+    // A livery change: the section's colours at once (finishing any blend into them), and a redraw.
+    this.cleanups.push(onPalette(() => {
+      tween?.progress(1);
+      u.uColA.value.set(groundShade(at[0])); u.uColB.value.set(groundShade(at[1]));
+      u.uLine.value.set(PALETTE.fg); u.uAccent.value.set(PALETTE.ac);
+      this.kick();
+    }));
   }
 
   private frame() {

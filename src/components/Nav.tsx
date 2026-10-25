@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from
 import { Arrow } from '@/components/Arrow';
 import { CvLink } from '@/components/CvLink';
 import { GlToggle } from '@/components/GlToggle';
+import { LiveryToggle } from '@/components/LiveryToggle';
 import { Scramble } from '@/components/Scramble';
 import { originOf, useDialogs } from '@/components/dialog-context';
 import { archive, EMAIL, jobs, projects, SECTIONS, SOCIAL, type Section } from '@/content/data';
@@ -138,7 +139,7 @@ export function Nav() {
 
   // Hover nudges the row right, unless the letter roll runs (useLetterRoll): then the
   // letters roll instead. Keyboard focus always nudges.
-  const rowText = 'display block text-[clamp(1.6rem,3.9vw,3.3rem)] transition-[color,transform] duration-(--dur-hit) ease-out-expo [html:not(.has-roll)_.group:hover_&]:translate-x-3 group-hover:text-ac group-focus-visible:translate-x-3 group-focus-visible:text-ac';
+  const rowText = 'display block text-[clamp(1.6rem,3.9vw,3.3rem)] transition-[color,transform] duration-(--dur-hit) ease-out-expo [html:not(.has-roll)_.group:hover_&]:translate-x-3 group-hover:text-ac2 group-focus-visible:translate-x-3 group-focus-visible:text-ac2';
 
   return (
     // oxlint-disable-next-line jsx-a11y/no-static-element-interactions -- Esc and the Tab trap for the bar and the open menu
@@ -164,7 +165,7 @@ export function Nav() {
                             <span data-letter-roll className={rowText}>{m.menu}</span>
                             <span className="ml-4 self-center rounded-full bg-ac px-2.5 py-0.5 font-mono text-xs text-carbon">{projects.length + archive.length}</span>
                             {dot}
-                            <span aria-hidden="true" className="ml-auto self-center text-sm font-semibold text-mute transition-colors group-hover:text-ac">See all <Arrow /></span>
+                            <span aria-hidden="true" className="ml-auto self-center text-sm font-semibold text-mute transition-colors group-hover:text-ac2">See all <Arrow /></span>
                           </button>
                         ) : (
                           <a href={`#${m.id}`} onClick={go} aria-current={current === m.id ? 'location' : undefined}
@@ -177,8 +178,8 @@ export function Nav() {
                         {m.jobs && (
                           <button type="button" onClick={() => setExpOpen(v => !v)} aria-expanded={expOpen} aria-controls="menu-jobs"
                             aria-label={`${expOpen ? 'Hide' : 'Show'} each work experience`}
-                            className="grid w-14 shrink-0 place-items-center border-l border-line text-2xl text-mute transition-colors hover:text-ac md:w-20">
-                            <span aria-hidden="true" className={cn('transition-transform duration-(--dur-hit) ease-out-expo', expOpen && 'rotate-45 text-ac')}>+</span>
+                            className="grid w-14 shrink-0 place-items-center border-l border-line text-2xl text-mute transition-colors hover:text-ac2 md:w-20">
+                            <span aria-hidden="true" className={cn('transition-transform duration-(--dur-hit) ease-out-expo', expOpen && 'rotate-45 text-ac2')}>+</span>
                           </button>
                         )}
                       </div>
@@ -190,7 +191,7 @@ export function Nav() {
                             <button type="button" tabIndex={expOpen ? 0 : -1}
                               onClick={e => { const o = originOf(e); hide(false); openDetails(j, o); }}
                               className="group flex w-full items-baseline gap-4 py-3 pl-8 text-left md:pl-12">
-                              <span className="text-xl font-semibold tracking-tight font-stretch-semi-expanded transition-colors group-hover:text-ac md:text-2xl">{j.company}</span>
+                              <span className="text-xl font-semibold tracking-tight font-stretch-semi-expanded transition-colors group-hover:text-ac2 md:text-2xl">{j.company}</span>
                               <span className="text-sm text-mute">{j.role}</span>
                               <span className="ml-auto text-sm text-mute">{j.years}</span>
                             </button>
@@ -207,10 +208,10 @@ export function Nav() {
           <aside data-mflip className="flex flex-col gap-8 md:pt-2">
             <div data-mside>
               <div className="label mb-3">Get in touch</div>
-              <a href={`mailto:${EMAIL}`} className="inline-flex min-h-11 items-center text-lg transition-colors hover:text-ac">{EMAIL}</a>
+              <a href={`mailto:${EMAIL}`} className="inline-flex min-h-11 items-center text-lg transition-colors hover:text-ac2">{EMAIL}</a>
             </div>
             <div data-mside className="flex gap-6 text-sm font-semibold">
-              {SOCIAL.map(s => <a key={s.label} href={s.href} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center transition-colors hover:text-ac">{s.label}</a>)}
+              {SOCIAL.map(s => <a key={s.label} href={s.href} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center transition-colors hover:text-ac2">{s.label}</a>)}
             </div>
             <CvLink data-mside className="btn btn-primary self-start" />
           </aside>
@@ -223,11 +224,14 @@ export function Nav() {
           <span className="sr-only">Muhammad Ahsan</span>
         </a>
         {/* At the finish the footer has the CV and every link, so the bar steps back: the 3D
-            toggle (phones) and the CV button slide away and Menu folds to its icon (its label comes back when open).
+            toggle (phones), the Livery button (it would cover the footer's tab) and the CV button
+            slide away and Menu folds to its icon (its label comes back when open).
             On the hero, which has its own CV button, the bar's CV stays away too. */}
         <div className="flex items-center gap-3">
           <GlToggle inert={open || finish || undefined}
             className={cn('transition-[opacity,translate] duration-(--dur-split) ease-out-expo', (open || finish) && 'pointer-events-none translate-x-3 opacity-0')} />
+          <LiveryToggle inert={(finish && !open) || undefined}
+            className={cn('transition-[opacity,translate] duration-(--dur-split) ease-out-expo', finish && !open && 'pointer-events-none translate-x-3 opacity-0')} />
           <CvLink inert={open || finish || start || undefined} tabIndex={open || finish || start ? -1 : 0}
             className={cn('btn btn-primary !px-4 !py-2 max-sm:hidden transition-[opacity,translate,background-color] duration-(--dur-split) ease-out-expo', (open || finish || start) && 'pointer-events-none translate-x-3 opacity-0')} />
           <button ref={btn} type="button" onClick={() => (open ? hide() : show())}

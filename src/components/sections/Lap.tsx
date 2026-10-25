@@ -1,5 +1,5 @@
 import { CIRCUIT_PATH, CIRCUIT_VIEWBOX } from '@/art/circuit';
-import { PALETTE } from '@/art/palette';
+import { F1 } from '@/art/palette';
 import { jobs, timeline } from '@/content/data';
 import { Arrow } from '@/components/Arrow';
 import { originOf, useDialogs } from '@/components/dialog-context';
@@ -57,7 +57,7 @@ export function Lap() {
       gsap.fromTo(next, { autoAlpha: 0, y: 24 * dir, skewX: 0, x: 0 }, { autoAlpha: 1, y: 0, duration: DUR.split, ease: EASE.out, overwrite: true });
       gsap.fromTo(next.querySelectorAll('[data-stat]'), { yPercent: 100 }, { yPercent: 0, duration: DUR.split, delay: 0.05, ease: EASE.out, overwrite: true });
       // Timing-screen colours: the sector being driven is red, completed ones go green.
-      sectorSets.forEach(els => els.forEach((el, k) => { el.classList.toggle('text-ac', k === i); el.classList.toggle('sector-done', k < i); }));
+      sectorSets.forEach(els => els.forEach((el, k) => { el.classList.toggle('text-ac2', k === i); el.classList.toggle('sector-done', k < i); }));
       cur = i;
       lapState.stage = i;
     };
@@ -79,7 +79,7 @@ export function Lap() {
       gsap.to(flag, { autoAlpha: end ? 1 : 0, x: end ? 0 : 8, duration: end ? DUR.split : DUR.hit, ease: end ? EASE.out : EASE.in, overwrite: true });
     };
     gsap.set(flag, { autoAlpha: 0, x: 8 });
-    onRevert(() => { clock.textContent = lapTime(0); sectorSets.flat().forEach(el => el.classList.remove('sector-done', 'sector-best', 'text-ac')); });
+    onRevert(() => { clock.textContent = lapTime(0); sectorSets.flat().forEach(el => el.classList.remove('sector-done', 'sector-best', 'text-ac2')); });
 
     const at = (p: number) => Math.min(n - 1, Math.floor(p * n));
     // Switch on intent: a short scroll away from the current stage's middle (18% of
@@ -168,7 +168,7 @@ export function Lap() {
   }, [v3d], { fit: true });
 
   return (
-    <section ref={ref} id="timeline" tabIndex={-1} data-bg={`${PALETTE.pit},${PALETTE.carbon}`} data-lap className="relative">
+    <section ref={ref} id="timeline" tabIndex={-1} data-bg={`${F1.pit},${F1.carbon}`} data-lap className="relative">
       {/* Sector marks over the 3D track (motion, desktop): the same box as the canvas,
           outside the pin, so pinning never moves it. Placed by the render loop. */}
       <div data-lapmarks aria-hidden="true" className="lap-marks pointer-events-none invisible fixed inset-0 hidden h-[100lvh] w-full opacity-0 md:block">
@@ -196,12 +196,12 @@ export function Lap() {
             {timeline.map(t => (
               <li key={t.company} data-stage className="lap-stage max-w-[560px] border border-line bg-carbon/90 p-5 md:p-8">
                 <div className="flex items-center justify-between text-sm text-mute">
-                  <span className="font-mono text-xs text-ac">{t.sector}</span><span>{t.years}</span>
+                  <span className="font-mono text-xs text-ac2">{t.sector}</span><span>{t.years}</span>
                 </div>
                 <h3 className="display mt-4 text-display-stat">{t.company}</h3>
                 <p className="mt-2 text-mute">{t.role}</p>
                 <div className="mt-5 flex items-end gap-4 overflow-hidden border-t border-line pt-5 md:mt-6 md:pt-6">
-                  <span data-stat className="display inline-block whitespace-nowrap text-display-stat text-ac">{t.stat}</span>
+                  <span data-stat className="display inline-block whitespace-nowrap text-display-stat text-ac2">{t.stat}</span>
                   <span data-stat className="inline-block pb-1.5 text-sm text-mute">{t.statLabel}</span>
                 </div>
                 <p className="mt-4 leading-relaxed md:mt-5">{t.text}</p>

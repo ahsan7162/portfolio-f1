@@ -20,6 +20,14 @@
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
     <script>
+      // Before first paint: the stored livery (src/art/palette.ts), so any livery but F1 never flashes F1.
+      try {
+        var lv = JSON.parse(localStorage.getItem('v2-livery') || 'null'), root = document.documentElement;
+        if (lv && lv.livery === 'barca') root.dataset.theme = 'barca';
+        else if (lv && lv.vars) for (var k in lv.vars) root.style.setProperty(k, lv.vars[k]);
+      } catch (e) {}
+    </script>
+    <script>
       // Before first paint: classes from the URL flags and the OS setting, and the
       // start-lights loader, shown only on a first visit with motion allowed.
       (function () {

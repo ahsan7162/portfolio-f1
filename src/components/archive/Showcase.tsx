@@ -164,7 +164,7 @@ export default function ArchiveShowcase(frame: DialogProps) {
           return (
             <li key={a.name} data-card={i} className={SPAN[i]}>
               <button type="button" data-tile ref={el => { tiles.current[i] = el; }} onClick={() => open(i)} data-cursor="view"
-                className="group relative block h-full w-full border border-line bg-graphite text-left transition-colors duration-(--dur-hit) hover:border-ac/60">
+                className="group relative block h-full w-full border border-line bg-graphite text-left transition-colors duration-(--dur-hit) hover:border-ac2/60">
                 <div ref={el => { boxes.current[i] = el; }} data-flip-id={`arch-${i}`}
                   className={cn('relative aspect-[16/10] overflow-hidden border-b border-line bg-carbon', view?.origin === i && 'invisible')}>
                   <div data-drift className="h-full w-full"><S handle={handles[i]} /></div>
@@ -214,7 +214,7 @@ function useKeys(handler: (e: KeyboardEvent) => boolean) {
 
 const RoundBtn = ({ dir, onClick, label }: { dir: -1 | 1; onClick: () => void; label: string }) => (
   <button type="button" onClick={onClick} aria-label={label}
-    className="grid size-12 place-items-center rounded-full border border-line text-fg transition-colors duration-(--dur-hit) hover:border-ac hover:text-ac">
+    className="grid size-12 place-items-center rounded-full border border-line text-fg transition-colors duration-(--dur-hit) hover:border-ac2 hover:text-ac2">
     <span aria-hidden="true" className={cn('inline-block', dir < 0 && 'rotate-180')}><Arrow /></span>
   </button>
 );
@@ -226,7 +226,7 @@ const TileText = ({ a }: { a: ArchiveItem }) => (
     <span data-cardtxt className="mt-2 block text-sm leading-relaxed text-mute">{a.note}</span>
     <span data-cardtxt className="mt-4 flex items-center justify-between gap-4 text-sm">
       <span className="truncate font-mono text-xs text-mute">{a.stack}</span>
-      <span className="shrink-0 font-semibold text-ac">Open <span aria-hidden="true" className="inline-block transition-transform duration-(--dur-split) ease-out-expo group-hover:translate-x-1.5"><Arrow /></span></span>
+      <span className="shrink-0 font-semibold text-ac2">Open <span aria-hidden="true" className="inline-block transition-transform duration-(--dur-split) ease-out-expo group-hover:translate-x-1.5"><Arrow /></span></span>
     </span>
   </span>
 );
@@ -248,7 +248,7 @@ function Info({ a, i }: { a: ArchiveItem; i: number }) {
       <div className="mt-8 border-t border-line">
         {a.highlights.map(h => (
           <div key={h.title} className="grid gap-x-6 gap-y-2 border-b border-line py-5 sm:grid-cols-[minmax(6rem,max-content)_1fr]">
-            <div className="display text-display-small text-ac">{h.stat}</div>
+            <div className="display text-display-small text-ac2">{h.stat}</div>
             <div>
               <p className="font-semibold font-stretch-semi-expanded">{h.title}</p>
               <p className="mt-1 max-w-[60ch] text-sm leading-relaxed text-mute">{h.text}</p>

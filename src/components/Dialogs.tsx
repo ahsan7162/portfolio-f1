@@ -104,7 +104,7 @@ export function Bars({ d }: { d: Delta }) {
             <span className="h-1.5 bg-fg/[0.07]">
               <span data-bar data-k={k} className={cn('block h-full origin-left', tag === 'After' ? 'bg-ac' : 'bg-fg/40')} style={{ transform: `scaleX(${k})` }} />
             </span>
-            <span className={tag === 'After' ? 'text-ac' : 'text-mute'}>{label}</span>
+            <span className={tag === 'After' ? 'text-ac2' : 'text-mute'}>{label}</span>
           </div>
         );
       })}
@@ -166,7 +166,7 @@ export function DetailsDialog({ sel, ...frame }: DialogProps & { sel: Breakdown 
       <div className="mt-12 grid border-t border-line md:grid-cols-[minmax(12rem,max-content)_1fr] md:gap-x-4">
         {sel.highlights.map(h => (
           <div key={h.title} data-din className="grid gap-4 border-b border-line py-8 md:col-span-2 md:grid-cols-subgrid">
-            <div className="display text-display-stat text-ac"><span data-dstat className="inline-block">{h.stat}</span></div>
+            <div className="display text-display-stat text-ac2"><span data-dstat className="inline-block">{h.stat}</span></div>
             <div>
               <h3 className="text-xl font-semibold font-stretch-semi-expanded">{h.title}</h3>
               <p className="mt-2 max-w-[65ch] leading-relaxed text-mute">{h.text}</p>

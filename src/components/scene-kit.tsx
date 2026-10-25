@@ -1,5 +1,4 @@
 import { useId, type ReactNode, type Ref } from 'react';
-import { PALETTE } from '@/art/palette';
 import { thousands } from '@/lib/format';
 import { EASE } from '@/motion/tokens';
 
@@ -7,7 +6,9 @@ import { EASE } from '@/motion/tokens';
 // components/archive): one SVG on a fixed 320×200 grid over a dot grid, drawn in the site's
 // palette, played by a GSAP timeline with these text helpers.
 
-export const { fg: FG, mute: MUTE, ac: AC, carbon: CARBON, panel: PANEL } = PALETTE;
+// The markup paints with the CSS variables, so prerendered scenes follow the livery (INK is the
+// livery's accent text: gold in Barça). GSAP can't tween var(), so timelines tween PALETTE's values.
+export const FG = 'var(--fg)', MUTE = 'var(--mute)', AC = 'var(--ac)', INK = 'var(--ac2)', CARBON = 'var(--carbon)', PANEL = 'var(--panel)';
 export const DIM = '#2a2a2e', LINE = 'rgb(255 255 255 / 0.12)', GRID_DOT = 'rgb(255 255 255 / 0.14)';
 export const t = (size: number, fill: string = FG, weight?: number) => ({ className: 'font-mono', fontSize: size, fill, fontWeight: weight });
 export const label = (fill: string = MUTE) => ({ ...t(5.8, fill, 600), letterSpacing: 0.6 });

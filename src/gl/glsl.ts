@@ -1,10 +1,13 @@
+import * as THREE from 'three';
+
 // GLSL shared between shaders, so effects that must line up are written once.
 
-/** A hex colour as a GLSL vec3 literal (its sRGB components, 0 to 1). */
-export const vec3 = (hex: string) => {
-  const n = parseInt(hex.slice(1), 16);
-  return `vec3(${[n >> 16, (n >> 8) & 255, n & 255].map(c => (c / 255).toFixed(3)).join(', ')})`;
-};
+/**
+ * A hex colour's sRGB components (0 to 1) as a vec3 uniform value, unconverted: for the
+ * shaders that write a palette colour straight out, so it shows as its hex. Pass `out`
+ * to update a uniform in place when the palette changes.
+ */
+export const srgb = (hex: string, out = new THREE.Color()) => out.setHex(parseInt(hex.slice(1), 16), THREE.LinearSRGBColorSpace);
 
 /** Simplex noise + 3-octave fbm: the page's contour background and the lap's contour ground. */
 export const NOISE_GLSL = /* glsl */ `

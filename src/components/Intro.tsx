@@ -141,11 +141,11 @@ export function Intro() {
       <div data-iline className="absolute inset-x-0 top-[calc(50%-1px)] h-[2px] bg-ac shadow-[0_0_24px_4px_color-mix(in_srgb,var(--ac)_60%,transparent)]" style={{ transform: 'scaleX(0)' }} />
 
       <div data-icontent className="absolute inset-0 flex flex-col justify-between px-4 py-8 md:px-8 md:py-10">
-        {/* The room warms red as the lights come on. */}
+        {/* The room warms to the accent as the lights come on. */}
         <div data-iglow className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_45%_at_50%_50%,color-mix(in_srgb,var(--ac)_16%,transparent),transparent_70%)] opacity-0" />
 
         <div className="relative flex items-start justify-between gap-6">
-          <span data-iframe className="display text-sm">Ahsan<span className="text-ac">.</span></span>
+          <span data-iframe className="display text-sm">Ahsan<span className="text-ac2">.</span></span>
           <span data-iframe className="label text-right">Portfolio / v2<br /><span className="text-dim">Grid slot 04</span></span>
         </div>
 
@@ -167,7 +167,7 @@ export function Intro() {
           <div data-iframe className="h-4 overflow-hidden">
             <div data-istatus className="label flex flex-col items-center text-center leading-4">
               <span>Formation lap complete</span>
-              <span className="text-ac">Lights out and away we go</span>
+              <span className="text-ac2">Lights out and away we go</span>
             </div>
           </div>
         </div>
@@ -179,7 +179,7 @@ export function Intro() {
           <div className="mt-4 flex items-end justify-between gap-6">
             <span data-icap className="label">Loading fonts</span>
             <span className="display text-[clamp(2.125rem,5.1vw,3.8rem)] !leading-[0.8] tabular-nums">
-              <span data-icount>000</span><span className="text-ac">%</span>
+              <span data-icount>000</span><span className="text-ac2">%</span>
             </span>
           </div>
         </div>

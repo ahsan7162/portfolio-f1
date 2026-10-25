@@ -141,7 +141,7 @@ export function Contributions() {
     setTip(i >= 0 && i < g.cells.length ? i : null);
   };
   const profile = (who: 'personal' | 'careem') => (
-    <a href={`https://github.com/${github.logins[who]}`} target="_blank" rel="noreferrer" className="text-fg underline decoration-line underline-offset-4 transition-colors hover:text-ac">
+    <a href={`https://github.com/${github.logins[who]}`} target="_blank" rel="noreferrer" className="text-fg underline decoration-line underline-offset-4 transition-colors hover:text-ac2">
       {github.logins[who]}
     </a>
   );

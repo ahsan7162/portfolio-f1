@@ -1,5 +1,5 @@
 import { CIRCUIT_PATH, CIRCUIT_VIEWBOX } from '@/art/circuit';
-import { PALETTE } from '@/art/palette';
+import { F1 } from '@/art/palette';
 import { jobs, profile } from '@/content/data';
 import { Arrow } from '@/components/Arrow';
 import { CvLink } from '@/components/CvLink';
@@ -51,14 +51,14 @@ export function Hero() {
   }, [], { eager: true });
 
   return (
-    <section ref={ref} id="top" tabIndex={-1} data-bg={`${PALETTE.carbon},${PALETTE.panel}`} className="relative isolate flex min-h-[100dvh] flex-col overflow-hidden px-4 pt-24 md:px-8">
+    <section ref={ref} id="top" tabIndex={-1} data-bg={`${F1.carbon},${F1.panel}`} className="relative isolate flex min-h-[100dvh] flex-col overflow-hidden px-4 pt-24 md:px-8">
       <svg data-hcircuit aria-hidden="true" viewBox={CIRCUIT_VIEWBOX} fill="none"
         className="pointer-events-none absolute left-[-6%] top-[14%] -z-10 w-[92%] max-w-[1100px] opacity-50 md:left-[2%] md:w-[70%]">
         <path d={CIRCUIT_PATH} stroke="var(--ac)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
       </svg>
       <div data-hnum aria-hidden="true"
         className="display pointer-events-none absolute -bottom-[0.12em] right-[-0.04em] -z-10 select-none text-[42vw] leading-none text-transparent md:text-[30vw]"
-        style={{ WebkitTextStroke: '1px color-mix(in srgb, var(--fg) 10%, transparent)' }}>
+        style={{ WebkitTextStroke: '1px color-mix(in srgb, var(--letter) 10%, transparent)' }}>
         04
       </div>
 
@@ -71,7 +71,7 @@ export function Hero() {
         {/* Status pill: the one live fact, clickable into the full Careem breakdown. The dot is static. */}
         <button data-hfade data-pill data-cursor="magnet" data-cursor-pull="0.35" type="button" onClick={e => { if (current) openDetails(current, originOf(e)); }}
           aria-label={`${profile.now} Open the ${current?.company} breakdown`}
-          className="group mb-8 inline-flex min-h-11 items-center gap-3 self-start rounded-full border border-line bg-graphite/80 py-1.5 pl-4 pr-1.5 text-sm font-medium text-fg transition-colors hover:border-ac">
+          className="group mb-8 inline-flex min-h-11 items-center gap-3 self-start rounded-full border border-line bg-graphite/80 py-1.5 pl-4 pr-1.5 text-sm font-medium text-fg transition-colors hover:border-ac2">
           <span aria-hidden="true" className="size-2 rounded-full bg-ac" />
           <span>Currently at <span className="font-semibold">{current?.company}</span></span>
           <span data-pillarrow aria-hidden="true" className="inline-block"><span data-cursor-target className="grid size-8 place-items-center rounded-full bg-ac text-carbon transition-transform duration-(--dur-hit) ease-out-expo group-hover:-rotate-45"><Arrow className="size-4" /></span></span>
@@ -79,8 +79,8 @@ export function Hero() {
         <h1 data-cursor="heat">
           {/* What screen readers hear: the visible lines are split into letters and hidden from them (splitAria). */}
           <span className="sr-only">{profile.name}, {profile.title}</span>
-          <span data-hline="0" data-speed aria-hidden="true" className="display block text-display-hero font-black">Muhammad</span>{' '}
-          <span data-hline="1" data-speed aria-hidden="true" className="display block text-display-hero font-black">
+          <span data-hline="0" data-speed aria-hidden="true" className="display block text-display-hero font-black text-(--letter)">Muhammad</span>{' '}
+          <span data-hline="1" data-speed aria-hidden="true" className="display block text-display-hero font-black text-(--letter)">
             Ahsan<span className="text-ac">.</span>
           </span>
           <span data-hsub aria-hidden="true" className="mt-5 block font-sans text-xl font-medium tracking-tight font-stretch-semi-expanded text-fg md:text-3xl">

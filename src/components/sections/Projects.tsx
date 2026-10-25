@@ -124,9 +124,9 @@ export function Projects() {
                     {p.stack.map(s => <li key={s} className="rounded-full border border-line px-3 py-1 font-mono text-xs">{s}</li>)}
                   </ul>
                   <div data-cardtxt className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-5">
-                    <span className="font-mono text-[0.9375rem] font-semibold text-ac">{p.headline}</span>
+                    <span className="font-mono text-[0.9375rem] font-semibold text-ac2">{p.headline}</span>
                     <button type="button" onClick={e => openDetails(p, { ...originOf(e), title: e.currentTarget.closest('[data-card]')?.querySelector('h3')?.getBoundingClientRect() })} data-details data-cursor="view" aria-label={`${p.company} details`}
-                      className="btn btn-ghost [.card:hover_&]:border-ac [.card:hover_&]:text-ac"><span data-letter-roll>Details</span></button>
+                      className="btn btn-ghost [.card:hover_&]:border-ac2 [.card:hover_&]:text-ac2"><span data-letter-roll>Details</span></button>
                   </div>
                 </div>
             </ProjectCard>
@@ -136,8 +136,8 @@ export function Projects() {
 
         {/* The archive, as a proper call to action (Lando's "see more helmets" row). */}
         <button type="button" data-more data-cursor="magnet" data-cursor-pull="0.25" onClick={e => openArchive(originOf(e))}
-          className="group relative mt-24 block w-full overflow-hidden border border-line bg-graphite/70 p-6 text-left transition-colors duration-(--dur-hit) hover:border-ac md:mt-32 md:p-10">
-          <span aria-hidden="true" className="absolute inset-0 origin-left scale-x-0 bg-ac transition-transform duration-(--dur-wipe) ease-out-expo group-hover:scale-x-100" />
+          className="group relative mt-24 block w-full overflow-hidden border border-line bg-graphite/70 p-6 text-left transition-colors duration-(--dur-hit) hover:border-ac2 md:mt-32 md:p-10">
+          <span aria-hidden="true" className="absolute inset-0 origin-left scale-x-0 bg-ac2 transition-transform duration-(--dur-wipe) ease-out-expo group-hover:scale-x-100" />
           <span className="relative flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
             <span>
               <span className="label block transition-colors duration-(--dur-hit) group-hover:text-carbon">{archive.length} more projects, 2021 to now</span>
