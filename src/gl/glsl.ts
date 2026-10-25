@@ -1,7 +1,5 @@
 import * as THREE from 'three';
 
-// GLSL shared between shaders, so effects that must line up are written once.
-
 /**
  * A hex colour's sRGB components (0 to 1) as a vec3 uniform value, unconverted: for the
  * shaders that write a palette colour straight out, so it shows as its hex. Pass `out`

@@ -1,9 +1,8 @@
 import { cn } from '@/lib/utils';
 
 /**
- * The site's right arrow. The → character isn't in either web font, so it used to
- * fall back to a thin system arrow that changed with the OS. This one is 1em
- * square and drawn in currentColor, so it takes the size and colour of its text.
+ * The site's right arrow (the → character isn't in the web fonts): 1em square, in
+ * currentColor, so it takes the size and colour of its text.
  */
 export function Arrow({ className }: { className?: string }) {
   return (

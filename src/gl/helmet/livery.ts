@@ -5,15 +5,13 @@ import { THETA_LEN } from './shape';
 // The helmet paint, drawn in code onto the shell's UV layout:
 //   u (x) = around the head, 0 = back seam, 0.25 = left side, 0.5 = front, 0.75 = right side
 //   v (y) = top of the head (0) down to the neck opening (1), linear in theta.
-// The colours are read from PALETTE on every paint, so a livery change repaints it (repaint).
 const W = 2048, H = 1024;
 const yAt = (theta: number) => (theta / THETA_LEN) * H;
 
 type Ctx = CanvasRenderingContext2D;
 
 function carbonWeave(c: Ctx) {
-  // The twill repeats every 4 cells both ways, so one 4 x 4 cell tile, filled as a pattern,
-  // gives the same pixels as painting the ~58k cells one by one (which cost a long task).
+  // The twill repeats every 4 cells, so one 4 x 4 tile filled as a pattern paints all ~58k cells.
   const s = 6, tile = document.createElement('canvas');
   tile.width = tile.height = s * 4;
   const t = tile.getContext('2d')!;

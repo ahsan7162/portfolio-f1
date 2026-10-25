@@ -1,16 +1,16 @@
 import { jobs, languages, timeline, type Job } from '@/content/data';
 import { Arrow } from '@/components/Arrow';
 import { CrawlableDetails } from '@/components/CrawlableDetails';
-import { originOf, useDialogs } from '@/components/dialog-context';
+import { originOf, useDialogs } from '@/components/dialogs/context';
 import { gsap } from '@/motion/gsap';
-import { digitRoll, gridSlot } from '@/motion/patterns';
+import { digitRoll } from '@/motion/digitRoll';
+import { gridSlot } from '@/motion/split';
 import { useBentoPointer } from '@/motion/useBentoPointer';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 import { cn } from '@/lib/utils';
 
-// Bento layout by position, on a 6-column grid, so a new job only needs data.
-// Phones stack every tile; the newest job leads (full width on tablets), the next
-// sits beside it on desktop, the rest fill in pairs, and the languages tile is last.
+// Bento layout by position on a 6-column grid, so a new job only needs data: the newest job
+// leads, the next sits beside it on desktop, the rest fill in pairs. Phones stack every tile.
 const layout = (i: number): { col: string; lead?: boolean } =>
   i === 0 ? { col: 'md:col-span-6 lg:col-span-4', lead: true }
     : i === 1 ? { col: 'md:col-span-3 lg:col-span-2' }
@@ -25,10 +25,8 @@ export function Experience() {
   const grid = useBentoPointer<HTMLDivElement>();
   const ref = useSectionMotion(({ q, qa, desktop, onRevert }) => {
     gridSlot(q('h2'));
-    // Grid formation: the tiles line up like cars on a starting grid, scrubbed. They
-    // start staggered in a two-column zig-zag, each one further back, and pull into
-    // their bento slots as the grid scrolls in, the lead (newest job) first. Only
-    // x, y, rotation and opacity: the hover tilt owns rotationX/Y and scale.
+    // The tiles pull into their slots from a staggered zig-zag as the grid scrolls in, the
+    // lead first. Only x, y, rotation and opacity: the hover tilt owns rotationX/Y and scale.
     const tiles = qa('[data-tile]');
     if (desktop) {
       gsap.fromTo(tiles, {
@@ -38,7 +36,6 @@ export function Experience() {
         scrollTrigger: { trigger: q('.bento')!, start: 'top 90%', end: 'top 35%', scrub: 0.8, invalidateOnRefresh: true },
       });
     } else {
-      // Phones (one column): each tile rises into place on its own.
       tiles.forEach(t => gsap.fromTo(t, { y: 60, rotation: 1.5, autoAlpha: 0.2 }, {
         y: 0, rotation: 0, autoAlpha: 1, ease: 'power2.out',
         scrollTrigger: { trigger: t, start: 'top 98%', end: 'top 70%', scrub: 0.6 },
@@ -67,7 +64,7 @@ export function Experience() {
                   <p className={cn('mt-5 leading-relaxed text-mute', lead ? 'max-w-[52ch] md:text-lg' : 'max-w-[40ch]')}>{j.summary}</p>
                   <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-5">
                     <span className="font-mono text-[0.9375rem] font-semibold text-ac2">{j.result}</span>
-                    {/* The button's ::after covers the block, so the whole tile opens the breakdown. */}
+                    {/* Its ::after covers the tile, so the whole tile opens the breakdown. */}
                     <button type="button" data-cursor="open" onClick={e => openDetails(j, originOf(e))} aria-label={`${j.company} breakdown`}
                       className="btn btn-ghost outline-none after:absolute after:inset-0 after:content-[''] [.tile:hover_&]:border-ac2 [.tile:hover_&]:text-ac2">
                       <span data-letter-roll>Breakdown</span> <Arrow />

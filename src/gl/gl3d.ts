@@ -2,10 +2,8 @@ import { useSyncExternalStore } from 'react';
 import { glPossible, glWanted, isPhone, setGlPref } from '@/motion/prefs';
 
 /**
- * Whether the page's 3D is on, shared by the nav's 2D / 3D toggle, GLCanvas (which starts
- * and stops the stage) and the Lap (which draws its flat circuit while the 3D is off).
- * `able`: the 3D can run here at all. `toggle`: the nav shows the toggle, on phones only
- * (elsewhere the 3D is on, as it always was).
+ * Whether the page's 3D is on, shared by the nav's 2D / 3D toggle, GLCanvas and the Lap.
+ * `able`: the 3D can run here at all. `toggle`: the nav shows the toggle (phones only).
  */
 type State = { able: boolean; on: boolean; toggle: boolean };
 

@@ -2,9 +2,8 @@ import * as THREE from 'three';
 import { PALETTE } from '@/art/palette';
 import { CONTOURS_GLSL, NOISE_GLSL } from './glsl';
 
-// Topographic contour background (Lando's contour lines), one full-screen
-// triangle. Domain-warped fbm height field drawn as anti-aliased isolines, a
-// brighter index line every 5th contour, and one accent "racing line".
+// The page's contour background: one full-screen triangle, a domain-warped fbm height field
+// drawn as anti-aliased isolines, a brighter line every 5th, and one accent "racing line".
 
 const vert = /* glsl */ `
 out vec2 vUv;
@@ -62,5 +61,7 @@ export function createField() {
   mesh.frustumCulled = false;
   const scene = new THREE.Scene();
   scene.add(mesh);
-  return { scene, uniforms, dispose: () => { geo.dispose(); mat.dispose(); } };
+  // The triangle covers the screen in clip space, so any camera draws it the same.
+  const camera = new THREE.Camera();
+  return { scene, camera, uniforms, dispose: () => { geo.dispose(); mat.dispose(); } };
 }

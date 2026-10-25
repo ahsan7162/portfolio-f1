@@ -1,10 +1,6 @@
 import { useEffect, useRef, useState, type ComponentType } from 'react';
 
-/**
- * The dotted world map's data (15 KB of dots) stays out of the main bundle and
- * the prerendered HTML; it loads when Contact nears the viewport. The dots are
- * precomputed, so showing it costs one SVG path, not a computation.
- */
+/** The dotted world map (15 KB of dots), kept out of the main bundle and the prerender: it loads as Contact nears the screen. */
 export function LazyMap() {
   const box = useRef<HTMLDivElement>(null);
   const [Map, setMap] = useState<ComponentType | null>(null);

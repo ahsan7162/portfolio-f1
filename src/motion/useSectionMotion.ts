@@ -18,17 +18,15 @@ export type MotionCtx = {
 };
 
 /**
- * Scoped GSAP setup for one section. Nothing runs with reduced motion, so the
- * markup's resting state (fully visible) is the final state. Content is never
- * hidden in CSS; GSAP sets start states before the content comes on screen.
+ * Scoped GSAP setup for one section. Nothing runs with reduced motion, so the markup's
+ * resting state (fully visible) is the final state: content is never hidden in CSS, and
+ * GSAP sets start states before the content comes on screen.
  *
- * `eager`: set up in the first render (the hero). Every other section is set up a
- * little later, after the web fonts, one per task (startup.ts).
+ * `eager`: set up in the first render (the hero); the others wait their turn (startup.ts).
  *
- * `fit`: for sections that pin only when their content fits the screen.
- * Their setup is rebuilt when the viewport height crosses a
- * few steps, and once more when web fonts finish loading if it ran before they
- * did: a measure on the wider fallback font can wrongly skip the pin, which would
+ * `fit`: for sections that pin only when their content fits the screen. Rebuilt when the
+ * viewport height crosses a few steps, and once more when the web fonts land if it ran
+ * before them: a measure on the wider fallback font could wrongly skip the pin, which would
  * also throw off the helmet path timed against it.
  */
 export function useSectionMotion<T extends HTMLElement = HTMLElement>(build: (c: MotionCtx) => void, deps: unknown[] = [], opts: { fit?: boolean; eager?: boolean } = {}): RefObject<T | null> {

@@ -5,7 +5,7 @@
   "plugins": ["typescript", "unicorn", "oxc", "react", "jsx-a11y", "import"],
   "categories": { "correctness": "error", "suspicious": "warn", "perf": "warn" },
   "env": { "builtin": true, "browser": true },
-  "ignorePatterns": ["dist/**", "dist-ssr/**", "videos/**", "motion-lab/**", "behance-export/**", "src/art/worldDots.ts"],
+  "ignorePatterns": ["dist/**", "dist-ssr/**", "videos/**", "motion-lab/**", "behance-export/**", "brag-output*/**", "src/art/worldDots.ts"],
   "rules": {
     "react/rules-of-hooks": "error",
     "react/exhaustive-deps": "warn",

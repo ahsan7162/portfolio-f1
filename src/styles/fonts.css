@@ -1,0 +1,24 @@
+/* Self-hosted fonts, trimmed by scripts/fonts.py to the weights and widths used here. */
+@font-face {
+  font-family: "Hubot Sans";
+  src: url("../assets/fonts/hubot-sans.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 700 900;
+  font-stretch: 125%;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Mona Sans Variable";
+  src: url("../assets/fonts/mona-sans.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400 700;
+  font-stretch: 100% 112.5%;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Monaspace Krypton";
+  src: url("../assets/fonts/monaspace-krypton.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+}

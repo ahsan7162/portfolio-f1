@@ -1,0 +1,16 @@
+html.intro [data-intro] { display: grid; }
+html.gl-on .lap-flat { opacity: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+/* ?nomotion: the same, for checking the static page without changing the OS setting. */
+html.no-motion *, html.no-motion *::before, html.no-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}

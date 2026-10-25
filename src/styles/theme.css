@@ -1,0 +1,93 @@
+/* F1's palette, mirrored in src/art/liveries.ts for SVG, canvas and WebGL: change both
+   together. Barça is under html[data-theme="barca"]; every other livery writes these
+   variables onto <html> inline (src/art/palette.ts). --ac2 is the livery's second colour:
+   accent text, the scroll rail, the car and the helmet's stripes. */
+:root {
+  color-scheme: dark;
+  --carbon: #0b0b0c;
+  --graphite: #111113;
+  --fg: #f4f4ed;
+  --mute: #a3a39c;
+  --dim: #85857e;
+  --line: rgb(244 244 237 / 0.12);
+  --ac: #ff2438;
+  --ac2: #ff2438;
+  /* Lettering: the hero name and the outline numbers (the name and number on a shirt's back). */
+  --letter: var(--fg);
+  /* What a hovered button fills or outlines with. */
+  --hover: var(--fg);
+  /* Raised panels and the darkest ground (PALETTE.panel and PALETTE.pit). */
+  --panel: #141417;
+  --pit: #070708;
+  --lift: #18181b;   /* a tile under the pointer; the loader's light pods */
+  --raise: #1a1a1e;  /* the lead work tile */
+  --shade: #080002;  /* shadows: near black, tinted toward the red */
+  /* The start lights (Intro.tsx): the unlit lens, its socket, and the lit lens's highlight and rim. */
+  --lamp-off: #1f0a0d;
+  --lamp-socket: #2a0a0e;
+  --lamp-hot: #ffd6da;
+  --lamp-rim: #a80f1d;
+  /* The footer frame's ramp, clear at the top to deep red at the bottom. */
+  --frame-0: #300b12;
+  --frame-1: #3a0b14;
+  --frame-2: #5e0e19;
+  --frame-3: #a4142a;
+  --frame-4: #c8162a;
+  /* Timing-screen colours: a sector done (green) and the fastest sector (purple). */
+  --timing-done: #2fd27a;
+  --timing-best: #b26bff;
+  --navh: 64px;
+}
+/* Barça: purple for every accent surface (4.9:1 under carbon text), gold for accent text and
+   lettering (10:1). The footer frame is the same ramp in purple (chalk on it, 6.7:1). */
+:root[data-theme="barca"] {
+  --ac: #9061f9;
+  --ac2: #d8b866;
+  --letter: var(--ac2);
+  --hover: var(--ac2);
+  --shade: #04000c;
+  --lamp-off: #120a20;
+  --lamp-socket: #190e2c;
+  --lamp-hot: #efe6ff;
+  --lamp-rim: #4a2296;
+  --frame-0: #1e0d48;
+  --frame-1: #1e0d48;
+  --frame-2: #341a6e;
+  --frame-3: #5a2aa6;
+  --frame-4: #6a32c0;
+}
+
+@theme inline {
+  --color-carbon: var(--carbon);
+  --color-graphite: var(--graphite);
+  --color-fg: var(--fg);
+  --color-mute: var(--mute);
+  --color-dim: var(--dim);
+  --color-line: var(--line);
+  --color-ac: var(--ac);
+  --color-ac2: var(--ac2);
+  --color-panel: var(--panel);
+  --color-lift: var(--lift);
+  --color-lamp-off: var(--lamp-off);
+  --color-lamp-socket: var(--lamp-socket);
+
+  --font-sans: "Mona Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Hubot Sans", "Mona Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Monaspace Krypton", ui-monospace, monospace;
+
+  /* Display sizes, largest first: each stays below the one above at every width. Below
+     375 px the minimums shrink with the screen, so the longest words still fit a 320 px phone. */
+  --text-display-hero: clamp(min(2.75rem, 10.8vw), 8.9vw, 8rem);
+  --text-display-section: clamp(min(2.5rem, 10.2vw), 6.8vw, 6.375rem);
+  --text-display-lead: clamp(min(2rem, 7.8vw), 4.7vw, 4.75rem);
+  --text-display-stat: clamp(min(1.7rem, 7.2vw), 3.75vw, 3.4rem);
+  --text-display-card: clamp(min(1.5rem, 6.4vw), 2.2vw, 2.125rem);
+  --text-display-small: clamp(1.0625rem, 1.7vw, 1.7rem);
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Same values as DUR in src/motion/tokens.ts, so CSS and GSAP share timing. */
+  --dur-hit: 150ms;
+  --dur-split: 300ms;
+  --dur-wipe: 450ms;
+}

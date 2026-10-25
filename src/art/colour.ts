@@ -8,12 +8,12 @@ type Vec = [number, number, number];
 const toLinear = (c: number) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
 const toGamma = (c: number) => (c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055);
 
-export function hexToRgb(hex: string): Vec {
+function hexToRgb(hex: string): Vec {
   const n = parseInt(hex.slice(1), 16);
   return [(n >> 16) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255];
 }
 
-export function rgbToHex([r, g, b]: Vec) {
+function rgbToHex([r, g, b]: Vec) {
   const k = (c: number) => Math.round(Math.min(1, Math.max(0, c)) * 255).toString(16).padStart(2, '0');
   return `#${k(r)}${k(g)}${k(b)}`;
 }
@@ -52,8 +52,8 @@ export function toLch(hex: string): Lch {
 }
 
 /** Linear sRGB of an OKLCH colour, possibly outside 0..1 (out of gamut). */
-export const lchToLinear = (x: Lch) => labToLinear(lchToLab(x));
-export const inGamut = (lin: Vec) => lin.every(v => v >= -1e-4 && v <= 1 + 1e-4);
+const lchToLinear = (x: Lch) => labToLinear(lchToLab(x));
+const inGamut = (lin: Vec) => lin.every(v => v >= -1e-4 && v <= 1 + 1e-4);
 
 /** The most chroma sRGB can show at this lightness and hue. */
 export function maxChroma(l: number, h: number) {
@@ -72,9 +72,9 @@ export function fromLch(x: Lch) {
   return rgbToHex(lchToLinear({ l, c, h: x.h }).map(toGamma) as Vec);
 }
 
-export const luminanceLinear = ([r, g, b]: Vec) => 0.2126 * r + 0.7152 * g + 0.0722 * b;
-export const luminance = (hex: string) => luminanceLinear(hexToRgb(hex).map(toLinear) as Vec);
-export const ratio = (y1: number, y2: number) => (Math.max(y1, y2) + 0.05) / (Math.min(y1, y2) + 0.05);
+const luminanceLinear = ([r, g, b]: Vec) => 0.2126 * r + 0.7152 * g + 0.0722 * b;
+const luminance = (hex: string) => luminanceLinear(hexToRgb(hex).map(toLinear) as Vec);
+const ratio = (y1: number, y2: number) => (Math.max(y1, y2) + 0.05) / (Math.min(y1, y2) + 0.05);
 /** WCAG contrast ratio of two colours, 1 to 21. */
 export const contrast = (a: string, b: string) => ratio(luminance(a), luminance(b));
 

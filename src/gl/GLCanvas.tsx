@@ -5,20 +5,15 @@ import { refreshSoon } from '@/motion/startup';
 import { gl3d, lost3d, onGl3d } from './gl3d';
 
 /**
- * Two fixed full-screen WebGL canvases: one behind the page (contour background and the
- * lap), one above it, see-through and click-through (the helmet, which flies in front of
- * the text). three.js is loaded only while the 3D is on (gl3d.ts: off on phones until the
- * nav's toggle turns it on), and on load only once the page is idle, so it never delays
- * the first paint or the h1.
- *
- * `html.helmet-flight` (set before first paint by index.html when the 3D will start) opens
- * the helmet's slot in the About sentence. It opens and closes with the 3D: the toggle,
- * no WebGL2, a lost context, frames far too slow.
+ * The two fixed full-screen WebGL canvases (Stage.ts). three.js loads only while the 3D is
+ * on (gl3d.ts), and on load only once the page is idle, so it never delays the first paint.
+ * `html.helmet-flight` (set before first paint by index.html) opens the helmet's slot in the
+ * About sentence; it opens and closes with the 3D.
  */
 export function GLCanvas() {
   const ref = useRef<HTMLCanvasElement>(null), over = useRef<HTMLCanvasElement>(null);
-  // A stopped stage gives its contexts back, and a canvas can't get a new one: a start
-  // after a stop gets fresh canvases (new keys), and this effect runs again with them.
+  // A stopped stage gives its contexts back and a canvas can't get a new one, so a restart
+  // gets fresh canvases (new keys) and this effect runs again with them.
   const [gen, setGen] = useState(0);
   useEffect(() => {
     const root = document.documentElement;

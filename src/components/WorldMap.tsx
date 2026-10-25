@@ -1,11 +1,11 @@
 import { WORLD, WORLD_DOTS, WORLD_MARKERS } from '@/art/worldDots';
 import { gsap, ScrollTrigger } from '@/motion/gsap';
-import { drawPath } from '@/motion/patterns';
+import { drawPath } from '@/motion/reveals';
 import { DUR, EASE } from '@/motion/tokens';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 
-// Markers: home first (Karachi), then the places worked with from there (Dubai for
-// Careem, Milan for Xtel). Arcs lift above the straighter line, at least a small hop.
+// Markers: home first (Karachi), then the places worked with from there (Dubai for Careem,
+// Milan for Xtel). Each arc lifts above the straight line, by at least a small hop.
 const [home, ...away] = WORLD_MARKERS;
 const pct = (v: number, of: number) => `${((v / of) * 100).toFixed(2)}%`;
 const arc = (m: { x: number; y: number }) => {
@@ -14,15 +14,13 @@ const arc = (m: { x: number; y: number }) => {
 };
 
 /**
- * The dotted world map from precomputed data (scripts/world-dots.ts): one path for
- * every dot, plus the markers. As it comes into view it grows out of Karachi, then an
- * arc draws to each place worked with and a dot travels it once; the home marker
- * pulses twice each time the map comes back. The arcs and travellers sit in their own
- * small SVG, so drawing them never repaints the 1.8k dots; the pulse is HTML rings
- * (scale and opacity only). The markup is the final frame: map shown, arcs drawn.
+ * The dotted world map, precomputed by scripts/world-dots.ts as one path. It grows out of
+ * Karachi as it comes into view, then an arc draws to each place worked with and a dot runs
+ * it once; home pulses each time the map comes back. The arcs sit in their own small SVG,
+ * so drawing them never repaints the 1.8k dots. The markup is the final frame.
  */
 export function WorldMap() {
-  const markerColor = 'var(--ac)'; // follows the livery live
+  const markerColor = 'var(--ac)';
   const ref = useSectionMotion<HTMLDivElement>(({ root, qa }) => {
     const at = `${pct(home.x, WORLD.width)} ${pct(home.y, WORLD.height)}`;
     const arcs = qa<SVGPathElement>('[data-arc]'), runners = qa<SVGCircleElement>('[data-runner]');

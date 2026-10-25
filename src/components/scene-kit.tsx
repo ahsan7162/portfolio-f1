@@ -1,17 +1,19 @@
 import { useId, type ReactNode, type Ref } from 'react';
 import { thousands } from '@/lib/format';
+import { gsap } from '@/motion/gsap';
+import { isTouch } from '@/motion/prefs';
 import { EASE } from '@/motion/tokens';
 
-// What every project scene shares (the featured cards' in ProjectVisuals, the archive's in
-// components/archive): one SVG on a fixed 320×200 grid over a dot grid, drawn in the site's
-// palette, played by a GSAP timeline with these text helpers.
-
-// The markup paints with the CSS variables, so prerendered scenes follow the livery (INK is the
-// livery's accent text: gold in Barça). GSAP can't tween var(), so timelines tween PALETTE's values.
+// What every project scene shares (the featured cards' in components/projects, the archive's
+// in components/archive): one SVG on a fixed 320×200 grid over dots, played by a GSAP timeline.
+// The markup paints with CSS variables, so prerendered scenes follow the livery (INK is the
+// accent text colour); GSAP can't tween var(), so timelines tween PALETTE's values.
 export const FG = 'var(--fg)', MUTE = 'var(--mute)', AC = 'var(--ac)', INK = 'var(--ac2)', CARBON = 'var(--carbon)', PANEL = 'var(--panel)';
 export const DIM = '#2a2a2e', LINE = 'rgb(255 255 255 / 0.12)', GRID_DOT = 'rgb(255 255 255 / 0.14)';
 export const t = (size: number, fill: string = FG, weight?: number) => ({ className: 'font-mono', fontSize: size, fill, fontWeight: weight });
 export const label = (fill: string = MUTE) => ({ ...t(5.8, fill, 600), letterSpacing: 0.6 });
+/** A colour at zero alpha, so a fill tweens in without passing through black. */
+export const clear = (c: string) => `rgba(${gsap.utils.splitColor(c).join(',')},0)`;
 
 export type At = number | string;
 /** Text helpers for a scene's timeline. Text is restored at time 0 on every replay. */
@@ -33,11 +35,40 @@ export type Fx = {
 export const setText = (el: Element, s: string) => { const n = el.firstChild; if (n && n.nodeType === 3) n.nodeValue = s; else el.textContent = s; };
 const GLYPHS = 'abcdefghijklmnopqrstuvwxyz0123456789-/';
 
+export type SceneText = ReturnType<typeof sceneText>;
+
 /**
- * The helpers for one scene. `keep` records an element's markup text (its last frame) the
- * first time it is touched; `resets` collects what puts the text back to time 0.
+ * A scene's text. The markup holds its last frame: `keep` records an element's text the
+ * first time a helper touches it, and `resets` collect what puts the text back to time 0.
  */
-export function makeFx(svg: SVGSVGElement, tl: gsap.core.Timeline, keep: (el: Element) => string, resets: (() => void)[]): Fx {
+export function sceneText() {
+  const finals = new Map<Element, string>();
+  const resets: (() => void)[] = [];
+  return {
+    keep: (el: Element) => {
+      if (!finals.has(el)) finals.set(el, el.textContent ?? '');
+      return finals.get(el)!;
+    },
+    resets,
+    /** The text as it is at time 0. */
+    toStart: () => resets.forEach(r => r()),
+    /** The markup's text again, ready for a rebuild or an unmount. */
+    toEnd: () => { finals.forEach((s, el) => setText(el, s)); resets.length = 0; },
+  };
+}
+
+/** A timeline that has played to its end. */
+export const finished = (tl: gsap.core.Timeline) => tl.time() >= tl.duration() - 0.01;
+
+/** Replays a scene when the pointer enters the `host` around it (never on touch). Returns a cleanup. */
+export function replayOnHover(svg: Element, host: string, replay: () => void) {
+  const el = isTouch() ? null : svg.closest(host);
+  el?.addEventListener('pointerenter', replay);
+  return () => el?.removeEventListener('pointerenter', replay);
+}
+
+/** The timeline helpers for one scene. */
+export function makeFx(svg: SVGSVGElement, tl: gsap.core.Timeline, { keep, resets }: SceneText): Fx {
   const fx: Fx = {
     tl,
     q: sel => svg.querySelector(sel)!,
@@ -74,8 +105,7 @@ export function makeFx(svg: SVGSVGElement, tl: gsap.core.Timeline, keep: (el: El
 /** The scene's SVG: the 320×200 grid on a dot pattern, its drawing inset by .proj-scene. */
 export function SceneSvg({ ref, className, children }: { ref?: Ref<SVGSVGElement>; className?: string; children: ReactNode }) {
   const id = useId().replace(/[^a-zA-Z0-9]/g, '');
-  // The scene sits at 76% on a dot grid, so it reads as an illustration, apart from the card's own
-  // text; phones draw it at 90% so its small UI text stays readable (see .proj-scene in index.css).
+  // Inset on the dot grid (.proj-scene in index.css), so it reads as an illustration.
   return (
     <svg ref={ref} aria-hidden="true" viewBox="0 0 320 200" className={className ?? 'h-full w-full'} fill="none">
       <defs>

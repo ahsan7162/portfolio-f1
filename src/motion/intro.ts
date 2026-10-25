@@ -1,9 +1,8 @@
 import { gsap } from './gsap';
 import { motionEnabled } from './prefs';
 
-// One master intro timeline. The loader plays it; the hero and the nav add their
-// reveals at the 'reveal' label, so they land together. The WebGL helmet starts its
-// own reveal once this finishes (onIntroDone).
+// One master intro timeline. The loader plays it; the hero and the nav add their reveals at
+// its 'reveal' label, so they land together. The helmet's reveal waits for it (onIntroDone).
 let tl: gsap.core.Timeline | null = null;
 let done = false;
 const waiters: Array<() => void> = [];
@@ -37,9 +36,8 @@ export function onIntroDone(fn: () => void) { if (done) fn(); else waiters.push(
 export const introDone = () => done;
 
 /** Start the reveal (called by the loader, or straight away when it is skipped). */
-export function playIntro(speed = 1) {
-  const t = introTimeline();
-  t.timeScale(speed).play(0);
+export function playIntro() {
+  introTimeline().play(0);
   try { sessionStorage.setItem(INTRO_KEY, '1'); } catch { /* private mode */ }
 }
 

@@ -5,10 +5,7 @@ import { SECTIONS } from '@/content/data';
 import { gsap, ScrollTrigger } from '@/motion/gsap';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 
-/**
- * Decorative page-progress map: a dot laps the circuit as you scroll the page
- * (desktop), a thin bar on phones. Transform-only, scrubbed to scroll.
- */
+/** Page progress: a dot laps the circuit as you scroll (desktop), a thin bar on phones. */
 export function TrackMap() {
   const [name, setName] = useState(SECTIONS[0].short);
   const ref = useSectionMotion<HTMLDivElement>(({ q, desktop }) => {
@@ -34,16 +31,14 @@ export function TrackMap() {
 
   return (
     <div ref={ref} aria-hidden="true" className="pointer-events-none">
-      {/* Hidden until motion drives it: without motion it would be a static full-width line. */}
       <div data-bar className="invisible fixed inset-x-0 top-0 z-[60] h-[2px] origin-left bg-ac2 opacity-0 lg:hidden" />
       <div data-map className="fixed bottom-5 left-5 z-40 hidden w-[132px] lg:block">
-        {/* Starts hidden; motion reveals it. With reduced motion it stays out of the way. */}
+        {/* Hidden until motion reveals it: without motion both stay out of the way. */}
         <div data-mapin className="invisible opacity-0">
         <svg viewBox={CIRCUIT_VIEWBOX} fill="none" className="w-full overflow-visible">
           <path data-track d={CIRCUIT_PATH} className="stroke-fg/35" strokeWidth="6" strokeLinejoin="round" />
           <circle data-dot r="10" fill="var(--ac2)" />
         </svg>
-        {/* Scrambles into the new name whenever the section changes. */}
         <Scramble text={name} className="mt-2 block text-xs font-semibold text-mute" />
         </div>
       </div>

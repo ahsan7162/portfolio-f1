@@ -1,12 +1,14 @@
 import { CIRCUIT_PATH, CIRCUIT_VIEWBOX } from '@/art/circuit';
-import { F1 } from '@/art/palette';
+import { F1 } from '@/art/liveries';
 import { jobs, profile } from '@/content/data';
 import { Arrow } from '@/components/Arrow';
 import { CvLink } from '@/components/CvLink';
-import { originOf, useDialogs } from '@/components/dialog-context';
+import { originOf, useDialogs } from '@/components/dialogs/context';
 import { gsap } from '@/motion/gsap';
 import { introTimeline } from '@/motion/intro';
-import { barReveal, drawPath, magnet, proximityChars, scrubParallax, splitReveal } from '@/motion/patterns';
+import { magnet, proximityChars } from '@/motion/pointer';
+import { drawPath, scrubParallax } from '@/motion/reveals';
+import { barReveal, splitReveal } from '@/motion/split';
 import { DUR, EASE, STAGGER } from '@/motion/tokens';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 
@@ -15,16 +17,15 @@ export function Hero() {
   const current = jobs.find(j => j.id === 'careem');
   const ref = useSectionMotion(({ root, q, qa, onRevert }) => {
     const tl = introTimeline();
-    // Entrance: joins the loader's master timeline so it lands as the lights go out.
-    // The fades and the circuit draw start hidden, so they join only while the loader
-    // runs: otherwise the prerendered first paint is final, and a rebuild after the
-    // intro (a resize across a breakpoint) can't leave them at their hidden start.
-    // The split text always joins: the name's hover works on its letters.
+    // Entrance, on the loader's master timeline, so it lands as the lights go out. The fades
+    // and the circuit draw start hidden, so they join only while the loader runs: otherwise
+    // the prerendered first paint is final, and a rebuild after the intro (a resize across a
+    // breakpoint) can't leave them hidden. The split text always joins: the name's hover
+    // works on its letters.
     const intro = document.documentElement.classList.contains('intro');
     qa('[data-hline]').forEach((line, i) =>
       splitReveal(line, { type: 'chars', timeline: tl, at: `reveal+=${0.1 + i * 0.12}`, stagger: STAGGER.char * 1.6, duration: DUR.show }));
     splitReveal(q('[data-hsub]'), { type: 'words', timeline: tl, at: 'reveal+=0.45' });
-    // The pill and the buttons rise; between them the lede wipes in under the red bar.
     if (intro) tl.from(qa('[data-hfade]'), { autoAlpha: 0, y: 24, duration: DUR.reveal, ease: EASE.out, stagger: 0.16 }, 'reveal+=0.6');
     barReveal(q('[data-hlede]'), { timeline: tl, at: 'reveal+=0.68' });
     if (intro) {
@@ -33,13 +34,10 @@ export function Hero() {
     }
 
     onRevert(magnet(q('[data-pill]'), q('[data-pillarrow]')));
-    // Hover: the name's letters lean and warm to red around the cursor, until the
-    // hero starts to leave (they would fight the launch below).
+    // The name's letters lean toward the cursor until the hero starts to leave (they would fight the launch).
     onRevert(proximityChars(root, qa('[data-hline]'), { active: () => scrollY < root.offsetHeight * 0.05 }));
 
-    // Leaving, the launch: the two name lines slide apart and stretch from their
-    // leading edge (speed skew adds the lean), and the intro's red lights-out line
-    // draws across the bottom as the hero goes. The ghost number drifts up.
+    // Leaving: the two name lines slide apart and stretch, and a red line draws across the bottom.
     const opts = { start: 'top top', end: 'bottom top' } as const;
     gsap.set(qa('[data-hline]'), { transformOrigin: '0% 50%' });
     scrubParallax(q('[data-hline="0"]'), root, { to: { xPercent: -8, scaleX: 1.12 }, ...opts });
@@ -62,13 +60,12 @@ export function Hero() {
         04
       </div>
 
-      {/* Where the 3D helmet sits in the hero (gl/flight). Placed by layout only, no transforms;
-          on wide screens .hero-helmet keeps it clear of the name. */}
+      {/* Where the 3D helmet sits (gl/flight): placed by layout only, no transforms. */}
       <div data-helmet-anchor="hero" aria-hidden="true"
         className="hero-helmet pointer-events-none invisible absolute max-lg:right-4 max-lg:top-[calc(var(--navh)+1rem)] max-lg:size-[min(40vw,20svh)]" />
 
       <div data-hbody className="mx-auto flex w-full max-w-[1400px] flex-1 flex-col justify-center pb-10">
-        {/* Status pill: the one live fact, clickable into the full Careem breakdown. The dot is static. */}
+        {/* The one live fact, opening the full Careem breakdown. */}
         <button data-hfade data-pill data-cursor="magnet" data-cursor-pull="0.35" type="button" onClick={e => { if (current) openDetails(current, originOf(e)); }}
           aria-label={`${profile.now} Open the ${current?.company} breakdown`}
           className="group mb-8 inline-flex min-h-11 items-center gap-3 self-start rounded-full border border-line bg-graphite/80 py-1.5 pl-4 pr-1.5 text-sm font-medium text-fg transition-colors hover:border-ac2">
@@ -95,7 +92,7 @@ export function Hero() {
         </div>
       </div>
 
-      {/* Motion only (shown by GSAP): the launch streak along the bottom edge. */}
+      {/* Motion only: the streak along the bottom edge. */}
       <div data-hstreak aria-hidden="true" className="invisible absolute inset-x-0 bottom-0 h-0.5 origin-left bg-ac" />
       <div aria-hidden="true" className="mx-auto mb-6 flex w-full max-w-[1400px] justify-end">
         <div className="checker hidden w-40 md:block" />

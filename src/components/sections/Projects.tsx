@@ -1,29 +1,62 @@
-import { useRef, type CSSProperties, type ReactNode } from 'react';
 import { Arrow } from '@/components/Arrow';
-import { ProjectVisual } from '@/components/ProjectVisuals';
-import { originOf, useDialogs } from '@/components/dialog-context';
+import { ProjectCard } from '@/components/projects/ProjectCard';
+import { ProjectVisual } from '@/components/projects/ProjectVisual';
+import { originOf, useDialogs } from '@/components/dialogs/context';
 import { CrawlableDetails } from '@/components/CrawlableDetails';
 import { archive, archiveBreakdown, projects, type Breakdown } from '@/content/data';
 import { gsap, ScrollTrigger } from '@/motion/gsap';
-import { isTouch, motionEnabled } from '@/motion/prefs';
 import { useBentoPointer } from '@/motion/useBentoPointer';
-import { clipReveal, curtainReveal, gridSlot, inView, magnet, scrubParallax } from '@/motion/patterns';
+import { magnet } from '@/motion/pointer';
+import { clipReveal, curtainReveal, inView, scrubParallax } from '@/motion/reveals';
+import { gridSlot } from '@/motion/split';
 import { DUR, EASE } from '@/motion/tokens';
 import { navHeight } from '@/motion/useNavHeight';
-import { useSectionMotion } from '@/motion/useSectionMotion';
+import { type MotionCtx, useSectionMotion } from '@/motion/useSectionMotion';
 import { twoDigits } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
-// Staggered offsets, like Lando's helmet grid: each card sits at its own height
-// and moves at its own scroll speed. (Grid mode; motion turns it into a deck when it fits.)
+// Grid mode: each card sits at its own height and moves at its own scroll speed.
 const LAYOUT = [
   { col: 'lg:col-span-7', offset: 'lg:mt-0', speed: -6 },
   { col: 'lg:col-span-5', offset: 'lg:mt-24', speed: 8 },
   { col: 'md:col-span-2 lg:col-span-6 lg:col-start-4', offset: 'lg:-mt-10', speed: -3 },
 ];
 
-// Featured projects and the archive, prerendered for search engines (see CrawlableDetails).
 const CRAWL: Breakdown[] = [...projects, ...archive.map(archiveBreakdown)];
+
+/**
+ * Stack mode, the deck: the card underneath steps back and darkens (an overlay, not a filter)
+ * as the next one covers it. On wide screens the sticky heading column follows the deck: an
+ * index scrambled like a timing board, the current title and a progress bar.
+ */
+function stackDeck(q: MotionCtx['q'], cards: HTMLElement[], top: (i: number) => number, wide: boolean, onRevert: MotionCtx['onRevert']) {
+  const n = cards.length;
+  cards.slice(0, -1).forEach((card, i) => {
+    gsap.timeline({ scrollTrigger: { trigger: cards[i + 1], start: 'top bottom', end: `top ${top(i + 1)}px`, scrub: true } })
+      .fromTo(card, { scale: 1 }, { scale: 0.92, transformOrigin: '50% 0%', ease: EASE.none }, 0)
+      .fromTo(card.querySelector('[data-cardshade]'), { opacity: 0 }, { opacity: 0.55, ease: EASE.none }, 0);
+  });
+  if (!wide) return;
+  const idx = q('[data-pidx]')!, title = q('[data-ptitle]')!;
+  let cur = 0, swap: gsap.core.Timeline | undefined;
+  const set = (i: number) => {
+    if (i === cur) return;
+    const dir = i > cur ? 1 : -1;
+    cur = i;
+    gsap.to(idx, { scrambleText: { text: twoDigits(i + 1), chars: '0123456789' }, duration: DUR.split, ease: EASE.none, overwrite: true });
+    swap?.kill();
+    swap = gsap.timeline()
+      .to(title, { yPercent: -110 * dir, duration: DUR.hit, ease: EASE.in })
+      .call(() => { title.textContent = projects[i].company; })
+      .fromTo(title, { yPercent: 110 * dir }, { yPercent: 0, duration: DUR.split, ease: EASE.out });
+  };
+  cards.slice(1).forEach((card, k) => ScrollTrigger.create({
+    trigger: card, start: 'top 55%', onEnter: () => set(k + 1), onLeaveBack: () => set(k),
+  }));
+  gsap.fromTo(q('[data-pbar]'), { scaleX: 1 / n }, { scaleX: 1, ease: EASE.none,
+    scrollTrigger: { trigger: cards[0], start: `top ${top(0)}px`, endTrigger: cards[n - 1], end: `top ${top(n - 1)}px`, scrub: true } });
+  onRevert(() => { idx.textContent = twoDigits(1); title.textContent = projects[0].company; });
+}
 
 export function Projects() {
   const { openDetails, openArchive } = useDialogs();
@@ -35,24 +68,20 @@ export function Projects() {
     clipReveal(more, { trigger: more, from: 'inset(0% 100% 0% 0%)' });
     const cards = qa('[data-card]');
     cards.forEach(card => {
-      // The visual opens through an oval while a red curtain drains off it; its scene
-      // starts once the curtain has lifted (data-scene-delay).
+      // Its scene starts once the curtain has lifted (data-scene-delay).
       onRevert(curtainReveal(card.querySelector('[data-cardvis]'), { trigger: card }));
       gsap.from(card.querySelectorAll('[data-cardtxt]'), { autoAlpha: 0, y: 24, stagger: 0.06, ease: EASE.out, clearProps: 'transform', scrollTrigger: inView(card, { start: 'top 80%' }) });
     });
 
-    // Stack mode (motion only): the cards stick under the nav one after another, each
-    // stepped a little lower, so the next one slides up over the last like a deck.
-    // On wide screens the heading becomes a sticky column with a live index, the
-    // current title and a progress bar. Only when a card fits the screen; otherwise
-    // the staggered grid below stays. Plain CSS sticky: no pin, no pin-spacer.
+    // Stack mode, when every card fits the screen: the cards stick under the nav, each a step
+    // lower, so the next slides over the last like a deck. Plain CSS sticky: no pin.
     root.classList.add('proj-stack');
     const navh = navHeight();
     const top = (i: number) => navh + (wide ? 24 : 16) + i * (wide ? 20 : 12); // matches the CSS
     const room = document.documentElement.clientHeight;
     if (cards.every((c, i) => top(i) + c.offsetHeight <= room - 8)) {
       onRevert(() => root.classList.remove('proj-stack'));
-      stack();
+      stackDeck(q, cards, top, wide, onRevert);
       return;
     }
     root.classList.remove('proj-stack');
@@ -61,37 +90,6 @@ export function Projects() {
       scrubParallax(card, card, { from: { yPercent: 0 }, to: { yPercent: LAYOUT[i].speed } });
       scrubParallax(card.querySelector('[data-cardin]'), card, { from: { yPercent: -6, scale: 1.08 }, to: { yPercent: 6, scale: 1.08 } });
     });
-
-    function stack() {
-      const n = cards.length;
-      // The card underneath steps back and darkens (an overlay, not a filter) as the next one covers it.
-      cards.slice(0, -1).forEach((card, i) => {
-        gsap.timeline({ scrollTrigger: { trigger: cards[i + 1], start: 'top bottom', end: `top ${top(i + 1)}px`, scrub: true } })
-          .fromTo(card, { scale: 1 }, { scale: 0.92, transformOrigin: '50% 0%', ease: EASE.none }, 0)
-          .fromTo(card.querySelector('[data-cardshade]'), { opacity: 0 }, { opacity: 0.55, ease: EASE.none }, 0);
-      });
-      if (!wide) return;
-      // The sticky column follows the deck: index (scrambled like a timing board), title, progress.
-      const idx = q('[data-pidx]')!, title = q('[data-ptitle]')!;
-      let cur = 0, swap: gsap.core.Timeline | undefined;
-      const set = (i: number) => {
-        if (i === cur) return;
-        const dir = i > cur ? 1 : -1;
-        cur = i;
-        gsap.to(idx, { scrambleText: { text: twoDigits(i + 1), chars: '0123456789' }, duration: DUR.split, ease: EASE.none, overwrite: true });
-        swap?.kill();
-        swap = gsap.timeline()
-          .to(title, { yPercent: -110 * dir, duration: DUR.hit, ease: EASE.in })
-          .call(() => { title.textContent = projects[i].company; })
-          .fromTo(title, { yPercent: 110 * dir }, { yPercent: 0, duration: DUR.split, ease: EASE.out });
-      };
-      cards.slice(1).forEach((card, k) => ScrollTrigger.create({
-        trigger: card, start: 'top 55%', onEnter: () => set(k + 1), onLeaveBack: () => set(k),
-      }));
-      gsap.fromTo(q('[data-pbar]'), { scaleX: 1 / n }, { scaleX: 1, ease: EASE.none,
-        scrollTrigger: { trigger: cards[0], start: `top ${top(0)}px`, endTrigger: cards[n - 1], end: `top ${top(n - 1)}px`, scrub: true } });
-      onRevert(() => { idx.textContent = twoDigits(1); title.textContent = projects[0].company; });
-    }
   }, [], { fit: true });
 
   return (
@@ -100,7 +98,7 @@ export function Projects() {
         <div className="proj-layout">
         <div className="proj-head mb-16 flex flex-wrap items-end justify-between gap-6">
           <h2 data-speed className="display text-display-section">Projects</h2>
-          {/* Stack mode only (see the CSS): which card is on top of the deck. */}
+          {/* Stack mode only: which card is on top of the deck. */}
           <div aria-hidden="true" className="proj-now">
             <span className="label"><span data-pidx className="text-fg">{twoDigits(1)}</span> / {twoDigits(projects.length)}</span>
             <span className="display mt-3 block overflow-hidden text-display-small font-bold"><span data-ptitle className="block">{projects[0].company}</span></span>
@@ -134,7 +132,6 @@ export function Projects() {
         </div>
         </div>
 
-        {/* The archive, as a proper call to action (Lando's "see more helmets" row). */}
         <button type="button" data-more data-cursor="magnet" data-cursor-pull="0.25" onClick={e => openArchive(originOf(e))}
           className="group relative mt-24 block w-full overflow-hidden border border-line bg-graphite/70 p-6 text-left transition-colors duration-(--dur-hit) hover:border-ac2 md:mt-32 md:p-10">
           <span aria-hidden="true" className="absolute inset-0 origin-left scale-x-0 bg-ac2 transition-transform duration-(--dur-wipe) ease-out-expo group-hover:scale-x-100" />
@@ -161,44 +158,5 @@ export function Projects() {
         <CrawlableDetails items={CRAWL} />
       </div>
     </section>
-  );
-}
-
-/**
- * Project card. Desktop hover (or keyboard focus) draws one red sector line
- * around the card with DrawSVG, and it retracts, quicker, on leave. The tilt
- * and the local spotlight come from useBentoPointer on the grid.
- */
-function ProjectCard({ index, className, children }: { index: number; className: string; children: ReactNode }) {
-  const box = useRef<HTMLDivElement>(null), line = useRef<SVGRectElement>(null);
-  const draw = (on: boolean) => {
-    const el = box.current, r = line.current;
-    if (!el || !r || !motionEnabled()) return;
-    if (on) {
-      const w = el.offsetWidth, h = el.offsetHeight; // both read before either write
-      r.setAttribute('width', String(w - 1));
-      r.setAttribute('height', String(h - 1));
-      gsap.fromTo(r, { drawSVG: '0%' }, { drawSVG: '100%', duration: DUR.wipe, ease: EASE.out, overwrite: true });
-    } else {
-      gsap.to(r, { drawSVG: '100% 100%', duration: DUR.split, ease: EASE.in, overwrite: true });
-    }
-  };
-  return (
-    // The whole card opens its details: a click anywhere that isn't another control
-    // is passed to the Details button (which keeps keyboard access and the dialog origin).
-    // oxlint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions -- mouse shortcut to the Details button
-    <article data-card data-cursor="view" className={className} style={{ '--i': index } as CSSProperties}
-      onClick={e => { if (!(e.target as Element).closest('button, a')) e.currentTarget.querySelector<HTMLButtonElement>('[data-details]')?.click(); }}
-      onPointerEnter={() => { if (!isTouch()) draw(true); }} onPointerLeave={() => { if (!isTouch()) draw(false); }}
-      onFocus={() => draw(true)} onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget)) draw(false); }}>
-      <div ref={box} data-tilt className="card relative isolate cursor-pointer overflow-hidden border border-line bg-graphite has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-ac">
-        <span aria-hidden="true" className="card-spot" />
-        {children}
-        <span data-cardshade aria-hidden="true" className="pointer-events-none absolute inset-0 z-20 bg-carbon opacity-0" />
-        <svg aria-hidden="true" className="pointer-events-none absolute inset-0 z-10 size-full overflow-visible">
-          <rect ref={line} x="0.5" y="0.5" width="0" height="0" fill="none" stroke="var(--ac)" strokeWidth="2" style={{ strokeDasharray: '0 1' }} />
-        </svg>
-      </div>
-    </article>
   );
 }

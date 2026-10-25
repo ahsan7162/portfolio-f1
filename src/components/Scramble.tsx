@@ -4,10 +4,9 @@ import { isTouch, motionEnabled } from '@/motion/prefs';
 import { DUR, EASE } from '@/motion/tokens';
 
 /**
- * Text that scrambles into place with ScrambleTextPlugin: whenever `text`
- * changes (`on="change"`), or when its link or button is hovered (`on="hover"`).
- * Never on load. GSAP owns the text node after mount, so React renders the
- * first value only (that keeps the prerendered markup) and never rewrites it.
+ * Text that scrambles into place whenever `text` changes (`on="change"`) or its link or
+ * button is hovered (`on="hover"`), never on load. GSAP owns the text node after mount, so
+ * React renders the first value only (matching the prerender) and never rewrites it.
  */
 export function Scramble({ text, on = 'change', className }: { text: string; on?: 'change' | 'hover'; className?: string }) {
   const ref = useRef<HTMLSpanElement>(null);

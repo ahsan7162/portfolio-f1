@@ -1,0 +1,16 @@
+/* The livery panel's sliders (livery/controls.tsx): native ranges over a painted track (--track), the thumb in the colour itself (--thumb). */
+.tone-range {
+  -webkit-appearance: none; appearance: none; display: block; width: 100%; height: 12px;
+  border-radius: 999px; background: var(--track); cursor: pointer;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fg) 12%, transparent);
+}
+.tone-range::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 22px; height: 22px; border-radius: 999px;
+  border: 3px solid var(--fg); background: var(--thumb); box-shadow: 0 2px 8px rgb(0 0 0 / 0.5);
+  transition: transform var(--dur-hit) var(--ease-out-expo);
+}
+.tone-range:active::-webkit-slider-thumb { transform: scale(1.15); }
+.tone-range::-moz-range-thumb {
+  width: 16px; height: 16px; border-radius: 999px;
+  border: 3px solid var(--fg); background: var(--thumb); box-shadow: 0 2px 8px rgb(0 0 0 / 0.5);
+}

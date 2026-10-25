@@ -6,18 +6,17 @@ import { DUR, EASE } from './tokens';
 type Tilt = { rx: gsap.QuickToFunc; ry: gsap.QuickToFunc; s: gsap.QuickToFunc };
 
 /**
- * Pointer effects for a bento grid (desktop, motion on): an accent spotlight
- * that trails the cursor across the whole grid, and a small tilt on the
- * `[data-tilt]` tile under it. Both run through gsap.quickTo, so the tilt eases
- * toward the cursor and settles flat on leave, and React never re-renders.
+ * Pointer effects for a bento grid (desktop, motion on): an accent spotlight that trails the
+ * cursor across the grid, and a small tilt on the `[data-tilt]` tile under it, both through
+ * gsap.quickTo, so React never re-renders.
  */
 export function useBentoPointer<T extends HTMLElement>() {
   const ref = useRef<T>(null);
   useEffect(() => {
     const host = ref.current;
     if (!host || isTouch() || !motionEnabled()) return;
-    // Only a .bento grid draws the trailing spotlight (index.css), and only a tile's .card-spot
-    // reads the cursor in tile space: other grids and tiles get no writes nothing would read.
+    // Only a .bento grid draws the trailing spotlight, and only a tile's .card-spot reads the
+    // cursor in tile space: nothing is written that nothing reads.
     const spotlight = host.classList.contains('bento');
     const cardSpots = new Map<HTMLElement, HTMLElement | null>();
     const cardSpotOf = (el: HTMLElement) => {
@@ -65,8 +64,7 @@ export function useBentoPointer<T extends HTMLElement>() {
         if (t) t.dataset.tilting = '';
       }
       if (!t || !b) return;
-      // The cursor in the tile's own space, for its spotlight (.card-spot), when it has one.
-      const cs = cardSpotOf(t);
+        const cs = cardSpotOf(t);
       cs?.style.setProperty('--tx', `${(e.clientX - b.left).toFixed(0)}px`);
       cs?.style.setProperty('--ty', `${(e.clientY - b.top).toFixed(0)}px`);
       const px = (e.clientX - b.left) / b.width - 0.5, py = (e.clientY - b.top) / b.height - 0.5;

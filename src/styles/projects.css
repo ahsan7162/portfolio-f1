@@ -1,0 +1,19 @@
+/* Projects deck (motion only, when a card fits the screen). Unlayered, so it overrides the
+   grid utilities (spans, staggered offsets) without !important. */
+.proj-now { display: none; }
+.proj-stack .proj-cards { display: flex; flex-direction: column; gap: 14vh; }
+.proj-stack [data-card] { position: sticky; top: calc(var(--navh) + 1rem + var(--i) * 12px); margin-top: 0; }
+.proj-stack [data-cardvis] { aspect-ratio: auto; height: clamp(170px, 28vh, 380px); }
+@media (min-width: 1024px) {
+  .proj-stack .proj-layout { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 4rem; align-items: start; }
+  .proj-stack .proj-head { position: sticky; top: calc(var(--navh) + 2rem); flex-direction: column; align-items: flex-start; gap: 2.5rem; margin-bottom: 0; }
+  .proj-stack .proj-head h2 { font-size: clamp(2.55rem, 4.75vw, 5.1rem); }
+  .proj-stack .proj-now { display: block; }
+  .proj-stack [data-card] { top: calc(var(--navh) + 1.5rem + var(--i) * 20px); }
+  .proj-stack [data-cardvis] { height: clamp(200px, 36vh, 420px); }
+}
+
+/* Project scenes (scene-kit): inset to 76% on the dot grid, 90% on phones, where 76% would
+   shrink their UI text below 5 px. SVG transforms here are in viewBox units. */
+.proj-scene { transform: translate(38.4px, 24px) scale(0.76); }
+@media (max-width: 639px) { .proj-scene { transform: translate(16px, 10px) scale(0.9); } }

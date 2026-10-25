@@ -1,6 +1,5 @@
-// One hand-authored fictional F1 circuit. Closed loop in a 400 x 260 box.
-// Used by: hero line drawing, About underline, TrackMap, and (sampled into 3D)
-// the WebGL lap tube.
+// A fictional F1 circuit, a closed loop in a 400 x 260 box: the hero's line drawing, the
+// track map, the footer's signature, and (sampled into 3D) the WebGL lap.
 export const CIRCUIT_VIEWBOX = '0 0 400 260';
 
 export const CIRCUIT_PATH =
@@ -24,5 +23,5 @@ export const CIRCUIT_PATH =
   'C 138 200 124 196 106 196 ' +
   'Z';
 
-/** A short open stretch (the "fix it" underline). */
+/** A short open stretch: the About statement's underline. */
 export const SWOOSH_PATH = 'M 4 22 C 60 30 120 6 180 12 C 230 17 262 30 300 18 L 340 6';

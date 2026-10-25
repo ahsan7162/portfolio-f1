@@ -8,11 +8,10 @@ import { refreshSoon } from '@/motion/startup';
 type Mark = { id: string; name: string; top: number; p: number };
 
 /**
- * The page's scrollbar, desktop only (phones keep their own). A red pill with a
- * checkered band that stretches with scroll speed and wobbles back when you
- * stop; a dot per section lights up once passed, with names on hover. Drag the
- * pill, click the track, or click a section. The native bar is hidden only
- * while this is mounted, so without JS or with reduced motion it stays.
+ * The page's scrollbar on desktop: a pill that stretches with scroll speed and wobbles back
+ * when you stop, and a dot per section that lights up once passed. Drag the pill, click the
+ * track, or click a section. The native bar is hidden only while this runs, so without JS or
+ * with reduced motion it stays.
  */
 export function ScrollRail() {
   const { lenis, scrollTo } = useSmoothScroll();
@@ -39,8 +38,8 @@ export function ScrollRail() {
       dots.forEach(m => m.toggleAttribute('data-passed', p >= +m.dataset.p! - 0.002));
     };
     const layout = () => {
-      // A page that hasn't been laid out yet (opened in a background view) reports 0 for
-      // these, and 0 / 0 would make every mark's top NaN. The next refresh lays it out.
+      // A page not laid out yet (a background view) reports 0 here, and 0 / 0 would make
+      // every mark's top NaN. The next refresh lays it out.
       const sh = root.scrollHeight;
       H = r.clientHeight;
       if (!H || !sh) return;
@@ -54,8 +53,8 @@ export function ScrollRail() {
       }));
       lastY = -1;
     };
-    // Only does work on frames where the scroll moved or its speed changed. The section dots
-    // are React's (keyed, so the nodes stay put); look them up until they have rendered.
+    // Works only on frames where the scroll moved or its speed changed. The section dots are
+    // React's (keyed, so the nodes stay put): look them up until they have rendered.
     const tick = () => {
       if (scrollState.y === lastY && scrollState.velocity === lastV) return;
       if (dots.length !== SECTIONS.length || !dots[0].isConnected) dots = [...r.querySelectorAll<HTMLElement>('[data-mark]')];

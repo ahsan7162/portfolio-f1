@@ -6,14 +6,13 @@ import { DUR, EASE, STAGGER } from './tokens';
 type Prepared = { chars: Element[]; undo: () => void };
 
 /**
- * Letter roll on links and buttons (landonorris.com's hover): the label's letters roll
- * up one after another and an identical copy rolls in from below. The copy is each
- * letter's own text-shadow, one line down, clipped by `.roll` (index.css), so there is
- * no second set of letters to keep in sync.
+ * Letter roll on links and buttons: the label's letters roll up one after another and a copy
+ * rolls in from below. The copy is each letter's own text-shadow one line down, clipped by
+ * `.roll` (index.css), so there is no second set of letters to keep in sync.
  *
- * Mark the label with `data-letter-roll`; it must hold plain text only. It is split on
- * its first hover, into an sr-only copy (so accessible names never change) and an
- * aria-hidden visible copy. A label whose text changes needs a React `key` tied to the text, so it
+ * Mark the label with `data-letter-roll`; it must hold plain text only. It is split on its
+ * first hover, into an sr-only copy (accessible names never change) and an aria-hidden
+ * visible one. A label whose text changes needs a React `key` tied to the text, so it
  * remounts unsplit. Mouse only: one delegated listener covers the menu and dialogs too.
  */
 export function useLetterRoll() {

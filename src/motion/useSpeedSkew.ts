@@ -7,11 +7,9 @@ const MAX = 3; // degrees at a hard flick
 const GAIN = 0.05; // degrees per unit of Lenis velocity (px per frame)
 
 /**
- * Speed skew: display headings marked `data-speed` lean with how fast you scroll
- * and settle back when you stop, direction aware. One ticker function eases
- * toward Lenis's (already smooth) velocity at any frame rate and writes skewY
- * through quickSetter, only to the headings on screen. Mouse and trackpad only:
- * touch velocity is not smoothed by Lenis and would jitter.
+ * Display headings marked `data-speed` lean with how fast you scroll and settle back when you
+ * stop. One ticker function eases toward Lenis's velocity and writes only the headings on
+ * screen. Mouse and trackpad only: touch velocity isn't smoothed by Lenis and would jitter.
  */
 export function useSpeedSkew() {
   useEffect(() => {

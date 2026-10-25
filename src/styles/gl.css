@@ -1,0 +1,42 @@
+/* WebGL stage fades in once ready. Without it, a static contour pattern shows. */
+html.gl-on .gl-canvas { opacity: 1; }
+.contour-fallback {
+  background-image: url("../assets/contours.svg");
+  background-size: 1400px auto;
+  background-position: center top;
+  opacity: 0.5;
+}
+html.gl-on .contour-fallback { opacity: 0; transition: opacity 1s; }
+
+/* The helmet's canvas, above the page and click-through. Layers: content < helmet 30 <
+   track map 40 < nav 50 < scroll rail 60 < dialogs 70/75 < loader 80 < cursor 85. */
+.gl-helmet {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  width: 100%;
+  height: 100lvh;
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity var(--dur-split) var(--ease-out-expo);
+}
+html.gl-on .gl-helmet { visibility: visible; opacity: 1; }
+html.gl-on .gl-helmet[data-off] { visibility: hidden; }
+html.gl-on .gl-helmet[data-dim] { opacity: 0.2; }
+/* Its spot in the hero on wide screens: up to 44vh square, kept clear of the name's longest
+   line (MUHAMMAD runs 8.1em of the hero size) and shrunk where it would run off screen. */
+@media (min-width: 1024px) {
+  .hero-helmet {
+    --name-end: calc(max(2rem, 50vw - 700px) + 8.1 * min(8.9vw, 8rem) + 2.5rem);
+    --hx: max(calc(78vw - 22vh), var(--name-end));
+    --hs: min(44vh, calc((100vw - var(--hx) - 1rem) * 0.85));
+    left: var(--hx);
+    top: calc(55% - var(--hs) / 2);
+    width: var(--hs);
+    height: var(--hs);
+  }
+}
+/* Its landing slot in the About sentence, after "fast.": no room unless the helmet flies. */
+.helmet-slot { display: inline-block; width: 0; height: 0.8em; }
+html.helmet-flight .helmet-slot { width: 1.7em; margin-left: 0.2em; }

@@ -2,23 +2,24 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
-import { DialogCtx, type Origin } from '@/components/dialog-context';
+import { DialogCtx, type Origin } from '@/components/dialogs/context';
 import { Cursor } from '@/components/Cursor';
-import { closeWithWipe, DetailsDialog } from '@/components/Dialogs';
+import { DetailsDialog } from '@/components/dialogs/DetailsDialog';
+import { closeWithWipe } from '@/components/dialogs/wipe';
 import { ArchiveGate } from '@/components/archive/ArchiveGate';
-import { Intro } from '@/components/Intro';
-import { Nav } from '@/components/Nav';
+import { Intro } from '@/components/intro/Intro';
+import { Nav } from '@/components/nav/Nav';
 import { ScrollRail } from '@/components/ScrollRail';
 import { TrackMap } from '@/components/TrackMap';
 import { About } from '@/components/sections/About';
-import { Contact } from '@/components/sections/Contact';
-import { Contributions } from '@/components/sections/Contributions';
+import { Contact } from '@/components/sections/contact/Contact';
+import { Contributions } from '@/components/sections/contributions/Contributions';
 import { Experience } from '@/components/sections/Experience';
 import { Hero } from '@/components/sections/Hero';
-import { Lap } from '@/components/sections/Lap';
+import { Lap } from '@/components/sections/lap/Lap';
 import { Projects } from '@/components/sections/Projects';
 import { Results } from '@/components/sections/Results';
-import { TechStack } from '@/components/sections/TechStack';
+import { TechStack } from '@/components/sections/tech-stack/TechStack';
 import type { Breakdown } from '@/content/data';
 import { GLCanvas } from '@/gl/GLCanvas';
 import { ensureGsap } from '@/motion/gsap';
@@ -40,9 +41,9 @@ function Page() {
   const returns = useRef<(HTMLElement | null)[]>([]);
   const anyOpen = !!(open.sel || open.arch);
 
-  // Remember what had focus when a dialog opens; closing returns it there.
+  // Closing a dialog returns focus to what had it when the dialog opened.
   const push = useCallback(() => { returns.current.push(document.activeElement as HTMLElement | null); }, []);
-  // Commit the close synchronously so `inert` is gone, then return focus.
+  // Commit the close synchronously, so `inert` is gone before focus returns.
   const finishClose = useCallback((update: (s: Open) => Open) => {
     flushSync(() => setOpen(update));
     unlock();
@@ -71,9 +72,8 @@ function Page() {
   }, []);
 
   const api = useMemo(() => ({ openDetails, openArchive }), [openDetails, openArchive]);
-  // The page itself never depends on which dialog is open: keep the same elements,
-  // so opening or closing a dialog doesn't re-render the whole site (that cost a
-  // 40 to 50 ms frame at the start of every open and the end of every close).
+  // The page never depends on which dialog is open: the same elements, so opening or
+  // closing one doesn't re-render the whole site (a 40 to 50 ms frame each time).
   const page = useMemo(() => (
     <>
       <Nav />
@@ -100,7 +100,6 @@ function Page() {
       {gl}
       <div inert={anyOpen || undefined}>{page}</div>
       {intro}
-      {/* All projects loads its own code the first time it opens (ArchiveGate). */}
       {open.arch && <ArchiveGate dref={archRef} origin={open.arch.o} onClose={closeArch} />}
       {open.sel && <DetailsDialog dref={selRef} sel={open.sel.b} origin={open.sel.o} onClose={closeSel} />}
       {cursor}
@@ -112,8 +111,7 @@ export default function App() {
   return (
     <SmoothScroll>
       <Page />
-      {/* Vercel Web Analytics and Speed Insights: render nothing; cookieless page views and
-          Core Web Vitals from real visits, sent only from the deployed site. */}
+      {/* Cookieless page views and Core Web Vitals, sent only from the deployed site. */}
       <Analytics />
       <SpeedInsights />
     </SmoothScroll>

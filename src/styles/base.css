@@ -1,0 +1,32 @@
+@layer base {
+  html {
+    overflow-x: clip;
+    background: var(--carbon);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    /* A touch above 400: light text on carbon renders thinner than dark on white. */
+    font-weight: 450;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    background: transparent;
+    min-height: 100dvh;
+    overflow-x: clip;
+  }
+  ::selection {
+    background: var(--ac);
+    color: var(--carbon);
+  }
+  :focus-visible {
+    outline: 2px solid var(--ac);
+    outline-offset: 3px;
+  }
+  /* Every anchor target clears the nav. Lenis reads this too, so scrollTo adds no offset.
+     Not the footer: it is the last screen, built to sit flush with the page's end (the
+     nav goes clear over it), so a #contact jump lands with its legal line on screen. */
+  section[id], #education {
+    scroll-margin-top: var(--navh);
+  }
+}

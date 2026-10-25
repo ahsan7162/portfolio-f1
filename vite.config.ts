@@ -4,9 +4,8 @@ import tailwindcss from '@tailwindcss/vite';
 import { fileURLToPath, URL } from 'node:url';
 
 /**
- * Preloads fonts from src/assets/fonts, so the hero heading's font starts downloading
- * with the HTML instead of after the CSS has been parsed. Vite hashes font names in
- * the build, so the links are written here rather than in index.html.
+ * Preloads the fonts in src/assets/fonts, so they download with the HTML, not after the CSS.
+ * Vite hashes their names in the build, so the links are written here, not in index.html.
  */
 function preloadFonts(files: string[]): Plugin {
   const link = (href: string) => ({ tag: 'link', attrs: { rel: 'preload', as: 'font', type: 'font/woff2', href, crossorigin: true }, injectTo: 'head' as const });
@@ -26,8 +25,8 @@ function preloadFonts(files: string[]): Plugin {
 
 export default defineConfig({
   base: './',
-  // The year the site was built, written into both bundles, so the prerendered footer and
-  // the client agree (a live new Date() would differ once the year turns: a hydration error).
+  // The build's year in both bundles, so the prerendered footer and the client always agree
+  // (a live new Date() would differ once the year turns: a hydration error).
   define: { 'import.meta.env.BUILD_YEAR': JSON.stringify(String(new Date().getFullYear())) },
   plugins: [react(), tailwindcss(), preloadFonts(['hubot-sans.woff2', 'mona-sans.woff2', 'monaspace-krypton.woff2'])],
   resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },

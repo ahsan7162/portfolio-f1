@@ -1,13 +1,10 @@
 import { ScrollTrigger } from './gsap';
 
-// Start-up order for the sections' motion. The hero sets up at once: it is on screen
-// and joins the loader's reveal. Every other section waits for the web fonts, so
-// SplitText splits once, on the real metrics, instead of again when the fonts land
-// (the fit sections would rebuild too). Then they set up one per task, in page order,
-// so no single task holds the page for long, and one sort and refresh follows. They
-// are below the fold, so nothing on screen changes while they wait.
-// A #link or a restored scroll position sets everything up at once (the jump needs the
-// pins), and so does any input before the queue is done.
+// Start-up order for the sections' motion. The hero sets up at once (it is on screen and
+// joins the loader's reveal). The rest wait for the web fonts, so SplitText splits once on
+// the real metrics, then set up one per task in page order, so no single task holds the
+// page for long; one sort and refresh follows. A #link or a restored scroll position sets
+// everything up at once (the jump needs the pins), and so does any input before the queue is done.
 
 const FONT_WAIT = 2000; // ms: past this, set up on the fallback font (SplitText re-splits later)
 const INPUTS = ['wheel', 'touchstart', 'keydown', 'pointerdown', 'scroll'] as const;

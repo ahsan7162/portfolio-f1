@@ -1,0 +1,59 @@
+/* Footer (sections/contact): the last screen as a card in a frame that deepens to red at
+   the bottom. The card's outline: 45° top corners, a tab in its top edge, and a notch in
+   each bottom corner for the legal line. */
+.footer {
+  --fw: 10px;     /* frame width */
+  --c0: 10px;     /* the cut in the card's top corners */
+  --td: 30px;     /* tab depth */
+  --tw: 9.5rem;   /* tab width along its bottom edge */
+  --nh: 52px;     /* notch height */
+  --nw: 50%;      /* notch width along the bottom */
+  /* The card's outline in the footer's own box, clockwise from the top left. */
+  --card:
+    var(--fw) calc(var(--fw) + var(--c0)), calc(var(--fw) + var(--c0)) var(--fw),
+    calc(50% - var(--tw) / 2 - var(--td)) var(--fw), calc(50% - var(--tw) / 2) calc(var(--fw) + var(--td)),
+    calc(50% + var(--tw) / 2) calc(var(--fw) + var(--td)), calc(50% + var(--tw) / 2 + var(--td)) var(--fw),
+    calc(100% - var(--fw) - var(--c0)) var(--fw), calc(100% - var(--fw)) calc(var(--fw) + var(--c0)),
+    calc(100% - var(--fw)) calc(100% - var(--fw) - var(--nh) - var(--c0)), calc(100% - var(--fw) - var(--c0)) calc(100% - var(--fw) - var(--nh)),
+    calc(100% - var(--nw) + var(--nh)) calc(100% - var(--fw) - var(--nh)), calc(100% - var(--nw)) calc(100% - var(--fw)),
+    var(--nw) calc(100% - var(--fw)), calc(var(--nw) - var(--nh)) calc(100% - var(--fw) - var(--nh)),
+    calc(var(--fw) + var(--c0)) calc(100% - var(--fw) - var(--nh)), var(--fw) calc(100% - var(--fw) - var(--nh) - var(--c0));
+}
+@media (min-width: 768px) {
+  .footer { --fw: 14px; --c0: 16px; --td: 40px; --tw: clamp(16rem, 26vw, 25rem); --nh: 44px; --nw: clamp(17rem, 28vw, 26rem); }
+}
+.footer-frame {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, transparent 0%, color-mix(in srgb, var(--frame-0) 45%, transparent) 24%, var(--frame-1) 48%, var(--frame-2) 70%, var(--frame-3) 91%, var(--frame-4) 100%);
+}
+/* The shadow wrapper: static, so its filter is drawn once. */
+.footer-card {
+  position: absolute; inset: 0;
+  filter: drop-shadow(0 0 1px color-mix(in srgb, var(--fg) 30%, transparent)) drop-shadow(0 14px 30px color-mix(in srgb, var(--shade) 75%, transparent));
+}
+.footer-card-shape {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, var(--panel), var(--carbon) 45%, var(--pit));
+  clip-path: polygon(var(--card));
+}
+/* The site's contour drawing, inside the card. */
+.footer-card-shape::after {
+  content: ""; position: absolute; inset: 0;
+  background: url("../assets/contours.svg") center top / 1400px auto;
+  opacity: 0.8;
+}
+/* The tab's area on the frame (the flash fills it), and the notches' text boxes. */
+.footer-tab {
+  position: absolute; top: 0; left: 50%; translate: -50% 0;
+  width: calc(var(--tw) + 2 * var(--td)); height: calc(var(--fw) + var(--td));
+  clip-path: polygon(0 0, 100% 0, 100% var(--fw), calc(100% - var(--td)) 100%, var(--td) 100%, 0 var(--fw));
+}
+.footer-corner { position: absolute; bottom: 0; width: var(--nw); height: calc(var(--fw) + var(--nh)); }
+.footer-text {
+  position: absolute; inset: 0 0 auto; height: var(--nh);
+  display: flex; align-items: center; gap: 0.75em;
+  font: 600 12px/1.25 var(--font-sans);
+  color: var(--fg);
+}
+.footer-tab .footer-text { top: var(--fw); height: var(--td); padding-inline: var(--td); }
+@media (min-width: 768px) { .footer-text { font-size: 13px; } }

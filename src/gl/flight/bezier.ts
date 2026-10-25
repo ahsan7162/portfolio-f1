@@ -1,12 +1,11 @@
-// The helmet's flight between two layout boxes, as on landonorris.com: a cubic Bézier
-// whose control points sit off each end by fractions of the distance between them.
-// Pure numbers, no allocation: called every frame.
+// The helmet's flight between two layout boxes: a cubic Bézier whose control points sit off
+// each end by fractions of the distance between them. No allocation: called every frame.
 
 export type Pt = { x: number; y: number };
 /** [k1x, k1y, k2x, k2y]: control point 1 = a + (k1x·dx, k1y·dy); control point 2 = b + (k2x·dx, k2y·dy). */
 export type Bend = readonly [number, number, number, number];
 
-/** landonorris.com's two curves: drop then glide in (hero to headline), and a hook out to the side. */
+/** Drop then glide in, and a hook out to the side. */
 export const DROP: Bend = [0, 0.4, 0, -0.3];
 export const HOOK: Bend = [0, 0.3, -0.4, -0.2];
 

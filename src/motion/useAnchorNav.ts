@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { ScrollTrigger } from './gsap';
-import { finishRevealsAbove } from './patterns';
+import { finishRevealsAbove } from './reveals';
 import { useSmoothScroll } from './SmoothScroll';
 
 /** In-page links scroll with Lenis, then move focus to the section for keyboard users. */
@@ -20,12 +20,9 @@ export function useAnchorNav() {
       window.setTimeout(() => el.focus({ preventScroll: true }), 900);
     };
     document.addEventListener('click', onClick);
-    // Deep link: jump now (the sections' pins already exist; Lenis may not yet, so this
-    // one can be the browser's own), on the next frame, and after every ScrollTrigger
-    // refresh until the visitor takes over. On the prerendered page the browser has
-    // already jumped, to where the target was before the pin spacers moved it, and each
-    // later refresh (fonts, the fit sections' rebuild) lifts the pins while it measures,
-    // which clamps the scroll to the shorter page for a moment.
+    // Deep link: jump now, on the next frame, and after every ScrollTrigger refresh until
+    // the visitor takes over. The browser's own jump landed before the pin spacers moved the
+    // target, and each refresh lifts the pins while it measures, clamping the scroll for a moment.
     let off = () => {};
     const el = location.hash ? document.getElementById(location.hash.slice(1)) : null;
     if (el) {

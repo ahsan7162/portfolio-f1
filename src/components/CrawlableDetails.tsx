@@ -1,14 +1,11 @@
 import { useEffect, useRef } from 'react';
-import { useDialogs } from '@/components/dialog-context';
+import { useDialogs } from '@/components/dialogs/context';
 import type { Breakdown } from '@/content/data';
 
 /**
- * The full text of every details dialog, prerendered into the page so search
- * engines can read it (the dialogs themselves only mount on click).
- *
- * Each block is `hidden="until-found"`: invisible, like a collapsed accordion,
- * but indexed and findable with the browser's find-in-page. If find-in-page
- * reveals one, the matching dialog opens instead and the block hides again.
+ * The full text of every details dialog, prerendered so search engines can read it (the
+ * dialogs only mount on click). Each block is `hidden="until-found"`: invisible but indexed
+ * and findable with find-in-page, which opens the matching dialog instead.
  */
 export function CrawlableDetails({ items }: { items: Breakdown[] }) {
   const { openDetails } = useDialogs();

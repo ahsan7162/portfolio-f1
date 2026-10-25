@@ -2,10 +2,8 @@ import * as THREE from 'three';
 import { disposables } from './dispose';
 
 /**
- * A pit garage to bake into the helmet's reflection map: a dark box with long
- * strip lights overhead and down one side, plus one red strip. Baked once with
- * PMREMGenerator.fromScene, so it costs nothing per frame and downloads nothing;
- * as the helmet turns, the long strip highlights slide across the shell and visor.
+ * A pit garage to bake into the helmet's reflection map (once, with PMREMGenerator): a dark
+ * box with strip lights overhead and down one side, plus one red strip.
  */
 export function garageScene() {
   const scene = new THREE.Scene();

@@ -53,7 +53,7 @@ export const isPhone = () => isBrowser() && window.matchMedia('(hover: none) and
 const GL_PREF = 'v2-3d';
 
 /** The visitor's pick from the nav's 2D / 3D toggle, kept for later visits; null leaves it to the device. */
-export function glPref(): 'on' | 'off' | null {
+function glPref(): 'on' | 'off' | null {
   try {
     const v = localStorage.getItem(GL_PREF);
     return v === 'on' || v === 'off' ? v : null;

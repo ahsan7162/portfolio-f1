@@ -3,6 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Content-Security-Policy, with the inline scripts' hashes: written by scripts/prerender.ts. -->
+    <!--csp-->
     <!-- The words people hiring search for come first: the roles, then "portfolio", then the name. -->
     <title>Full Stack Developer &amp; AI Engineer Portfolio | Muhammad Ahsan</title>
     <meta name="description" content="Portfolio of Muhammad Ahsan, full stack developer and AI developer. Software engineer building React, Go, Python and .NET apps and AI agents. Open to new roles." />
@@ -21,10 +23,13 @@
     <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
     <script>
       // Before first paint: the stored livery (src/art/palette.ts), so any livery but F1 never flashes F1.
+      // Only colour variables are applied, whatever else the stored value holds.
       try {
         var lv = JSON.parse(localStorage.getItem('v2-livery') || 'null'), root = document.documentElement;
         if (lv && lv.livery === 'barca') root.dataset.theme = 'barca';
-        else if (lv && lv.vars) for (var k in lv.vars) root.style.setProperty(k, lv.vars[k]);
+        else if (lv && lv.vars) for (var k in lv.vars) {
+          if (/^--[a-z0-9-]+$/.test(k) && /^(#[0-9a-f]{6}|rgb\([0-9. \/]+\))$/i.test(lv.vars[k])) root.style.setProperty(k, lv.vars[k]);
+        }
       } catch (e) {}
     </script>
     <script>
@@ -36,10 +41,8 @@
           var rm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
           var q = location.search;
           if (q.indexOf('nomotion') >= 0) d.classList.add('no-motion'); // CSS transitions off too (index.css)
-          // The helmet will fly: open its slot in the About sentence before first paint, so
-          // the sentence never reflows (GLCanvas.tsx closes it again if WebGL is out). The
-          // 3D starts as glWanted() decides (prefs.ts): the nav toggle's pick, else off on
-          // phones, weak devices and Save-Data. Made here too, so there the slot stays shut.
+          // The helmet will fly: open its slot in the About sentence before first paint, so the
+          // sentence never reflows. The same decision as glWanted() in src/motion/prefs.ts.
           else if (!rm && q.indexOf('nogl') < 0) {
             var pick = null;
             try { pick = localStorage.getItem('v2-3d'); } catch (e) {}

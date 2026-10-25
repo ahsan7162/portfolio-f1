@@ -1,10 +1,8 @@
 import * as THREE from 'three';
 
-// Procedural F1 helmet. Everything starts as a unit sphere with the bottom cut
-// open, then each vertex is pushed into a helmet shape by shapeShell().
-//
-// Sphere parameters (three.js): theta 0 = top (+y), phi measured so that
-// phi = PI/2 faces +z (the front of the helmet). The seam sits at the back.
+// The helmet's shape: a unit sphere with the bottom cut open, each vertex pushed into a helmet
+// by shapeShell(). Sphere angles (three.js): theta 0 = top (+y), phi = PI/2 faces +z (the
+// front). The seam sits at the back.
 export const PHI_START = Math.PI * 1.5;
 export const THETA_LEN = Math.PI * 0.86;
 export const FRONT_PHI = Math.PI * 2.5; // PI/2, expressed inside [PHI_START, PHI_START + 2PI]

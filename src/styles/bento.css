@@ -1,0 +1,70 @@
+/* Bento grids (work, stack): see-through tiles split by hairlines, with a cursor spotlight
+   (useBentoPointer). Layered, so Tailwind's col-span utilities override the phone default. */
+@layer components {
+  .bento {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-auto-flow: dense;
+    border-top: 1px solid var(--line);
+    border-left: 1px solid var(--line);
+  }
+  .bento::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    opacity: var(--spot, 0);
+    transition: opacity var(--dur-split) var(--ease-out-expo);
+    background: radial-gradient(320px circle at var(--mx, -999px) var(--my, -999px), color-mix(in srgb, var(--ac) 14%, transparent), color-mix(in srgb, var(--ac) 3%, transparent) 40%, transparent 70%);
+  }
+  .tile {
+    position: relative;
+    grid-column: span 6;
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    background: color-mix(in srgb, var(--graphite) 55%, transparent);
+    transition: background-color var(--dur-split), box-shadow var(--dur-split);
+  }
+  .tile-lead { background: color-mix(in srgb, var(--raise) 70%, transparent); }
+  .tile[data-tilting] {
+    z-index: 2;
+    background: color-mix(in srgb, var(--lift) 94%, transparent);
+    box-shadow: 0 30px 60px -22px color-mix(in srgb, var(--shade) 85%, transparent);
+    transition: background-color var(--dur-split), box-shadow var(--dur-split);
+  }
+  /* Accent rule that draws across the top of a hovered tile. */
+  .tile::before {
+    content: "";
+    position: absolute;
+    inset: -1px 0 auto;
+    height: 2px;
+    background: var(--ac);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform var(--dur-wipe) var(--ease-out-expo);
+  }
+  .tile:hover::before { transform: scaleX(1); }
+  /* Project cards: a soft red spotlight under the cursor (position from useBentoPointer). */
+  .card-spot {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--dur-split) var(--ease-out-expo);
+    background: radial-gradient(280px circle at var(--tx, -999px) var(--ty, -999px), color-mix(in srgb, var(--ac) 10%, transparent), transparent 70%);
+  }
+  .card[data-tilting] .card-spot { opacity: 1; }
+  .pill {
+    display: inline-block;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0.25rem 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    transition: border-color var(--dur-split), color var(--dur-split);
+  }
+  .tile:hover .pill { border-color: color-mix(in srgb, var(--fg) 25%, transparent); }
+}

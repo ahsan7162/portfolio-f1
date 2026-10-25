@@ -1,29 +1,25 @@
 import { SWOOSH_PATH } from '@/art/circuit';
-import { F1 } from '@/art/palette';
+import { F1 } from '@/art/liveries';
 import { profile } from '@/content/data';
 import { gsap, ScrollTrigger, SplitText } from '@/motion/gsap';
-import { drawPath } from '@/motion/patterns';
+import { drawPath } from '@/motion/reveals';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 
 export function About() {
   const ref = useSectionMotion(({ q, qa, short, markers }) => {
     const text = q('[data-statement]')!;
     const pin = q('[data-pin]')!;
-    // Pinned statement: words light up and rise into place as you scroll (Lando's manifesto).
-    // Hidden from screen readers in the markup (they read the copy above it), so no aria-label.
+    // The pinned statement's words light up and rise as you scroll. It is hidden from screen
+    // readers in the markup (they read the copy above it), so no aria-label.
     const split = SplitText.create(text, { type: 'words', aria: 'none' });
-    // The accent words carry the joke: "slowest" trickles in letter by letter, late;
-    // "fast." snaps in at once with a kick and a red streak behind it.
+    // "slowest" trickles in letter by letter, late; "fast." snaps in at once with a kick and a red streak.
     const [slow, fast] = qa('[data-statement] em');
     const slowChars = slow ? SplitText.create(slow, { type: 'chars', aria: 'none' }).chars : [];
     const words = split.words.filter(w => !slow?.contains(w) && !w.contains(slow));
 
-    // The helmet lands in this sentence and holds through this pin (gl/flight), so it
-    // pins on every screen but landscape phones, and the statement's size also follows
-    // the screen height so it fits. Short screens light the words up as it scrolls past.
-    // The pin itself has no animation: the light-up starts earlier, while the hero
-    // is still leaving (from the pin's top at 40% of the screen), so there is no dead
-    // frame between them, and runs to the end of the pin.
+    // The helmet lands in this sentence and holds through the pin (gl/flight), so it pins on
+    // every screen but short ones, which light the words up as they scroll past. The light-up
+    // starts before the pin, while the hero is still leaving, so there is no dead frame between.
     let st: ScrollTrigger.Vars;
     if (short) st = { trigger: text, start: 'top 80%', end: 'bottom 40%', scrub: true, markers };
     else {
@@ -43,8 +39,7 @@ export function About() {
         .to(q('[data-fastline]'), { scaleX: 0, transformOrigin: '100% 50%', ease: 'none', duration: 0.3 }, at + 0.35);
     }
     drawPath(q('[data-swoosh] path'), { timeline: tl, at: '>-0.2', duration: 0.6 });
-    // Handoff to the Lap: over the last part of the pin, the statement steps back and
-    // dims while the Lap's veil starts to open behind it.
+    // Handoff to the Lap: the statement steps back and dims as the Lap's veil opens behind it.
     if (!short) tl.to(q('[data-pinbody]'), { scale: 0.94, opacity: 0.3, transformOrigin: '0% 50%', ease: 'none', duration: tl.duration() * 0.18 });
   });
 
@@ -64,7 +59,7 @@ export function About() {
               {profile.aboutAccent.includes(w)
                 ? <em className="display-em relative isolate inline-block">{w === 'fast.' ? <>fast<span className="text-ac">.</span></> : w}{w === 'fast.' && <span data-fastline className="absolute inset-x-0 top-1/2 -z-10 h-[0.12em] origin-left scale-x-0 bg-ac/60" />}</em>
                 : w}
-              {/* The helmet lands here, after "fast." (gl/flight); no room unless it flies. */}
+              {/* The helmet lands here (gl/flight); no room unless it flies. */}
               {w === 'fast.' && <span data-helmet-anchor="slot" className="helmet-slot" />}
               {i < words.length - 1 ? ' ' : ''}
             </span>

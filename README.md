@@ -119,53 +119,59 @@ Open Graph tags, `sitemap.xml` and the `Sitemap:` line in `robots.txt` for `SITE
 
 ```
 src/
-  components/   nav and menu, dialogs, cursor, scroll rail, track map, start lights, SVG scenes, world map
-    sections/   Hero, About, Lap (career timeline), Experience, Projects, TechStack, Results, Contact
-  content/      data.ts: every word on the page
-  gl/           three.js: Stage (render loop), field, lap, car, run-off, garage, helmet/, flight/
-  motion/       GSAP setup, smooth scroll, shared patterns and tokens
-  art/          palette, the circuit's path, world-map dots
-  lib/          focus trap, lap-time format, idle callback
-scripts/        prerender, font trimming, world-map dots
+  components/
+    sections/   one component per page section; the bigger ones have a folder of their parts
+                (contact/, contributions/, lap/, tech-stack/)
+    nav/        top bar, full-screen menu, 2D/3D toggle
+    dialogs/    the dialog frame, its circular wipe, the details dialog
+    archive/    All projects: the AH04 loader, the card grid, the project view, one scene per project
+    projects/   the featured project cards and their looping SVG scenes
+    livery/     the Livery button and panel (pick a livery, or paint your own)
+    intro/      the F1 start lights
+                plus the cursor, scroll rail, track map, world map and small shared pieces
+  content/      data.ts: every word on the page; github.json: the contribution counts
+  gl/           three.js: Stage (render loop), stage/ (helmet layer, frame budget, input),
+                lap/ (track, racing line, car, run-off, ground), helmet/, flight/
+  motion/       GSAP setup, smooth scroll, tokens, reveals, SplitText reveals, pointer effects
+  art/          liveries (colours), palette (the live livery), colour maths, circuit, world-map dots
+  lib/          focus trap, formatting, idle callback
+scripts/        prerender (+ CSP and SEO tags), GitHub snapshot, font trimming, world-map dots
 ```
 
 - **Scroll:** Lenis smooth scroll runs from the GSAP ticker and updates ScrollTrigger in the
   same frame (`src/motion/SmoothScroll.tsx`), so pins, scrubbed tweens and WebGL never drift.
-- **Motion patterns:** `src/motion/patterns.ts` (SplitText masked reveals, clip-path wipes,
-  scrubbed parallax, digit rolls, DrawSVG lines, `gridSlot`, the scrubbed letter-by-letter
-  heading entrance, `barReveal`, the red bar line reveal, and `curtainReveal`, the oval curtain
-  on project visuals). Sections use them through `useSectionMotion`, which does nothing with
-  reduced motion. Display headings marked `data-speed` lean with scroll speed
-  (`src/motion/useSpeedSkew.ts`); button and menu labels marked `data-letter-roll` roll their
-  letters on hover (`src/motion/useLetterRoll.ts`); Projects becomes a CSS-sticky card deck when
-  a card fits the screen; the custom cursor is `src/components/Cursor.tsx` (states via `data-cursor`).
-- **Intro:** F1 start lights (`src/components/Intro.tsx`) play the shared timeline in
+- **Motion helpers:** `src/motion/reveals.ts` (one-off reveals, clip-path wipes, the oval
+  curtain, scrubbed parallax, DrawSVG lines), `src/motion/split.ts` (SplitText masked reveals,
+  `gridSlot`, the red bar line reveal), `src/motion/digitRoll.ts` and `src/motion/pointer.ts`
+  (magnetic arrows, letters that lean toward the cursor). Sections use them through
+  `useSectionMotion`, which does nothing with reduced motion. Display headings marked
+  `data-speed` lean with scroll speed (`useSpeedSkew.ts`); labels marked `data-letter-roll` roll
+  their letters on hover (`useLetterRoll.ts`); the custom cursor reads `data-cursor` states.
+- **Intro:** F1 start lights (`src/components/intro/`) play the shared timeline in
   `src/motion/intro.ts`. First visit only; skipped with a URL hash, `?nointro` or reduced motion.
 - **WebGL:** lazy-loaded three.js (`src/gl/Stage.ts`) on two canvases. Behind the page: the
   contour-line background, or the 3D lap while it is pinned. Above the page, see-through and
-  click-through: the procedural helmet (`src/gl/helmet/`), so it can fly in front of the text.
-  It flies cubic Béziers between layout boxes marked `data-helmet-anchor` (the hero, a slot
-  after "fast." in About, the P3 step, beside 450+), in back-to-back scroll windows
-  (`src/gl/flight/route.ts`, `flight.ts`).
-- **One animation engine:** every JS animation is GSAP (plus Lenis on its ticker). Counters use
-  `digitRoll`, scrambled labels `ScrambleTextPlugin` (`src/components/Scramble.tsx`), project
-  cards play a short SVG scene of the product in use (`src/components/ProjectVisuals.tsx`: the
-  markup is the last frame; it loops only while on screen, once on touch). In the details
-  dialogs each row lands as it scrolls into view: its stat rolls and, where the highlight has a
-  before/after `delta` in `data.ts`, two bars race at the same speed (`src/components/Dialogs.tsx`).
-  The Contact map grows out of Karachi and draws an arc to each place worked with
-  (`src/components/WorldMap.tsx`). Durations and eases come from `src/motion/tokens.ts`; CSS
-  hover transitions share them through `--dur-hit`, `--dur-split` and `--dur-wipe`.
-- **Shared pieces:** GLSL used by more than one shader (noise, the contour isolines, the
-  helmet's dissolve edge) is in `src/gl/glsl.ts`; small helpers (focus trap, lap-time format,
-  idle callback) are in `src/lib/`. Both dialogs are one `DialogFrame`.
+  click-through: the procedural helmet (`src/gl/stage/HelmetLayer.ts`, `src/gl/helmet/`), so it
+  can fly in front of the text. It flies cubic Béziers between layout boxes marked
+  `data-helmet-anchor`, in back-to-back scroll windows (`src/gl/flight/route.ts`, `flight.ts`).
+- **One animation engine:** every JS animation is GSAP (plus Lenis on its ticker). Project
+  cards play a short SVG scene of the product in use (`src/components/projects/`: the markup is
+  the last frame; it loops only while on screen). In the details dialogs each row lands as it
+  scrolls into view, and where a highlight has a before/after `delta`, two bars race at the
+  same speed (`src/components/dialogs/`). Durations and eases come from `src/motion/tokens.ts`;
+  CSS transitions share them through `--dur-hit`, `--dur-split` and `--dur-wipe`.
+- **Liveries:** `src/art/liveries.ts` derives every shade from five colours and keeps them
+  readable; `src/art/palette.ts` applies a livery live (CSS variables and the 3D), stores it, and
+  crossfades between liveries. `index.html` repaints the stored one before first paint.
+- **Security:** the prerender writes a Content-Security-Policy (scripts from the site only, plus
+  the hashes of `index.html`'s two pre-paint scripts); `vercel.json` adds `frame-ancestors`,
+  `nosniff`, a referrer policy and a permissions policy. Stored liveries are validated before use.
 - **Type:** fonts are self-hosted from `src/assets/fonts/`, trimmed by `scripts/fonts.py` to the
-  weights and widths in use (which also makes every zero plain), and preloaded (the plugin in
-  `vite.config.ts`). Display sizes are the `--text-display-*` roles in `src/index.css`. Arrows
-  are the `<Arrow />` SVG, because the → character isn't in the fonts.
+  weights and widths in use, and preloaded (the plugin in `vite.config.ts`). Display sizes are
+  the `--text-display-*` roles in `src/index.css`.
 - **Linting:** `npm run lint` runs [oxlint](https://oxc.rs/docs/guide/usage/linter) with
   type-aware rules (`oxlint-tsgolint`); `npm run lint:fix` applies the safe fixes. It is oxlint
   rather than ESLint because typescript-eslint parses through the TypeScript compiler API, which
   TypeScript 7 doesn't ship. Rules and the reason for each override are in `.oxlintrc.json`.
 - **Social card and touch icon:** `public/og.jpg` and `public/apple-touch-icon.png` are stills
-  made from the site's own type, contours and helmet. No video is used on the site.
+  made from the site's own type, contours and helmet.

@@ -1,6 +1,4 @@
-// Content for v2. Copied from the v1 portfolio (portfolio/src/data.ts) and
-// rewritten for a senior full-stack positioning. Visible copy is plain
-// developer English (SEO); F1 styling lives only in the visuals.
+// All the site's copy. It is plain developer English (SEO); the F1 styling lives only in the visuals.
 
 /**
  * Before and after, in one unit, drawn as two bars in the details dialog. Only for
@@ -9,7 +7,6 @@
 export type Delta = { from: number; to: number; fromLabel: string; toLabel: string };
 export type Highlight = { stat: string; title: string; text: string; delta?: Delta };
 
-// Xtel's timings, shown on the job and on its archive entry.
 const DOC_LOAD: Delta = { from: 250, to: 30, fromLabel: '250 s', toLabel: '30 s' };
 const FIELD_CHECK: Delta = { from: 30000, to: 100, fromLabel: '30 s', toLabel: '100 ms' };
 const SQL_OP: Delta = { from: 120, to: 30, fromLabel: '2 min', toLabel: '30 s' };
@@ -30,11 +27,10 @@ export type Project = Breakdown & {
   summary: string;
   stack: string[];
   headline: string;
-  /** Screenshot slot. Add files under src/assets/projects and fill this in. */
-  image?: { src: string; w: number; h: number; alt: string };
 };
 
 export type ArchiveItem = {
+  id: 'notify' | 'booking' | 'react19' | 'xtel' | 'etl' | 'catalog' | 'wpf' | 'telemetry' | 'i18n' | 'weather';
   year: string;
   name: string;
   stack: string;
@@ -43,15 +39,16 @@ export type ArchiveItem = {
   highlights: Highlight[];
 };
 
-/** Public URL of the site (canonical and OG tags). Empty: on Vercel the prerender uses the production domain. */
+/** The site's address, for the canonical and Open Graph tags. Empty: on Vercel the prerender uses the production domain. */
 export const SITE_URL = 'https://muhammad-ahsan-dev.vercel.app';
 export const CV_FILE = 'Muhammad-Ahsan-CV.pdf';
 export const EMAIL = 'imranahsan716@gmail.com';
 export const PHONE = '+923110237524';
 export const PHONE_DISPLAY = '+92 311 023 7524';
-export const GITHUB = 'https://github.com/ahsan7162';
-export const LINKEDIN = 'https://www.linkedin.com/in/ahsan-imran-';
-export const SOCIAL = [{ label: 'GitHub', href: GITHUB }, { label: 'LinkedIn', href: LINKEDIN }];
+export const SOCIAL = [
+  { label: 'GitHub', href: 'https://github.com/ahsan7162' },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/ahsan-imran-' },
+];
 
 export type Section = {
   id: string;
@@ -133,7 +130,6 @@ export const projects: Project[] = [
     highlights: [
     { stat: '450+', title: 'Agents live company-wide', text: 'Teams create, version and deploy custom AI assistants self-service: chat interface, semantic search, Slack integration.' },
     { stat: '10 min', title: 'Build time, down from 2 to 3 days', text: 'What used to need an engineer and a sprint now takes anyone ten minutes.',
-      // The bar uses the low end of 2 to 3 days.
       delta: { from: 2 * 24 * 60, to: 10, fromLabel: '2 to 3 days', toLabel: '10 min' } },
     { stat: '4', title: 'Deployment targets', text: 'CI/CD pipelines, Slack channels and threads, Jira automation, and in-platform chat.' },
     { stat: 'Go+Py', title: 'Architecture', text: 'Go services for the platform core, Python for the agent runtime, React front end. Versioning built in from day one.' },
@@ -159,35 +155,35 @@ export const projects: Project[] = [
 ];
 
 export const archive: ArchiveItem[] = [
-  { year: '2026', name: 'In-platform notifications', stack: 'Go, Gin, PostgreSQL, S3, CloudFront', ctx: 'Careem', note: 'Product updates delivered to 500+ Careem partners.', highlights: [
+  { id: 'notify', year: '2026', name: 'In-platform notifications', stack: 'Go, Gin, PostgreSQL, S3, CloudFront', ctx: 'Careem', note: 'Product updates delivered to 500+ Careem partners.', highlights: [
     { stat: '500+', title: 'Partners reached', text: 'In-platform notifications delivering product updates and tips across Careem partners.' },
     { stat: 'Gin', title: 'Go backend', text: 'Gin and PostgreSQL service with AWS S3 and CloudFront for media.' } ] },
-  { year: '2026', name: 'Booking concurrency fix', stack: 'Optimistic locking, structured logging', ctx: 'Careem', note: '50+ partner payouts accurate across 1,500+ transactions.', highlights: [
+  { id: 'booking', year: '2026', name: 'Booking concurrency fix', stack: 'Optimistic locking, structured logging', ctx: 'Careem', note: '50+ partner payouts accurate across 1,500+ transactions.', highlights: [
     { stat: '1,500+', title: 'Transactions protected', text: 'Two writers could claim the same booking at the same time. Optimistic locking closed the race.' },
     { stat: '50+', title: 'Partner payouts, accurate', text: 'Structured logging made every payout traceable.' } ] },
-  { year: '2025', name: 'React 19 modernization', stack: 'React 19, OpenAPI, Vite', ctx: 'Careem', note: 'Tooling migrated, generated API clients, first unit tests.', highlights: [
+  { id: 'react19', year: '2025', name: 'React 19 modernization', stack: 'React 19, OpenAPI, Vite', ctx: 'Careem', note: 'Tooling migrated, generated API clients, first unit tests.', highlights: [
     { stat: 'R19', title: 'Framework and tooling upgrade', text: 'Upgraded a legacy React app to React 19 and migrated the build tooling without breaking production.' },
     { stat: 'OpenAPI', title: 'Generated API clients', text: 'Replaced hand-written fetch clients with OpenAPI-generated, type-safe ones.' },
     { stat: '1st', title: 'Unit tests', text: 'Introduced the first automated unit tests the codebase had.' } ] },
-  { year: '2025', name: 'Xtel performance work', stack: 'Azure SQL, .NET Core', ctx: 'Xtel, Italy', note: 'Loads 250 s to 30 s, field checks 30 s to 100 ms.', highlights: [
+  { id: 'xtel', year: '2025', name: 'Xtel performance work', stack: 'Azure SQL, .NET Core', ctx: 'Xtel, Italy', note: 'Loads 250 s to 30 s, field checks 30 s to 100 ms.', highlights: [
     { stat: '8×', title: 'Document loads: 250 s to 30 s', text: 'Optimized MARS usage and database access patterns.', delta: DOC_LOAD },
     { stat: '~150×', title: 'Field checks: 30 s to 100 ms', text: 'Removed unnecessary GUI initialization and optimized visibility calculations.', delta: FIELD_CHECK },
     { stat: '4×', title: '2 minutes to 30 seconds', text: 'Azure SQL indexing, pagination and on-demand data loading.', delta: SQL_OP } ] },
-  { year: '2024', name: 'ETL workflow marketplace', stack: '.NET 8, React, JWT, OAuth', ctx: 'Astera', note: 'Upload and publish ETL workflows, APIs secured.', highlights: [
+  { id: 'etl', year: '2024', name: 'ETL workflow marketplace', stack: '.NET 8, React, JWT, OAuth', ctx: 'Astera', note: 'Upload and publish ETL workflows, APIs secured.', highlights: [
     { stat: 'ETL', title: 'Scalable marketplace', text: '.NET 8 and React marketplace where users upload and publish ETL workflows.' },
     { stat: 'OAuth', title: 'Secured APIs', text: 'JWT and OAuth authentication across the marketplace API.' } ] },
-  { year: '2023', name: 'Enterprise catalog system', stack: '.NET 6, C#, RBAC', ctx: 'Astera', note: 'Resource sharing 80% faster.', highlights: [
+  { id: 'catalog', year: '2023', name: 'Enterprise catalog system', stack: '.NET 6, C#, RBAC', ctx: 'Astera', note: 'Resource sharing 80% faster.', highlights: [
     { stat: '80%', title: 'Faster resource sharing', text: 'Full user control over shared data made sharing 80% faster.' },
     { stat: 'RBAC', title: 'Role-based access control', text: '.NET 6 REST APIs with secure resource sharing, integrated with a React data-governance app.' } ] },
-  { year: '2023', name: 'WinForms to WPF modernization', stack: 'WPF, MVVM', ctx: 'Astera', note: 'Responsive rebuild, backward compatible.', highlights: [
+  { id: 'wpf', year: '2023', name: 'WinForms to WPF modernization', stack: 'WPF, MVVM', ctx: 'Astera', note: 'Responsive rebuild, backward compatible.', highlights: [
     { stat: 'WPF', title: 'Interface modernization', text: 'WinForms to WPF with responsive design while keeping backward compatibility.' },
     { stat: 'LLM', title: 'AI features', text: 'Built a .NET Web API backend for AI-powered features inside the product.' } ] },
-  { year: '2022', name: 'Azure telemetry and dashboards', stack: 'Azure Monitor, App Insights', ctx: 'Astera', note: 'Troubleshooting time down 30%.', highlights: [
+  { id: 'telemetry', year: '2022', name: 'Azure telemetry and dashboards', stack: 'Azure Monitor, App Insights', ctx: 'Astera', note: 'Troubleshooting time down 30%.', highlights: [
     { stat: '30%', title: 'Less troubleshooting time', text: 'Azure Monitor and Application Insights telemetry across the .NET product.' },
     { stat: 'Live', title: 'Dashboards and alerts', text: 'Real-time dashboards, anomaly alerts and server-request analysis.' } ] },
-  { year: '2022', name: 'Product localization', stack: 'i18n, .NET', ctx: 'Astera', note: 'Multi-language support across flagship products.', highlights: [
+  { id: 'i18n', year: '2022', name: 'Product localization', stack: 'i18n, .NET', ctx: 'Astera', note: 'Multi-language support across flagship products.', highlights: [
     { stat: 'i18n', title: 'Led localization', text: 'Multi-language support across flagship products.' } ] },
-  { year: '2021', name: 'Weather forecasting AI', stack: 'Alibaba Cloud, machine learning', ctx: 'Global challenge', note: '3rd of 2,520 teams, Alibaba Cloud Global Challenge.', highlights: [
+  { id: 'weather', year: '2021', name: 'Weather forecasting AI', stack: 'Alibaba Cloud, machine learning', ctx: 'Global challenge', note: '3rd of 2,520 teams, Alibaba Cloud Global Challenge.', highlights: [
     { stat: '3rd', title: 'Of 2,520 teams worldwide', text: 'Third place in the Alibaba Cloud Global Challenge with a weather-forecasting solution.' } ] },
 ];
 

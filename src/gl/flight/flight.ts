@@ -17,13 +17,10 @@ export type Flight = {
 type Box = { p: Pt; w: number; stand: number };
 
 /**
- * The helmet's flight down the page (landonorris.com's): the route's windows are
- * resolved to scroll positions on every ScrollTrigger refresh; each frame finds the
- * window the scroll is in and places the helmet on the Bézier between the two anchors'
- * boxes as they are on screen right now, so it lands exactly in them, pins and
- * transforms included (it rides the podium step up as the step builds). That is one
- * or two layout reads a frame, and none while it is away. Scroll is Lenis's, already
- * smoothed, so there is no extra lag on top.
+ * The helmet's flight down the page: the route's windows are resolved to scroll positions on
+ * every ScrollTrigger refresh; each frame finds the window the scroll is in and places the
+ * helmet on the Bézier between the two anchors' boxes as they are on screen right now, so it
+ * lands exactly in them, pins and transforms included. One or two layout reads a frame.
  */
 export function bindFlight() {
   const marks = new Map<string, ScrollTrigger>();

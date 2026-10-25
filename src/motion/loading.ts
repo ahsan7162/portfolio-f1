@@ -1,7 +1,6 @@
-// What the first-visit loader waits for. Each part reports in when it is done;
-// the loader's lights and counter follow the weighted share that has.
-// The 3D isn't one of them: the helmet runs its own reveal once it is ready
-// (Stage.ts), so a slow device never holds the start for it.
+// What the first-visit loader waits for: its lights and counter follow the weighted share
+// that is in. The 3D isn't one of them: the helmet runs its own reveal once it is ready
+// (HelmetLayer), so a slow device never holds the start for it.
 const PARTS = {
   fonts: { weight: 1, label: 'Fonts' },
   page: { weight: 1, label: 'Page assets' },
@@ -12,7 +11,7 @@ export type LoadPart = keyof typeof PARTS;
 const done = new Set<LoadPart>();
 const TOTAL = Object.values(PARTS).reduce((s, p) => s + p.weight, 0);
 
-export function loaded(part: LoadPart) { done.add(part); }
+function loaded(part: LoadPart) { done.add(part); }
 
 /** 0 to 1. */
 export function loadProgress() {

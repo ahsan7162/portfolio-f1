@@ -1,0 +1,94 @@
+@layer components {
+  /* Expanded all-caps display type. The tracking follows the size (about 0 at 16 px, -0.035em
+     from 90 px), so small caps don't crowd and big ones stay tight. */
+  .display {
+    font-family: var(--font-display);
+    font-stretch: expanded;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: calc(0.7px - 0.043em);
+    line-height: 1;
+    text-wrap: balance;
+    overflow-wrap: break-word;
+    min-width: 0;
+  }
+  /* The About statement's two motion words ("slowest", "fast."). */
+  .display-em {
+    font-family: var(--font-display);
+    font-style: normal;
+    font-stretch: expanded;
+  }
+  /* Labels: the text face, a step under the body. */
+  .label {
+    font-size: 0.875rem;
+    line-height: 1.4;
+    color: var(--mute);
+  }
+  .checker {
+    height: 10px;
+    background-image: conic-gradient(var(--fg) 25%, transparent 0 50%, var(--fg) 0 75%, transparent 0);
+    background-size: 10px 10px;
+    opacity: 0.85;
+  }
+  /* Buttons stand 44 px at least. */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    white-space: nowrap;
+    border-radius: 999px;
+    padding: 0.7rem 1.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    transition: transform var(--dur-hit) var(--ease-out-expo), background-color var(--dur-hit) var(--ease-out-expo), color var(--dur-hit) var(--ease-out-expo);
+  }
+  .btn:active {
+    transform: scale(0.98);
+  }
+  .btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  .btn-primary {
+    background: var(--ac);
+    color: var(--carbon);
+  }
+  .btn-primary:hover {
+    background: var(--hover);
+  }
+  .btn-ghost {
+    border: 1px solid var(--line);
+    color: var(--fg);
+  }
+  .btn-ghost:hover {
+    border-color: var(--hover);
+    color: var(--hover);
+  }
+  /* Letter roll (useLetterRoll.ts): each letter carries its own copy as a text-shadow one
+     line below; .roll clips vertically only, so tracked letters can overhang sideways.
+     1lh is the label's own line height, so buttons and the big menu rows both work. */
+  .has-roll [data-letter-roll] { font-kerning: none; }
+  .roll { display: inline-block; overflow: visible clip; vertical-align: top; }
+  .roll-char { display: inline-block; text-shadow: 0 1lh currentColor; }
+  /* Red bar line reveal (barReveal): each line is as wide as its text, and its bar covers
+     the letters' 1em box, centred in the line. */
+  .bar-line { width: fit-content; }
+  .bar-line-bar {
+    position: absolute;
+    inset-inline: 0;
+    inset-block: calc((1lh - 1em) / 2);
+    background: var(--ac);
+    transform-origin: 100% 50%;
+    pointer-events: none;
+  }
+  /* SplitText mask wrappers keep descenders */
+  .split-mask {
+    padding-bottom: 0.08em;
+    margin-bottom: -0.08em;
+  }
+  .split-word { white-space: nowrap; }
+}

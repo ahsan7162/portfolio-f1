@@ -8,12 +8,11 @@ const LABEL: Partial<Record<State, string>> = { view: 'View', open: 'Open', drag
 const RING = 34; // px, the ring's resting size (also in the CSS)
 
 /**
- * The pit-lane pointer: a red dot exactly on the pointer (written straight from
- * the event, never eased, so pointing stays as precise as the native cursor) and
- * a ring that trails it and stretches along the direction of travel. Elements opt
- * into states with `data-cursor` (links and buttons default to `link`), read by one
- * delegated pointerover listener. Desktop, fine pointer and motion only; the
- * native cursor is hidden by a class this adds, so if it never runs nothing changes.
+ * The custom pointer: a red dot exactly on the pointer (never eased, so pointing stays as
+ * precise as the native cursor) and a ring that trails it and stretches along the direction
+ * of travel. Elements opt into states with `data-cursor` (links and buttons default to
+ * `link`). Desktop, fine pointer and motion only; the native cursor is hidden by a class
+ * this adds, so if it never runs nothing changes.
  */
 export function Cursor() {
   const root = useRef<HTMLDivElement>(null);

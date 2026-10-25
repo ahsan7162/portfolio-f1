@@ -24,9 +24,9 @@ export const useSmoothScroll = () => {
 const expoOut = (t: number) => (t === 1 ? 1 : 1 - Math.pow(2, -10 * t));
 
 /**
- * One scroll source for the whole page. Lenis sets the real scroll position
- * inside the GSAP ticker, then ScrollTrigger updates in the same frame, so
- * pins, scrubbed tweens and the WebGL stage never drift apart.
+ * One scroll source for the whole page: Lenis sets the scroll position inside the GSAP
+ * ticker and ScrollTrigger updates in the same frame, so pins, scrubbed tweens and the
+ * WebGL stage never drift apart.
  */
 export function SmoothScroll({ children }: { children: ReactNode }) {
   const lenisRef = useRef<Lenis | null>(null);
@@ -50,7 +50,6 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     // Touch keeps the browser's own scrolling (syncTouch off), so no touch multiplier applies.
     const lenis = new Lenis({ lerp: 0.1, smoothWheel: true, syncTouch: false, autoRaf: false });
     lenisRef.current = lenis;
-    if (import.meta.env.DEV) Object.assign(window, { lenis });
     lenis.on('scroll', (l: Lenis) => {
       update(l.scroll, l.limit, l.velocity);
       ScrollTrigger.update();
