@@ -12,6 +12,7 @@ import { ScrollRail } from '@/components/ScrollRail';
 import { TrackMap } from '@/components/TrackMap';
 import { About } from '@/components/sections/About';
 import { Contact } from '@/components/sections/Contact';
+import { Contributions } from '@/components/sections/Contributions';
 import { Experience } from '@/components/sections/Experience';
 import { Hero } from '@/components/sections/Hero';
 import { Lap } from '@/components/sections/Lap';
@@ -83,6 +84,7 @@ function Page() {
         <Experience />
         <Projects />
         <TechStack />
+        <Contributions />
         <Results />
       </main>
       <Contact />

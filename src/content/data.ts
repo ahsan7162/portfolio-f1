@@ -73,6 +73,7 @@ export const SECTIONS: Section[] = [
   { id: 'experience', short: 'Experience', menu: 'Work experience', jobs: true },
   { id: 'projects', short: 'Projects', menu: 'Projects', archive: true },
   { id: 'skills', short: 'Tech stack', menu: 'Tech stack' },
+  { id: 'github', short: 'GitHub', menu: 'GitHub activity' },
   { id: 'results', short: 'Results', menu: 'Results and education' },
   { id: 'contact', short: 'Finish', menu: 'Contact' },
 ];
