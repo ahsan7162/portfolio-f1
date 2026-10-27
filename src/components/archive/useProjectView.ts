@@ -87,7 +87,7 @@ export function useProjectView(dref: RefObject<HTMLDivElement | null>, { tiles, 
     const v = view;
     if (!v || busy.current) return;
     const next = { ...v, sel: (v.sel + d + N) % N };
-    if (!motionEnabled()) { setView(next); return; }
+    if (!motionEnabled()) { setView(next); if (pane.current) pane.current.scrollTop = 0; return; }
     busy.current = true;
     gsap.to([big.current, info.current], { x: -40 * d, opacity: 0, duration: 0.2, ease: EASE.in, onComplete: () => {
       flushSync(() => setView(next));
@@ -101,7 +101,8 @@ export function useProjectView(dref: RefObject<HTMLDivElement | null>, { tiles, 
 
   // Keys while a project is open. Capture phase: Escape closes the view before the dialog.
   useKeys(e => {
-    if (!view) return false;
+    // With a modifier the arrows are the browser's (Alt+← is Back).
+    if (!view || e.altKey || e.ctrlKey || e.metaKey) return false;
     if (e.key === 'Escape') close();
     else if (e.key === 'ArrowRight') step(1);
     else if (e.key === 'ArrowLeft') step(-1);

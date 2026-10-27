@@ -29,16 +29,17 @@ export function GLCanvas() {
       let stop: (() => void) | undefined;
       let cancelled = false;
       const go = async () => {
-        const { Stage } = await import('./Stage');
-        if (cancelled || !ref.current || !over.current) return;
         try {
+          // Inside the try: the chunk can fail to load (offline, or a deploy replaced it).
+          const { Stage } = await import('./Stage');
+          if (cancelled || !ref.current || !over.current) return;
           const stage = new Stage(ref.current, over.current);
           stage.onLost = lost3d;
           stop = () => stage.dispose();
           root.classList.add('gl-on');
         } catch (err) {
           console.warn('[gl] disabled', err);
-          lost3d();
+          if (!cancelled) lost3d();
         }
       };
       if (idle) whenIdle(() => void go(), 1500, 300);

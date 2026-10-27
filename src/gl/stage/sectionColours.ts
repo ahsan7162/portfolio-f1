@@ -18,6 +18,8 @@ export function bindSectionColours(u: FieldUniforms, busy: Busy, redraw: () => v
   const to = (a: string, b: string) => {
     at = [a, b];
     const A = new THREE.Color(groundShade(a)), B = new THREE.Color(groundShade(b));
+    // One blend at a time: an older one left running would outlive a livery change (onPalette).
+    if (tween) { tween.kill(); busy.end(); }
     busy.start();
     tween = gsap.timeline({ onComplete: () => { busy.end(); tween = null; } })
       .to(u.uColA.value, { r: A.r, g: A.g, b: A.b, duration: 0.9, ease: EASE.wipe }, 0)

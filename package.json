@@ -11,7 +11,8 @@
     "typecheck": "tsc -b",
     "lint": "oxlint --type-aware --deny-warnings",
     "lint:fix": "oxlint --type-aware --fix",
-    "check": "npm run typecheck && npm run lint"
+    "test": "tsx --test 'src/**/*.test.ts'",
+    "check": "npm run typecheck && npm run lint && npm test"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

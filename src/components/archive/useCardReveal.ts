@@ -24,7 +24,7 @@ export function useCardReveal(dref: RefObject<HTMLDivElement | null>, { apis, bo
     ensureGsap();
     const cards = [...root.querySelectorAll<HTMLElement>('[data-card]')];
     const panels: (() => void)[] = [];
-    let stop: (() => void) | undefined, first = true;
+    let stop: (() => void) | undefined, offDrift = () => {}, first = true;
     const ctx = gsap.context(() => {
       // Opacity, not autoAlpha: a card waiting to land stays focusable.
       gsap.set(cards, { opacity: 0, y: 48 });
@@ -44,13 +44,19 @@ export function useCardReveal(dref: RefObject<HTMLDivElement | null>, { apis, bo
           tl.call(() => apis.current[i]?.play(), undefined, 0.05 + DUR.reveal);
         });
       }));
+      // From a card's top at the dialog's bottom to its bottom at the top. A scroll listener,
+      // not ScrollTrigger, for the reason in revealWithin (reveals.ts).
       if (finePointer() && matchMedia('(min-width: 768px)').matches) {
-        cards.forEach(card => gsap.fromTo(card.querySelector('[data-drift]'), { yPercent: -4, scale: 1.08 }, {
-          yPercent: 4, scale: 1.08, ease: EASE.none,
-          scrollTrigger: { trigger: card, scroller: root, start: 'top bottom', end: 'bottom top', scrub: true },
-        }));
+        const drifts = cards.map(card => gsap.fromTo(card.querySelector('[data-drift]'), { yPercent: -4, scale: 1.08 }, { yPercent: 4, scale: 1.08, ease: EASE.none, paused: true }));
+        const drift = () => {
+          const box = root.getBoundingClientRect(), rects = cards.map(c => c.getBoundingClientRect()); // every read before any write
+          drifts.forEach((tw, i) => tw.progress(gsap.utils.clamp(0, 1, (box.bottom - rects[i].top) / (box.height + rects[i].height))));
+        };
+        drift();
+        root.addEventListener('scroll', drift, { passive: true });
+        offDrift = () => root.removeEventListener('scroll', drift);
       }
     }, root);
-    return () => { stop?.(); panels.forEach(p => p()); ctx.revert(); };
+    return () => { stop?.(); offDrift(); panels.forEach(p => p()); ctx.revert(); };
   }, [dref, apis, boxes, landed]);
 }

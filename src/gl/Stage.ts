@@ -24,7 +24,7 @@ const MAX_DPR = 1.5, MAX_DPR_PHONE = 2, MAX_PIXELS = 3.2e6;
  *   - above the page: the helmet (HelmetLayer).
  * They render only when something changes: scrolling, a tween, the pointer, or the
  * background's steady 30fps idle drift (the helmet holds still then, so its canvas keeps
- * its last frame). Everything stops while the tab is hidden or a dialog has locked scrolling.
+ * its last frame). Everything stops while the tab is hidden or scrolling is locked (after the first frame).
  */
 export class Stage {
   private renderer: THREE.WebGLRenderer;
@@ -143,7 +143,8 @@ export class Stage {
   private frame() {
     const now = performance.now(), prevTick = this.lastTick;
     this.lastTick = now;
-    if (this.dead || document.hidden || scrollState.locked) return;
+    // Locked (a dialog, the start lights): no frames, but always a first one, or the lights split open onto a blank canvas.
+    if (this.dead || document.hidden || (scrollState.locked && this.lastRender > 0)) return;
     const lapEasing = lapState.active && (this.lapMore || lapState.progress !== this.lapP || lapState.veil !== this.lapV);
     const moving = Math.abs(scrollState.velocity) > 0.01 || this.busy > 0 || lapEasing || now - this.lastInput < 1500;
     // Idle: the contour lines keep a steady 30fps drift; the helmet holds still until
@@ -202,5 +203,7 @@ export class Stage {
     this.field.dispose();
     this.lapScene?.dispose();
     this.renderer.dispose();
+    // dispose() keeps the context: lose it, or the canvas (still mounted while the 3D is off) holds its buffers.
+    if (!this.renderer.getContext().isContextLost()) this.renderer.forceContextLoss();
   }
 }

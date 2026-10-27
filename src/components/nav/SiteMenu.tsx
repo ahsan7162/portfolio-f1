@@ -42,10 +42,12 @@ function useJobsFold(panel: RefObject<HTMLDivElement | null>, list: RefObject<HT
 /**
  * The full-screen site menu, behind the bar so the bar's button also closes it. Its links
  * stay in the HTML while closed, so crawlers still see them. `onLeave` closes it without
- * taking focus back, for a row that scrolls the page or opens a dialog.
+ * taking focus back, for a row that scrolls the page (the section takes focus). `onClose`
+ * hands focus to the Menu button first, for a row that opens a dialog: the dialog gives
+ * focus back to what had it, and the menu row will be hidden by then.
  */
-export function SiteMenu({ ref, menu, current, onLeave }: {
-  ref: RefObject<HTMLDivElement | null>; menu: Array<Section & { menu: string }>; current: string | null; onLeave: () => void;
+export function SiteMenu({ ref, menu, current, onLeave, onClose }: {
+  ref: RefObject<HTMLDivElement | null>; menu: Array<Section & { menu: string }>; current: string | null; onLeave: () => void; onClose: () => void;
 }) {
   const { openDetails, openArchive } = useDialogs();
   const [jobsOpen, setJobsOpen] = useState(false);
@@ -67,7 +69,7 @@ export function SiteMenu({ ref, menu, current, onLeave }: {
                   <div className="overflow-hidden">
                     <div data-mrow className="flex items-stretch">
                       {m.archive ? (
-                        <button type="button" onClick={e => { const o = originOf(e); onLeave(); openArchive(o); }}
+                        <button type="button" onClick={e => { const o = originOf(e); onClose(); openArchive(o); }}
                           className="group flex flex-1 items-start py-3 text-left md:py-4">
                           {n}
                           <span data-letter-roll className={rowText}>{m.menu}</span>
@@ -97,7 +99,7 @@ export function SiteMenu({ ref, menu, current, onLeave }: {
                       {jobs.map(j => (
                         <li key={j.id} className="border-t border-line/60">
                           <button type="button" tabIndex={jobsOpen ? 0 : -1}
-                            onClick={e => { const o = originOf(e); onLeave(); openDetails(j, o); }}
+                            onClick={e => { const o = originOf(e); onClose(); openDetails(j, o); }}
                             className="group flex w-full items-baseline gap-4 py-3 pl-8 text-left md:pl-12">
                             <span className="text-xl font-semibold tracking-tight font-stretch-semi-expanded transition-colors group-hover:text-ac2 md:text-2xl">{j.company}</span>
                             <span className="text-sm text-mute">{j.role}</span>

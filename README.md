@@ -99,7 +99,8 @@ npm install
 npm run dev        # http://localhost:5174
 npm run build      # client build + SSR build + prerender into dist/
 npm run preview    # serve dist/ at http://localhost:4174
-npm run check      # typecheck + lint (both must pass with no warnings)
+npm run check      # typecheck + lint + tests (all must pass with no warnings)
+npm test           # the node:test files in src/ (*.test.ts)
 ```
 
 **Debug flags:** `?nointro` skips the start lights · `?nomotion` static page · `?nogl` no

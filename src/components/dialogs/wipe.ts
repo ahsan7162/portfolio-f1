@@ -15,9 +15,14 @@ export const centre = (): Origin => ({ x: innerWidth / 2, y: innerHeight / 2 });
 /** The running open animation per dialog, so a close that starts mid-open can cancel it. */
 export const opening = new WeakMap<HTMLElement, { tl?: gsap.core.Timeline; cancelled?: boolean }>();
 
+/** Dialogs already closing: a second Close or Escape mid-wipe is ignored. */
+const closing = new WeakSet<HTMLElement>();
+
 /** Content drops out, the circle shrinks back to the click point, then really close. */
 export function closeWithWipe(el: HTMLElement | null, origin: Origin | undefined, done: () => void) {
   if (!el || !motionEnabled()) { done(); return; }
+  if (closing.has(el)) return;
+  closing.add(el);
   const o = origin ?? centre();
   // Closing mid-open: stop the open wipe and shrink from wherever it got to.
   const open = opening.get(el);

@@ -94,7 +94,7 @@ export function LiveryPanel({ open, onClose }: { open: boolean; onClose: () => v
 
       <div data-lv role="tablist" aria-label="Livery" className="mt-4 grid grid-cols-2 rounded-full border border-line p-[3px]">
         {TABS.map(([t, text]) => (
-          <button key={t} type="button" role="tab" aria-selected={tab === t} aria-controls={`livery-${t}`} id={`livery-tab-${t}`} onClick={() => switchTab(t)}
+          <button key={t} type="button" role="tab" aria-selected={tab === t} aria-controls={tab === t ? `livery-${t}` : undefined} id={`livery-tab-${t}`} onClick={() => switchTab(t)}
             className={cn('h-9 rounded-full font-mono text-[11px] font-semibold uppercase tracking-[0.12em] transition-colors duration-(--dur-hit) ease-out-expo',
               tab === t ? 'bg-fg text-carbon' : 'text-mute hover:text-fg')}>
             {text}

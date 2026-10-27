@@ -1,5 +1,8 @@
-/** Seconds as a lap time, m:ss.mmm. */
-export const lapTime = (s: number) => `${Math.floor(s / 60)}:${(s % 60).toFixed(3).padStart(6, '0')}`;
+/** Seconds as a lap time, m:ss.mmm. Rounded to the millisecond first, so 59.9996 s reads 1:00.000, not 0:60.000. */
+export const lapTime = (s: number) => {
+  const ms = Math.round(s * 1000);
+  return `${Math.floor(ms / 60000)}:${((ms % 60000) / 1000).toFixed(3).padStart(6, '0')}`;
+};
 
 /** A whole number with thousands separators: 2520 → "2,520". */
 export const thousands = (n: number) => Math.round(n).toLocaleString('en-US');

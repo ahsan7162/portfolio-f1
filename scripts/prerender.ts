@@ -111,10 +111,11 @@ const builtAt = new Date().toISOString();
 // The profile page is named after index.html's <title>, so the two never drift apart.
 const pageTitle = (/<title>(.*?)<\/title>/.exec(html)?.[1] ?? profile.name).replace(/&amp;/g, '&');
 if (!site) console.warn('prerender: SITE_URL is empty, so no canonical or og:image tags and no sitemap (they need an absolute URL). Set it in src/content/data.ts or pass SITE_URL=https://…');
+// Function replacements: a string one would read `$&` or `$'` in the page's text as a pattern.
 writeFileSync(resolve(dist, 'index.html'), html
-  .replace('<!--csp-->', `<meta http-equiv="Content-Security-Policy" content="${contentSecurityPolicy(html)}" />`)
-  .replace('<!--seo-->', seoTags(site, pageTitle, builtAt))
-  .replace('<!--app-->', app));
+  .replace('<!--csp-->', () => `<meta http-equiv="Content-Security-Policy" content="${contentSecurityPolicy(html)}" />`)
+  .replace('<!--seo-->', () => seoTags(site, pageTitle, builtAt))
+  .replace('<!--app-->', () => app));
 if (site) writeSitemap(dist, site, builtAt.slice(0, 10));
 rmSync(resolve('dist-ssr'), { recursive: true, force: true });
 console.log(`prerender: wrote ${(app.length / 1024).toFixed(1)} KB of HTML`);

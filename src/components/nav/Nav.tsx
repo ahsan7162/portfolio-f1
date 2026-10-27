@@ -54,7 +54,7 @@ export function Nav() {
   return (
     // oxlint-disable-next-line jsx-a11y/no-static-element-interactions -- Esc and the Tab trap for the bar and the open menu
     <header ref={ref} onKeyDown={onKey} className={cn('fixed inset-x-0 top-0 z-50 transition-colors duration-(--dur-hit)', open ? 'bg-carbon' : finish ? 'bg-transparent' : 'bg-carbon/85')}>
-      <SiteMenu ref={panel} menu={MENU} current={current} onLeave={leave} />
+      <SiteMenu ref={panel} menu={MENU} current={current} onLeave={leave} onClose={() => hide()} />
 
       <nav aria-label="Primary" className="relative mx-auto flex h-16 max-w-[1400px] items-center justify-between gap-6 px-4 md:px-8">
         <a href="#top" onClick={leave} className="display inline-flex min-h-11 items-center text-sm" aria-label="Muhammad Ahsan, back to top">
