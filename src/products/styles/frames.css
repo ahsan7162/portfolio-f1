@@ -1,0 +1,124 @@
+/* Device frames. 1em inside a frame body = 1% of the frame's width, so every frame scales with its box. */
+.frm-phone, .frm-browser, .frm-window { container-type: inline-size; position: relative; }
+.frm-phone { aspect-ratio: 300 / 620; }
+
+.frm-phone-body, .frm-browser-body, .frm-window-body { font-size: 1cqw; }
+.frm-fill { position: absolute; inset: 0; }
+.frm-shot { display: block; width: 100%; height: 100%; object-fit: cover; object-position: left top; }
+
+/* phone */
+.frm-phone-body {
+  position: absolute; inset: 0; border-radius: 15.3em; background: var(--ground);
+  border: 0.7em solid var(--raise-2);
+  box-shadow: 0 8em 12em -4em var(--shadow-deep), 0 2em 4em -1em var(--shadow);
+}
+.frm-phone-screen { position: absolute; inset: 3em; border-radius: 12em; overflow: hidden; background: var(--ground); }
+.frm-phone-island {
+  position: absolute; z-index: 2; top: 3.4em; left: 50%; width: 28em; height: 8em;
+  border-radius: 99em; background: var(--ground); transform: translateX(-50%);
+}
+
+/* browser */
+.frm-browser-body {
+  border-radius: 2.4em; overflow: hidden; background: var(--raise);
+  border: 0.2em solid var(--raise-2);
+  box-shadow: 0 8em 14em -4em var(--shadow-deep), 0 2em 4em -1em var(--shadow);
+}
+.frm-bar { display: flex; align-items: center; gap: 1.2em; height: 6em; padding: 0 2.4em; background: var(--raise-2); }
+.frm-dot { flex: none; width: 1.3em; height: 1.3em; border-radius: 50%; background: var(--line); }
+.frm-url {
+  flex: 1; min-width: 0; margin-left: 1.4em; height: 3.6em; padding: 0 2em; border-radius: 99em;
+  background: var(--ground); color: var(--dim); display: flex; align-items: center;
+  font: 500 1.9em/1 var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.frm-url > span { overflow: hidden; text-overflow: ellipsis; }
+.frm-page { position: relative; aspect-ratio: 16 / 10; overflow: hidden; background: var(--ground); }
+
+/* window */
+.frm-window-body {
+  border-radius: 2em; overflow: hidden; background: var(--raise); border: 0.2em solid var(--raise-2);
+  box-shadow: 0 8em 14em -4em var(--shadow-deep), 0 2em 4em -1em var(--shadow);
+}
+.frm-window-body .frm-bar { height: 4.6em; padding: 0 2em; }
+.frm-title { flex: 1; margin-right: 6em; text-align: center; color: var(--dim); font: 500 1.7em/1 var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.frm-window-content { overflow: hidden; }
+.frm-window-content > img, .frm-window-content > video, .frm-window-content > svg { display: block; width: 100%; height: auto; }
+/* Space is held before the image loads: its own width and height when given, else the usual 16:10. */
+.frm-window-content > img { aspect-ratio: auto 16 / 10; }
+
+/* sample screens: paper by default, dark on request. 1em = 1% of the screen width. */
+.frm-s {
+  --bg: var(--paper); --bar: var(--paper-line); --strong: var(--paper-ink); --edge: var(--paper-line);
+  --tile: color-mix(in srgb, var(--acc) 22%, var(--paper-line)); --tabbg: var(--paper-2);
+  container-type: size; position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--bg);
+}
+.frm-s--dark {
+  --bg: var(--raise); --bar: color-mix(in srgb, var(--ink) 14%, var(--raise)); --strong: var(--ink);
+  --edge: var(--raise-2); --tile: var(--raise-2); --tabbg: var(--ground);
+}
+.frm-si { position: absolute; inset: 0; font-size: 1cqw; display: flex; flex-direction: column; }
+.frm-app .frm-si { padding: 13em 6em 0; }
+.frm-site .frm-si { padding: 3.4em 4.4em; gap: 3em; }
+
+.frm-b { display: block; flex: none; height: 2.2em; border-radius: 99em; background: var(--bar); }
+.frm-b--strong { background: var(--strong); }
+.frm-b--t { height: 3.8em; }
+.frm-b--h { height: 7.4em; border-radius: 1.6em; }
+.frm-b--sm { height: 1.6em; }
+.frm-gap { height: 2em; flex: none; }
+.frm-grow { flex: 1; min-height: 0; }
+
+.frm-card { position: relative; flex: none; height: 40em; border-radius: 6em; background: var(--acc); overflow: hidden; }
+.frm-card::before { content: ''; position: absolute; right: -8em; top: -8em; width: 40em; height: 40em; border-radius: 50%; background: var(--on-acc); }
+.frm-card::after { content: ''; position: absolute; left: 5em; bottom: 5em; width: 34em; height: 7em; border-radius: 99em; background: var(--on-acc); }
+
+.frm-row { display: flex; align-items: center; gap: 4em; flex: none; margin-top: 4.6em; }
+.frm-row > i { flex: none; width: 12em; height: 12em; border-radius: 3.6em; background: var(--tile); }
+.frm-row > div { flex: 1; display: flex; flex-direction: column; gap: 2.2em; }
+
+.frm-chart { display: flex; align-items: flex-end; gap: 3em; height: 52em; margin-top: 6em; flex: none; }
+.frm-chart > i { flex: 1; border-radius: 2.4em 2.4em 0.8em 0.8em; background: var(--bar); }
+.frm-chart > i.frm-on { background: var(--acc); }
+
+.frm-img { position: relative; flex: none; height: 78em; border-radius: 6em; background: var(--tile); overflow: hidden; }
+.frm-img::before { content: ''; position: absolute; left: 50%; top: 52%; width: 44em; height: 44em; border-radius: 50%; background: var(--bar); transform: translate(-50%, -50%); }
+.frm-img::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 24em; background: var(--bar); opacity: 0.6; border-radius: 40% 40% 0 0; }
+.frm-btn { flex: none; height: 13em; border-radius: 99em; background: var(--acc); margin-top: 6em; }
+
+.frm-tabs {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 17em; display: flex; justify-content: space-around; align-items: center;
+  background: var(--tabbg); border-top: 0.3em solid var(--edge);
+}
+.frm-tabs > i { width: 6em; height: 6em; border-radius: 2em; background: var(--bar); }
+.frm-tabs > i.frm-on { background: var(--acc); }
+
+/* site screens */
+.frm-nav { display: flex; align-items: center; gap: 3.6em; flex: none; }
+.frm-nav > i:first-child { width: 4em; height: 4em; border-radius: 1.2em; background: var(--strong); margin-right: auto; }
+.frm-nav > .frm-b { width: 7em; height: 1.4em; }
+.frm-pill { flex: none; width: 24em; height: 7.4em; border-radius: 99em; background: var(--acc); }
+.frm-tiles { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.6em; }
+.frm-tiles > i { border-radius: 2.4em; background: var(--tile); }
+.frm-tiles > i.frm-acc { background: var(--acc); }
+.frm-tiles > i.frm-dk { background: var(--strong); }
+.frm-grid { grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); }
+.frm-pills { display: flex; gap: 1.8em; flex: none; }
+.frm-pills > i { height: 4em; width: 10em; border-radius: 99em; background: var(--bar); }
+.frm-pills > i:first-child { background: var(--strong); }
+.frm-edit { flex: 1; min-height: 0; display: grid; grid-template-columns: 1.1fr 1fr; gap: 5em; }
+.frm-edit > div { display: flex; flex-direction: column; gap: 2.2em; justify-content: center; }
+.frm-edit > .frm-img { height: auto; border-radius: 3em; }
+.frm-edit .frm-img::before { width: 30%; height: auto; aspect-ratio: 1; }
+.frm-edit .frm-img::after { height: 36%; }
+
+/* tall screens (a site shown inside a phone): drop the links, stack and re-flow */
+@container (aspect-ratio < 1) {
+  .frm-site .frm-si { padding: 13em 6em 6em; gap: 5em; }
+  .frm-nav > .frm-b { display: none; }
+  .frm-site .frm-b--h { height: 9em; }
+  .frm-tiles:not(.frm-grid) { grid-template-columns: 1fr; }
+  .frm-grid { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(3, 1fr); }
+  .frm-pill { width: 40em; height: 11em; }
+  .frm-edit { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+  .frm-pills > i { width: 18em; height: 6em; }
+}

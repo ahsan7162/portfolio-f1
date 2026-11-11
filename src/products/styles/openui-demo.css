@@ -1,0 +1,57 @@
+/* OpenUI Live Replies demo. Everything inside .oud-win is sized in em off the container width. */
+.oud { container-type: inline-size; width: 100%; }
+
+.oud-win {
+  font-size: clamp(0.5625rem, 2.5cqw, 1rem);
+  font-family: var(--text); line-height: 1.35; color: var(--ink);
+  background: var(--raise); border-radius: 1.1em; padding-bottom: 1.1em;
+  box-shadow: 0 0 0 1px var(--line), 0 3.5em 7em -2em var(--shadow-deep);
+  overflow: hidden; user-select: none;
+}
+.oud button { font-size: inherit; }
+.oud button:focus-visible { outline: 0.14em solid var(--acc); outline-offset: 0.18em; }
+
+/* title bar: the thread's name, Reset, and the Reply / Source switch */
+.oud-bar { display: flex; align-items: center; padding: 0.8em 1.25em; border-bottom: 1px solid var(--line); font-weight: 600; font-size: 0.94em; }
+.oud-bar-end { margin-left: auto; display: flex; align-items: center; gap: 0.9em; }
+.oud-reset { font-family: var(--mono); font-size: 0.78em; letter-spacing: 0.06em; color: var(--dim); transition: color 0.2s; }
+.oud-reset:hover { color: var(--acc); }
+.oud-view { display: flex; padding: 0.2em; border-radius: 0.6em; background: var(--ground); box-shadow: inset 0 0 0 1px var(--line); }
+.oud-view button { padding: 0.3em 0.8em; border-radius: 0.45em; font-size: 0.86em; font-weight: 600; color: var(--dim); transition: background-color 0.2s, color 0.2s; }
+.oud-view button[aria-pressed='true'] { background: var(--acc); color: var(--on-acc); }
+
+/* the visitor's messages, on the right as in a chat */
+.oud-me { margin: 1em 1.25em 0 auto; width: fit-content; max-width: 80%; padding: 0.6em 0.95em; border-radius: 0.9em; background: var(--raise-2); box-shadow: inset 0 0 0 1px var(--line); font-size: 0.9em; }
+.oud-sent { white-space: pre; visibility: hidden; }
+.oud-sent[data-on] { visibility: visible; background: var(--acc); color: var(--on-acc); box-shadow: none; font-weight: 600; }
+.oud-sent[data-on] { @media (prefers-reduced-motion: no-preference) { animation: oud-in 0.4s var(--ease); } }
+@keyframes oud-in { from { opacity: 0; transform: translateY(0.8em) scale(0.94); } }
+
+/* the agent's reply: the decision, or the block that draws it */
+.oud-reply { display: grid; margin: 1em 1.25em 0; border: 1px solid var(--line); border-radius: 0.8em; background: var(--ground); }
+.oud-reply > * { grid-area: 1 / 1; min-width: 0; padding: 1.1em 1.2em; transition: opacity 0.2s; }
+.oud-reply > [data-off] { opacity: 0; visibility: hidden; }
+.oud-note { font-size: 0.8em; color: var(--dim); }
+
+.oud-weights { display: flex; flex-wrap: wrap; gap: 0.6em 1.3em; margin-top: 0.8em; }
+.oud-weight { display: flex; align-items: center; gap: 0.5em; font-size: 0.88em; font-weight: 600; }
+.oud-weight button { display: grid; place-items: center; width: 1.9em; height: 1.9em; border-radius: 0.5em; box-shadow: inset 0 0 0 1px var(--line); color: var(--ink); transition: background-color 0.15s, color 0.15s, box-shadow 0.15s; }
+.oud-weight button:not(:disabled):hover { background: var(--acc); color: var(--on-acc); box-shadow: none; }
+.oud-weight button:disabled { color: var(--faint); cursor: default; }
+.oud-weight b { width: 1em; text-align: center; font-variant-numeric: tabular-nums; }
+
+.oud-rows { list-style: none; margin-top: 1em; border-top: 1px solid var(--line); }
+.oud-row { display: grid; grid-template-columns: minmax(0, 1fr) 6em 2.8em; align-items: center; gap: 1em; padding: 0.7em 0.5em; border-bottom: 1px solid var(--line); font-size: 0.92em; background: var(--ground); }
+.oud-row[data-lead] { background: color-mix(in srgb, var(--acc) 12%, var(--ground)); }
+.oud-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.oud-name small { margin-left: 0.6em; font-weight: 400; color: var(--dim); }
+.oud-bar-track { height: 0.4em; border-radius: 99em; background: var(--raise-2); overflow: hidden; }
+.oud-bar-track i { display: block; height: 100%; border-radius: inherit; background: var(--acc); transform-origin: 0 50%; transition: transform 0.4s var(--ease); }
+.oud-share { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.oud-go { margin-top: 1em; padding: 0.7em 1.2em; border-radius: 0.6em; background: var(--acc); color: var(--on-acc); font-weight: 700; transition: transform 0.2s var(--ease), opacity 0.2s; }
+.oud-go:not(:disabled):hover { transform: translateY(-0.12em); }
+.oud-go:not(:disabled):active { transform: scale(0.97); }
+.oud-go:disabled { opacity: 0.45; cursor: default; }
+
+.oud-src { margin: 0; font-family: var(--mono); font-size: 0.74em; line-height: 1.75; color: var(--ink); white-space: pre-wrap; overflow-wrap: anywhere; user-select: text; }

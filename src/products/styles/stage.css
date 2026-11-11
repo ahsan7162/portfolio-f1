@@ -1,0 +1,10 @@
+/* How the device frames sit together on a stage. The frames size from their own width. */
+.stg-phones { position: relative; width: 100%; aspect-ratio: 1 / 1.02; }
+.stg-phone { position: absolute; }
+.stg-phone--a { width: 44%; left: 4%; top: 0; transform: rotate(-4deg); }
+.stg-phone--b { width: 44%; right: 4%; top: 9%; transform: rotate(4deg); }
+.stg-site { position: relative; width: 100%; padding-bottom: 14%; }
+.stg-browser, .stg-window { width: 100%; }
+/* A sample screen has no height of its own; a real screenshot sets the window's height itself. */
+.stg-window .frm-s { position: relative; aspect-ratio: 16 / 10; }
+.stg-phone--site { width: 20%; left: -6%; bottom: 0; transform: rotate(-4deg); }

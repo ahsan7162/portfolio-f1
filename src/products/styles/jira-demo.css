@@ -1,0 +1,82 @@
+/* Jira Board demo: a light product window on the dark page. Everything inside is sized in em off the container width. */
+.jrd { container-type: inline-size; width: 100%; }
+.jrd-win {
+  font-size: clamp(0.5625rem, 2.5cqw, 1rem);
+  font-family: var(--text); line-height: 1.35; color: var(--paper-ink);
+  background: var(--paper); border-radius: 1em; padding-bottom: 1.1em;
+  box-shadow: 0 3.5em 7em -1.8em var(--shadow-deep), 0 0 0 1px color-mix(in srgb, var(--paper-line) 60%, transparent);
+  user-select: none; -webkit-user-select: none;
+}
+
+/* title bar + tabs */
+.jrd-bar { display: flex; align-items: center; justify-content: space-between; padding: 0.95em 1.35em 0.8em; border-bottom: 1px solid var(--paper-line); }
+.jrd-org { font-weight: 600; font-size: 0.95em; }
+.jrd-org span { font-size: 0.7em; color: var(--paper-dim); }
+.jrd-dots { display: flex; gap: 0.35em; }
+.jrd-dots i { width: 0.6em; height: 0.6em; border-radius: 50%; background: var(--paper-line); }
+.jrd-tabs { display: flex; gap: 0.3em; padding: 0.8em 1.1em 0.2em; white-space: nowrap; overflow: hidden; font-size: 0.82em; color: var(--paper-dim);
+  mask-image: linear-gradient(90deg, var(--black) 88%, transparent); }
+.jrd-tab { padding: 0.4em 0.75em; border-radius: 0.6em; }
+.jrd-tab.is-on { background: var(--paper-2); color: var(--paper-ink); font-weight: 600; box-shadow: 0 1px 2px var(--shadow-faint); }
+.jrd-tab small { font-size: 0.85em; margin-left: 0.25em; padding: 0.1em 0.45em; border-radius: 0.5em; background: var(--paper-line); color: var(--paper-ink); font-weight: 500; }
+
+/* groups */
+.jrd-grp { padding: 0 1.25em; }
+.jrd-head { display: flex; align-items: center; gap: 0.55em; padding: 1em 0.15em 0.5em; font-size: 0.86em; font-weight: 600; }
+.jrd-head small { color: var(--paper-dim); font-weight: 500; }
+.jrd-dot { display: block; flex: none; width: 0.85em; height: 0.85em; border-radius: 50%; border: 0.14em solid var(--paper-ink); }
+.jrd-dot[data-status='progress'] { background: conic-gradient(var(--paper-ink) 0 50%, transparent 0); }
+.jrd-dot[data-status='review'] { background: conic-gradient(var(--paper-ink) 0 75%, transparent 0); }
+.jrd-card { position: relative; list-style: none; background: var(--paper-2); border: 1px solid var(--paper-line); border-radius: 0.8em; }
+.jrd-empty { padding: 0.95em 1em; font-size: 0.82em; color: var(--paper-dim); }
+
+/* rows */
+.jrd-row { position: relative; display: flex; align-items: center; border-top: 1px solid var(--paper-line); background: var(--paper-2); border-radius: 0.7em; cursor: grab; }
+.jrd-row:first-child { border-top-color: transparent; }
+.jrd-hit {
+  flex: 1; min-width: 0; display: grid; grid-template-columns: 5.6em minmax(0, 1fr) auto 2.6em; gap: 0.7em; align-items: center;
+  padding: 0.8em 0.4em 0.8em 1em; text-align: left; font-size: 0.875em; color: var(--paper-ink); cursor: inherit;
+}
+/* The row carries the focus ring, as an outline so it survives forced colours. */
+.jrd-hit:focus-visible { outline: none; }
+.jrd-row:has(.jrd-hit:focus-visible) { outline: 0.15em solid var(--paper-ink); outline-offset: 0.15em; }
+.jrd-key { font-family: var(--mono); font-size: 0.8em; color: var(--paper-dim); padding: 0.15em 0.35em; margin-left: -0.35em; border-radius: 0.35em; justify-self: start; transition: background-color 0.2s, color 0.2s; }
+.jrd-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+.jrd-tag { font-size: 0.8em; font-weight: 700; padding: 0.2em 0.6em; border-radius: 0.45em;
+  color: color-mix(in srgb, var(--bad) 72%, var(--paper-ink)); background: color-mix(in srgb, var(--bad) 14%, var(--paper-2)); }
+.jrd-age { font-size: 0.85em; color: var(--paper-dim); text-align: right; }
+.jrd-move { flex: none; display: flex; align-items: center; gap: 0.2em; margin-right: 0.6em; padding: 0.35em 0.4em; border-radius: 0.45em; color: var(--paper-dim); font-size: 0.8em; }
+.jrd-move:hover { background: var(--paper); color: var(--paper-ink); }
+.jrd-move .jrd-dot { width: 1em; height: 1em; }
+
+/* focus: ink hairline inside a lime ring; the key turns lime with ink text */
+.jrd-row.is-focus { z-index: 2; box-shadow: 0 0 0 0.09em var(--paper-ink), 0 0 0 0.3em var(--acc); }
+.jrd-row.is-focus .jrd-key { background: var(--acc); color: var(--paper-ink); }
+
+/* drag */
+.jrd-row[data-lifted] { cursor: grabbing; z-index: 5; border-top-color: transparent; box-shadow: 0 0 0 0.09em var(--paper-ink), 0 0 0 0.3em var(--acc), 0 1.6em 2.6em -0.8em var(--shadow); }
+.jrd-slot { display: none; }
+.jrd-slot[data-on] {
+  display: block; height: 2.9em; margin: 0.4em; border-radius: 0.7em;
+  border: 0.13em dashed color-mix(in srgb, var(--acc) 70%, var(--paper-ink));
+  background: color-mix(in srgb, var(--acc) 18%, transparent);
+  @media (prefers-reduced-motion: no-preference) { animation: jrd-in 0.2s var(--ease); }
+}
+@keyframes jrd-in { from { opacity: 0; } }
+
+/* keycaps */
+.jrd-keys { display: flex; align-items: center; gap: 0.5em; padding: 1.1em 1.35em 0; }
+.jrd-cap {
+  width: 2.3em; height: 2.3em; display: grid; place-items: center; border-radius: 0.5em;
+  font-family: var(--mono); font-weight: 700; font-size: 0.85em; color: var(--paper-ink);
+  background: var(--paper-2); border: 1px solid var(--paper-line); box-shadow: 0 0.16em 0 var(--paper-line);
+  transition: transform 0.15s var(--ease), background-color 0.15s, box-shadow 0.15s;
+}
+.jrd-cap[data-hit], .jrd-cap:active { background: var(--acc); transform: translateY(0.12em); box-shadow: 0 0.04em 0 var(--paper-line); }
+.jrd-cap:focus-visible { outline: 0.15em solid var(--paper-ink); outline-offset: 0.15em; }
+.jrd-keys-note { margin-left: 0.5em; font-family: var(--mono); font-size: 0.72em; color: var(--paper-dim); white-space: nowrap; }
+
+@media (prefers-reduced-motion: reduce) {
+  .jrd-slot[data-on] { animation: none; }
+  .jrd-cap { transition: none; }
+}
