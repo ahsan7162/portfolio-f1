@@ -1,0 +1,20 @@
+/* Curtain between pages, and the pointer dot. */
+.pp-curtain {
+  position: fixed; inset: 0; z-index: 80; background: var(--raise-2); color: var(--ink);
+  display: grid; place-items: center; overflow: hidden; pointer-events: none; will-change: transform;
+}
+/* opening onto a product: a deep shade of its colour */
+.pp-curtain[data-branded] { background: color-mix(in oklch, var(--brand) 46%, var(--black)); }
+.pp-curtain span { --wdth: 62; font-size: clamp(64px, 17vw, 300px); white-space: nowrap; }
+
+.pp-cursor {
+  position: fixed; left: 0; top: 0; z-index: 95; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%;
+  background: var(--white); mix-blend-mode: difference; pointer-events: none; opacity: 0;
+  display: grid; place-items: center;
+  transition: width 0.35s var(--ease), height 0.35s var(--ease), margin 0.35s var(--ease), opacity 0.2s;
+}
+.pp-cursor[data-on] { opacity: 1; }
+.pp-cursor span { opacity: 0; color: var(--ground); font-weight: 700; transition: opacity 0.15s; }
+.pp-cursor[data-label] { width: 92px; height: 92px; margin: -46px 0 0 -46px; background: var(--ink); mix-blend-mode: normal; }
+.pp-cursor[data-label] span { opacity: 1; transition-delay: 0.1s; }
+@media (hover: none), (pointer: coarse) { .pp-cursor { display: none; } }
