@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type RefObject } from 'react';
+import { Fragment, useEffect, useRef, useState, type RefObject } from 'react';
 import { Arrow } from '@/components/Arrow';
 import { CvLink } from '@/components/CvLink';
 import { originOf, useDialogs } from '@/components/dialogs/context';
@@ -54,6 +54,7 @@ export function SiteMenu({ ref, menu, current, onLeave, onClose }: {
   const jobList = useRef<HTMLUListElement>(null);
   useJobsFold(ref, jobList, jobsOpen);
 
+  const projectsAt = menu.findIndex(m => m.archive);
   return (
     <div ref={ref} id="site-menu" data-lenis-prevent role="dialog" aria-modal="true" aria-label="Site menu"
       className="invisible fixed inset-0 overflow-y-auto bg-carbon opacity-0">
@@ -62,10 +63,14 @@ export function SiteMenu({ ref, menu, current, onLeave, onClose }: {
         <nav aria-label="Sections">
           <ol className="border-t border-line">
             {menu.map((m, i) => {
-              const n = <span aria-hidden="true" className="w-8 shrink-0 pt-[0.6em] font-mono text-xs text-mute md:w-12">{twoDigits(i + 1)}</span>;
+              // Products sits right after Projects, so every row below it counts one higher.
+              const no = i + 1 + (i > projectsAt ? 1 : 0);
+              const num = 'w-8 shrink-0 pt-[0.6em] font-mono text-xs text-mute md:w-12';
+              const n = <span aria-hidden="true" className={num}>{twoDigits(no)}</span>;
               const dot = current === m.id && <span aria-hidden="true" className="ml-3 inline-block size-2 shrink-0 self-center rounded-full bg-ac" />;
               return (
-                <li key={m.id} data-mflip className="border-b border-line">
+                <Fragment key={m.id}>
+                <li data-mflip className="border-b border-line">
                   <div className="overflow-hidden">
                     <div data-mrow className="flex items-stretch">
                       {m.archive ? (
@@ -110,6 +115,21 @@ export function SiteMenu({ ref, menu, current, onLeave, onClose }: {
                     </ul>
                   )}
                 </li>
+                {/* Not a section of this page: the products pages, at their own address. */}
+                {m.archive && (
+                  <li data-mflip className="border-b border-line">
+                    <div className="overflow-hidden">
+                      <div data-mrow className="flex items-stretch">
+                        <a href="/products" className="group flex flex-1 items-start py-3 md:py-4">
+                          <span aria-hidden="true" className={num}>{twoDigits(no + 1)}</span>
+                          <span data-letter-roll className={rowText}>Products</span>
+                          <span aria-hidden="true" className="ml-auto self-center text-sm font-semibold text-mute transition-colors group-hover:text-ac2">Open <Arrow /></span>
+                        </a>
+                      </div>
+                    </div>
+                  </li>
+                )}
+                </Fragment>
               );
             })}
           </ol>

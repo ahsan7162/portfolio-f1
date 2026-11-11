@@ -104,9 +104,13 @@ export function Projects() {
             <span className="display mt-3 block overflow-hidden text-display-small font-bold"><span data-ptitle className="block">{projects[0].company}</span></span>
             <span className="mt-5 block h-0.5 w-full max-w-[280px] bg-line"><span data-pbar className="block h-full origin-left bg-ac" /></span>
           </div>
-          <button type="button" onClick={e => openArchive(originOf(e))} className="btn btn-primary">
-            <span data-letter-roll>All projects</span> <span className="rounded-full bg-carbon/20 px-2 py-0.5">{projects.length + archive.length}</span>
-          </button>
+          <div className="flex flex-wrap gap-3">
+            {/* The things built to be used, not only read about, have their own pages. */}
+            <a href="/products" className="btn btn-ghost"><span data-letter-roll>Products</span> <Arrow /></a>
+            <button type="button" onClick={e => openArchive(originOf(e))} className="btn btn-primary">
+              <span data-letter-roll>All projects</span> <span className="rounded-full bg-carbon/20 px-2 py-0.5">{projects.length + archive.length}</span>
+            </button>
+          </div>
         </div>
 
         <div ref={grid} className="proj-cards grid grid-cols-1 gap-16 md:grid-cols-2 md:gap-x-8 lg:grid-cols-12">

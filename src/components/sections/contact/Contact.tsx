@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import { CvLink } from '@/components/CvLink';
 import { LazyMap } from '@/components/LazyMap';
 import { EMAIL, profile, SECTIONS, SOCIAL } from '@/content/data';
@@ -45,7 +46,11 @@ export function Contact() {
           <span className={label}>Sections</span>
           <ul>
             {PAGES.map(s => (
-              <li key={s.id} data-flink><a href={`#${s.id}`} className={row}><span data-letter-roll>{s.short}</span></a></li>
+              <Fragment key={s.id}>
+                <li data-flink><a href={`#${s.id}`} className={row}><span data-letter-roll>{s.short}</span></a></li>
+                {/* The products pages sit with the projects, though they are not a section of this page. */}
+                {s.archive && <li data-flink><a href="/products" className={row}><span data-letter-roll>Products</span></a></li>}
+              </Fragment>
             ))}
           </ul>
         </nav>
