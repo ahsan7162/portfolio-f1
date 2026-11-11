@@ -4,6 +4,7 @@
   "installCommand": "npm ci",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
+  "rewrites": [{ "source": "/products/:slug", "destination": "/products/:slug/index.html" }],
   "headers": [
     {
       "source": "/(.*)",
