@@ -6,6 +6,7 @@ import { readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { EMAIL, SITE_URL, SOCIAL, education, jobs, profile } from '../src/content/data';
+import { writeProductPages } from './products-seo';
 
 const CARD_ALT = 'Muhammad Ahsan, Senior Full-Stack Developer: React, Go, Python, .NET and AI agents, 450+ AI agents shipped. The 04 helmet.';
 
@@ -85,12 +86,12 @@ function seoTags(site: string, pageTitle: string, builtAt: string) {
   ].join('\n    ');
 }
 
-/** The sitemap, and robots.txt pointing at it. One URL: the sections are #anchors on the same page. */
-function writeSitemap(dist: string, site: string, day: string) {
+/** The sitemap, and robots.txt pointing at it. The portfolio is one URL (its sections are #anchors); `paths` are the products pages. */
+function writeSitemap(dist: string, site: string, day: string, paths: string[]) {
   writeFileSync(resolve(dist, 'sitemap.xml'), [
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-    `  <url><loc>${site}/</loc><lastmod>${day}</lastmod></url>`,
+    ...['/', ...paths].map(path => `  <url><loc>${site}${path}</loc><lastmod>${day}</lastmod></url>`),
     '</urlset>',
     '',
   ].join('\n'));
@@ -116,6 +117,7 @@ writeFileSync(resolve(dist, 'index.html'), html
   .replace('<!--csp-->', () => `<meta http-equiv="Content-Security-Policy" content="${contentSecurityPolicy(html)}" />`)
   .replace('<!--seo-->', () => seoTags(site, pageTitle, builtAt))
   .replace('<!--app-->', () => app));
-if (site) writeSitemap(dist, site, builtAt.slice(0, 10));
+const productPaths = writeProductPages(dist, site, builtAt);
+if (site) writeSitemap(dist, site, builtAt.slice(0, 10), productPaths);
 rmSync(resolve('dist-ssr'), { recursive: true, force: true });
 console.log(`prerender: wrote ${(app.length / 1024).toFixed(1)} KB of HTML`);
