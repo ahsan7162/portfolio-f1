@@ -1,0 +1,171 @@
+/* The car hero. Bone, black and greys only: the car is "liveried" in the page's own neutrals. */
+.hc {
+  --c-hi: #F7F4EB; --c-mid: #E3E0D6; --c-lo: #BAB7AD; --c-deep: #8C8981;
+  --k-hi: #3C3C39; --k-lo: #1D1D1B; --k-2: #2A2A28; --k-0: #0A0A09; --tyre: #121211;
+  --k-rim: #222220; --k-ring: #3F3F3C; --k-arm: #4C4B47; --k-edge: #5C5A54; --k-plank: #6E6C65; --k-halo: #77756E;
+  --k-engine: #141413; --k-gantry: #0D0D0C; --lamp-off: #1B1B1A;
+  --seam: color-mix(in srgb, var(--black) 26%, transparent);
+  --ghost: color-mix(in srgb, var(--ink) 9%, transparent);
+  display: grid; grid-template-rows: minmax(0, 1fr) auto; gap: clamp(10px, 2.4svh, 28px);
+  padding: clamp(78px, 10svh, 104px) var(--pad) clamp(26px, 4.4svh, 44px);
+}
+
+/* the claim, enormous, behind the car: its size and place come from the car's width */
+.hc-words {
+  position: absolute; left: 0; right: 0; bottom: 47%; text-align: center; white-space: nowrap; pointer-events: none;
+  font-size: 30cqw; line-height: 0.8; --wdth: 72; color: var(--ghost);
+}
+
+.hc-stage { position: relative; min-height: 0; container-type: size; display: grid; place-items: end center; padding-top: 14cqh; }
+.hc-fit { position: relative; container-type: inline-size; width: min(100cqw, 100cqh * 1600 / 520, 1320px); }
+.hc-svg { position: relative; display: block; width: 100%; aspect-ratio: 1600 / 520; overflow: visible; }
+
+/* paint */
+.g-body-hi { stop-color: var(--c-hi); } .g-body-mid { stop-color: var(--c-mid); } .g-body-lo { stop-color: var(--c-lo); } .g-body-deep { stop-color: var(--c-deep); }
+.g-carbon-hi { stop-color: var(--k-hi); } .g-carbon-lo { stop-color: var(--k-lo); } .g-pool { stop-color: var(--ink); }
+.c-body { fill: url(#hc-body); } .c-pod { fill: url(#hc-pod); } .c-body-flat { fill: var(--c-mid); }
+.c-carbon { fill: url(#hc-carbon); } .c-carbon-2 { fill: var(--k-2); } .c-dark { fill: var(--k-0); }
+.c-edge { fill: none; stroke: var(--k-edge); stroke-width: 1; } .c-plank { fill: none; stroke: var(--k-plank); stroke-width: 1.5; }
+.c-seam { fill: none; stroke: var(--seam); stroke-width: 1.2; }
+.c-fine { fill: none; stroke: var(--c-lo); stroke-width: 1.6; stroke-linecap: round; }
+.c-arm { fill: none; stroke: var(--k-arm); stroke-width: 5; stroke-linecap: round; }
+.c-helmet { fill: var(--c-mid); stroke: var(--k-0); stroke-width: 1; } .c-visor { fill: var(--k-0); } .c-helmet-line { fill: none; stroke: var(--k-0); stroke-width: 3; }
+.c-halo { fill: none; stroke: var(--k-2); stroke-width: 10; stroke-linecap: round; } .c-halo-hi { fill: none; stroke: var(--k-halo); stroke-width: 1.5; stroke-linecap: round; }
+.c-number { font-family: var(--display); font-weight: 900; font-size: 68px; font-variation-settings: 'wdth' 104; letter-spacing: -0.02em; fill: var(--k-0); }
+.c-number--nose { font-size: 25px; }
+.c-light { fill: var(--c-hi); }
+.c-tyre { fill: var(--tyre); } .c-tyre-edge { fill: none; stroke: var(--k-ring); stroke-width: 1.5; } .c-wall { fill: none; stroke: var(--c-mid); stroke-width: 5; }
+.c-rim { fill: var(--k-rim); } .c-rim-edge { fill: none; stroke: var(--k-edge); stroke-width: 1.5; } .c-rim-ring { fill: none; stroke: var(--k-ring); stroke-width: 1.5; }
+.c-nut { fill: var(--c-mid); } .c-nut-hex { fill: var(--k-0); }
+.hc-ground { fill: none; stroke: var(--line); stroke-width: 1; }
+.hc-start path { fill: var(--faint); transition: fill 0.25s; }
+.hc-start rect { fill: none; stroke: var(--faint); stroke-width: 1; transition: stroke 0.25s; }
+.hc[data-picked='wheels'] .hc-start path { fill: var(--ink); }
+.hc[data-picked='wheels'] .hc-start rect { stroke: var(--ink); }
+.hc-streaks { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; opacity: 0; }
+
+/* ── picking a part ──
+   Every part has a fixed hit zone that never moves, so a part that lifts away cannot slip out from
+   under the pointer. Picking steps the rest of the car back and shows what the part really is. */
+.hc-hits { fill: transparent; pointer-events: all; cursor: pointer; }
+.hc-part, .hc-rv, .hc-lead, .hc-streaks { pointer-events: none; }
+.hc-part, .hc-pop { transition: transform 0.5s var(--ease), opacity 0.28s; }
+.hc-part :is(path, circle, rect, ellipse, text) { transition: fill 0.25s, stroke 0.25s; }
+.hc[data-picked] .hc-part { opacity: 0.16; }
+
+/* what a picked part reveals: hidden until then; lines draw themselves in */
+.hc-rv { opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0s 0.3s; }
+.hc-rv [pathLength], .hc-lead [pathLength] { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 0s 0.3s; }
+.hc[data-picked='wing'] .hc-rv[data-for='wing'], .hc[data-picked='body'] .hc-rv[data-for='body'], .hc[data-picked='driver'] .hc-rv[data-for='driver'],
+.hc[data-picked='floor'] .hc-rv[data-for='floor'], .hc[data-picked='power'] .hc-rv[data-for='power'], .hc[data-picked='wheels'] .hc-rv[data-for='wheels'] {
+  opacity: 1; visibility: visible; transition: opacity 0.3s, visibility 0s;
+}
+.hc[data-picked='body'] .hc-rv[data-for='body'] [pathLength], .hc[data-picked='power'] .hc-rv[data-for='power'] [pathLength],
+.hc[data-picked='driver'] .hc-rv[data-for='driver'] [pathLength] { stroke-dashoffset: 0; transition: stroke-dashoffset 0.7s var(--ease) 0.1s; }
+
+/* the line from the label up to the part */
+.hc-lead { opacity: 0; transition: opacity 0.2s; }
+.hc-lead path { fill: none; stroke: var(--ink); stroke-width: 1; }
+.hc-lead circle { fill: var(--ground); stroke: var(--ink); stroke-width: 1.5; }
+.hc[data-picked='wing'] .hc-lead[data-for='wing'], .hc[data-picked='body'] .hc-lead[data-for='body'], .hc[data-picked='driver'] .hc-lead[data-for='driver'],
+.hc[data-picked='floor'] .hc-lead[data-for='floor'], .hc[data-picked='power'] .hc-lead[data-for='power'], .hc[data-picked='wheels'] .hc-lead[data-for='wheels'] { opacity: 1; }
+.hc[data-picked] .hc-lead [pathLength] { stroke-dashoffset: 0; transition: stroke-dashoffset 0.45s var(--ease); }
+
+/* 05 Front end: the wing comes forward, and the air runs over the whole car */
+.hc[data-picked='wing'] .hc-part { opacity: 0.55; }
+.hc[data-picked='wing'] [data-part='wing'] { opacity: 1; transform: translate(46px, 0); }
+.r-air { fill: none; stroke: var(--ink); stroke-width: 1.4; stroke-linecap: round; stroke-dasharray: 12 16; opacity: 0.8; }
+.hc[data-picked='wing'] .r-air { @media (prefers-reduced-motion: no-preference) { animation: hc-flow 0.7s linear infinite; } }
+@keyframes hc-flow { to { stroke-dashoffset: -28; } }
+
+/* 01 Design: the whole car becomes its own drawing, on a sheet, with its dimensions */
+.hc[data-picked='body'] .hc-part { opacity: 1; }
+.hc[data-picked='body'] .hc-part :is(path, circle, rect, ellipse) { fill: transparent; stroke: var(--ink); stroke-width: 1.3; }
+.hc[data-picked='body'] .hc-part text { fill: transparent; stroke: var(--ink); stroke-width: 1; }
+.hc[data-picked='body'] .hc-pool { opacity: 0; }
+.b-grid { fill: none; stroke: var(--ghost); stroke-width: 1; }
+.b-dim path { fill: none; stroke: var(--dim); stroke-width: 1; }
+.b-dim text { font-family: var(--mono); font-size: 0.875rem; letter-spacing: 0.06em; fill: var(--ink); text-transform: uppercase; }
+.b-gap { fill: var(--ground); }
+
+/* 04 AI: the driver rises, with the radio in one ear and eyes far down the road */
+.hc[data-picked='driver'] [data-part='driver'] { opacity: 1; transform: translate(0, -62px); }
+.r-signal { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; }
+.hc[data-picked='driver'] .r-signal path { @media (prefers-reduced-motion: no-preference) { animation: hc-ping 1.5s ease-out infinite; } }
+.r-signal path:nth-child(2) { animation-delay: 0.18s !important; }
+.r-signal path:nth-child(3) { animation-delay: 0.36s !important; }
+@keyframes hc-ping { 0% { opacity: 0; } 25% { opacity: 1; } 100% { opacity: 0; } }
+.r-sight { fill: none; stroke: var(--ink); stroke-width: 1.2; }
+.r-reticle { fill: none; stroke: var(--ink); stroke-width: 1.5; stroke-linecap: round; }
+
+/* 02 Architecture: the floor drops, and the points everything bolts to show */
+.hc[data-picked='floor'] .hc-part { opacity: 0.4; }
+.hc[data-picked='floor'] [data-part='floor'] { opacity: 1; transform: translate(0, 34px); }
+.r-bolts path { fill: none; stroke: var(--ink); stroke-width: 1; stroke-dasharray: 3 4; }
+.r-bolts circle { fill: var(--ground); stroke: var(--ink); stroke-width: 1.5; }
+
+/* 03 Back end: the engine cover lifts right off, and there is the engine */
+.hc[data-picked='power'] [data-part='power'] { opacity: 1; transform: translate(-6px, -122px); }
+.r-solid { fill: var(--k-engine); stroke: var(--ink); stroke-width: 1.6; stroke-linejoin: round; }
+.r-thin { fill: none; stroke: var(--dim); stroke-width: 1.2; }
+.r-line { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; }
+.r-pipe { fill: none; stroke: var(--c-lo); stroke-width: 7; stroke-linecap: round; }
+
+/* 06 Launch: five lights come on one by one, then out, and the wheels light up */
+.hc[data-picked='wheels'] [data-part='wheels'] { opacity: 1; }
+.hc[data-picked='wheels'] .hc-pop { transform: translate(-22px, 0); }
+.hc[data-picked='wheels'] [data-front] .hc-pop { transform: translate(22px, 0); }
+.hc[data-picked='wheels'] .hc-rev { @media (prefers-reduced-motion: no-preference) { animation: hc-wheelspin 3.6s cubic-bezier(0.5, 0, 0.9, 0.4) infinite; } }
+@keyframes hc-wheelspin { 0%, 72% { transform: rotate(0deg); } 100% { transform: rotate(1080deg); } }
+.r-gantry rect { fill: var(--k-gantry); stroke: var(--faint); stroke-width: 1.5; }
+.r-lamp { fill: var(--lamp-off); stroke: var(--faint); stroke-width: 1.5; }
+.hc[data-picked='wheels'] .r-lamp { @media (prefers-reduced-motion: no-preference) { animation: 3.6s steps(1) infinite; } }
+.hc[data-picked='wheels'] .r-lamp[data-i='0'] { animation-name: hc-lamp-0; }
+.hc[data-picked='wheels'] .r-lamp[data-i='1'] { animation-name: hc-lamp-1; }
+.hc[data-picked='wheels'] .r-lamp[data-i='2'] { animation-name: hc-lamp-2; }
+.hc[data-picked='wheels'] .r-lamp[data-i='3'] { animation-name: hc-lamp-3; }
+.hc[data-picked='wheels'] .r-lamp[data-i='4'] { animation-name: hc-lamp-4; }
+@keyframes hc-lamp-0 { 6%, 71% { fill: var(--ink); } 0%, 72%, 100% { fill: var(--lamp-off); } }
+@keyframes hc-lamp-1 { 19%, 71% { fill: var(--ink); } 0%, 72%, 100% { fill: var(--lamp-off); } }
+@keyframes hc-lamp-2 { 32%, 71% { fill: var(--ink); } 0%, 72%, 100% { fill: var(--lamp-off); } }
+@keyframes hc-lamp-3 { 45%, 71% { fill: var(--ink); } 0%, 72%, 100% { fill: var(--lamp-off); } }
+@keyframes hc-lamp-4 { 58%, 71% { fill: var(--ink); } 0%, 72%, 100% { fill: var(--lamp-off); } }
+
+/* labels: 01 Design to 05 Front end along the car, each under its part, then 06 Launch on the start line ahead of it */
+.hc-tags { position: absolute; left: 0; right: 0; top: 87%; height: 0; }
+.hc-tag {
+  position: absolute; left: var(--at); top: 0; transform: translateX(-50%); display: inline-flex; gap: 7px; white-space: nowrap;
+  padding: 7px 11px; border-radius: 999px; color: var(--dim); font-size: 0.6875rem; transition: color 0.15s, background-color 0.15s;
+}
+.hc-tag::after { content: ''; position: absolute; inset: -8px -4px; }
+/* 05 hangs to the left of its leader, so it never runs into 06 on a narrow desktop */
+.hc-tag:nth-child(5) { translate: calc(-50% + 10px) 0; }
+.hc-tag b { color: var(--faint); font-weight: 500; transition: color 0.15s; }
+.hc-tag:hover { color: var(--ink); }
+.hc-tag[data-on] { color: var(--ground); background: var(--ink); }
+.hc-tag[data-on] b { color: var(--ground); }
+
+/* the lower band: statement and actions on the left, the picked layer and the facts on the right */
+.hc-band { position: relative; z-index: 2; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: clamp(20px, 4vw, 64px); align-items: end; }
+.hc-name { color: var(--dim); margin-bottom: 10px; font-weight: 500; }
+.hc-line { font-size: clamp(1.5rem, 3.1vw, 2.75rem); max-width: 15em; text-wrap: balance; }
+.hc-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: clamp(14px, 2.4svh, 24px); }
+.hc-note { min-height: 3.2em; color: var(--dim); text-transform: none; letter-spacing: 0.02em; font-size: 0.8125rem; line-height: 1.6; margin-bottom: 14px; }
+.hc-note b { color: var(--ink); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-right: 6px; }
+.hc-cue { color: var(--faint); }
+.hc-facts { display: grid; grid-template-columns: repeat(4, auto); justify-content: space-between; gap: 14px 24px; padding-top: 16px; border-top: 1px solid var(--line); }
+.hc-facts dt { color: var(--faint); font-size: 0.6562rem; margin-bottom: 6px; }
+.hc-facts dd { font-size: 0.9062rem; color: var(--ink); }
+
+@media (max-width: 1100px) { .hc-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 899px), (max-aspect-ratio: 4 / 5) {
+  .hc-words { bottom: auto; top: -22cqw; font-size: 31cqw; }
+  .hc-tags { position: static; height: auto; display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 2px; margin-top: 10px; }
+  .hc-tags .hc-tag { position: static; transform: none; translate: none; padding: 6px 8px; }
+  /* the labels sit in rows here, not under their parts, so there is no line to draw up to them */
+  .hc-lead { display: none; }
+  .hc-tag::after { inset: -4px -2px; }
+  .hc-band { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+  .hc-note { min-height: 0; margin-bottom: 10px; }
+}
+@media (hover: none), (pointer: coarse) { .hc-cue { display: none; } }
