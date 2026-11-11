@@ -1,0 +1,257 @@
+/* Product detail page. Tokens only: ink ground, bone type, the one accent. */
+.dt { position: relative; overflow-x: clip; }
+
+/* top bar */
+.dt-top { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding-top: clamp(20px, 3vw, 40px); }
+.dt-top-right { display: flex; align-items: center; gap: clamp(14px, 2vw, 24px); color: var(--dim); }
+.dt-top-link { transition: color 0.2s; }
+.dt-top-link:hover { color: var(--acc); }
+.dt-pos { color: inherit; cursor: pointer; }
+/* Jump to a product: a list of every product under the top bar. It scrolls away with the bar. */
+.dt-jump { position: absolute; inset: auto var(--pad) auto auto; top: calc(clamp(20px, 3vw, 40px) + 30px); margin: 0; padding: 8px; width: min(380px, calc(100vw - 2 * var(--pad))); max-height: min(70svh, 560px); overflow-y: auto; overscroll-behavior: contain; background: var(--raise); color: var(--ink); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 30px 60px var(--shadow-deep); }
+/* Without the Popover API the list would sit open over the page; Prev and Next still work there. */
+@supports not selector(:popover-open) { .dt-jump { display: none; } }
+.dt-jump ol { list-style: none; margin: 0; padding: 0; }
+.dt-jump-item { display: grid; grid-template-columns: 28px 1fr auto; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 8px; color: var(--dim); transition: background-color 0.15s, color 0.15s; }
+.dt-jump-item b { color: var(--brand); }
+.dt-jump-name { font-family: var(--display); font-weight: 700; font-variation-settings: 'wdth' 108; font-size: 1rem; color: var(--ink); }
+.dt-jump-item:hover, .dt-jump-item:focus-visible { background: var(--raise-2); }
+.dt-jump-item[aria-current] { background: var(--brand); color: var(--on-brand); }
+.dt-jump-item[aria-current] b, .dt-jump-item[aria-current] .dt-jump-name { color: inherit; }
+
+/* hero */
+.dt-hero { padding-top: clamp(40px, 6vw, 64px); }
+.dt-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; color: var(--dim); }
+.dt-meta-item + .dt-meta-item::before { content: '·'; margin-right: 14px; color: var(--faint); }
+.dt-name {
+  --wdth: 62;
+  /* a fallback until fit.ts measures; it then sets the exact size inline */
+  font-size: clamp(64px, 17vw, 300px);
+  margin: clamp(12px, 1.6vw, 22px) 0 0 -0.02em;
+  white-space: nowrap;
+}
+.dt-fit { display: inline-block; white-space: nowrap; }
+.dt-name-line {
+  display: inline-block; vertical-align: top;
+  /* the mask the letters rise out of, padded so it does not crop the caps at this tight leading */
+  overflow: hidden; padding-block: 0.08em; margin-block: -0.08em;
+}
+.dt-ch { display: inline-block; white-space: pre; }
+@media (max-width: 599px) {
+  .dt-name-line { display: block; }
+}
+
+.dt-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 520px); gap: clamp(32px, 6vw, 96px); margin-top: clamp(28px, 4vw, 48px); align-items: start; }
+.dt-pitch { font-size: clamp(26px, 3.2vw, 46px); max-width: 22ch; }
+.dt-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: clamp(24px, 3vw, 34px); }
+.dt-cta .pp-btn:disabled, .dt-get-btn:disabled { cursor: not-allowed; opacity: 0.55; }
+.dt-cta .pp-btn:disabled:hover { color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--line); }
+.dt-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 30px; border-top: 1px solid var(--line); padding-top: 22px; }
+.dt-facts dt { color: var(--dim); margin-bottom: 7px; }
+.dt-facts dd { font-weight: 600; font-size: 1.125rem; line-height: 1.35; }
+
+/* stage */
+.dt-stage-wrap { position: relative; }
+.dt-stage-wrap::before {
+  content: ''; position: absolute; inset: calc(var(--dt-gap) - 4%) 0 -6%; pointer-events: none;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--acc) 20%, transparent), transparent);
+}
+.dt-stage { position: relative; margin-inline: auto; max-width: 1440px; will-change: transform; }
+.dt-stage--phone { max-width: 760px; }
+.dt-stage--browser, .dt-stage--window { max-width: 1240px; }
+.dt-hint { position: relative; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px 14px; margin-top: 28px; color: var(--dim); text-align: center; }
+.dt-live { width: 8px; height: 8px; border-radius: 50%; background: var(--acc); box-shadow: 0 0 0 4px color-mix(in srgb, var(--acc) 22%, transparent); }
+.dt-tally { color: var(--acc); }
+
+/* blocks: one rhythm whatever the order. The first block sits closer to the hero; when the page
+   does not end on the Get-it band, the last block keeps a gap above the Next band. */
+.dt-blocks { --dt-gap: clamp(96px, 12vw, 180px); padding-bottom: var(--dt-gap); }
+.dt-blocks:has(> .dt-get:last-child) { padding-bottom: 0; }
+.dt-block { padding-top: var(--dt-gap); }
+.dt-blocks > .dt-block:first-child { --dt-gap: clamp(64px, 8vw, 120px); }
+.dt-sec--stats { --dt-gap: clamp(56px, 7vw, 104px); }
+.dt-label { display: flex; align-items: center; gap: 16px; font-weight: 500; }
+.dt-label-n { color: var(--acc); }
+.dt-label-line { flex: 1; height: 1px; background: var(--line); transform-origin: left center; }
+
+/* why */
+.dt-why { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 400px); gap: clamp(32px, 6vw, 96px); margin-top: clamp(32px, 4vw, 48px); align-items: end; }
+.dt-why-head {
+  font-family: var(--display); font-weight: 700; font-variation-settings: 'wdth' 96;
+  font-size: clamp(38px, 6.4vw, 104px); line-height: 0.98; letter-spacing: -0.035em; text-wrap: balance;
+}
+.dt-w { display: inline-block; }
+.dt-why-head em { font-style: normal; color: var(--acc); }
+.dt-why-body { color: var(--dim); font-size: clamp(1.0625rem, 1.4vw, 1.25rem); line-height: 1.55; }
+.dt-chips { list-style: none; display: flex; flex-wrap: wrap; gap: 10px; margin-top: clamp(32px, 4vw, 48px); }
+.dt-chip { padding: 10px 18px; border-radius: 999px; box-shadow: inset 0 0 0 1.5px var(--line); color: var(--dim); font-size: 1rem; }
+
+/* how */
+.dt-how { list-style: none; display: grid; grid-template-columns: repeat(var(--steps, 3), minmax(0, 1fr)); gap: 0; margin-top: clamp(32px, 4vw, 48px); }
+.dt-how-item { position: relative; display: flex; }
+.dt-how-item + .dt-how-item { padding-left: clamp(40px, 5vw, 80px); }
+.dt-node { flex: 1; border: 1.5px solid var(--line); border-radius: 16px; padding: clamp(22px, 2.2vw, 30px); }
+.dt-node--mid { border-color: var(--acc); background: color-mix(in srgb, var(--acc) 7%, transparent); }
+.dt-node h3 { font-family: var(--display); font-weight: 700; font-variation-settings: 'wdth' 100; font-size: clamp(1.375rem, 2vw, 1.75rem); letter-spacing: -0.02em; line-height: 1.1; margin: 12px 0 10px; }
+.dt-node p { color: var(--dim); font-size: 0.9688rem; line-height: 1.5; }
+/* the connector: a line with an arrowhead, drawn by clip-path */
+.dt-conn {
+  position: absolute; top: 50%; height: 1.5px; background: var(--acc);
+  width: clamp(24px, 3.2vw, 56px); left: calc((clamp(40px, 5vw, 80px) - clamp(24px, 3.2vw, 56px)) / 2);
+}
+.dt-conn::after { content: ''; position: absolute; right: 0; top: -4px; width: 8px; height: 8px; border-top: 1.5px solid var(--acc); border-right: 1.5px solid var(--acc); transform: rotate(45deg); transform-origin: 100% 0; }
+
+.dt-stats { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 30px; }
+.dt-stat-num { --wdth: 70; display: block; font-size: clamp(96px, 12vw, 190px); line-height: 0.8; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.dt-stat-num [data-count] { display: inline-block; }
+.dt-stat-num small { font-size: 0.42em; color: var(--acc); margin-left: 0.08em; }
+.dt-stat-label { display: block; margin-top: 18px; max-width: 30ch; line-height: 1.6; }
+
+/* screens: a native swipe row by default */
+.dt-gal {
+  margin: clamp(32px, 4vw, 48px) calc(-1 * var(--pad)) 0;
+  overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scroll-padding-inline: var(--pad);
+  scrollbar-width: none;
+}
+.dt-gal::-webkit-scrollbar { display: none; }
+.dt-track { list-style: none; display: flex; gap: clamp(16px, 2vw, 28px); width: max-content; padding-inline: var(--pad); }
+.dt-shot { flex: none; scroll-snap-align: start; }
+.dt-shot--plugin { width: min(820px, 84vw, 100vh); }
+.dt-shot--site { width: min(860px, 84vw, 100vh); }
+.dt-shot--app { width: min(290px, 64vw, 38vh); }
+.dt-frame { width: 100%; }
+.dt-shot-img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; object-position: left top; }
+/* phone and browser frames size their screen; the window frame takes its height from the image */
+.dt-shot--app .dt-shot-img, .dt-shot--site .dt-shot-img { height: 100%; aspect-ratio: auto; }
+.dt-shot figcaption { margin-top: 16px; line-height: 1.6; }
+.dt-gal-progress { display: none; height: 1px; margin-top: 32px; background: var(--line); }
+.dt-gal-bar { display: block; height: 100%; background: var(--acc); transform-origin: left center; }
+/* desktop with a mouse: the track is pinned and moved by the scroll (blocks/shared.tsx PIN_QUERY) */
+@media (min-width: 900px) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .dt-gal { overflow: hidden; scroll-snap-type: none; }
+  .dt-track { will-change: transform; }
+  .dt-shot--plugin, .dt-shot--site { width: min(820px, 60vw, 100vh); }
+  .dt-gal-progress { display: block; }
+}
+
+/* film */
+.dt-film { position: relative; margin-top: clamp(32px, 4vw, 48px); aspect-ratio: 16 / 9; border-radius: 18px; overflow: hidden; background: var(--raise); box-shadow: inset 0 0 0 1px var(--line); }
+.dt-film-media { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.dt-play {
+  position: absolute; left: 50%; top: 50%; width: clamp(84px, 10vw, 150px); aspect-ratio: 1; translate: -50% -50%;
+  display: grid; place-items: center; border-radius: 50%; background: var(--acc);
+  box-shadow: 0 24px 60px -16px color-mix(in srgb, var(--ground) 80%, transparent);
+  transition: transform 0.22s var(--ease);
+}
+.dt-play:hover { transform: scale(1.08); }
+.dt-play:active { transform: scale(0.96); }
+.dt-play-icon { width: 0; height: 0; margin-left: 9%; border-left: 0.28em solid var(--on-acc); border-block: 0.17em solid transparent; font-size: clamp(84px, 10vw, 150px); }
+.dt-film-cap { display: flex; justify-content: space-between; gap: 16px; margin-top: 16px; }
+.dt-credit { margin-top: 8px; font-size: 0.8125rem; color: var(--faint); }
+
+/* get it: a full-bleed accent band */
+.dt-get { margin-top: var(--dt-gap); background: var(--acc); color: var(--on-acc); padding-block: clamp(56px, 7vw, 96px); }
+.dt-get .dt-label-n { color: var(--on-acc); }
+.dt-get .dt-label-line { background: color-mix(in srgb, var(--on-acc) 28%, transparent); }
+.dt-get-main { margin-top: clamp(24px, 3vw, 36px); }
+.dt-cmd { display: flex; justify-content: space-between; align-items: center; gap: clamp(18px, 3vw, 40px); }
+.dt-cmd-text { font-family: var(--mono); font-weight: 700; font-size: clamp(1.0625rem, 2.3vw, 2.125rem); letter-spacing: -0.03em; line-height: 1.3; overflow-wrap: anywhere; min-width: 0; }
+.dt-get-row { display: flex; flex-wrap: wrap; gap: 14px; }
+.dt-get-btn {
+  flex: none; display: inline-flex; align-items: center; gap: 10px; white-space: nowrap;
+  padding: 15px 26px; border-radius: 999px; background: var(--on-acc); color: var(--acc);
+  font-family: var(--display); font-variation-settings: 'wdth' 108; font-weight: 700; font-size: 1rem;
+  transition: transform 0.2s var(--ease);
+}
+.dt-get-btn:not(:disabled):hover { transform: translateY(-2px); }
+.dt-get-btn:not(:disabled):active { transform: scale(0.97); }
+.dt-get-btn--lg { padding: clamp(18px, 2vw, 26px) clamp(28px, 3vw, 44px); font-size: clamp(1.125rem, 2vw, 1.625rem); }
+.dt-get :focus-visible { outline-color: var(--on-acc); }
+.dt-get-note { margin-top: clamp(24px, 3vw, 34px); max-width: 60ch; color: color-mix(in srgb, var(--on-acc) 68%, transparent); }
+
+/* text: a heading, then paragraphs in a readable measure in the right-hand column */
+.dt-text { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: clamp(28px, 6vw, 96px); align-items: start; }
+.dt-label + .dt-text { margin-top: clamp(32px, 4vw, 48px); }
+.dt-text-head {
+  font-family: var(--display); font-weight: 700; font-variation-settings: 'wdth' 96;
+  font-size: clamp(30px, 4.2vw, 64px); line-height: 1; letter-spacing: -0.03em; text-wrap: balance;
+}
+.dt-text-body { grid-column: 2; display: grid; gap: 1.1em; max-width: 62ch; font-size: clamp(1.0625rem, 1.45vw, 1.3125rem); line-height: 1.6; color: var(--dim); }
+.dt-text-body p:first-child { color: var(--ink); }
+
+/* features: a grid split by hairlines, no boxes */
+.dt-feats { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: clamp(24px, 3vw, 48px); margin-top: clamp(32px, 4vw, 48px); }
+.dt-feat { position: relative; padding: clamp(22px, 2.4vw, 32px) 0 clamp(36px, 4vw, 56px); }
+.dt-feat-rule { position: absolute; inset: 0 0 auto; height: 1px; background: var(--line); transform-origin: left center; }
+.dt-feat-n { color: var(--acc); }
+.dt-feat-title { font-size: clamp(1.5rem, 2.4vw, 2.25rem); margin: clamp(16px, 2vw, 26px) 0 12px; text-wrap: balance; }
+.dt-feat-body { color: var(--dim); font-size: 1rem; line-height: 1.55; max-width: 38ch; }
+
+/* keys: keycaps on the left, what they do on the right. A cap is its face over a lighter side;
+   the face sinks into the side when its row is hovered (translate, so GSAP's transform is left alone). */
+.dt-keys-note { margin-top: 18px; max-width: 62ch; color: var(--dim); }
+.dt-keys { list-style: none; margin-top: clamp(28px, 3.6vw, 44px); border-bottom: 1px solid var(--line); }
+.dt-keys-row { display: grid; grid-template-columns: minmax(220px, 1fr) minmax(0, 2fr); gap: 12px 24px; align-items: center; padding-block: clamp(14px, 1.6vw, 22px); border-top: 1px solid var(--line); }
+.dt-keys-caps { display: flex; flex-wrap: wrap; gap: 10px; }
+.dt-keys-does { font-family: var(--display); font-weight: 600; font-variation-settings: 'wdth' 104; font-size: clamp(1.1875rem, 2vw, 1.875rem); letter-spacing: -0.02em; line-height: 1.2; }
+.dt-key { --cap: clamp(46px, 4.4vw, 64px); display: inline-block; padding-bottom: calc(var(--cap) * 0.11); border-radius: calc(var(--cap) * 0.24); background: color-mix(in srgb, var(--ink) 12%, var(--ground)); font: inherit; }
+.dt-key-face {
+  display: grid; place-items: center; min-width: var(--cap); height: var(--cap); padding: 0 calc(var(--cap) * 0.28); border-radius: calc(var(--cap) * 0.22);
+  background: var(--raise-2); color: var(--ink); font-family: var(--mono); font-weight: 600; font-size: calc(var(--cap) * 0.34);
+  box-shadow: inset 0 0 0 1px var(--line), inset 0 1px 0 color-mix(in srgb, var(--ink) 14%, transparent);
+  transition: translate 0.18s var(--ease), box-shadow 0.2s;
+}
+.dt-keys-row:hover .dt-key-face { translate: 0 3px; box-shadow: inset 0 0 0 1px var(--acc); }
+
+/* next: a full-bleed bone band, one link */
+.dt-next { display: block; overflow: hidden; background: var(--ink); color: var(--ground); }
+.dt-next-in { display: block; padding-block: clamp(48px, 6vw, 72px) clamp(52px, 6vw, 76px); }
+.dt-next-name { --wdth: 62; display: block; font-size: clamp(56px, 16vw, 300px); margin: clamp(14px, 2vw, 22px) 0 0 -0.02em; white-space: nowrap; }
+.dt-next-text, .dt-arrow { display: inline-block; transition: transform 0.35s var(--ease); }
+.dt-next:hover .dt-next-text { transform: translateX(-0.06em); }
+.dt-next:hover .dt-arrow { transform: translateX(0.04em); }
+.dt-next:focus-visible { outline-offset: -6px; outline-color: var(--ground); }
+
+/* single column */
+@media (max-width: 899px) {
+  .dt-row, .dt-why { grid-template-columns: minmax(0, 1fr); }
+  .dt-how { grid-template-columns: minmax(0, 1fr); }
+  .dt-how-item + .dt-how-item { padding-left: 0; padding-top: 48px; }
+  .dt-conn { left: clamp(28px, 6vw, 40px); top: 10px; width: 1.5px; height: 28px; }
+  .dt-conn::after { right: auto; top: auto; left: -3.5px; bottom: 0; transform: rotate(135deg); transform-origin: 50% 50%; }
+  .dt-stats { grid-template-columns: minmax(0, 1fr); gap: 44px; }
+  .dt-text { grid-template-columns: minmax(0, 1fr); }
+  .dt-text-body { grid-column: 1; }
+}
+@media (max-width: 1099px) {
+  .dt-feats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 639px) {
+  .dt-feats { grid-template-columns: minmax(0, 1fr); }
+  .dt-keys-row { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 520px) {
+  .dt-cmd { flex-direction: column; align-items: flex-start; }
+  .dt-facts dd { font-size: 1rem; }
+}
+
+/* The page's outline, under the hero: every block in this page's order. */
+.dt-toc { display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px 22px; margin-top: clamp(28px, 4vw, 52px); padding-top: 18px; border-top: 1px solid var(--line); }
+.dt-toc-head { flex: none; color: var(--dim); }
+.dt-toc-list { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; }
+.dt-toc-item { display: inline-flex; gap: 9px; padding: 8px 13px; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--line); transition: background-color 0.15s, color 0.15s, box-shadow 0.15s, transform 0.15s var(--ease); }
+.dt-toc-item:active { transform: scale(0.95); transition-duration: 0.06s; }
+.dt-toc-item b { color: var(--acc); font-weight: 700; }
+.dt-toc-item:hover { background: var(--ink); color: var(--ground); box-shadow: none; }
+.dt-toc-item:hover b { color: inherit; }
+
+/* a label that slides to its other text (SwapLabel): one grid cell, so the button keeps its width */
+.dt-swap { display: inline-grid; overflow: hidden; vertical-align: top; }
+.dt-swap > span { grid-area: 1 / 1; text-align: center; transition: transform 0.2s var(--ease), opacity 0.15s; }
+.dt-swap-b { transform: translateY(105%); opacity: 0; }
+.dt-swap--on .dt-swap-a { transform: translateY(-105%); opacity: 0; }
+.dt-swap--on .dt-swap-b { transform: none; opacity: 1; }
+
+/* the film: the video fades in over the poster it replaces */
+.dt-film-video { background: var(--ground); @media (prefers-reduced-motion: no-preference) { animation: dt-fade-in 0.22s ease-out both; } }
+@keyframes dt-fade-in { from { opacity: 0; } }

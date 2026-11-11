@@ -1,0 +1,124 @@
+/* The visual blocks: split, showcase, compare, bento, marquee, and the framed media they share.
+   Tokens only; the product's colour arrives as --acc under .pp-branded. */
+
+/* media in its frame */
+.bv-media--plugin .frm-shot { height: auto; aspect-ratio: 16 / 10; }
+.bv-media-win { position: relative; aspect-ratio: 16 / 10; }
+.bv-media { box-shadow: 0 40px 80px -40px color-mix(in srgb, var(--ground) 90%, transparent); }
+
+/* split: media on one side, words on the other */
+.bv-split-grid {
+  display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); grid-template-areas: 'media words';
+  gap: clamp(32px, 6vw, 104px); align-items: center;
+}
+.dt-label + .bv-split-grid { margin-top: clamp(32px, 4vw, 48px); }
+.bv-split--right .bv-split-grid { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); grid-template-areas: 'words media'; }
+.bv-split--cont { --dt-gap: clamp(56px, 7vw, 112px); }
+.bv-split-media { grid-area: media; min-width: 0; }
+.bv-split-words { grid-area: words; min-width: 0; }
+.bv-split-frame { width: 100%; }
+.bv-media--app.bv-split-frame { width: min(340px, 72%); margin-inline: auto; }
+.bv-split-head { font-size: clamp(30px, 3.6vw, 56px); text-wrap: balance; }
+.bv-split-body { margin-top: clamp(16px, 1.8vw, 24px); max-width: 46ch; color: var(--dim); font-size: clamp(1.0625rem, 1.35vw, 1.25rem); line-height: 1.55; }
+.bv-points { list-style: none; margin-top: clamp(22px, 2.4vw, 32px); max-width: 46ch; border-bottom: 1px solid var(--line); }
+.bv-points li { display: flex; gap: 14px; align-items: baseline; padding: 12px 0; border-top: 1px solid var(--line); font-weight: 500; }
+.bv-points li::before { content: ''; flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--acc); translate: 0 -2px; }
+
+/* showcase: cards fanned on a soft light. --fx is how far a side card sits from the centre, in its own widths. */
+.bv-show-stage {
+  --cw: min(600px, 40vw); --fx: 60%; --ch: calc(var(--cw) * 0.7);
+  position: relative; height: calc(var(--ch) + clamp(80px, 9vw, 160px)); margin-top: clamp(32px, 4vw, 56px);
+}
+.bv-show-stage--app { --cw: min(290px, 22vw); --fx: 76%; --ch: calc(var(--cw) * 2.07); }
+.bv-show-light {
+  position: absolute; inset: -8% 0; pointer-events: none;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--acc) 34%, transparent), transparent);
+}
+.bv-card {
+  position: absolute; left: 50%; top: 50%; width: var(--cw); z-index: var(--z);
+  translate: calc(-50% + var(--fx) * var(--s)) -50%; rotate: calc(var(--s) * 6deg); scale: 0.9;
+  transform-origin: 50% 100%;
+}
+.bv-card--front { scale: 1; }
+.bv-card:not(.bv-card--front) .bv-card-frame { filter: brightness(0.72); }
+.bv-card-frame { width: 100%; }
+.bv-show-cap { margin-top: clamp(20px, 2.4vw, 32px); text-align: center; }
+
+/* compare: two layers, the top one wiped by clip-path at --pos */
+.bv-cmp {
+  --pos: 50%;
+  position: relative; margin: clamp(32px, 4vw, 48px) auto 0; max-width: min(980px, 100%);
+  touch-action: pan-y; user-select: none; cursor: ew-resize; border-radius: 14px;
+}
+.bv-cmp--app { max-width: min(360px, 82vw); }
+.bv-cmp-layer { position: relative; }
+.bv-cmp-layer--before { position: absolute; inset: 0; clip-path: inset(0 calc(100% - var(--pos)) 0 0); }
+.bv-cmp-media { width: 100%; }
+.bv-cmp-tag {
+  position: absolute; top: clamp(44px, 5vw, 64px); padding: 6px 10px; border-radius: 6px; pointer-events: none;
+  background: color-mix(in srgb, var(--ground) 78%, transparent); color: var(--ink);
+}
+.bv-cmp-tag--before { left: 14px; }
+.bv-cmp-tag--after { right: 14px; }
+.bv-cmp-handle { position: absolute; top: 0; bottom: 0; left: var(--pos); width: 2px; translate: -50% 0; background: var(--acc); pointer-events: none; }
+.bv-cmp-knob {
+  position: absolute; left: 50%; top: 50%; width: 52px; aspect-ratio: 1; translate: -50% -50%; border-radius: 50%;
+  background: var(--acc); box-shadow: 0 10px 30px -8px color-mix(in srgb, var(--ground) 80%, transparent);
+  transition: scale 0.15s var(--ease);
+}
+/* two chevrons, drawn in the text colour that reads on the accent */
+.bv-cmp-knob::before, .bv-cmp-knob::after {
+  content: ''; position: absolute; top: 50%; width: 9px; height: 9px; border: solid var(--on-acc); border-width: 0 0 2px 2px;
+}
+.bv-cmp-knob::before { left: 14px; rotate: 45deg; translate: 0 -50%; }
+.bv-cmp-knob::after { right: 14px; rotate: -135deg; translate: 0 -50%; }
+.bv-cmp:active .bv-cmp-knob { scale: 1.1; }
+/* the range input is the keyboard and screen-reader handle; the pointer drags the frame itself */
+.bv-cmp-range { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.bv-cmp-range:focus-visible ~ .bv-cmp-handle .bv-cmp-knob { outline: 2px solid var(--ink); outline-offset: 4px; }
+.bv-cmp-cap { margin-top: 18px; text-align: center; }
+
+/* bento: placement from layoutBento, as --c3/--r3 (3 columns) and --c2/--r2 (2 columns) */
+.bv-bento {
+  list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-rows: minmax(clamp(200px, 17vw, 280px), auto);
+  gap: clamp(12px, 1.4vw, 20px); margin-top: clamp(32px, 4vw, 48px);
+}
+.bv-tile {
+  position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; gap: 12px;
+  grid-column: var(--c3); grid-row: var(--r3);
+  padding: clamp(22px, 2.4vw, 34px); border-radius: 20px; background: var(--raise); box-shadow: inset 0 0 0 1px var(--line);
+}
+.bv-tile-num { --wdth: 70; font-size: clamp(88px, 9vw, 168px); line-height: 0.8; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.bv-tile-num [data-count] { display: inline-block; }
+.bv-tile-num small { font-size: 0.4em; color: var(--acc); margin-left: 0.06em; }
+.bv-tile-label { max-width: 28ch; }
+.bv-tile--text { justify-content: space-between; }
+.bv-tile-title { font-size: clamp(1.5rem, 2.3vw, 2.25rem); text-wrap: balance; }
+.bv-tile-body { color: var(--dim); line-height: 1.5; max-width: 40ch; }
+.bv-tile--media { justify-content: flex-start; padding-bottom: 0; min-height: clamp(260px, 24vw, 420px); }
+.bv-tile-cap { position: relative; z-index: 1; color: var(--dim); }
+/* the screen bleeds off the tile's bottom and right edge */
+.bv-tile-media { position: absolute; left: clamp(22px, 2.4vw, 34px); top: clamp(56px, 5vw, 76px); width: 118%; }
+.bv-tile-media.bv-media--app { left: 50%; translate: -50% 0; width: min(78%, 260px); }
+
+/* marquee: a full-bleed band, its track two identical halves */
+.bv-mq-band { overflow: hidden; padding-block: clamp(20px, 2.4vw, 36px); border-block: 1px solid var(--line); }
+.bv-mq-track { display: flex; width: max-content; will-change: transform; }
+.bv-mq-half { display: flex; }
+.bv-mq-item { display: flex; align-items: center; }
+.bv-mq-word { --wdth: 125; font-size: clamp(64px, 10vw, 184px); line-height: 0.95; white-space: nowrap; }
+.bv-mq-star { margin-inline: 0.45em; color: var(--acc); font-size: clamp(36px, 5vw, 92px); line-height: 1; }
+
+@media (max-width: 1099px) {
+  .bv-bento { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bv-tile { grid-column: var(--c2); grid-row: var(--r2); }
+}
+@media (max-width: 899px) {
+  .bv-split-grid, .bv-split--right .bv-split-grid { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'media' 'words'; }
+  .bv-show-stage { --cw: 56vw; --fx: 32%; }
+  .bv-show-stage--app { --cw: 40vw; --fx: 52%; }
+}
+@media (max-width: 639px) {
+  .bv-bento { grid-template-columns: minmax(0, 1fr); }
+  .bv-tile { grid-column: auto; grid-row: auto; }
+}
