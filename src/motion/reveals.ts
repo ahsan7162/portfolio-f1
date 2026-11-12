@@ -7,6 +7,16 @@ import { DUR, EASE, STAGGER } from './tokens';
 export type Target = gsap.TweenTarget;
 export type ST = ScrollTrigger.Vars;
 
+/**
+ * A reveal's hidden and shown states. They look like autoAlpha, but use opacity only:
+ * `visibility: hidden` would drop the content from the Tab order and from screen readers
+ * until it is scrolled to. Clicks are off while hidden, as autoAlpha does. In to() and
+ * fromTo() the empty pointerEvents applies as the reveal starts. In a from() it would only
+ * apply at the end.
+ */
+export const HIDDEN = { opacity: 0, pointerEvents: 'none' } as const;
+export const SHOWN = { opacity: 1, pointerEvents: '' } as const;
+
 /** Every trigger made by inView, so an anchor jump can finish them (finishRevealsAbove). */
 const reveals = new WeakSet<ST>();
 
@@ -29,11 +39,11 @@ export const inView = (trigger: Element | string, extra?: ST): ST => {
 export function batchReveal(targets: string | Element[], opts: { y?: number; stagger?: number } = {}) {
   const els = gsap.utils.toArray<HTMLElement>(targets);
   if (!els.length) return;
-  gsap.set(els, { autoAlpha: 0, y: opts.y ?? 32 });
+  gsap.set(els, { ...HIDDEN, y: opts.y ?? 32 });
   ScrollTrigger.batch(els, {
     start: 'top 88%',
     once: true,
-    onEnter: batch => gsap.to(batch, { autoAlpha: 1, y: 0, stagger: opts.stagger ?? STAGGER.card, duration: DUR.reveal, ease: EASE.out, overwrite: true }),
+    onEnter: batch => gsap.to(batch, { ...SHOWN, y: 0, stagger: opts.stagger ?? STAGGER.card, duration: DUR.reveal, ease: EASE.out, overwrite: true }),
   }).forEach(t => batchTriggers.add(t));
 }
 
@@ -49,7 +59,7 @@ export function finishRevealsAbove(y: number) {
   ScrollTrigger.getAll().forEach(t => {
     if (t.start > limit) return;
     if (t.animation && reveals.has(t.vars)) t.animation.progress(1);
-    else if (batchTriggers.has(t)) { gsap.set(t.trigger!, { autoAlpha: 1, y: 0, overwrite: true }); t.kill(); }
+    else if (batchTriggers.has(t)) { gsap.set(t.trigger!, { ...SHOWN, y: 0, overwrite: true }); t.kill(); }
   });
 }
 

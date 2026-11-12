@@ -2,7 +2,7 @@ import { education, stats } from '@/content/data';
 import { thousands } from '@/lib/format';
 import { gsap, SplitText } from '@/motion/gsap';
 import { digitRoll } from '@/motion/digitRoll';
-import { clipReveal, inView, scrubParallax } from '@/motion/reveals';
+import { clipReveal, HIDDEN, inView, scrubParallax, SHOWN } from '@/motion/reveals';
 import { barReveal, gridSlot, splitReveal } from '@/motion/split';
 import { DUR, EASE } from '@/motion/tokens';
 import { useSectionMotion } from '@/motion/useSectionMotion';
@@ -29,7 +29,7 @@ export function Results() {
       .fromTo(qa('[data-step]'), { scaleY: 0.05 }, { scaleY: 1, transformOrigin: '50% 100%', duration: DUR.split, ease: EASE.settle, stagger: 0.08 })
       .add(clipReveal(q('[data-p3fill]'), { duration: DUR.split }), '-=0.1')
       .fromTo(q('[data-p3num]'), { yPercent: 120 }, { yPercent: 0, duration: DUR.split, ease: EASE.out }, '-=0.15')
-      .fromTo(q('[data-awtxt]'), { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: DUR.split, ease: EASE.out }, '-=0.2');
+      .fromTo(q('[data-awtxt]'), { ...HIDDEN, y: 12 }, { ...SHOWN, y: 0, duration: DUR.split, ease: EASE.out }, '-=0.2');
 
     qa('[data-roll]').forEach((el, i) => onRevert(digitRoll(el, { delay: 0.45 + i * 0.12, scrollTrigger: once })));
 

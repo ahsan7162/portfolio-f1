@@ -53,6 +53,10 @@
         } catch (e) {}
       })();
     </script>
+    <!-- Chrome and Edge fetch the products page when a link to it is hovered, so the click opens it at once. Prefetch only, so analytics never sees a visit that didn't happen. -->
+    <script type="speculationrules">
+      { "prefetch": [{ "where": { "href_matches": "/products" }, "eagerness": "moderate" }] }
+    </script>
   </head>
   <body>
     <div id="root"><!--app--></div>

@@ -7,7 +7,7 @@ import { archive, archiveBreakdown, projects, type Breakdown } from '@/content/d
 import { gsap, ScrollTrigger } from '@/motion/gsap';
 import { useBentoPointer } from '@/motion/useBentoPointer';
 import { magnet } from '@/motion/pointer';
-import { clipReveal, curtainReveal, inView, scrubParallax } from '@/motion/reveals';
+import { clipReveal, curtainReveal, HIDDEN, inView, scrubParallax, SHOWN } from '@/motion/reveals';
 import { gridSlot } from '@/motion/split';
 import { DUR, EASE } from '@/motion/tokens';
 import { navHeight } from '@/motion/useNavHeight';
@@ -70,7 +70,7 @@ export function Projects() {
     cards.forEach(card => {
       // Its scene starts once the curtain has lifted (data-scene-delay).
       onRevert(curtainReveal(card.querySelector('[data-cardvis]'), { trigger: card }));
-      gsap.from(card.querySelectorAll('[data-cardtxt]'), { autoAlpha: 0, y: 24, stagger: 0.06, ease: EASE.out, clearProps: 'transform', scrollTrigger: inView(card, { start: 'top 80%' }) });
+      gsap.fromTo(card.querySelectorAll('[data-cardtxt]'), { ...HIDDEN, y: 24 }, { ...SHOWN, y: 0, stagger: 0.06, ease: EASE.out, clearProps: 'transform', scrollTrigger: inView(card, { start: 'top 80%' }) });
     });
 
     // Stack mode, when every card fits the screen: the cards stick under the nav, each a step

@@ -21,12 +21,13 @@ function siteUrl() {
 }
 
 /**
- * Scripts run only from the site itself, plus index.html's pre-paint scripts by hash.
+ * Scripts run only from the site itself, plus index.html's pre-paint scripts and its
+ * speculation rules by hash (inline rules are blocked without one).
  * Inline styles stay allowed: React and GSAP set style attributes throughout the page.
  * frame-ancestors can't be set from a meta tag, so it is a header (vercel.json).
  */
 function contentSecurityPolicy(html: string) {
-  const inlineHashes = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)]
+  const inlineHashes = [...html.matchAll(/<script(?: type="speculationrules")?>([\s\S]*?)<\/script>/g)]
     .map(([, body]) => `'sha256-${createHash('sha256').update(body).digest('base64')}'`);
   return [
     "default-src 'self'",

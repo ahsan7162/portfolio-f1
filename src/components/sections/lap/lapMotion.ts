@@ -3,7 +3,7 @@ import { gl3d } from '@/gl/gl3d';
 import { lapMarks, lapState } from '@/gl/state';
 import { lapTime } from '@/lib/format';
 import { gsap, ScrollTrigger } from '@/motion/gsap';
-import { drawPath } from '@/motion/reveals';
+import { drawPath, HIDDEN, SHOWN } from '@/motion/reveals';
 import { DUR, EASE } from '@/motion/tokens';
 import type { MotionCtx } from '@/motion/useSectionMotion';
 
@@ -24,9 +24,9 @@ function stageCards(stages: HTMLElement[], sectorSets: HTMLElement[][]) {
     // Crossfade with no gap: the old card drops out quietly while the new one rises in.
     // On a fast scroll it leaves like a car passing: leaning, with a longer streak.
     const fast = gsap.utils.clamp(0, 1, (Math.abs(velocity) - 800) / 2400);
-    if (prev) gsap.fromTo(prev, { skewX: 0, x: 0 }, { autoAlpha: 0, y: -12 * dir, skewX: -10 * fast * dir, x: -120 * fast * dir, duration: DUR.hit, ease: EASE.in, overwrite: true });
+    if (prev) gsap.fromTo(prev, { skewX: 0, x: 0 }, { ...HIDDEN, y: -12 * dir, skewX: -10 * fast * dir, x: -120 * fast * dir, duration: DUR.hit, ease: EASE.in, overwrite: true });
     const next = stages[i];
-    gsap.fromTo(next, { autoAlpha: 0, y: 24 * dir, skewX: 0, x: 0 }, { autoAlpha: 1, y: 0, duration: DUR.split, ease: EASE.out, overwrite: true });
+    gsap.fromTo(next, { ...HIDDEN, y: 24 * dir, skewX: 0, x: 0 }, { ...SHOWN, y: 0, duration: DUR.split, ease: EASE.out, overwrite: true });
     gsap.fromTo(next.querySelectorAll('[data-stat]'), { yPercent: 100 }, { yPercent: 0, duration: DUR.split, delay: 0.05, ease: EASE.out, overwrite: true });
     sectorSets.forEach(els => els.forEach((el, k) => { el.classList.toggle('text-ac2', k === i); el.classList.toggle('sector-done', k < i); }));
     cur = i;
@@ -106,8 +106,8 @@ export function buildLap({ root, q, qa, desktop, markers, onRevert }: MotionCtx,
   if (Math.max(...stages.map(s => s.offsetHeight)) > room) { root.classList.remove('lap-live'); return; }
   onRevert(() => root.classList.remove('lap-live'));
   if (flat) gsap.set(svgPath, { drawSVG: '0%' });
-  gsap.set(stages, { autoAlpha: 0, y: 60 });
-  gsap.set(q('[data-laphead]'), { autoAlpha: 0, y: 30 });
+  gsap.set(stages, { ...HIDDEN, y: 60 });
+  gsap.set(q('[data-laphead]'), { ...HIDDEN, y: 30 });
 
   const cards = stageCards(stages, sectorSets);
   const tickClock = lapClock(q('[data-laptime]')!, q('[data-lapflag]')!, sectorSets, onRevert);
@@ -145,7 +145,7 @@ export function buildLap({ root, q, qa, desktop, markers, onRevert }: MotionCtx,
     trigger: pin, start: `top ${FADE * 100}%`, end: () => st.end + innerHeight * FADE,
     onToggle: self => { lapState.active = self.isActive; if (!self.isActive) hideMarks(); },
     onEnter: () => {
-      gsap.to(q('[data-laphead]'), { autoAlpha: 1, y: 0, duration: DUR.split, ease: EASE.out, overwrite: true });
+      gsap.to(q('[data-laphead]'), { ...SHOWN, y: 0, duration: DUR.split, ease: EASE.out, overwrite: true });
       cards.show(at(st.progress));
     },
   });
@@ -169,4 +169,16 @@ export function buildLap({ root, q, qa, desktop, markers, onRevert }: MotionCtx,
   };
   ScrollTrigger.addEventListener('scrollEnd', settle);
   onRevert(() => ScrollTrigger.removeEventListener('scrollEnd', settle));
+
+  // Keyboard: the stacked stages are all in the Tab order, and the pin keeps them on screen,
+  // so focus alone never scrolls to one. Tabbing into a hidden stage drives the lap to it.
+  const onFocus = (e: FocusEvent) => {
+    const i = stages.findIndex(s => s.contains(e.target as Node));
+    if (i < 0 || i === cards.current()) return;
+    const y = st.start + mid(i) * (st.end - st.start), l = lenis();
+    if (l) l.scrollTo(y, { duration: DUR.wipe, easing: gsap.parseEase(EASE.wipe) });
+    else window.scrollTo(0, y);
+  };
+  pin.addEventListener('focusin', onFocus);
+  onRevert(() => pin.removeEventListener('focusin', onFocus));
 }
