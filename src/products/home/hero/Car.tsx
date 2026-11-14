@@ -22,7 +22,7 @@ export const PARTS = [
   { id: 'power', layer: 2, at: [640, 262] },
   { id: 'driver', layer: 3, at: [962, 252] },
   { id: 'wing', layer: 4, at: [1436, 398] },
-  // Launch comes last, so its label sits ahead of the car, on the start line (the wheels pick it too).
+  // Launch comes last, so its label sits ahead of the car, on the start line (the front wheel picks it too).
   { id: 'wheels', layer: 5, at: [1560, 410] },
 ] as const;
 export type PartId = (typeof PARTS)[number]['id'];
@@ -270,7 +270,8 @@ export function Car() {
             <path data-hit="power" d="M330 310L520 248L790 168L876 194L882 290H1022V386H560L420 374L322 344Z" />
             <path data-hit="driver" d="M882 196H1086V288H882Z" />
             <path data-hit="wing" d="M1380 336H1514V412H1380ZM1090 270L1500 364V388H1090Z" />
-            <circle data-hit="wheels" cx={AXLE.rear} cy={AXLE.y} r="96" />
+            {/* Launch is picked at the front wheel only; the rear wheel picks nothing, not even the parts behind it */}
+            <circle className="hc-dead" cx={AXLE.rear} cy={AXLE.y} r="96" />
             <circle data-hit="wheels" cx={AXLE.front} cy={AXLE.y} r="96" />
             <path data-hit="wheels" d="M1530 392H1592V426H1530Z" />
           </g>

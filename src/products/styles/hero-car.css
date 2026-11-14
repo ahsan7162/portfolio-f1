@@ -48,6 +48,7 @@
    Every part has a fixed hit zone that never moves, so a part that lifts away cannot slip out from
    under the pointer. Picking steps the rest of the car back and shows what the part really is. */
 .hc-hits { fill: transparent; pointer-events: all; cursor: pointer; }
+.hc-hits .hc-dead { cursor: default; }
 .hc-part, .hc-rv, .hc-lead, .hc-streaks { pointer-events: none; }
 .hc-part, .hc-pop { transition: transform 0.5s var(--ease), opacity 0.28s; }
 .hc-part :is(path, circle, rect, ellipse, text) { transition: fill 0.25s, stroke 0.25s; }
