@@ -37,6 +37,8 @@ export function HeroCar() {
     if (!el) return;
     const mm = gsap.matchMedia();
     mm.add('(prefers-reduced-motion: no-preference)', () => {
+      // GSAP turns SVG about the box's corner by default, which swings a wheel off its axle; turn it about the hub. Set before any tween.
+      gsap.set('.hc-spin', { transformOrigin: '50% 50%' });
       const part = (id: PartId) => el.querySelector(`[data-part="${id}"] .hc-in`);
       const thud = { y: 3, duration: 0.05, ease: 'power1.out', yoyo: true, repeat: 1 };
 
