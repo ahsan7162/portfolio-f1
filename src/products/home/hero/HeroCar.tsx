@@ -89,7 +89,8 @@ export function HeroCar() {
     const id = (e.target as Element).closest<SVGElement>('[data-hit]')?.dataset.hit;
     return isPart(id) ? id : null;
   };
-  const overCar = (e: PointerEvent<HTMLDivElement>) => { if (e.pointerType === 'mouse') point(zone(e)); };
+  // The labels own their hover: their pointerover bubbles up here too and would otherwise read as "over nothing".
+  const overCar = (e: PointerEvent<HTMLDivElement>) => { if (e.pointerType === 'mouse' && !(e.target as Element).closest('.hc-tag')) point(zone(e)); };
   const pin = (id: PartId | null) => { if (id) setPinned(now => (now === id ? null : id)); };
 
   return (
