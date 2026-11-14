@@ -115,8 +115,14 @@
 .hc[data-picked='wheels'] [data-part='wheels'] { opacity: 1; }
 .hc[data-picked='wheels'] .hc-pop { transform: translate(-22px, 0); }
 .hc[data-picked='wheels'] [data-front] .hc-pop { transform: translate(22px, 0); }
-.hc[data-picked='wheels'] .hc-rev { @media (prefers-reduced-motion: no-preference) { animation: hc-wheelspin 3.6s cubic-bezier(0.5, 0, 0.9, 0.4) infinite; } }
-@keyframes hc-wheelspin { 0%, 72% { transform: rotate(0deg); } 100% { transform: rotate(1080deg); } }
+.hc[data-picked='wheels'] .hc-rev { @media (prefers-reduced-motion: no-preference) { animation: hc-wheelspin 3.6s linear infinite; } }
+/* a slow creep under the lights, a burst at lights out that ends back at the creep speed, so the loop never stops dead;
+   the burst peaks near 30° a frame, well short of where the spokes would strobe */
+@keyframes hc-wheelspin {
+  0% { transform: rotate(0deg); animation-timing-function: linear; }
+  72% { transform: rotate(180deg); animation-timing-function: cubic-bezier(0.5, 0.04, 0.5, 0.96); }
+  100% { transform: rotate(1080deg); }
+}
 .r-gantry rect { fill: var(--k-gantry); stroke: var(--faint); stroke-width: 1.5; }
 .r-lamp { fill: var(--lamp-off); stroke: var(--faint); stroke-width: 1.5; }
 .hc[data-picked='wheels'] .r-lamp { @media (prefers-reduced-motion: no-preference) { animation: 3.6s steps(1) infinite; } }
