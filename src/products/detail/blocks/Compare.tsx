@@ -51,6 +51,8 @@ export function Compare({ block, product, n }: BlockProps<'compare'>) {
         onPointerMove={e => { if (dragging.current) fromPointer(e); }}
         onPointerUp={() => { dragging.current = false; }}
         onPointerCancel={() => { dragging.current = false; }}
+        // A mouse drag that starts on a picture would otherwise pick the picture up and cancel the pointer.
+        onDragStart={e => e.preventDefault()}
       >
         <div className="bv-cmp-layer"><MediaView media={block.after} product={product} className="bv-cmp-media" /></div>
         <div className="bv-cmp-layer bv-cmp-layer--before"><MediaView media={block.before} product={product} className="bv-cmp-media" /></div>
