@@ -4,6 +4,7 @@ const pr = '/products-media/pr-dashboard';
 const jira = '/products-media/jira-board';
 const usage = '/products-media/usage-explorer';
 const openui = '/products-media/openui-live-replies';
+const dash = '/products-media/bb-dashboards';
 
 export const products: Product[] = [
   {
@@ -291,8 +292,8 @@ export const products: Product[] = [
     hook: 'Is there room for a big task?',
     hint: 'The limits page, shown with demo data.',
     stack: ['TypeScript', 'React', 'ccusage'],
-    featured: true,
     stage: 'window',
+    featured: true,
     seo: {
       title: 'Usage Explorer: Claude Code Usage & Cost Tracker for bb',
       description: 'Track AI coding cost by session, day and model across Claude Code, Codex and Gemini CLI, with your Claude plan limits. A free bb plugin built on ccusage.',
@@ -532,6 +533,219 @@ export const products: Product[] = [
         label: 'Get it',
         note: 'Installs from its GitHub repository.',
         via: { kind: 'command', command: 'bb plugin install git:https://github.com/ahsan7162/bb-plugin-openui.git@^0.1.0' },
+      },
+    ],
+  },
+  {
+    slug: 'bb-dashboards',
+    brand: '#8A68F5',
+    name: 'bb Dashboards',
+    lines: ['bb', 'Dashboards'],
+    kind: 'plugin',
+    year: 2026,
+    facts: ['for bb', 'any agent', 'v0.1', 'MIT'],
+    line: 'Ask any agent in bb for a dashboard and keep it: Claude, Codex, Qwen, DeepSeek or any open model you run there.',
+    hook: 'Why ask the same question every day?',
+    hint: 'Filter it and recolour it, then press Edit and click the chart. Only the edit costs a model call.',
+    stack: ['TypeScript', 'React', 'OpenUI Lang', 'MCP', 'Zod'],
+    stage: 'dash-demo',
+    seo: {
+      title: 'bb Dashboards: AI Dashboards You Keep, a Plugin for bb',
+      description: 'Ask an agent for a dashboard and keep it. It opens in bb’s side panel, answers filters with no model call and refreshes its own live data. MIT licence.',
+      keywords: ['AI dashboards', 'OpenUI Lang', 'bb plugin', 'live data', 'no model call', 'MCP'],
+    },
+    thumb: `${dash}/thumb.jpg`,
+    links: [
+      { label: 'GitHub', href: 'https://github.com/ahsan7162/bb-plugin-dashboards' },
+      { label: 'bb', href: 'https://getbb.app' },
+      { label: 'OpenUI', href: 'https://www.openui.com' },
+    ],
+    blocks: [
+      {
+        type: 'cases',
+        label: 'Ask for it',
+        note: 'Redrawn for this page, with invented data.',
+        cases: [
+          {
+            tab: 'Weekly sales',
+            ask: 'Each Monday I save the shop’s weekly sales to exports/weekly.csv. Build a report of revenue and orders against the previous week, and a chart by product.',
+            media: { live: 'dash:sales', alt: 'A weekly sales report: revenue and orders against the previous week, a trend by week and revenue by product' },
+            caption: 'Reads a CSV file and sets this week against the previous week.',
+          },
+          {
+            tab: 'This branch',
+            ask: 'Make a dashboard for this branch: its commits since main and the changed files. Keep it refreshing.',
+            media: { live: 'dash:branch', alt: 'A branch dashboard that refreshes itself: tiles for commits, checks passed as a strip of status dots, files reviewed as a progress bar and lines added, the list of commits, and a treemap of lines changed by file' },
+            caption: 'Reads the branch’s commits and changed files, and refreshes itself while you work.',
+          },
+          {
+            tab: 'Benchmark',
+            ask: 'Read bench/results.json and compare p50 and p95 latency per endpoint with the previous run, worst regressions first.',
+            media: { live: 'dash:bench', alt: 'A benchmark dashboard: p95 per endpoint as dumbbells from the previous run to this one, a heatmap of p95 over the last eight runs, and a table of the worst regressions' },
+            caption: 'Reads a results file and shows p50 and p95 per endpoint against the previous run, worst regressions first.',
+          },
+          {
+            tab: 'Open orders',
+            ask: 'Using the shop connection, build a board of open orders, with a list I can click for details.',
+            media: { live: 'dash:orders', alt: 'A board of open orders: tabs with counts, a warning about orders on hold, the order list with one order picked and its details in a drawer, and a funnel of how far today’s orders got' },
+            caption: 'Reads a read-only tool of an MCP connection, refreshes on a timer with no model call, and gives a list you can click.',
+          },
+          {
+            tab: 'What-if',
+            ask: 'Build a small pricing tool for a café: sliders for the price of a coffee, cups sold per day and monthly rent, showing monthly profit and how many cups a day it takes to break even.',
+            media: { live: 'dash:pricing', alt: 'A café pricing tool: sliders for price, cups a day and rent with the profit and break-even they give, a waterfall from revenue to profit, and goals for cups a day and the day the rent is paid off' },
+            caption: 'Sliders set the numbers and the program computes the profit, with no data source at all.',
+          },
+        ],
+      },
+      {
+        type: 'statement',
+        label: 'Why',
+        head: 'A chart in a reply *scrolls away*. A dashboard *stays*, and answers *without the model*.',
+        body: 'Asking the agent the same question each day costs a model turn and the time to rebuild the answer. bb Dashboards is a bb plugin that saves what the agent builds, opens it in the side panel, and answers filters and drill-down at once.',
+        points: [
+          'Turns a prompt into a saved dashboard in its own side-panel tab',
+          'Keeps its versions, and the newest 100 can be restored',
+          'Filters, tabs, search and drill-down need no model call',
+          'Loads live data and refreshes it without the agent',
+          'Lists every dashboard on a Dashboards page',
+          'Read-only by design: a dashboard has no way to write',
+        ],
+      },
+      {
+        type: 'scenes',
+        label: 'Watch it work',
+        note: 'Touch it to take over.',
+        scenes: [
+          { tab: 'Build', head: 'Ask for it.', cost: '1 model call', ask: 'Build me a dashboard of this week’s sales.', caption: 'A prompt becomes a checked, saved dashboard: version 1.' },
+          { tab: 'Change', head: 'Change it.', cost: '1 more model call', ask: 'Add a chart of orders by week.', caption: 'A change saves the next version, and the open panel redraws.' },
+          { tab: 'Colour', head: 'Recolour it.', cost: '0 model calls', caption: 'The Colours button sets your own accent and chart colours, with no model call and no new version.' },
+          { tab: 'Edit', head: 'Point at it.', cost: '1 more model call', ask: 'Show this as bars.', caption: 'In Edit mode you point at a part and say what should change. Each Send costs one agent turn.' },
+        ],
+      },
+      {
+        type: 'tour',
+        label: 'In the real thing',
+        head: 'The plugin itself, in bb.',
+        steps: [
+          {
+            title: 'Drill down without the model',
+            body: 'Pick a ticket in a record list and its details open in a drawer, with no model call.',
+            media: { src: `${dash}/tour-interactive.jpg`, alt: 'A support queue: one ticket picked in the record list, and its details below with customer, product, owner, age and priority', width: 1920, height: 1200 },
+            focus: { x: 0.3, y: 0.32, zoom: 1.3 },
+          },
+          {
+            title: 'Loads its own data',
+            body: 'A dashboard reads files, git, the pull request, MCP connections and approved scripts, and refreshes every 10 seconds at the shortest.',
+            media: { src: `${dash}/tour-live.jpg`, alt: 'A dashboard over a JSON file: Refreshes itself in the header, a freshness line and a Refresh button', width: 1920, height: 1200 },
+            focus: { x: 0.15, y: 0.36, zoom: 1.35 },
+          },
+          {
+            title: 'Point at a part',
+            body: 'In Edit mode, click a part and a popover shows what you picked, with breadcrumbs and a box for what should change.',
+            media: { src: `${dash}/tour-edit.jpg`, alt: 'Edit mode: the revenue chart selected, and the change popover with breadcrumbs and a typed request', width: 1920, height: 1200 },
+            focus: { x: 0.25, y: 0.8, zoom: 1.3 },
+          },
+        ],
+      },
+      {
+        type: 'stats',
+        stats: [
+          { value: '62', label: 'components to build with' },
+          { value: '100', label: 'newest versions kept, to view or restore' },
+          { value: '0', label: 'model calls to view, filter or refresh' },
+        ],
+      },
+      {
+        type: 'steps',
+        label: 'How it works',
+        steps: [
+          { tag: 'Ask', title: 'Ask in a thread', body: 'In any bb thread, ask for something you want to keep: a dashboard, a report, a tracker or a small tool.' },
+          { tag: 'Save', title: 'Checked, then saved', body: 'The plugin checks the whole program, and if anything is wrong nothing is stored and the agent gets the list of problems to fix.' },
+          { tag: 'Card', title: 'A card in the reply', body: 'The reply shows a card with the dashboard’s title and Open in side panel.' },
+          { tag: 'Side panel', title: 'Opens beside the thread', body: 'The dashboard opens in its own tab in the thread’s side panel, drawn with OpenUI’s renderer in bb’s colours.' },
+        ],
+      },
+      {
+        type: 'compare',
+        label: 'Light and dark',
+        before: { src: `${dash}/theme-light.jpg`, alt: 'The Harbor Coffee weekly sales dashboard in bb’s light mode', width: 1920, height: 1200 },
+        after: { src: `${dash}/hero.jpg`, alt: 'The Harbor Coffee weekly sales dashboard in bb’s dark mode', width: 1920, height: 1200 },
+        beforeLabel: 'Light',
+        afterLabel: 'Dark',
+        caption: 'A dashboard follows bb’s theme in light and dark mode.',
+      },
+      {
+        type: 'split',
+        label: 'Read-only by design',
+        side: 'left',
+        media: { src: `${dash}/connections.jpg`, alt: 'The Connections section: one connection ready with 3 confirmed read-only tools, its secret set, and the tools the server offers', width: 1920, height: 1664 },
+        head: 'Only read-only tools.',
+        body: 'A connection can call only tools the server marks read-only and you confirmed. Tokens stay in the operating system’s secure store, never shown to the page or the agent.',
+        points: ['Added on the Connections page', 'A web connection needs https'],
+      },
+      {
+        type: 'split',
+        side: 'right',
+        media: { src: `${dash}/script-approval.jpg`, alt: 'The script approval dialog: the warning, why it exists, what it gets, the script with line numbers, and Approve still off', width: 1536, height: 1507 },
+        head: 'Read it before it runs.',
+        body: 'A script source runs only after you approve its exact text. The dialog shows the whole script, flags risky lines and keeps Approve off until you have read to the end.',
+        points: ['An approved script is not sandboxed'],
+      },
+      {
+        type: 'code',
+        label: 'What the agent writes',
+        note: 'Programs are checked before they are stored, then parsed and drawn by OpenUI’s renderer, never run as JavaScript.',
+        title: 'openui-lang',
+        code: [
+          'root = Dashboard([lead, trends, breakdown, detail])',
+          'trends = Section("Trend", [Row([Card("Revenue by week", [TimeSeries(weeks, [Series("Revenue", revenue)], "area", "currency-compact")], "full", "Last 8 weeks · USD · weeks start Monday")])])',
+          'weeks = ["Sep 21", "Sep 28", "Oct 5", "Oct 12", "Oct 19", "Oct 26", "Nov 2", "Nov 9"]',
+          'revenue = [18420, 18960, 19310, 18870, 19740, 20380, 21150, 22460]',
+        ].join('\n'),
+        result: { src: `${dash}/hero.jpg`, alt: 'The dashboard that program draws, in bb’s side panel', width: 1920, height: 1200 },
+        caption: 'What bb draws from that program',
+      },
+      {
+        type: 'chips',
+        label: 'Components',
+        note: '62 components: the 45 of OpenUI’s dashboard library, and 17 of the plugin’s own.',
+        items: [
+          'Dashboard', 'Section', 'Row', 'Card', 'FilterBar', 'PeriodPicker', 'DateRangeFilter', 'Kpis', 'Kpi',
+          'Table', 'TimeSeries', 'Bars', 'Leaderboard', 'Donut', 'Treemap', 'Waterfall', 'Funnel', 'Heatmap',
+          'GeoMap', 'Tabs', 'Drawer', 'RecordList', 'SearchBox', 'Slider', 'Freshness', 'RefreshButton',
+        ],
+      },
+      {
+        type: 'specs',
+        label: 'Requirements and costs',
+        rows: [
+          { name: 'bb', value: '0.49 or later', note: 'Plugin SDK 0.6.132 or later.' },
+          { name: 'Agent', value: 'Any agent provider in bb', note: 'Tried so far with the Claude Code provider.' },
+          { name: 'Git and pull requests', value: 'bb’s built-in plugins', note: 'Git and GitHub pull request status, for those sources.' },
+          { name: 'View, filter, refresh', value: 'No model call' },
+          { name: 'Change, Edit, AskAgent', value: 'One agent turn each', note: 'Each change, Edit request, AskAgent click or agent-source refresh.' },
+        ],
+      },
+      {
+        type: 'faq',
+        label: 'Questions',
+        items: [
+          { q: 'What costs a model call?', a: 'Building or changing a dashboard is an agent turn. Filters, tabs, search, drill-down, colours, old versions and refreshing a declared source cost none. Data only the agent can reach is refreshed by asking the agent, one turn per refresh.' },
+          { q: 'Can a dashboard change my data?', a: 'No. A dashboard has no way to write, and only MCP tools the server marks read-only can be called. That mark is the server’s own claim, so read-only credentials are the real guarantee.' },
+          { q: 'Is an approved script sandboxed?', a: 'No. A script runs only after you read and approve its exact text, but approval is not a sandbox: the script can do anything your user account can. An agent allowed to run shell commands could also approve one without the dialog.' },
+          { q: 'Does anything leave my machine?', a: 'Nothing the plugin keeps leaves your machine, and it has no telemetry of its own. Secrets are stored only in the operating system’s secure store.' },
+          { q: 'How many versions are kept?', a: 'The newest 100, to view or restore in the panel. A save past that deletes the oldest for good.' },
+          { q: 'Can I export or share a dashboard?', a: 'No. A dashboard cannot be exported as a web page or shared with other people.' },
+          { q: 'Which agents can build one?', a: 'Any agent provider in bb: the plugin gives each one the same skill and tools, whether the model is Claude, Codex, Qwen, DeepSeek or another open model. So far it has been run for real with the Claude Code provider only.' },
+          { q: 'Where has it been tested?', a: 'On macOS. Windows, Linux and installing from git are untested, and script sources are not supported on Windows.' },
+        ],
+      },
+      {
+        type: 'get',
+        label: 'Get it',
+        note: 'Installs from its GitHub repository.',
+        via: { kind: 'command', command: 'bb plugin install git:https://github.com/ahsan7162/bb-plugin-dashboards.git@^0.1.0' },
       },
     ],
   },
