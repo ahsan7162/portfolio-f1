@@ -43,6 +43,19 @@ void test('search titles and descriptions fit, differ, and a product’s keyword
   }
 });
 
+void test('a scenes block sits only on a demo that plays that many scenes, and never beside a stage block', async () => {
+  const { SCENES } = await import('./stage/names');
+  for (const p of products) {
+    for (const b of p.blocks) {
+      if (b.type !== 'scenes') continue;
+      assert.equal(b.scenes.length, SCENES[p.stage], `${p.slug}: its demo plays ${SCENES[p.stage] ?? 'no'} scenes, the block lists ${b.scenes.length}`);
+      assert.ok(!p.blocks.some(x => x.type === 'stage'), `${p.slug}: scenes takes the place of stage`);
+      // the tag's number is read off the front of the words and rolled in as an odometer
+      for (const sc of b.scenes) if (sc.cost) assert.match(sc.cost, /^\d+ \S/, `${p.slug} ${sc.tab}: a cost starts with its number ("1 model call")`);
+    }
+  }
+});
+
 void test('every screenshot has its half-width copy beside it', async () => {
   const { existsSync } = await import('node:fs');
   const { srcSet } = await import('./paths');

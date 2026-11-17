@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { srcSet } from '../paths';
 import type { Kind, Media } from '../types';
+import { LiveScreen } from './live';
 import '../styles/frames.css';
 
 type FrameProps = { children: ReactNode; className?: string };
@@ -109,7 +110,9 @@ export function KindFrame({ kind, slug, title, className, children }: FrameProps
 /** How wide a screenshot is drawn: about half the window on a wide screen, nearly all of it on a narrow one. */
 export const SHOT_SIZES = '(min-width: 900px) 50vw, 92vw';
 
-export function Shot({ media, kind }: { media: Media; kind: Kind }) {
+/** `active` reaches a live screen only: it builds itself in each time this turns true. */
+export function Shot({ media, kind, active = true }: { media: Media; kind: Kind; active?: boolean }) {
+  if ('live' in media) return <LiveScreen name={media.live} alt={media.alt} active={active} />;
   return 'src' in media
     ? <img className="frm-shot" src={media.src} srcSet={srcSet(media.src)} sizes={SHOT_SIZES} alt={media.alt} width={media.width} height={media.height} loading="lazy" decoding="async" />
     : <SampleScreen kind={kind} variant={media.sample} dark={media.dark} />;

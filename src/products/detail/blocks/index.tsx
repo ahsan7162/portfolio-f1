@@ -7,6 +7,7 @@ import { Split } from './Split';
 import { Showcase } from './Showcase';
 import { Compare } from './Compare';
 import { Bento } from './Bento';
+import { Cases } from './Cases';
 import { Chips } from './Chips';
 import { Code } from './Code';
 import { Notes } from './Notes';
@@ -20,6 +21,7 @@ import { Palette } from './Palette';
 import { Film } from './Film';
 import { Get } from './Get';
 import { Keys } from './Keys';
+import { Scenes } from './Scenes';
 import { Screens } from './Screens';
 import type { BlockProps } from './shared';
 import { StageBlock } from './StageBlock';
@@ -27,6 +29,7 @@ import { Statement } from './Statement';
 import { Stats } from './Stats';
 import { Steps } from './Steps';
 import { Text } from './Text';
+import { Tour } from './Tour';
 
 const registry: { [K in Block['type']]: ComponentType<BlockProps<K>> } = {
   stage: StageBlock,
@@ -53,6 +56,9 @@ const registry: { [K in Block['type']]: ComponentType<BlockProps<K>> } = {
   specs: Specs,
   notes: Notes,
   chips: Chips,
+  cases: Cases,
+  tour: Tour,
+  scenes: Scenes,
 };
 
 function One<K extends Block['type']>({ block, product, n }: { block: BlockOf<K>; product: Product; n?: string }) {

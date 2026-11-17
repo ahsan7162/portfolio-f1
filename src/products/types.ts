@@ -1,3 +1,5 @@
+import type { LiveName } from './stage/names';
+
 /** What a product is. Adding a kind here adds its filter, its stage frame and its Get-it slot. */
 export type Kind = 'plugin' | 'app' | 'site';
 
@@ -9,15 +11,30 @@ export const KINDS: Record<Kind, { label: string; plural: string; tag: string; f
 };
 
 /** What sits on the product's stage: a live demo of the product, or a frame showing its screens. */
-export type StageKind = 'pr-demo' | 'jira-demo' | 'openui-demo' | 'window' | 'phone' | 'browser';
+export type StageKind = 'pr-demo' | 'jira-demo' | 'openui-demo' | 'dash-demo' | 'window' | 'phone' | 'browser';
 
 export interface Screen { src: string; title: string; caption: string }
 
 /**
- * A picture for a block: a real image, or (for a dummy product) one of the sample screens in the kind's frame.
+ * A picture for a block: a real image, (for a dummy product) one of the sample screens in the kind's
+ * frame, or a live screen: one drawn in code, by name, that builds itself in when its block shows it.
  * Give an image its `width` and `height` in pixels when it is not 16:10, so its space is held while it loads.
  */
-export type Media = { src: string; alt: string; width?: number; height?: number } | { sample: number; dark?: boolean };
+export type Media =
+  | { src: string; alt: string; width?: number; height?: number }
+  | { sample: number; dark?: boolean }
+  | { live: LiveName; alt: string };
+
+/** What every live screen takes. It fills the box it is given and never changes that box's size. */
+export interface LiveProps {
+  /**
+   * True while the screen is the one being shown. It builds itself in each time this turns true
+   * (once it is in view), and with reduced motion is simply in its finished state.
+   */
+  active: boolean;
+  /** What the screen shows, for a screen reader: the drawing itself is decorative. */
+  alt: string;
+}
 
 /**
  * A detail page is a list of blocks, shown in the order given. Each product arranges its own page:
@@ -73,6 +90,20 @@ export type Block =
   | { type: 'specs'; label: string; rows: { name: string; value: string; note?: string }[] }
   /** Limits and things to know before installing. `warn` marks the ones that can bite. */
   | { type: 'notes'; label: string; items: { title: string; body: string; warn?: boolean }[] }
+  /** One stage that rotates through cases: what was asked, and the screen that came of it. A tab per case; the active tab fills as its timer. */
+  | { type: 'cases'; label: string; note?: string; cases: { tab: string; ask?: string; media: Media; caption?: string }[] }
+  /**
+   * A list of points beside one screen: the active point's screen shows, and the list steps on by itself.
+   * `focus` is the part of the screen the step is about: `x` and `y` from 0 to 1, and how far to ease in (`zoom`, 1.2 to 1.6).
+   */
+  | { type: 'tour'; label: string; head?: string; steps: { title: string; body: string; media: Media; focus?: { x: number; y: number; zoom: number } }[] }
+  /**
+   * The product's live demo playing itself through named scenes, a tab per scene. The visitor can take
+   * over at any point. Takes the place of `stage` on a page; the demo must list its scenes in SCENES (stage/names.ts).
+   * `head` is a short line set large as the scene plays ("Ask for it."). `cost` is what the scene costs, a number
+   * then its words ("1 model call"): the number rolls in when the demo spends it, or pulses if it is 0.
+   */
+  | { type: 'scenes'; label: string; note?: string; scenes: { tab: string; head?: string; cost?: string; ask?: string; caption?: string }[] }
   /** A wall of names: what it works with, what it supports. */
   | { type: 'chips'; label: string; note?: string; items: string[] }
   /** How to get the product: an install command, store buttons, or a link. */
@@ -137,4 +168,10 @@ export interface DemoProps {
   active: boolean;
   /** Reports the demo's headline number whenever it changes (blockers left, open tickets). */
   onTally?: (value: number) => void;
+  /**
+   * The scene to play by itself (0-based), for a demo that lists scenes in SCENES. Each time it changes
+   * the demo plays that scene from its start. Undefined: the visitor drives, and the demo keeps the
+   * state it is in. A demo without scenes ignores it.
+   */
+  scene?: number;
 }

@@ -122,3 +122,133 @@
   .bv-bento { grid-template-columns: minmax(0, 1fr); }
   .bv-tile { grid-column: auto; grid-row: auto; }
 }
+
+/* rotating blocks (cases, tour, scenes): items stacked in one cell so the block never changes height */
+.bv-rot-stack { display: grid; }
+.bv-rot-item {
+  grid-area: 1 / 1; min-width: 0; opacity: 0; visibility: hidden; translate: 0 -10px;
+  transition: opacity 0.35s var(--ease), translate 0.35s var(--ease), visibility 0s 0.35s;
+}
+.bv-rot-item[data-on] { opacity: 1; visibility: visible; translate: none; transition-delay: 0s; }
+.bv-rot-note { margin-top: 16px; max-width: 60ch; color: var(--dim); font-size: clamp(1.0625rem, 1.35vw, 1.25rem); line-height: 1.55; }
+.dt-label + .bv-rot-stack, .dt-label + .bv-tour-head, .dt-label + .bv-tour-grid { margin-top: clamp(32px, 4vw, 48px); }
+.bv-rot-note + .bv-rot-stack { margin-top: clamp(28px, 3.4vw, 44px); }
+
+/* the chat bubble: what the person typed */
+.bv-rot-ask-row { display: flex; justify-content: center; align-items: flex-end; padding-bottom: clamp(16px, 2vw, 24px); }
+.bv-rot-ask {
+  position: relative; align-self: flex-end; max-width: min(62ch, 100%); padding: 14px 20px; border-radius: 20px 20px 20px 6px;
+  background: var(--raise-2); box-shadow: inset 0 0 0 1px var(--line); font-size: clamp(1rem, 1.25vw, 1.1875rem); line-height: 1.45; text-wrap: pretty;
+}
+.bv-rot-cap { margin-top: 18px; text-align: center; }
+.bv-rot-cap:empty { display: none; }
+
+/* tab pills: the active one fills as its clock runs */
+.bv-rot-bar { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 12px 16px; margin-top: clamp(24px, 3vw, 36px); }
+.bv-rot-tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.bv-rot-tab {
+  position: relative; overflow: hidden; padding: 12px 18px; border-radius: 999px; color: var(--dim);
+  box-shadow: inset 0 0 0 1.5px var(--line);
+  transition: color 0.18s, box-shadow 0.18s, transform 0.5s var(--spring);
+}
+.bv-rot-tab:hover { color: var(--ink); }
+.bv-rot-tab:active { transform: scale(0.955); transition-duration: 0.07s, 0.18s, 0.18s; }
+.bv-rot-tab[data-on] { color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--acc); }
+.bv-rot-tab-t { position: relative; }
+.bv-rot-fill { position: absolute; inset: 0; background: color-mix(in srgb, var(--acc) 30%, transparent); transform: scaleX(0); transform-origin: left center; pointer-events: none; }
+/* nothing running (taken over, or reduced motion): the active one just shows full */
+[data-rot-state='off'] [data-on] > .bv-rot-fill, [data-rot-state='off'] [data-on] .bv-tour-line > .bv-rot-fill { transform: scaleX(1); }
+.bv-rot-btn {
+  padding: 11px 16px; border-radius: 999px; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--line);
+  transition: background-color 0.18s, color 0.18s, box-shadow 0.18s, transform 0.5s var(--spring);
+}
+.bv-rot-btn:hover { background: var(--ink); color: var(--ground); box-shadow: none; }
+.bv-rot-btn:active { transform: scale(0.955); transition-duration: 0.07s, 0.18s, 0.18s, 0.18s; }
+.bv-rot-btn[aria-pressed='true'] { box-shadow: inset 0 0 0 1.5px var(--acc); }
+.bv-rot-btn[data-off] { visibility: hidden; }
+/* two buttons that take turns share the room of the wider */
+.bv-rot-slot { display: grid; }
+.bv-rot-slot > * { grid-area: 1 / 1; }
+
+/* cases */
+.bv-cases-stage { max-width: 1100px; margin-inline: auto; grid-template-rows: auto auto auto; }
+/* every case shares the same three rows, so the screen sits at one height however long the question is */
+.bv-cases-stage > .bv-rot-item { grid-area: 1 / 1 / span 3 / auto; display: grid; grid-template-rows: subgrid; }
+.bv-cases-stage .bv-rot-ask-row { grid-row: 1; }
+.bv-cases-shot { grid-row: 2; }
+.bv-cases-stage .bv-rot-cap { grid-row: 3; }
+.bv-cases-shot, .bv-tour-shot .bv-media { will-change: transform; }
+.bv-cases-shot .bv-media { width: 100%; }
+.bv-cases-shot .bv-media--app, .bv-tour-pan .bv-media--app { width: min(340px, 72%); margin-inline: auto; }
+
+/* scenes: each scene's headline and cost beside what was asked, then the demo on a stage its camera moves in */
+.bv-scenes-top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, auto); align-items: end; gap: 14px clamp(24px, 4vw, 64px); }
+.dt-label + .bv-scenes-top { margin-top: clamp(28px, 3.4vw, 44px); }
+.bv-rot-note + .bv-scenes-top { margin-top: clamp(18px, 2.4vw, 32px); }
+.bv-scenes-heads > .bv-rot-item { display: flex; flex-wrap: wrap; align-items: center; gap: 10px clamp(14px, 1.8vw, 26px); }
+.bv-scenes-head {
+  font-family: var(--display); font-weight: 800; font-variation-settings: 'wdth' 125;
+  font-size: clamp(2.5rem, 7.2vw, 7.25rem); line-height: 0.9; letter-spacing: -0.045em; white-space: nowrap;
+}
+/* the mask its letters rise out of, padded so it keeps the descenders and the lean */
+.bv-scenes-head-t { display: inline-block; overflow: clip; padding: 0.05em 0.08em 0.16em 0; margin: -0.05em -0.08em -0.16em 0; }
+.bv-scenes-cost {
+  --flash: 0;
+  display: inline-flex; align-items: center; padding: 9px 15px 9px 13px; border-radius: 999px; white-space: nowrap; color: var(--ink);
+  background: color-mix(in srgb, var(--acc) calc(10% + var(--flash) * 30%), transparent);
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--acc) calc(50% + var(--flash) * 50%), transparent), 0 0 calc(var(--flash) * 32px) color-mix(in srgb, var(--acc) 55%, transparent);
+}
+/* the number's odometer: its digits in a column, highest first, rolled into a one-digit window */
+.bv-odo { display: inline-block; height: 1.4em; overflow: clip; margin-right: 0.45em; font-weight: 700; color: var(--acc); }
+.bv-odo-col { display: flex; flex-direction: column; }
+.bv-odo-col > span { height: 1.4em; line-height: 1.4; }
+.bv-scenes-asks .bv-rot-ask-row { justify-content: flex-end; padding-bottom: 0.4em; }
+.bv-scenes-asks .bv-rot-ask { border-radius: 20px 20px 6px 20px; }
+/* the frame the camera works in: as wide as the page and clipped, so a push-in never covers the words round it */
+.bv-scenes-stage { position: relative; margin: clamp(10px, 1.4vw, 20px) calc(var(--pad) * -1) 0; padding: 0 var(--pad) 28px; overflow: clip; }
+/* a push-in runs off the frame's foot into black, not against a hard edge */
+.bv-scenes-stage::after { content: ''; position: absolute; inset: auto 0 0; z-index: 1; height: 28px; pointer-events: none; background: linear-gradient(transparent, var(--ground)); }
+.bv-scenes .dsd-deck { display: block; }
+.bv-scenes .dsd-cam { padding-top: calc(var(--step) * 3em); }
+.bv-scenes-caps { margin-top: 0; }
+.bv-scenes-caps .bv-rot-cap { margin-top: 0; }
+.bv-scenes .dt-hint { margin-top: 20px; }
+.bv-scenes .dt-hint + .bv-rot-bar { margin-top: 20px; }
+
+/* tour: steps beside one screen */
+.bv-tour-head { max-width: 22ch; font-size: clamp(28px, 3.2vw, 48px); text-wrap: balance; }
+.bv-tour-head + .bv-tour-grid { margin-top: clamp(28px, 3.4vw, 44px); }
+.bv-tour-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(32px, 6vw, 104px); align-items: center; }
+.bv-tour-side { min-width: 0; }
+.bv-tour-reserve { display: grid; }
+.bv-tour-reserve > * { grid-area: 1 / 1; min-width: 0; }
+.bv-tour-ghost { visibility: hidden; pointer-events: none; border-top: 1px solid transparent; }
+.bv-tour-bodies { display: grid; }
+.bv-tour-bodies > * { grid-area: 1 / 1; }
+.bv-tour-list { list-style: none; border-top: 1px solid var(--line); align-self: start; }
+.bv-tour-li { border-bottom: 1px solid var(--line); }
+.bv-tour-ghost > .bv-tour-step { border-bottom: 1px solid var(--line); }
+.bv-tour-step { display: flex; gap: 16px; align-items: baseline; width: 100%; padding: 18px 0; text-align: left; color: var(--dim); transition: color 0.18s; }
+.bv-tour-step:hover, .bv-tour-li[data-on] .bv-tour-step { color: var(--ink); }
+.bv-tour-n { flex: none; width: 2.2em; color: var(--faint); }
+.bv-tour-li[data-on] .bv-tour-n { color: var(--acc); }
+.bv-tour-t { font-size: clamp(20px, 2vw, 28px); text-wrap: balance; }
+.bv-tour-body { padding: 0 0 20px calc(2.2em + 16px); }
+.bv-tour-body p { max-width: 44ch; color: var(--dim); line-height: 1.55; }
+.bv-tour-line { display: block; position: relative; overflow: hidden; height: 1px; margin-top: 16px; background: var(--line); }
+.bv-tour-line .bv-rot-fill { background: var(--acc); }
+.bv-tour-bar { justify-content: flex-start; }
+.bv-tour-clip { overflow: hidden; border-radius: 14px; }
+.bv-tour-pan { will-change: transform; }
+.bv-tour-pan .bv-media { width: 100%; }
+
+@media (max-width: 899px) {
+  .bv-scenes-top { grid-template-columns: minmax(0, 1fr); }
+  .bv-scenes-asks .bv-rot-ask-row { justify-content: flex-start; }
+  .bv-tour-grid { grid-template-columns: minmax(0, 1fr); }
+  .bv-tour-shots { order: -1; }
+}
+@media (max-width: 639px) {
+  .bv-rot-tab { padding: 11px 14px; }
+  .bv-rot-ask { padding: 12px 16px; }
+}

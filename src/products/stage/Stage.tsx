@@ -1,5 +1,6 @@
 // The stage shows a product the way its kind calls for: a live demo, phones, or a browser.
 import type { DemoProps, Media, Product, StageKind } from '../types';
+import { DashDemo } from './DashDemo';
 import { BrowserFrame, PhoneFrame, Shot, WindowFrame } from './Frames';
 import { JiraDemo } from './JiraDemo';
 import { OpenUiDemo } from './OpenUiDemo';
@@ -7,9 +8,9 @@ import { PrDemo } from './PrDemo';
 import '../styles/stage.css';
 
 /** What a live demo's number counts, as two short lines. A demo without an entry shows no number. */
-export const TALLY: Partial<Record<StageKind, [string, string]>> = { 'pr-demo': ['blockers', 'left'] };
+export const TALLY: Partial<Record<StageKind, [string, string]>> = { 'pr-demo': ['blockers', 'left'], 'dash-demo': ['model calls', 'so far'] };
 
-export function Stage({ product, active, onTally }: { product: Product } & DemoProps) {
+export function Stage({ product, active, onTally, scene }: { product: Product } & DemoProps) {
   const v = product.variant ?? 0;
   /** The product's own picture for a slot on the stage, or the sample screen that stands in for it. */
   const shot = (i: number, standIn: Media) => <Shot media={product.shots?.[i] ?? standIn} kind={product.kind} />;
@@ -17,6 +18,7 @@ export function Stage({ product, active, onTally }: { product: Product } & DemoP
     case 'pr-demo': return <PrDemo active={active} onTally={onTally} />;
     case 'jira-demo': return <JiraDemo active={active} onTally={onTally} />;
     case 'openui-demo': return <OpenUiDemo active={active} />;
+    case 'dash-demo': return <DashDemo active={active} onTally={onTally} scene={scene} />;
     case 'window':
       return <WindowFrame className="stg-window" title={product.name}>{shot(0, { sample: v })}</WindowFrame>;
     case 'phone':

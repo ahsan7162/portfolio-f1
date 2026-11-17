@@ -74,7 +74,12 @@ src/products/
     Preview.tsx                  a product's small picture in the catalogue
   stage/                         how a product is shown "live"
     Stage.tsx                    picks the demo or frame from product.stage; TALLY, what a demo's number counts
+    names.ts                     the live screen names (LIVE_NAMES) and SCENES; no browser code, so tests can import it
+    live.tsx                     a live screen's name -> the screen that draws it
     PrDemo.tsx, JiraDemo.tsx     playable demos of the two plugins
+    DashDemo.tsx, dashScenes.ts  the bb Dashboards demo and its four scenes (beat sheets: camera, pointer, state changes)
+    dashFilm.ts                  what a playing scene draws over that demo: the program streaming in, its check, parts growing out of their lines, ripples, the pulse, the versions deck, and rest()
+    DashView.tsx, dash.ts        the dashboard kit the demo and the live screens draw with, and its data
     Frames.tsx                   PhoneFrame, BrowserFrame, WindowFrame, KindFrame (the frame for a kind), SampleScreen
   detail/                        a product's own page
     Detail.tsx                   top bar, hero, outline, the blocks, the Next band
@@ -82,6 +87,7 @@ src/products/
     blocks/index.tsx             the registry: block type -> component; numbered(), the blocks with their numbers
     blocks/shared.tsx            BlockProps, Label, useBlockMotion, countUp, useCopy, usePreload
     blocks/<Name>.tsx            one file per block type
+    blocks/rotate.ts             the timer and index logic the cases, tour and scenes blocks share
     blocks/MediaView.tsx         a Media value in the frame its product's kind calls for
   styles/                        plain CSS, one file per area
   products.test.ts               routes and product integrity
@@ -101,6 +107,7 @@ CSS class prefixes, one per area. Keep to them so nothing collides:
 | `bc-` | `blocks-content.css` | scores, timeline, faq, quote, palette |
 | `stg-`, `frm-` | `stage.css`, `frames.css` | stages and device frames |
 | `prd-`, `jrd-` | `pr-demo.css`, `jira-demo.css` | the two live demos |
+| `dsd-` | `dash-demo.css`, `dash-film.css` | the bb Dashboards demo and its dashboard kit; the demo's film layer, camera and versions deck |
 
 ---
 
@@ -273,7 +280,7 @@ Append an object to `products` in `data.ts`. Its position in the array is its nu
 | `hook` | yes | a short question or claim under the name on the featured stage |
 | `hint` | yes | how to use the stage: "Click a blocker to clear it." |
 | `stack` | yes | what it is built with. Searchable in the catalogue. |
-| `stage` | yes | `'pr-demo'`, `'jira-demo'`, `'openui-demo'`, `'window'`, `'phone'` or `'browser'`. The last three show `shots` in frames; use `'window'` for a plugin or desktop tool with no live demo. |
+| `stage` | yes | `'pr-demo'`, `'jira-demo'`, `'openui-demo'`, `'dash-demo'`, `'window'`, `'phone'` or `'browser'`. The last three show `shots` in frames; use `'window'` for a plugin or desktop tool with no live demo. |
 | `links` | yes | `{ label, href }` buttons in the hero. May be empty. |
 | `blocks` | yes | the detail page. See the next section. |
 | `featured` | no | `true` gives it a full screen at the top of the main page |
@@ -349,6 +356,7 @@ You design a page by choosing blocks and their order. Use any block, any number 
 6. **End on `get`.** It is a full-bleed band in the product's colour and closes the page. A `film`, if there is one, sits just before it.
 7. **Use `split` in runs.** Alternate `side` left and right. Give the first a `label` and leave the rest without one: they read as one section.
 8. **One `marquee` at most**, and only on a long page, as a breath between halves.
+9. **At most one `cases`, one `tour` and one `scenes` per page.** `scenes` takes the place of `stage`, never sits beside it.
 
 ### Starting points by kind
 
@@ -396,6 +404,9 @@ The shapes are in `types.ts` (the `Block` union) with a comment on each. TypeScr
 | `code` | required | A panel of code with Copy; optionally the screen it produces beside it | A config snippet, or what the user writes and what they get. Plain text, not highlighted. |
 | `specs` | required | Rows of a name and a value, with an optional line of detail | Requirements, costs, where the data comes from |
 | `notes` | required | Cards of small print; a warning takes the product's colour | Limits and things to know before installing. Keep them honest. |
+| `cases` | required | One stage that rotates through cases: what was asked, and the screen that came of it, a tab per case | Use cases, or a tabbed gallery |
+| `tour` | required | A list of points beside one screen that steps on by itself, with an optional camera move to the part each step is about | Several features of one screen |
+| `scenes` | required | The product's live demo playing itself through named scenes, a tab per scene; the visitor can take over. Each scene may set `head`, a short line set large as it plays ("Ask for it."), and `cost`, a number then its words ("1 model call"): the number rolls in when the demo spends it, or pulses if it is 0 | Only a product whose demo lists its scenes in `SCENES` |
 | `chips` | required | A wall of names as pills | What it works with or supports |
 | `get` | required | An install command with Copy, store buttons, or a link, on a band in the product's colour | How to get it. Always last. |
 
@@ -403,6 +414,7 @@ The shapes are in `types.ts` (the `Block` union) with a comment on each. TypeScr
 
 - `{ src, alt }`: a real image. Write `alt` as what the screen shows.
 - `{ sample, dark? }`: a drawn placeholder screen. For dummy products only.
+- `{ live, alt }`: a screen drawn in code, by name from `stage/names.ts`, that builds itself in when its block shows it. It works in any block that takes `Media`.
 
 `MediaView` puts either one in the frame the product's kind calls for, so a block never chooses a frame. The stage does the same with a product's `shots`. Both draw the picture with `Shot` from `stage/Frames.tsx`: the frames are code, and a screenshot is only what goes inside one.
 
@@ -494,7 +506,10 @@ export function Pricing({ block, n }: BlockProps<'pricing'>) {
 
 **A live demo** is the strongest thing a product can have: a small, playable copy of the product's main idea. `PrDemo.tsx` and `JiraDemo.tsx` are the models.
 
-- Its props are `DemoProps`: `active` and `onTally`.
+- Its props are `DemoProps`: `active`, `onTally`, and an optional `scene`, the scene to play by itself (undefined means the visitor drives).
+- A demo with scenes lists how many in `SCENES` in `stage/names.ts`. A `scenes` block must have exactly that many.
+- A scene's timeline must end inside the block's hold (`HOLD_SCENE` in `blocks/Cases.tsx`, 8.5 s). When a scene spends what its `cost` says (its model call), the demo dispatches a bubbling `scene-cost` event from its root; the block ticks the cost tag then.
+- A scene may be filmed (the bb Dashboards demo: a camera, overlays, a versions deck), but taking over must leave the demo whole and flat at once: every tween that touches the product is landed (`finish()`), every film layer goes back to its CSS rest (`rest()` in `dashFilm.ts`), and nothing filmed shows when the visitor drives. Move the camera only by scale and translate while anything is measured or aimed at; tilt only between those moments.
 - Listen to the keyboard only while `active` is true, and never while the visitor is typing in a field. Two demos can be on one page.
 - Report the headline number with `onTally` if it has one. It is shown, on the featured stage and the detail page, only when the stage has an entry in `TALLY` in `stage/Stage.tsx` saying what the number counts.
 - Draw the product's interface in the product's own colours, scoped under its own prefix. This is the one place a product's full palette appears.

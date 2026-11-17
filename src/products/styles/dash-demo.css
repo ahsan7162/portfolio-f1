@@ -1,0 +1,372 @@
+/* bb Dashboards, drawn in code: the kit (every live screen) and the playable demo. bb's dark "band"
+   theme, declared once on .dsd: the one place this drawing's own colours are written. Sizes are in em,
+   so a live screen scales as one picture with its box and the demo with its container. */
+.dsd {
+  --dsd-canvas: #000000; --dsd-card: #0a0a0a; --dsd-border: #262624; --dsd-hair: #1c1c1b; --dsd-ink: #f3f2ee;
+  --dsd-good: #5fe08a; --dsd-warn: #f1c96b; --dsd-bad: #ff6b5b;
+  --dsd-dim: color-mix(in oklch, var(--dsd-ink) 62%, var(--dsd-canvas));
+  --dsd-faint: color-mix(in oklch, var(--dsd-ink) 36%, var(--dsd-canvas));
+  --dsd-raise: color-mix(in oklch, var(--dsd-ink) 5%, var(--dsd-card));
+  /* The charts take the product's colour until Colours picks one, lightened if need be to read on the dark
+     card (the plugin's forMarks does the same); series 2+ a golden angle round from it, as palette() does. */
+  --dsd-acc: oklch(from var(--acc) max(l, 0.66) c h);
+  --dsd-s2: oklch(from var(--dsd-acc) 0.76 max(c, 0.12) calc(h + 137.508));
+  --dsd-s3: oklch(from var(--dsd-acc) 0.68 max(c, 0.12) calc(h + 275.016));
+  --dsd-s4: oklch(from var(--dsd-acc) 0.76 max(c, 0.12) calc(h + 52.524));
+  --dsd-prev: color-mix(in oklch, var(--dsd-ink) 30%, var(--dsd-card));
+  color: var(--dsd-ink); font-family: var(--text); line-height: 1.3; font-variation-settings: 'wdth' 100;
+  -webkit-user-select: none; user-select: none;
+}
+.dsd :where(h3, h4, p, ul, ol) { margin: 0; padding: 0; font: inherit; }
+.dsd :where(ul, ol) { list-style: none; }
+
+/* a live screen: fills its box; 1em is 1.45% of its width (or its height, if the box is unusually short) */
+.dsd-live { position: absolute; inset: 0; container: dsd-live / size; overflow: hidden; background: var(--dsd-canvas); }
+.dsd-screen { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 0 1.4em 1.4em; font-size: min(1.45cqw, 2.32cqh); }
+
+/* the panel's header */
+.dsd-head { display: flex; align-items: center; gap: 1em; min-height: 3.6em; flex: none; }
+.dsd-head-title { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 0.75em; white-space: nowrap; overflow: hidden; }
+.dsd-head-title h3 { font-size: 1.15em; font-weight: 600; overflow: hidden; text-overflow: ellipsis; flex: none; max-width: 100%; }
+.dsd-head-title span { font-size: 0.78em; color: var(--dsd-dim); overflow: hidden; text-overflow: ellipsis; }
+.dsd-ctrls { display: flex; align-items: center; gap: 0.5em; flex: none; }
+.dsd-ctl {
+  display: inline-flex; align-items: center; gap: 0.45em; height: 2.1em; padding: 0 0.75em; overflow: hidden;
+  border: 1px solid var(--dsd-border); border-radius: 0.45em; font-size: 0.8em; white-space: nowrap; color: var(--dsd-ink);
+}
+.dsd-chev { width: 0.7em; height: 0.45em; fill: none; stroke: currentColor; stroke-width: 1.6; }
+.dsd-note { display: flex; align-items: center; gap: 0.55em; margin: -0.5em 0 0.85em; font-size: 0.78em; color: var(--dsd-dim); white-space: nowrap; flex: none; }
+.dsd-live-dot { width: 0.55em; height: 0.55em; border-radius: 50%; background: var(--dsd-good); box-shadow: 0 0 0 0.25em color-mix(in oklch, var(--dsd-good) 22%, transparent); }
+
+/* the grid of parts, laid out by the description */
+.dsd-grid {
+  flex: 1; min-height: 0; display: grid; gap: 0.9em;
+  grid-template-areas: var(--dsd-areas); grid-template-columns: repeat(var(--dsd-cols), minmax(0, 1fr)); grid-template-rows: var(--dsd-rows);
+}
+.dsd-card {
+  position: relative; min-width: 0; min-height: 0; display: flex; flex-direction: column; container-type: inline-size;
+  padding: 1em 1.15em; background: var(--dsd-card); border: 1px solid var(--dsd-border); border-radius: 0.7em;
+}
+.dsd-card:has(.dsd-pop) { z-index: 4; }
+.dsd-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 1em; margin-bottom: 0.75em; flex: none; }
+.dsd-card-head > div { min-width: 0; }
+.dsd-card-head h4 { font-size: 0.92em; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dsd-card-head p { margin-top: 0.15em; font-size: 0.74em; color: var(--dsd-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dsd-legend { display: flex; gap: 0.9em; flex: none; font-size: 0.72em; color: var(--dsd-dim); white-space: nowrap; }
+.dsd-legend li { display: flex; align-items: center; gap: 0.4em; }
+.dsd-swatch { flex: none; width: 0.75em; height: 0.75em; border-radius: 0.2em; background: var(--c, var(--dsd-acc)); }
+.dsd-swatch[data-dashed] { width: 1.1em; height: 0.2em; background: repeating-linear-gradient(90deg, var(--c) 0 0.32em, transparent 0.32em 0.52em); }
+
+/* marks: their colour changes sweep across, card by card and mark by mark */
+.dsd-mark {
+  transition: stroke 0.5s var(--ease), fill 0.5s var(--ease), background-color 0.5s var(--ease);
+  transition-delay: calc(var(--o, 0) * 110ms + var(--d, 0) * 35ms);
+}
+.dsd-stroke { fill: none; stroke: var(--c, var(--dsd-acc)); stroke-width: 0.16em; vector-effect: non-scaling-stroke; stroke-linejoin: round; stroke-linecap: round; }
+.dsd-stroke[data-dashed] { stroke-dasharray: 0.45em 0.35em; stroke-linecap: butt; }
+.dsd-area { fill: color-mix(in oklch, var(--c, var(--dsd-acc)) 9%, transparent); }
+.dsd-dot { fill: none; stroke: var(--c, var(--dsd-acc)); stroke-width: 0.45em; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.dsd-col, .dsd-bar { fill: var(--c, var(--dsd-acc)); }
+
+/* KPI tiles: one card, hairlines between tiles */
+.dsd-card--kpis {
+  display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 1px; padding: 0; overflow: hidden;
+  background: var(--dsd-border);
+}
+.dsd-tile { position: relative; min-width: 0; display: flex; flex-direction: column; gap: 0.2em; padding: 0.95em 1.15em; background: var(--dsd-card); }
+.dsd-tile-label, .dsd-delta, .dsd-tile-note { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dsd-tile-label { font-size: 0.8em; color: var(--dsd-dim); }
+.dsd-tile-row { display: flex; align-items: center; gap: 0.6em; min-width: 0; }
+.dsd-tile-value { flex: none; font-size: 1.9em; font-weight: 650; letter-spacing: -0.02em; line-height: 1.15; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.dsd-spark { flex: 1; min-width: 2em; max-width: 7em; height: 1.9em; margin-left: auto; overflow: visible; }
+.dsd-delta { font-size: 0.74em; color: var(--dsd-dim); }
+.dsd-delta em { margin-right: 0.35em; font-style: normal; font-weight: 600; }
+.dsd-delta em[data-tone='good'] { color: var(--dsd-good); }
+.dsd-delta em[data-tone='bad'] { color: var(--dsd-bad); }
+.dsd-tile-note { font-size: 0.74em; color: var(--dsd-faint); }
+
+/* line and column charts: SVG marks stretched over HTML gridlines and labels */
+.dsd-chart { flex: 1; min-height: 0; container-type: size; display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; column-gap: 0.6em; row-gap: 0.4em; padding: 0.3em 0.9em 0 0; }
+.dsd-yaxis { position: relative; min-width: 3.3em; font-size: 0.68em; color: var(--dsd-dim); font-variant-numeric: tabular-nums; }
+.dsd-yaxis span { position: absolute; right: 0; transform: translateY(-50%); white-space: nowrap; }
+.dsd-plot { position: relative; min-height: 0; }
+.dsd-gridline { position: absolute; left: 0; right: 0; border-top: 1px solid var(--dsd-hair); }
+.dsd-gridline[data-zero] { border-top-color: var(--dsd-border); }
+.dsd-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.dsd-xaxis { grid-column: 2; position: relative; height: 1.3em; font-size: 0.68em; color: var(--dsd-dim); }
+.dsd-xaxis span { position: absolute; top: 0; transform: translateX(-50%); white-space: nowrap; }
+@container (max-width: 26em) { .dsd-xaxis:not([data-all]) span:nth-child(even) { visibility: hidden; } }
+/* a short chart keeps every other value on its axis */
+@container (max-height: 9em) { .dsd-yaxis span:nth-child(even):not([data-zero]), .dsd-gridline:nth-of-type(even):not([data-zero]) { visibility: hidden; } }
+
+/* horizontal bars: label, bar, value per row; the gridlines run under the bar column */
+.dsd-hbars {
+  position: relative; flex: 1; min-height: 0; display: grid; align-items: center; column-gap: 0.7em;
+  grid-template-columns: fit-content(46%) minmax(0, 1fr) auto; grid-template-rows: repeat(var(--rows), minmax(0, 1fr));
+}
+.dsd-hgrid {
+  grid-column: 2; grid-row: 1 / -1; align-self: stretch; border-right: 1px solid var(--dsd-hair);
+  background: linear-gradient(90deg, var(--dsd-border) 1px, transparent 1px) 0 0 / 100% 100% no-repeat,
+    linear-gradient(90deg, var(--dsd-hair) 1px, transparent 1px) 0 0 / calc(100% / var(--steps)) 100%;
+}
+.dsd-hlabel { grid-column: 1; min-width: 0; font-size: 0.76em; color: var(--dsd-dim); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dsd-hbar { grid-column: 2; display: block; width: 100%; height: 1.3em; overflow: visible; }
+.dsd-hval { grid-column: 3; font-size: 0.74em; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.dsd-hval small { margin-left: 0.5em; font-size: 1em; color: var(--dsd-faint); }
+
+/* donut */
+.dsd-donut { flex: 1; min-height: 0; display: flex; align-items: center; gap: 1.4em; }
+.dsd-ring-box { position: relative; flex: none; height: 100%; max-height: 15em; max-width: 52%; aspect-ratio: 1; }
+.dsd-ring-svg { display: block; width: 100%; height: 100%; }
+.dsd-ring-bg { fill: none; stroke: var(--dsd-hair); stroke-width: 14; }
+.dsd-arc { fill: none; stroke: var(--c); stroke-width: 14; }
+.dsd-ring-mid { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+.dsd-ring-mid b { font-size: 2.1em; font-weight: 650; line-height: 1; font-variant-numeric: tabular-nums; }
+.dsd-ring-mid small { margin-top: 0.3em; font-size: 0.72em; color: var(--dsd-dim); }
+.dsd-legend-list { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.5em; font-size: 0.82em; }
+.dsd-legend-list > .dsd-row { display: flex; align-items: center; gap: 0.6em; padding-bottom: 0.5em; border-bottom: 1px solid var(--dsd-hair); white-space: nowrap; }
+.dsd-legend-list b { margin-left: auto; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* a list with status badges */
+.dsd-list { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
+.dsd-list > .dsd-row { display: flex; flex-direction: column; gap: 0.3em; padding: 0.55em 0.15em; border-top: 1px solid var(--dsd-hair); }
+.dsd-list > .dsd-row:first-child { border-top: 0; padding-top: 0; }
+.dsd-row-title { font-size: 0.84em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dsd-row-meta { display: flex; align-items: center; gap: 0.75em; font-size: 0.72em; color: var(--dsd-dim); white-space: nowrap; overflow: hidden; }
+.dsd-badge {
+  flex: none; padding: 0.1em 0.55em; border-radius: 0.4em; color: var(--t); font-weight: 500;
+  background: color-mix(in oklch, var(--t) 13%, transparent); box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--t) 42%, transparent);
+}
+/* a tone gives its colour as --t, to badges, callouts, status dots and coloured cells alike */
+.dsd [data-tone='good'] { --t: var(--dsd-good); }
+.dsd [data-tone='warn'] { --t: var(--dsd-warn); }
+.dsd [data-tone='bad'] { --t: var(--dsd-bad); }
+.dsd [data-tone='acc'] { --t: var(--dsd-acc); }
+.dsd [data-tone='muted'] { --t: var(--dsd-dim); }
+.dsd-list > .dsd-row[data-picked] { padding: 0.55em 0.7em; border-top-color: transparent; border-radius: 0.45em; background: var(--dsd-raise); box-shadow: inset 0.2em 0 0 var(--dsd-acc); }
+.dsd-list > .dsd-row[data-picked] + .dsd-row { border-top-color: transparent; }
+
+/* sliders with their computed results */
+.dsd-sliders { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 1.8em; }
+.dsd-sl-list { display: flex; flex-direction: column; gap: 1.05em; justify-content: center; }
+.dsd-sl { display: grid; grid-template-columns: minmax(0, 1fr) auto; row-gap: 0.55em; font-size: 0.84em; }
+.dsd-sl-label { color: var(--dsd-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dsd-sl b { font-weight: 600; font-variant-numeric: tabular-nums; }
+.dsd-track { grid-column: 1 / -1; position: relative; height: 0.36em; border-radius: 99em; background: var(--dsd-border); }
+.dsd-fill { position: absolute; inset: 0; border-radius: inherit; background: var(--dsd-acc); transform-origin: 0 50%; }
+.dsd-knob {
+  position: absolute; top: 50%; width: 1.1em; height: 1.1em; margin: -0.55em 0 0 -0.55em; border-radius: 50%;
+  background: var(--dsd-ink); box-shadow: 0 0 0 0.28em color-mix(in oklch, var(--dsd-acc) 40%, transparent);
+}
+.dsd-results { display: flex; flex-direction: column; justify-content: center; gap: 0.7em; }
+.dsd-result { min-width: 0; padding: 0.7em 0.95em; border-radius: 0.6em; background: var(--dsd-raise); box-shadow: inset 0 0 0 1px var(--dsd-border); white-space: nowrap; overflow: hidden; }
+.dsd-result span { display: block; font-size: 0.76em; color: var(--dsd-dim); }
+.dsd-result b { font-size: 1.7em; font-weight: 650; font-variant-numeric: tabular-nums; }
+.dsd-result small { margin-left: 0.45em; font-size: 0.76em; color: var(--dsd-dim); }
+.dsd-result[data-tone='good'] b { color: var(--dsd-good); }
+
+/* a tile's status strip (one dot per period, an empty ring for none) and its progress bar */
+.dsd-states { display: flex; gap: 0.3em; margin-left: auto; flex: none; }
+.dsd-state { width: 0.62em; height: 0.62em; border-radius: 50%; background: var(--t); }
+.dsd-state[data-tone='muted'] { background: none; box-shadow: inset 0 0 0 1px var(--dsd-faint); }
+.dsd-tile-row > .dsd-track { flex: 1; min-width: 2em; max-width: 7em; height: 0.32em; margin-left: auto; }
+
+/* treemap: cells placed in percent; one too small for its words drops them */
+.dsd-tree { position: relative; flex: 1; min-height: 0; }
+.dsd-cell {
+  position: absolute; container-type: size; overflow: hidden; display: flex; flex-direction: column; gap: 0.15em; padding: 0.45em 0.55em;
+  border: 0.18em solid var(--dsd-card); border-radius: 0.5em; font-size: 0.72em; background: color-mix(in oklch, var(--c) 36%, var(--dsd-card));
+}
+.dsd-cell span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dsd-cell b { font-weight: 600; color: var(--dsd-dim); font-variant-numeric: tabular-nums; }
+@container (max-width: 3em) or (max-height: 2.5em) { .dsd-cell > * { display: none; } }
+
+/* heatmap: a label column, then a cell per column shaded by --v (0 to 1) */
+.dsd-heatmap {
+  flex: 1; min-height: 0; display: grid; gap: 0.22em;
+  grid-template-columns: fit-content(42%) repeat(var(--cols), minmax(0, 1fr)); grid-template-rows: repeat(var(--rows), minmax(0, 1fr)) auto;
+}
+.dsd-heatmap .dsd-hlabel { align-self: center; padding-right: 0.45em; }
+.dsd-heat {
+  display: grid; place-items: center; min-height: 0; overflow: hidden; border-radius: 0.25em; font-size: 0.62em; font-style: normal; font-variant-numeric: tabular-nums;
+  background: color-mix(in oklch, var(--dsd-acc) calc(8% + var(--v) * 84%), var(--dsd-card));
+}
+.dsd-heat[data-hot] { color: var(--dsd-canvas); font-weight: 600; }
+.dsd-heat-x { padding-top: 0.2em; font-size: 0.66em; color: var(--dsd-dim); text-align: center; }
+
+/* table: one grid per row, the first column wide, numbers right-aligned */
+.dsd-table { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; font-size: 0.8em; }
+.dsd-tr { display: grid; grid-template-columns: minmax(0, 2.2fr) repeat(var(--cols), minmax(0, 1fr)); align-items: center; gap: 1em; padding: 0.42em 0.2em; border-top: 1px solid var(--dsd-hair); }
+.dsd-tr > * { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: right; font-variant-numeric: tabular-nums; }
+.dsd-tr > :first-child { text-align: left; }
+.dsd-tr b { font-weight: 500; }
+.dsd-tr em { font-style: normal; font-weight: 600; color: var(--t); }
+.dsd-th { padding-top: 0; border-top: 0; font-size: 0.9em; color: var(--dsd-dim); }
+
+/* tabs and a callout: full-width rows, not cards */
+.dsd-card--tabs { flex-direction: row; gap: 1.5em; padding: 0 0.2em; background: none; border: 0; border-bottom: 1px solid var(--dsd-border); border-radius: 0; }
+.dsd-tab { display: flex; align-items: center; gap: 0.5em; padding: 0.5em 0.15em 0.65em; font-size: 0.86em; color: var(--dsd-dim); white-space: nowrap; }
+.dsd-tab b { padding: 0 0.5em; border-radius: 99em; font-size: 0.84em; font-weight: 600; font-variant-numeric: tabular-nums; background: var(--dsd-raise); box-shadow: inset 0 0 0 1px var(--dsd-border); }
+.dsd-tab[data-on] { color: var(--dsd-ink); box-shadow: inset 0 -0.16em 0 var(--dsd-acc); }
+.dsd-card--callout { padding: 0; background: none; border: 0; }
+.dsd-callout {
+  display: flex; align-items: center; gap: 0.7em; padding: 0.7em 1.05em; overflow: hidden; border-radius: 0.7em; font-size: 0.84em; white-space: nowrap;
+  background: color-mix(in oklch, var(--t) 9%, var(--dsd-card)); box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--t) 45%, transparent);
+}
+.dsd-callout-mark { flex: none; display: grid; place-items: center; width: 1.4em; height: 1.4em; border-radius: 50%; font-size: 0.86em; font-style: normal; font-weight: 700; color: var(--dsd-canvas); background: var(--t); }
+.dsd-callout b { font-weight: 600; }
+.dsd-callout span { overflow: hidden; text-overflow: ellipsis; color: var(--dsd-dim); }
+
+/* funnel: tapered steps in one stretched SVG between the labels and the values */
+.dsd-funnel { flex: 1; min-height: 0; display: grid; align-items: center; column-gap: 0.8em; grid-template-columns: fit-content(32%) minmax(0, 1fr) auto; grid-template-rows: repeat(var(--rows), minmax(0, 1fr)); }
+.dsd-fun-svg { grid-column: 2; grid-row: 1 / -1; align-self: stretch; display: block; width: 100%; height: 100%; min-height: 0; }
+.dsd-fun { fill: color-mix(in oklch, var(--dsd-acc) calc(100% - var(--d) * 19%), var(--dsd-card)); }
+.dsd-fun-val { grid-column: 3; display: flex; flex-direction: column; align-items: flex-end; font-size: 0.78em; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.dsd-fun-val b { font-weight: 600; }
+.dsd-fun-val small { font-size: 0.9em; color: var(--dsd-dim); }
+.dsd-fun-val small[data-tone] { color: var(--t); }
+.dsd-fun-val em { font-style: normal; }
+
+/* the picked record's drawer: lifted a little, with a close mark and key-value rows */
+.dsd-card--drawer { border-color: color-mix(in oklch, var(--dsd-ink) 24%, var(--dsd-card)); box-shadow: 0 1em 2em -1em var(--shadow-deep); }
+.dsd-x { flex: none; width: 0.8em; height: 0.8em; margin-top: 0.15em; fill: none; stroke: var(--dsd-dim); stroke-width: 1.4; stroke-linecap: round; }
+.dsd-drawer-badge { align-self: flex-start; margin: -0.2em 0 0.35em; font-size: 0.72em; }
+.dsd-kv { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; font-size: 0.8em; }
+.dsd-kv > .dsd-row { display: flex; justify-content: space-between; gap: 1em; padding: 0.45em 0; border-bottom: 1px solid var(--dsd-hair); white-space: nowrap; }
+.dsd-kv > .dsd-row > :first-child { color: var(--dsd-dim); }
+.dsd-kv > .dsd-row > :last-child { overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
+
+/* waterfall: floating columns on the line chart's axes, hairlines between them, values on top */
+.dsd-wf-link { fill: none; stroke: var(--dsd-faint); stroke-width: 1px; stroke-dasharray: 0.25em 0.2em; vector-effect: non-scaling-stroke; }
+.dsd-wf-val { position: absolute; transform: translate(-50%, -125%); font-size: 0.72em; font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+/* goals: the slider rows' grid; the target is a tick on the bar */
+.dsd-goals { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 1.6em; }
+.dsd-goal { align-items: baseline; }
+.dsd-goal b { font-size: 1.6em; font-weight: 650; }
+.dsd-goal small { margin-left: 0.45em; color: var(--dsd-dim); }
+.dsd-goal-tick { position: absolute; top: -0.4em; bottom: -0.4em; width: 0.16em; margin-left: -0.08em; border-radius: 0.1em; background: var(--dsd-ink); }
+.dsd-goal-note { grid-column: 1 / -1; font-size: 0.9em; color: var(--dsd-faint); }
+
+/* dumbbell: a line coloured by the change's tone, larger dots */
+.dsd-db-line { fill: none; stroke: color-mix(in oklch, var(--t) 75%, transparent); stroke-width: 0.24em; vector-effect: non-scaling-stroke; }
+.dsd-hbar .dsd-dot { stroke-width: 0.7em; }
+
+/* a small live screen (a bento tile, a phone): larger type; subtitles, notes and every other label give way */
+@container dsd-live (max-width: 520px) {
+  .dsd-screen { font-size: min(1.9cqw, 3.04cqh); padding: 0 1.1em 1.1em; }
+  .dsd-head-title span, .dsd-card-head p, .dsd-legend, .dsd-tile-note { display: none; }
+  .dsd-grid { gap: 0.7em; }
+  .dsd-card:not(.dsd-card--kpis) { padding: 0.8em 0.9em; }
+  .dsd-tile { padding: 0.75em 0.9em; }
+  .dsd-card-head { margin-bottom: 0.5em; }
+  .dsd-xaxis:not([data-all]) span:nth-child(even), .dsd-yaxis span:nth-child(even):not([data-zero]), .dsd-gridline:nth-of-type(even):not([data-zero]) { visibility: hidden; }
+  .dsd-list > .dsd-row:nth-child(n + 5), .dsd-kv > .dsd-row:nth-child(n + 3), .dsd-table > .dsd-row:nth-child(n + 6) { display: none; }
+  .dsd-sl-list { gap: 0.8em; }
+  /* the table keeps the name, p95 and its change; cells and steps keep their shape and drop their numbers */
+  .dsd-tr { grid-template-columns: minmax(0, 2fr) repeat(2, minmax(0, 1fr)); }
+  .dsd-tr > :nth-child(2), .dsd-tr > :nth-child(3), .dsd-cell b, .dsd-callout span, .dsd-fun-val small, .dsd-goal-note { display: none; }
+  .dsd-heat-x[data-minor] { visibility: hidden; }
+  .dsd-heat, .dsd-heat[data-hot] { color: transparent; }
+  .dsd-goals { gap: 1em; }
+}
+
+/* ---------- the demo: the same kit in a side-panel window, with its controls switched on ---------- */
+.dsd-demo { container: dsd / inline-size; width: 100%; }
+.dsd-win {
+  --dsd-rows-fixed: 7.4em 10em 10em; --dsd-gap: 0.9em;
+  position: relative; overflow: hidden; padding: 0 1.3em 1.3em; border-radius: 1em; background: var(--dsd-canvas);
+  font-size: clamp(0.625rem, 1.75cqw, 0.9375rem);
+  box-shadow: 0 0 0 1px var(--dsd-border), 0 3.5em 7em -2em var(--shadow-deep);
+}
+.dsd-demo button { font-size: inherit; }
+.dsd-demo button:focus-visible { outline: 0.14em solid var(--dsd-ink); outline-offset: 0.15em; }
+.dsd-demo button:disabled { cursor: default; opacity: 0.42; }
+.dsd-demo .dsd-grid { flex: none; grid-template-rows: var(--dsd-rows-fixed); gap: var(--dsd-gap); }
+.dsd-demo .dsd-ctl { cursor: pointer; transition: background-color 0.15s, transform 0.07s; }
+.dsd-demo .dsd-ctl:not(:disabled):hover, .dsd-demo .dsd-ctl[aria-pressed='true'], .dsd-demo .dsd-ctl[aria-expanded='true'] { background: var(--dsd-raise); }
+.dsd-demo .dsd-ctl[aria-pressed='true'] { box-shadow: inset 0 0 0 1px var(--dsd-ink); }
+.dsd-demo .dsd-ctl:not(:disabled):active { transform: scale(0.96); }
+.dsd-ctl-wrap { position: relative; display: flex; }
+.dsd-ctl--ver { min-width: 9.4em; justify-content: space-between; }
+.dsd-ver { display: block; }
+
+/* two lines tall whatever it says, so a long message never moves the window */
+.dsd-status { height: 2.8em; overflow: hidden; flex: none; display: flex; align-items: center; font-size: 0.8em; color: var(--dsd-dim); }
+.dsd-status-in { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3em 0.6em; }
+.dsd-status-in[data-ok] { color: var(--dsd-ink); }
+.dsd-status-in button { padding: 0.15em 0.6em; border-radius: 0.4em; box-shadow: inset 0 0 0 1px var(--dsd-border); color: var(--dsd-ink); }
+.dsd-status-in button:hover { background: var(--dsd-raise); }
+.dsd-tick { width: 1em; height: 1em; flex: none; border-radius: 50%; background: color-mix(in oklch, var(--dsd-good) 18%, transparent); position: relative; }
+.dsd-tick::after { content: ''; position: absolute; left: 0.36em; top: 0.2em; width: 0.22em; height: 0.45em; border: solid var(--dsd-good); border-width: 0 0.12em 0.12em 0; transform: rotate(45deg); }
+
+.dsd-filters { display: flex; align-items: center; justify-content: space-between; gap: 1em; margin-bottom: 0.9em; }
+.dsd-filters[data-off] { visibility: hidden; }
+.dsd-chips { display: flex; flex-wrap: wrap; gap: 0.4em; }
+.dsd-chip { height: 2.2em; padding: 0 0.95em; border-radius: 99em; font-size: 0.8em; color: var(--dsd-dim); box-shadow: inset 0 0 0 1px var(--dsd-border); transition: background-color 0.15s, color 0.15s, transform 0.07s; }
+.dsd-chip:hover { color: var(--dsd-ink); }
+.dsd-chip[aria-pressed='true'] { background: var(--dsd-ink); color: var(--dsd-canvas); box-shadow: none; }
+.dsd-chip:active { transform: scale(0.96); }
+.dsd-calls { font-size: 0.78em; color: var(--dsd-dim); white-space: nowrap; }
+.dsd-calls b { color: var(--dsd-ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+/* the empty panel takes the grid's own rows, so the first build never changes the window's height */
+.dsd-empty { display: grid; grid-template-rows: var(--dsd-rows-fixed); gap: var(--dsd-gap); outline: 1px dashed var(--dsd-border); outline-offset: -1px; border-radius: 0.7em; color: var(--dsd-faint); }
+.dsd-empty span { grid-row: 1 / -1; place-self: center; font-size: 0.85em; }
+
+/* popovers sit over the window and never change its size */
+.dsd-pop {
+  position: absolute; z-index: 6; padding: 0.9em; font-size: 0.82em; white-space: normal;
+  background: var(--dsd-card); border-radius: 0.6em; box-shadow: inset 0 0 0 1px var(--dsd-border), 0 1.2em 2.4em -0.6em var(--shadow-deep);
+}
+.dsd-pop-label { margin-bottom: 0.55em; font-weight: 600; }
+.dsd-pop-foot { display: flex; align-items: center; justify-content: flex-end; gap: 0.5em; margin-top: 0.9em; color: var(--dsd-dim); }
+.dsd-pop-foot span { margin-right: auto; font-size: 0.92em; }
+.dsd-pop-foot button { padding: 0.35em 0.8em; border-radius: 0.4em; box-shadow: inset 0 0 0 1px var(--dsd-border); color: var(--dsd-ink); }
+.dsd-pop-foot button:not(:disabled):hover { background: var(--dsd-raise); }
+.dsd-pop--colours { top: calc(100% + 0.5em); right: 0; width: 19.8em; }
+.dsd-swatches { display: flex; flex-wrap: wrap; gap: 0.45em; }
+.dsd-sw { width: 1.85em; height: 1.85em; border-radius: 50%; background: var(--sw); transition: transform 0.07s; }
+.dsd-sw[aria-pressed='true'] { box-shadow: 0 0 0 0.16em var(--dsd-card), 0 0 0 0.3em var(--dsd-ink); }
+.dsd-sw:active { transform: scale(0.9); }
+.dsd-pop--versions { top: calc(100% + 0.5em); right: 0; width: 100%; min-width: 11em; padding: 0.35em; }
+.dsd-pop--versions button { display: flex; justify-content: space-between; width: 100%; padding: 0.5em 0.65em; border-radius: 0.4em; text-align: left; }
+.dsd-pop--versions button:hover, .dsd-pop--versions button[aria-pressed='true'] { background: var(--dsd-raise); }
+.dsd-pop--versions small { color: var(--dsd-dim); font-size: 0.9em; }
+
+/* Edit mode: the part that can change, and the popover that asks what should */
+.dsd-spot { position: absolute; inset: 0.3em; z-index: 2; border-radius: 0.55em; cursor: pointer; outline: 1px dashed color-mix(in oklch, var(--dsd-ink) 50%, transparent); }
+.dsd-demo .dsd-spot:hover, .dsd-demo .dsd-spot:focus-visible, .dsd-spot[aria-expanded='true'] { outline: 0.14em solid var(--dsd-ink); outline-offset: 0; background: color-mix(in oklch, var(--dsd-ink) 4%, transparent); }
+.dsd-pop--edit { top: 2.9em; left: 0.9em; width: 20em; max-width: calc(100cqw + 8em); }
+.dsd-pop-title { font-weight: 600; }
+.dsd-crumbs { display: flex; flex-wrap: wrap; gap: 0.2em 0.35em; margin: 0.4em 0 0.8em; color: var(--dsd-dim); }
+.dsd-crumbs li + li::before { content: '›'; margin-right: 0.35em; }
+.dsd-crumbs [aria-current] { color: var(--dsd-ink); }
+.dsd-ask { min-height: 2.4em; padding: 0.55em 0.65em; border-radius: 0.45em; box-shadow: inset 0 0 0 1px var(--dsd-dim); }
+.dsd-ask[data-empty] { color: var(--dsd-faint); box-shadow: inset 0 0 0 1px var(--dsd-border); }
+.dsd-ask-text { display: inline-block; }
+.dsd-asks { display: flex; flex-wrap: wrap; gap: 0.4em; margin-top: 0.6em; }
+.dsd-asks button { padding: 0.3em 0.7em; border-radius: 99em; box-shadow: inset 0 0 0 1px var(--dsd-border); color: var(--dsd-dim); }
+.dsd-asks button:hover, .dsd-asks button[aria-pressed='true'] { color: var(--dsd-ink); background: var(--dsd-raise); }
+.dsd-send:not(:disabled) { background: var(--dsd-ink); color: var(--dsd-canvas) !important; box-shadow: none !important; }
+
+/* the travelling outline and the drawn pointer: placed by GSAP, invisible until a scene or Edit uses them */
+.dsd-ring { position: absolute; left: 0; top: 0; z-index: 7; visibility: hidden; pointer-events: none; border: 0.14em solid var(--dsd-ink); border-radius: 0.55em; }
+.dsd-hand { position: absolute; left: 0; top: 0; z-index: 8; width: 1.5em; height: 2em; visibility: hidden; pointer-events: none; fill: var(--dsd-ink); stroke: var(--dsd-canvas); stroke-width: 1.1; stroke-linejoin: round; filter: drop-shadow(0 0.2em 0.3em var(--shadow)); }
+
+/* a phone: tiles two by two, the trend and the new chart side by side, bars full width */
+@container dsd (max-width: 560px) {
+  .dsd-win { --dsd-rows-fixed: 14.6em 12em 12.5em; --dsd-gap: 0.7em; padding: 0 1em 1em; font-size: clamp(0.625rem, 2.9cqw, 0.8125rem); }
+  .dsd-demo .dsd-grid { grid-template-areas: var(--dsd-narrow); grid-template-columns: repeat(var(--dsd-ncols), minmax(0, 1fr)); }
+  .dsd-demo .dsd-card--kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dsd-demo .dsd-head { flex-wrap: wrap; row-gap: 0.4em; padding-top: 0.7em; }
+  .dsd-demo .dsd-head-title span { display: none; }
+  .dsd-demo .dsd-ctrls { width: 100%; }
+  .dsd-demo .dsd-ctrls > :last-child { margin-left: auto; }
+  .dsd-calls { display: none; }
+  .dsd-pop--edit { left: 0.4em; width: 18em; }
+  .dsd-pop--colours { right: auto; left: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dsd-mark { transition: none; }
+}
