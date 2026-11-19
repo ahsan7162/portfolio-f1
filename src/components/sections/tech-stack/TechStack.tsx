@@ -1,9 +1,6 @@
 import type { ReactNode } from 'react';
 import { F1 } from '@/art/liveries';
-import {
-  siGo, siPython, siDotnet, siReact, siNextdotjs, siJavascript, siNodedotjs, siFastapi, siGin, siPostgresql, siMysql, siApachekafka, siOpensearch, siLangchain, siAnthropic, siHuggingface, siPandas, siVite, siGithub, siJira,
-  type SimpleIcon,
-} from 'simple-icons';
+import * as icons from 'simple-icons';
 import { skills } from '@/content/data';
 import { gsap } from '@/motion/gsap';
 import { DUR, EASE, STAGGER } from '@/motion/tokens';
@@ -12,11 +9,13 @@ import { inView } from '@/motion/reveals';
 import { gridSlot } from '@/motion/split';
 import { useSectionMotion } from '@/motion/useSectionMotion';
 import { cn } from '@/lib/utils';
+import { LOGOS } from './logos';
 import { logoMarquee } from './marquee';
 
-const LOGOS: SimpleIcon[] = [
-  siGo, siPython, siDotnet, siReact, siNextdotjs, siJavascript, siNodedotjs, siFastapi, siGin, siPostgresql, siMysql, siApachekafka, siOpensearch, siLangchain, siAnthropic, siHuggingface, siPandas, siVite, siGithub, siJira,
-];
+// The paths reach the page in the prerendered HTML and hydration keeps that markup, so only the
+// prerender and dev (which renders from scratch) bundle them. shortcut: a hydration error that
+// fell back to a client render would draw the logos blank; fix the mismatch if that ever shows.
+const PATHS = new Map(import.meta.env.SSR || import.meta.env.DEV ? Object.values(icons).map(i => [i.slug, i.path]) : []);
 
 const slash = (xs: string[]) => xs.join(' / ');
 
@@ -68,7 +67,7 @@ export function TechStack() {
                 <span key={l.slug} data-logo className="mx-8 inline-flex items-center gap-3 text-fg opacity-80 md:mx-12">
                   {copy
                     ? <svg viewBox="0 0 24 24" className="size-9 fill-current md:size-11"><use href={`#logo-${l.slug}`} /></svg>
-                    : <svg role="img" aria-label={l.title} viewBox="0 0 24 24" className="size-9 fill-current md:size-11"><path id={`logo-${l.slug}`} d={l.path} /></svg>}
+                    : <svg role="img" aria-label={l.title} viewBox="0 0 24 24" className="size-9 fill-current md:size-11"><path id={`logo-${l.slug}`} d={PATHS.get(l.slug)} /></svg>}
                 </span>
               ))}
             </div>

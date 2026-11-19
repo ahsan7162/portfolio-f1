@@ -1,4 +1,4 @@
-import type { SimpleIcon } from 'simple-icons';
+import type { Logo } from './logos';
 import { gsap, ScrollTrigger } from '@/motion/gsap';
 import { isTouch } from '@/motion/prefs';
 import { scrollState } from '@/motion/SmoothScroll';
@@ -9,7 +9,7 @@ import type { MotionCtx } from '@/motion/useSectionMotion';
  * The second, dimmer row runs the other way. It is motion-only decoration, so it is built
  * here rather than prerendered: smaller, offset, reusing the first row's paths (<use>).
  */
-function reverseRow(row: HTMLElement, logos: SimpleIcon[]) {
+function reverseRow(row: HTMLElement, logos: Logo[]) {
   const row2 = document.createElement('div');
   row2.setAttribute('aria-hidden', 'true');
   row2.className = 'mt-6 flex w-max will-change-transform';
@@ -63,7 +63,7 @@ function centreEmphasis(row: HTMLElement, logos: HTMLElement[]) {
  * directly, so the speed glides instead of stepping, and it only runs while the bar is on
  * screen.
  */
-export function logoMarquee({ q, qa, onRevert }: MotionCtx, logos: SimpleIcon[]) {
+export function logoMarquee({ q, qa, onRevert }: MotionCtx, logos: Logo[]) {
   const row = q('[data-marquee]')!;
   const row2 = reverseRow(row, logos);
   onRevert(() => row2.remove());
