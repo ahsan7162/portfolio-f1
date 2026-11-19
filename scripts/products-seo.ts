@@ -16,23 +16,28 @@ const esc = (s: unknown) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;
 const ld = (graph: object[]) => `<script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\\u003c')}</script>`;
 
 /** Fields that are settings or file paths, not words to read. */
-const NOT_COPY = new Set(['type', 'id', 'from', 'to', 'label', 'side', 'src', 'poster', 'hex', 'sample', 'dark', 'warn', 'max', 'kind', 'live', 'focus', 'before', 'after', 'file', 'proof', 'pass', 'pick', 'source']);
+const NOT_COPY = new Set(['type', 'id', 'label', 'side', 'src', 'poster', 'hex', 'sample', 'dark', 'warn', 'max', 'kind', 'live', 'focus', 'before', 'after', 'file', 'proof', 'pass', 'pick', 'source', 'sig', 'code']);
+/** Fields that are settings in one block type and copy in another, by the types they are settings in: a route's
+    `from` and `to` are stop numbers, a morph's are its two sides in words. */
+const NOT_COPY_IN: Partial<Record<string, string[]>> = { route: ['from', 'to'] };
 /** The words in a value, in order: a block's copy without knowing the block. `*accents*` lose their marks. */
-function words(value: unknown): string {
-  if (Array.isArray(value)) return value.map(words).filter(Boolean).join(' · ');
-  if (value && typeof value === 'object') return Object.entries(value).filter(([k]) => !NOT_COPY.has(k)).map(([, v]) => words(v)).filter(Boolean).join(' · ');
-  return typeof value === 'string' || typeof value === 'number' ? String(value).replace(/\*/g, '') : '';
+function words(value: unknown, skip = NOT_COPY): string {
+  if (Array.isArray(value)) return value.map(v => words(v, skip)).filter(Boolean).join(' · ');
+  if (value && typeof value === 'object') return Object.entries(value).filter(([k]) => !skip.has(k)).map(([, v]) => words(v, skip)).filter(Boolean).join(' · ');
+  // a morph line's `{key}` ties it to a part of the screen; it is not copy
+  return typeof value === 'string' || typeof value === 'number' ? String(value).replace(/\*/g, '').replace(/^\{[\w-]+\}/, '') : '';
 }
 
 /** A block as plain HTML: its label as a heading, then each field as a paragraph or a list. Works for any block type. */
 function blockHtml(block: object) {
   const out: string[] = [];
+  const skip = new Set([...NOT_COPY, ...(NOT_COPY_IN['type' in block ? String(block.type) : ''] ?? [])]);
   if ('label' in block && block.label) out.push(`<h2>${esc(block.label)}</h2>`);
   for (const [key, value] of Object.entries(block)) {
-    if (NOT_COPY.has(key)) continue;
-    if (Array.isArray(value)) out.push(`<ul>${value.map(v => `<li>${esc(words(v))}</li>`).join('')}</ul>`);
-    else if (key === 'head') out.push(`<h3>${esc(words(value))}</h3>`);
-    else if (words(value)) out.push(`<p>${esc(words(value))}</p>`);
+    if (skip.has(key)) continue;
+    if (Array.isArray(value)) out.push(`<ul>${value.map(v => `<li>${esc(words(v, skip))}</li>`).join('')}</ul>`);
+    else if (key === 'head') out.push(`<h3>${esc(words(value, skip))}</h3>`);
+    else if (words(value, skip)) out.push(`<p>${esc(words(value, skip))}</p>`);
   }
   return out.join('');
 }
