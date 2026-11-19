@@ -1,15 +1,15 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { LIVE_NAMES } from './names';
+import { DASH_NAMES } from './names';
 import {
   ACCENTS, BENCH, CHANNELS, COST_PER_CUP, DASHES, HAND, breakEven, change, contrast, fmt, forMarks, funnel, month, palette, parseHex, profit,
   rentDay, sales, salesDash, send, shown, split, ticks, toHex, treemap, waterfall, type Kpi, type Part, WEEKS,
 } from './dash';
-import type { LiveName } from './names';
+import type { DashName } from './names';
 
 const sum = (v: number[]) => v.reduce((a, b) => a + b, 0);
 /** The first part of a kind on a live screen. */
-const part = <K extends Part['kind']>(name: LiveName, kind: K) => DASHES[name].parts.find((p): p is Extract<Part, { kind: K }> => p.kind === kind)!;
+const part = <K extends Part['kind']>(name: DashName, kind: K) => DASHES[name].parts.find((p): p is Extract<Part, { kind: K }> => p.kind === kind)!;
 
 void test('a split always adds up to its total', () => {
   assert.deepEqual(split(798, [412, 301, 85]), [412, 301, 85]);
@@ -123,7 +123,7 @@ void test('formats and ticks', () => {
 });
 
 void test('every live screen is a well-formed dashboard', () => {
-  for (const name of LIVE_NAMES) {
+  for (const name of DASH_NAMES) {
     const d = DASHES[name];
     const ids = d.parts.map((p) => p.id);
     const grid = (rows: string[]) => {

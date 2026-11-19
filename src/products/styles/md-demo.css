@@ -222,3 +222,10 @@ ol.mwd-list li::before { content: counter(mwd) '.'; position: absolute; left: -1
 .mwd-hand { position: absolute; left: 0; top: 0; z-index: 8; width: 1.5em; height: 2em; visibility: hidden; pointer-events: none; fill: var(--mwd-ink); stroke: var(--mwd-canvas); stroke-width: 1.1; stroke-linejoin: round; filter: drop-shadow(0 0.2em 0.3em var(--shadow)); }
 .mwd-click { position: absolute; left: 0; top: 0; z-index: 7; width: 2.6em; height: 2.6em; margin: -1.3em 0 0 -1.3em; border-radius: 50%; visibility: hidden; opacity: 0; pointer-events: none; box-shadow: inset 0 0 0 0.12em var(--mwd-ink), 0 0 0.8em color-mix(in oklch, var(--mwd-ink) 25%, transparent); }
 .mwd-glow { position: absolute; left: 0; top: 0; z-index: 3; width: 18em; height: 18em; margin: -9em 0 0 -9em; border-radius: 50%; pointer-events: none; opacity: 0; visibility: hidden; background: radial-gradient(closest-side, color-mix(in oklch, var(--mwd-ink) 8%, transparent), transparent); }
+
+/* ---------- a live screen: a document drawn as a page, filling its box ---------- */
+.mwd-live { position: absolute; inset: 0; overflow: hidden; container: mwd-live / size; background: var(--mwd-canvas); }
+.mwd-sheet { position: absolute; inset: 0; padding: 7% 9% 0; font-size: max(5px, 3.1cqw); line-height: 1.45; mask-image: linear-gradient(#000 82%, transparent); }
+.mwd-sheet .mwd-blk { margin-bottom: 0.7em; }
+.mwd-sheet .mwd-table :is(th, td) { padding: 0.35em 0.55em; }
+.mwd-sheet .mwd-dg { max-width: 16em; }

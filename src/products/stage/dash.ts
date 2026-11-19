@@ -1,7 +1,7 @@
 // bb Dashboards, drawn in code: what a dashboard is (a title and its parts), the five dashboards the page
 // shows, the channel and pricing maths, the plugin's colour maths, and the demo's state. No React here,
 // so it can be tested. All data is invented; Harbor Coffee's numbers are the plugin's own example program.
-import type { LiveName } from './names';
+import type { DashName } from './names';
 
 export type Fmt = 'usd' | 'usd2' | 'usdk' | 'int' | 'ms' | 'plus';
 export type Tone = 'good' | 'warn' | 'bad' | 'acc' | 'muted';
@@ -403,7 +403,7 @@ function salesShares(): Dash {
   return { ...d, parts: d.parts.map((x) => (x.id === 'b' ? donut : x)) };
 }
 
-export const DASHES: Record<LiveName, Dash> = {
+export const DASHES: Record<DashName, Dash> = {
   'dash:sales': salesShares(),
   'dash:branch': branchDash(),
   'dash:bench': benchDash(),
