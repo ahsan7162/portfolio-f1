@@ -5,6 +5,7 @@ const jira = '/products-media/jira-board';
 const usage = '/products-media/usage-explorer';
 const openui = '/products-media/openui-live-replies';
 const dash = '/products-media/bb-dashboards';
+const mw = '/products-media/markwright';
 
 export const products: Product[] = [
   {
@@ -218,6 +219,113 @@ export const products: Product[] = [
         label: 'Get it',
         note: 'Installs from its GitHub repository.',
         via: { kind: 'command', command: 'bb plugin install git:https://github.com/ahsan7162/bb-plugin-dashboards.git@^0.1.0' },
+      },
+    ],
+  },
+  {
+    slug: 'markwright',
+    brand: '#D29922',
+    name: 'Markwright',
+    lines: ['Markwright'],
+    kind: 'plugin',
+    year: 2026,
+    facts: ['for bb', 'v0.1', 'MIT'],
+    line: 'Edit any Markdown file in bb like a Notion page, and a save rewrites only the blocks you changed.',
+    hook: 'Why type Markdown at all?',
+    hint: 'Tick a box, or type / on an empty line, and watch the file underneath.',
+    stack: ['TypeScript', 'React', 'Tiptap 3', 'ProseMirror', 'highlight.js'],
+    stage: 'md-demo',
+    featured: true,
+    thumb: `${mw}/thumb.jpg`,
+    seo: {
+      title: 'Markwright: WYSIWYG Markdown Editor Plugin for bb',
+      description: 'Edit .md files in bb like a Notion page: a slash menu for tables, checklists, callouts, Mermaid diagrams and templates. Saves change only the blocks you edit.',
+      keywords: ['WYSIWYG Markdown editor', 'bb plugin', 'Mermaid', 'git diffs', 'slash menu', 'Markdown templates'],
+    },
+    links: [
+      { label: 'GitHub', href: 'https://github.com/ahsan7162/markwright' },
+      { label: 'bb', href: 'https://getbb.app' },
+    ],
+    blocks: [
+      {
+        type: 'scenes',
+        label: 'Watch it work',
+        note: 'Redrawn for this page, with invented content. Touch it to take over.',
+        scenes: [
+          { tab: 'Tick it', head: 'Click, don’t type.', cost: '1 line changed', caption: 'A tick in the document is one line in the file: - [ ] becomes - [x], written 800 ms after the click.' },
+          { tab: 'Insert it', head: 'Type / for anything.', cost: '3 lines added', caption: 'The / menu holds every block. A callout is written as GitHub writes one, > [!WARNING], and nothing else moves.' },
+          { tab: 'Draw it', head: 'Draw with text.', cost: '8 lines added', caption: 'A Mermaid diagram is a plain fence in the file. Edit diagram shows its source, and the diagram follows as you type.' },
+          { tab: 'Agents welcome', head: 'Nothing lost.', cost: '0 silent overwrites', caption: 'An agent’s change appears in place. If you have unsaved edits, the write is stopped and you choose: Compare, Use theirs or Keep mine.' },
+        ],
+      },
+      {
+        type: 'statement',
+        label: 'Why',
+        head: 'Markdown is easy to read and *fiddly to write*. Markwright lets you *write it like a document*, and git sees *only the blocks you touched*.',
+        body: 'Markwright is a WYSIWYG Markdown editor and a bb plugin: any .md file opens in the side panel as a page you edit like Word or Notion, with a slash menu for every block. The file on disk stays plain Markdown, and an agent can work in it while you do.',
+        points: [
+          'Type / for 39 blocks and templates',
+          'Live Mermaid diagrams, from eight starters',
+          'Tables you Tab through',
+          'Five GitHub callouts',
+          'Eleven Markdown templates, README to postmortem',
+          'Rich and Source, one click apart',
+        ],
+      },
+      {
+        type: 'stats',
+        stats: [
+          { value: '39', label: 'entries in the / menu' },
+          { value: '800', unit: 'ms', label: 'from your last keystroke to saved' },
+          { value: '0', label: 'bytes rewritten in blocks you didn’t touch' },
+        ],
+      },
+      {
+        type: 'keys',
+        label: 'Keyboard',
+        note: 'Markdown shortcuts still work as you type: # for a heading, - for a list, [ ] for a task, > for a quote, ``` for code.',
+        keys: [
+          { keys: ['⌘', 'B'], does: 'Bold.' },
+          { keys: ['⌘', 'I'], does: 'Italic.' },
+          { keys: ['⌘', '⇧', 'X'], does: 'Strikethrough.' },
+          { keys: ['⌘', 'E'], does: 'Inline code.' },
+          { keys: ['⌘', 'K'], does: 'Add or edit a link.' },
+          { keys: ['⌘', '\\'], does: 'Clear formatting.' },
+          { keys: ['⌘', '⌥', '1–6'], does: 'Heading 1 to 6.' },
+          { keys: ['Tab'], does: 'In a table, the next cell; in the last cell, a new row.' },
+          { keys: ['⌘', 'S'], does: 'Save at once, without waiting for autosave.' },
+        ],
+      },
+      {
+        type: 'faq',
+        label: 'Questions',
+        items: [
+          { q: 'Will it reformat my file?', a: 'No. A save rewrites only the blocks you changed, so git diffs stay small. Untouched blocks keep their exact bytes, including list markers, table padding, front matter, raw HTML and line endings, and opening a file never writes to it. A block you do edit is written out whole, in the editor’s own style.' },
+          { q: 'What if an agent edits the file while I’m in it?', a: 'Every write is compare-and-swap on the file’s SHA-256. With nothing unsaved, the agent’s change appears in place within about 3 seconds, without moving your cursor. With unsaved edits, autosave pauses and a banner offers Compare, Use theirs or Keep mine. Nothing is overwritten silently.' },
+          { q: 'Which files open read-only?', a: 'Files with footnotes, reference-style links, $$ math or MDX, files over 600 KB, and the rare block the editor can’t write back exactly. They open in bb’s normal preview with the reason and an Edit source button. Raw HTML is fine: it shows as source and is saved byte for byte.' },
+          { q: 'Can I still edit the Markdown itself?', a: 'Yes. The Rich | Source switch in the header shows the raw text, and the Markdown shortcuts still work in the rich view.' },
+          { q: 'Does anything leave my machine?', a: 'No. It reads and writes files through bb’s own file API, needs no account, API key or external service, and sends nothing off the machine.' },
+          { q: 'How do I make it the default for Markdown?', a: 'In Settings, under File openers, pick Markwright for md. For a single file, right-click its link and choose Open with, then Markwright.' },
+          { q: 'What does it tell my agent?', a: 'It ships a skill that tells the agent which Markdown stays editable (callouts, mermaid fences, pipe tables) and which turns rich editing off, and to make small, targeted edits to a file you have open.' },
+          { q: 'What if a save fails?', a: 'Your text is also kept in a local draft and offered back the next time you open the file.' },
+        ],
+      },
+      {
+        type: 'specs',
+        label: 'Requirements',
+        rows: [
+          { name: 'bb', value: '0.49 or later', note: 'Plugin SDK 0.6.132 or later.' },
+          { name: 'Opens', value: '.md and .markdown files', note: 'In a thread’s side panel, from a file link, the file picker or bb thread open.' },
+          { name: 'Saving', value: 'Autosave after 800 ms', note: '⌘S saves at once; a pending save is flushed when the tab loses focus or closes.' },
+          { name: 'Account', value: 'None', note: 'No API key or external service.' },
+          { name: 'Licence', value: 'MIT' },
+        ],
+      },
+      {
+        type: 'get',
+        label: 'Get it',
+        note: 'Requires bb 0.49 or later. Then open any .md file in a thread’s side panel.',
+        via: { kind: 'command', command: 'bb plugin install https://github.com/ahsan7162/markwright.git' },
       },
     ],
   },

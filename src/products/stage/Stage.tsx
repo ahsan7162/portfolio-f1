@@ -3,12 +3,13 @@ import type { DemoProps, Media, Product, StageKind } from '../types';
 import { DashDemo } from './DashDemo';
 import { BrowserFrame, PhoneFrame, Shot, WindowFrame } from './Frames';
 import { JiraDemo } from './JiraDemo';
+import { MdDemo } from './MdDemo';
 import { OpenUiDemo } from './OpenUiDemo';
 import { PrDemo } from './PrDemo';
 import '../styles/stage.css';
 
 /** What a live demo's number counts, as two short lines. A demo without an entry shows no number. */
-export const TALLY: Partial<Record<StageKind, [string, string]>> = { 'pr-demo': ['blockers', 'left'], 'dash-demo': ['model calls', 'so far'] };
+export const TALLY: Partial<Record<StageKind, [string, string]>> = { 'pr-demo': ['blockers', 'left'], 'dash-demo': ['model calls', 'so far'], 'md-demo': ['lines changed', 'in the file'] };
 
 /** A demo's tally words for a number: "1 line changed", "4 lines changed" (the first plural loses its s at 1). */
 export function tallyWords(stage: StageKind, n: number | null | undefined): [string, string] | undefined {
@@ -25,6 +26,7 @@ export function Stage({ product, active, onTally, scene }: { product: Product } 
     case 'jira-demo': return <JiraDemo active={active} onTally={onTally} />;
     case 'openui-demo': return <OpenUiDemo active={active} />;
     case 'dash-demo': return <DashDemo active={active} onTally={onTally} scene={scene} />;
+    case 'md-demo': return <MdDemo active={active} onTally={onTally} scene={scene} />;
     case 'window':
       return <WindowFrame className="stg-window" title={product.name}>{shot(0, { sample: v })}</WindowFrame>;
     case 'phone':

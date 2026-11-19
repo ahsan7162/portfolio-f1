@@ -11,7 +11,7 @@ export const KINDS: Record<Kind, { label: string; plural: string; tag: string; f
 };
 
 /** What sits on the product's stage: a live demo of the product, or a frame showing its screens. */
-export type StageKind = 'pr-demo' | 'jira-demo' | 'openui-demo' | 'dash-demo' | 'window' | 'phone' | 'browser';
+export type StageKind = 'pr-demo' | 'jira-demo' | 'openui-demo' | 'dash-demo' | 'md-demo' | 'window' | 'phone' | 'browser';
 
 export interface Screen { src: string; title: string; caption: string }
 

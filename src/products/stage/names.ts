@@ -5,4 +5,4 @@ export const LIVE_NAMES = ['dash:sales', 'dash:branch', 'dash:bench', 'dash:orde
 export type LiveName = (typeof LIVE_NAMES)[number];
 
 /** How many scenes a live demo can play by itself, by stage. A `scenes` block must have exactly this many. */
-export const SCENES: Partial<Record<string, number>> = { 'dash-demo': 4 };
+export const SCENES: Partial<Record<string, number>> = { 'dash-demo': 4, 'md-demo': 4 };
