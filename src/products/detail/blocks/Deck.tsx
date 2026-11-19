@@ -5,6 +5,7 @@ import { useId, useRef, useState, type CSSProperties, type KeyboardEvent } from 
 import { flushSync } from 'react-dom';
 import { Shot } from '../../stage/Frames';
 import { gsap, reducedMotion, useGSAP } from '../../motion';
+import { holdScroll } from '../../scroll';
 import { Label, useBlockMotion, type BlockProps } from './shared';
 import '../../styles/blocks-visual.css';
 
@@ -49,13 +50,14 @@ export function Deck({ block, product, n }: BlockProps<'deck'>) {
     const d = dialog.current;
     if (!d) return;
     d.showModal();
+    holdScroll(true);
     const [p, c] = [panel.current, cardEl(i)];
     if (p && c && !reducedMotion()) contextSafe(() => fly(p, c, false))();
   };
 
   const hide = () => {
     const [d, p, c] = [dialog.current, panel.current, open === null ? null : cardEl(open)];
-    const done = () => { d?.close(); setOpen(null); c?.focus({ preventScroll: true }); };
+    const done = () => { d?.close(); holdScroll(false); setOpen(null); c?.focus({ preventScroll: true }); };
     if (!d || !p || !c || reducedMotion()) { done(); return; }
     contextSafe(() => { void fly(p, c, true).then(done); })();
   };

@@ -4,6 +4,12 @@ import type Lenis from 'lenis';
 let lenis: Lenis | null = null;
 export function setLenis(l: Lenis | null) { lenis = l; }
 
+/** Holds the page still (a dialog is open over it), or lets it scroll again. */
+export function holdScroll(on: boolean) {
+  if (on) lenis?.stop();
+  else lenis?.start();
+}
+
 let jumping = false;
 /** True while the page is being scrolled somewhere on purpose (a button, a link), not by the visitor. */
 export const isJumping = () => jumping;
