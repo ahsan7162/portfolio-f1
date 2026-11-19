@@ -102,7 +102,8 @@ export function PrDemo({ active, onTally, scene }: DemoProps) {
       if (x.w.view !== 'list') return;
       const n = rows(x.w).flatMap(g => g.prs).length;
       if (e.key === 'j' || e.key === 'k') act(y => ({ ...y, focus: (y.focus + (e.key === 'j' ? 1 : n - 1)) % n }));
-      else if (e.key === 'Enter' && x.focus === 0) open();
+      // Enter on a control elsewhere on the page is that control's, not the list's.
+      else if (e.key === 'Enter' && x.focus === 0 && !(e.target as Element).closest('button, a, summary, [role=button], [role=tab]')) open();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
