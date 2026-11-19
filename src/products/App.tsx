@@ -1,6 +1,7 @@
 // The shell: picks the page from the URL, runs smooth scrolling, and wipes a curtain between pages.
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Lenis from 'lenis';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { markCovered, markRevealed } from './arrive';
 import { brandVars } from './brand';
 import { Cursor } from './Cursor';
@@ -101,6 +102,7 @@ export function App() {
       <div className="pp-curtain" ref={curtain} aria-hidden="true" data-branded={first.brand ? '' : undefined} style={first.brand ? brandVars(first.brand) : undefined}><span className="pp-display" ref={label}>{first.name}</span></div>
       <Cursor />
       <div className="pp-grain" aria-hidden="true" />
+      <SpeedInsights />
     </>
   );
 }
