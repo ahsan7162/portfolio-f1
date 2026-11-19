@@ -16,7 +16,7 @@ const esc = (s: unknown) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;
 const ld = (graph: object[]) => `<script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\\u003c')}</script>`;
 
 /** Fields that are settings or file paths, not words to read. */
-const NOT_COPY = new Set(['type', 'id', 'label', 'side', 'src', 'poster', 'hex', 'sample', 'dark', 'warn', 'max', 'kind', 'live', 'focus', 'before', 'after', 'file', 'proof', 'pass', 'pick', 'source', 'sig', 'code']);
+const NOT_COPY = new Set(['type', 'id', 'label', 'side', 'src', 'poster', 'hex', 'sample', 'dark', 'warn', 'max', 'kind', 'live', 'focus', 'before', 'after', 'file', 'proof', 'pass', 'pick', 'source', 'sig']);
 /** Fields that are settings in one block type and copy in another, by the types they are settings in: a route's
     `from` and `to` are stop numbers, a morph's are its two sides in words. */
 const NOT_COPY_IN: Partial<Record<string, string[]>> = { route: ['from', 'to'] };
