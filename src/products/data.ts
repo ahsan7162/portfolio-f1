@@ -1,4 +1,4 @@
-import { ROW_STATES } from './stage/jira';
+import { ROW_STATES } from './stage/jiraRowData';
 import { MW_CHECKS, MW_DIFF, MW_TESTS } from './stage/mwData.gen';
 import { DOCUMENT_TEMPLATES, fillTemplate } from './stage/mdTemplates';
 import type { LiveName } from './stage/names';

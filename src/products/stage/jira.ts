@@ -1,13 +1,11 @@
 // The Jira Board demo as data: an invented Jira site (acme-software), its workflow and its people, and the state
 // the demo's controls and scenes change. Pure, so jira.test.ts can check it. The list rules themselves (filters,
 // groupings, ages) are the plugin's own, in jiraRules.ts.
-import {
-  age, allIds, byBoard, byHierarchy, byStatus, catOf, ISSUE_KEY, matchesFilter, visibleKeys,
-  type Cat, type Group, type IssueNode, type Ticket,
-} from './jiraRules';
+import { allIds, byBoard, byHierarchy, byStatus, catOf, ISSUE_KEY, matchesFilter, visibleKeys, type Cat, type Group, type IssueNode, type Ticket } from './jiraRules';
+import { ageOf, D, H, iso, NOW, STATUS_CAT } from './jiraRowData';
 
-/** The demo's "now": ages are worked out from it, so the page reads the same on every visit. */
-export const NOW = Date.UTC(2026, 10, 19, 12, 0);
+export { ageOf, NOW, STATUS_CAT };
+
 export const SITES = ['acme-software', 'acme-labs'] as const;
 export type Site = (typeof SITES)[number];
 
@@ -27,7 +25,6 @@ export const PEOPLE: Person[] = [
 export const ME = 'jane';
 export const nameOf = (id: string | null) => (id === null ? null : (PEOPLE.find((p) => p.accountId === id)?.name ?? null));
 
-export const STATUS_CAT: Record<string, Cat> = { 'To Do': 'new', 'In Progress': 'indeterminate', 'In Review': 'indeterminate', Blocked: 'indeterminate', Done: 'done' };
 
 export interface Move { id: string; name: string; to: string }
 /** The moves the demo's workflow allows from each status. A move shows as its target, or "name → target" when they differ, as in the plugin. */
@@ -58,7 +55,6 @@ export interface Issue {
   comments?: { by: string; ago: number; body: string }[];
 }
 
-const H = 60, D = 24 * 60;
 type Row = [key: string, type: Issue['type'], summary: string, status: string, priority: string | null, parent: string | null, assignee: string | null, updated: number, created: number, desc: string];
 const ROWS: Row[] = [
   ['ACME-10', 'Initiative', 'Faster checkout', 'In Progress', 'High', null, 'priya', 3 * D, 62, 'Cut the time from cart to paid in half this quarter.'],
@@ -113,7 +109,6 @@ export const BOARDS = [
 
 const levelOf = (type: Issue['type']) => (type === 'Initiative' ? 2 : type === 'Epic' ? 1 : type === 'Sub-task' ? -1 : 0);
 const nodeOf = (i: Issue): IssueNode => ({ key: i.key, summary: i.summary, type: i.type, level: levelOf(i.type), status: i.status, category: STATUS_CAT[i.status] ?? 'new' });
-const iso = (minutesAgo: number) => new Date(NOW - minutesAgo * 60_000).toISOString();
 
 /** Walk up from an issue, nearest parent first. */
 export function ancestors(issues: Record<string, Issue>, key: string): IssueNode[] {
@@ -131,7 +126,6 @@ export function ticketOf(issues: Record<string, Issue>, key: string): Ticket {
     ancestors: chain, epic: lineage.find((n) => n.level === 1) ?? null, initiative: lineage.find((n) => n.level >= 2) ?? null,
   };
 }
-export const ageOf = (minutesAgo: number) => age(iso(minutesAgo), NOW);
 /** An issue's children, newest first, as the plugin's ticket view lists them (`parent = KEY`). */
 export const childrenOf = (issues: Record<string, Issue>, key: string) =>
   Object.values(issues).filter((i) => i.parent === key).sort((a, b) => a.updated - b.updated).map((i) => ticketOf(issues, i.key));
@@ -294,24 +288,3 @@ export function goalsMet(a: JState, b: JState): Goal[] {
   if (opened?.key === 'ACME-160' && typedKey(a) === 'ACME-160') out.push('search');
   return out;
 }
-
-// ---------- one row, taken apart (the anatomy block's jira:row screen) ----------
-
-/** The parts of a row, in reading order, and the states the drawing can show each one in. */
-export const ROW_TYPES = ['Initiative', 'Epic', 'Story', 'Task', 'Bug', 'Security', 'Sub-task'] as const;
-export const ROW_STATUS = ['To Do', 'In Progress', 'Done'] as const;
-export const ROW_PRIORITY = ['Highest', 'High', 'Medium', 'Low', 'Lowest'] as const;
-/** Minutes before NOW: 5m, 3h, 36d, Apr 18, Apr 2025 as the plugin writes them. */
-export const ROW_AGES = [5, 3 * H, 36 * D, 215 * D, 580 * D] as const;
-/** The ticket the row shows. */
-export const ACME = 'ACME-124';
-export const ROW_STATES = {
-  type: [...ROW_TYPES],
-  key: [],
-  title: [],
-  parent: ['Its epic', 'Via a parent, on a board'],
-  status: [...ROW_STATUS],
-  priority: [...ROW_PRIORITY],
-  age: ROW_AGES.map(ageOf),
-} satisfies Record<string, string[]>;
-export type RowPart = keyof typeof ROW_STATES;

@@ -4,6 +4,7 @@ import {
   ageOf, assign, assignable, BOARDS, childrenOf, counts, escape, fresh, goalsMet, groupsOf, ISSUES, listOf, ME, mine, moveLabel, movesOf,
   openTicket, orderOf, positionOf, setGroup, setQuery, statusOptions, step, tally, ticketOf, transition, typedKey, up,
 } from './jira';
+import { ROW_AGE, ROW_TICKET } from './jiraRowData';
 
 const keys = (n: number, s = fresh()) => Array.from({ length: n }).reduce<typeof s>((x) => step(x, 1), s);
 
@@ -106,6 +107,11 @@ void test('Esc: the menu, then the ticket, then the search', () => {
 void test('ages read as the plugin writes them', () => {
   assert.deepEqual([35, 4 * 60, 24 * 60, 6 * 1440, 36 * 1440, 80 * 1440].map(ageOf), ['35m', '4h', '24h', '6d', '36d', 'Aug 31']);
   assert.equal(ageOf(19 * 30 * 1440), 'Apr 2025');
+});
+
+void test('the anatomy row is ACME-124 as the site has it', () => {
+  assert.deepEqual(ROW_TICKET, ticketOf(ISSUES, 'ACME-124'));
+  assert.equal(ISSUES['ACME-124'].updated, ROW_AGE);
 });
 
 void test('every parent exists, and children are listed for the ticket view', () => {
