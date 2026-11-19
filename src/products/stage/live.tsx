@@ -3,6 +3,7 @@ import type { ComponentType } from 'react';
 import type { LiveProps } from '../types';
 import { DASHES } from './dash';
 import { DashView } from './DashView';
+import { JiraRow } from './JiraRow';
 import { MdPage } from './MdPage';
 import type { DashName, LiveName } from './names';
 
@@ -27,6 +28,7 @@ const LIVE: Record<LiveName, ComponentType<LiveProps>> = {
   'md:tpl-pr-description': page('pr-description'),
   'md:tpl-postmortem': page('postmortem'),
   'md:tpl-weekly-status': page('weekly-status'),
+  'jira:row': JiraRow,
 };
 
 export function LiveScreen({ name, ...props }: LiveProps & { name: LiveName }) {

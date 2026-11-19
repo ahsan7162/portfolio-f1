@@ -6,6 +6,8 @@ export const LIVE_NAMES = [
   // Markwright's document templates, each drawn as the page it starts
   'md:tpl-readme', 'md:tpl-meeting-notes', 'md:tpl-adr', 'md:tpl-prd', 'md:tpl-rfc', 'md:tpl-changelog',
   'md:tpl-bug-report', 'md:tpl-runbook', 'md:tpl-pr-description', 'md:tpl-postmortem', 'md:tpl-weekly-status',
+  // Jira Board: one ticket row, drawn large, for the anatomy block
+  'jira:row',
 ] as const;
 export type LiveName = (typeof LIVE_NAMES)[number];
 /** The live screens that are bb Dashboards dashboards. */

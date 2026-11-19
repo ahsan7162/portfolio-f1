@@ -34,6 +34,9 @@ export interface LiveProps {
   active: boolean;
   /** What the screen shows, for a screen reader: the drawing itself is decorative. */
   alt: string;
+  /** For a screen taken apart (the anatomy block): the part to show, and which of its states. */
+  part?: string;
+  state?: number;
 }
 
 /**
@@ -120,6 +123,15 @@ export type Block =
   | { type: 'checks'; label: string; head?: string; note?: string; steps: string[]; items: { name: string; pass: boolean; detail: string; proof?: string }[]; total?: { value: string; label: string } }
   /** A hand of cards that fans out; pick one and it opens full size. `source` is the text behind a card, shown by the second of `views`. */
   | { type: 'deck'; label: string; head?: string; note?: string; views?: [string, string]; cards: { title: string; body: string; media: Media; source?: string }[] }
+  /**
+   * One screen or object drawn large and taken apart: its parts numbered above it. Hover previews a part, a click
+   * pins it, and a pinned part plays its `states` in the drawing. A live screen marks each part with data-part="<id>"
+   * and draws the `part` and `state` it is given; an image gives each part an `at` box (0 to 1). `start` is the part pinned first.
+   */
+  | {
+      type: 'anatomy'; label: string; head?: string; note?: string; media: Media; start?: string;
+      parts: { id: string; name: string; body: string; states?: string[]; at?: { x: number; y: number; w: number; h: number } }[];
+    }
   | { type: 'get'; label: string; note: string; via: { kind: 'command'; command: string } | { kind: 'stores' } | { kind: 'link'; href: string; label: string } };
 
 export type BlockOf<T extends Block['type']> = Extract<Block, { type: T }>;

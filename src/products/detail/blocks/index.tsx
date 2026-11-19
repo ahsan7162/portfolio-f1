@@ -6,6 +6,7 @@ import { Features } from './Features';
 import { Split } from './Split';
 import { Showcase } from './Showcase';
 import { Compare } from './Compare';
+import { Anatomy } from './Anatomy';
 import { Bento } from './Bento';
 import { Cases } from './Cases';
 import { Chips } from './Chips';
@@ -65,6 +66,7 @@ const registry: { [K in Block['type']]: ComponentType<BlockProps<K>> } = {
   checks: Checks,
   deck: Deck,
   scenes: Scenes,
+  anatomy: Anatomy,
 };
 
 function One<K extends Block['type']>({ block, product, n }: { block: BlockOf<K>; product: Product; n?: string }) {

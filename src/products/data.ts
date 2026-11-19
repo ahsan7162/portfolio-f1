@@ -1,3 +1,4 @@
+import { ROW_STATES } from './stage/jira';
 import { MW_CHECKS, MW_DIFF, MW_TESTS } from './stage/mwData.gen';
 import { DOCUMENT_TEMPLATES, fillTemplate } from './stage/mdTemplates';
 import type { LiveName } from './stage/names';
@@ -617,6 +618,22 @@ export const products: Product[] = [
           'Change status in place',
           'Move by keyboard',
           'Any Jira Cloud site',
+        ],
+      },
+      {
+        type: 'anatomy',
+        label: 'Read a row',
+        head: 'Every colour on a row means one thing.',
+        media: { live: 'jira:row', alt: 'One Jira Board row: a bug, ACME-124, Promo code field clears when the address changes, in the One-page checkout epic, in progress, Highest priority, 35 minutes old' },
+        start: 'status',
+        parts: [
+          { id: 'type', name: 'Type', body: 'Each issue type keeps Jira’s own hue and its own glyph, so a bug reads as a bug before you read a word.', states: ROW_STATES.type },
+          { id: 'key', name: 'Key', body: 'In mono, so keys line up down the list. Type one that isn’t listed into search and it offers to open it anyway.' },
+          { id: 'title', name: 'Title', body: 'The loudest thing on the row. Everything else steps back, so the list reads top to bottom.' },
+          { id: 'parent', name: 'Parent', body: 'A subtask names its task, a task its epic, an epic its initiative. Grouped by board, a ticket no board lists names the parent that put it there.', states: ROW_STATES.parent },
+          { id: 'status', name: 'Status', body: 'A ring for each category: empty for to do, half for in progress, filled with a check for done. Click it, or press S, for the moves your workflow allows.', states: ROW_STATES.status },
+          { id: 'priority', name: 'Priority', body: 'Highest and High as a tinted tag with their name; Medium, Low and Lowest as the coloured glyph alone, named on hover.', states: ROW_STATES.priority },
+          { id: 'age', name: 'Age', body: 'Minutes, then hours, then days, then the date. A ticket from last year shows the year.', states: ROW_STATES.age },
         ],
       },
       {

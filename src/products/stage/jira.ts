@@ -294,3 +294,24 @@ export function goalsMet(a: JState, b: JState): Goal[] {
   if (opened?.key === 'ACME-160' && typedKey(a) === 'ACME-160') out.push('search');
   return out;
 }
+
+// ---------- one row, taken apart (the anatomy block's jira:row screen) ----------
+
+/** The parts of a row, in reading order, and the states the drawing can show each one in. */
+export const ROW_TYPES = ['Initiative', 'Epic', 'Story', 'Task', 'Bug', 'Security', 'Sub-task'] as const;
+export const ROW_STATUS = ['To Do', 'In Progress', 'Done'] as const;
+export const ROW_PRIORITY = ['Highest', 'High', 'Medium', 'Low', 'Lowest'] as const;
+/** Minutes before NOW: 5m, 3h, 36d, Apr 18, Apr 2025 as the plugin writes them. */
+export const ROW_AGES = [5, 3 * H, 36 * D, 215 * D, 580 * D] as const;
+/** The ticket the row shows. */
+export const ACME = 'ACME-124';
+export const ROW_STATES = {
+  type: [...ROW_TYPES],
+  key: [],
+  title: [],
+  parent: ['Its epic', 'Via a parent, on a board'],
+  status: [...ROW_STATUS],
+  priority: [...ROW_PRIORITY],
+  age: ROW_AGES.map(ageOf),
+} satisfies Record<string, string[]>;
+export type RowPart = keyof typeof ROW_STATES;

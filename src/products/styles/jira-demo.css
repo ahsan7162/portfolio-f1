@@ -304,6 +304,7 @@
 .jbd-live .jbd-st .jbd-ring { width: 0.85em; height: 0.85em; }
 .jbd-live .jbd-ty svg { width: 0.85em; height: 0.85em; }
 .jbd-live [data-part] { transition: opacity 0.3s var(--ease); }
-.jbd-live[data-pinned] [data-part]:not([data-on]) { opacity: 0.22; }
+.jbd-live[data-show] [data-part] { opacity: 0.2; }
+.jbd-live[data-show='type'] [data-part='type'], .jbd-live[data-show='key'] [data-part='key'], .jbd-live[data-show='title'] [data-part='title'], .jbd-live[data-show='parent'] [data-part='parent'], .jbd-live[data-show='status'] [data-part='status'], .jbd-live[data-show='priority'] [data-part='priority'], .jbd-live[data-show='age'] [data-part='age'] { opacity: 1; }
 /* narrow: the second toolbar row wraps, as the plugin's does */
 @container jbd (max-width: 859px) { .jbd-row2 { flex-wrap: wrap; row-gap: 0.4em; } }
