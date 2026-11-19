@@ -1,6 +1,6 @@
 // PR Dashboard drawn in code: the pieces its demo and its blocks (rules, compose, replay) draw with. A lookalike
 // of the plugin in bb's dark theme, on its own tokens (MASTER.md); styles in pr-demo.css under `prd-`.
-import type { ReactNode } from 'react';
+import type { ReactNode, Ref } from 'react';
 import { FINDINGS, PR, THREAD, type FindingKey } from './prSample';
 import { readyLabel, type PrFacts, type Tone } from './pr';
 import '../styles/pr-demo.css';
@@ -87,9 +87,9 @@ const RAIL: GlyphName[] = ['home', 'zap', 'book', 'layers', 'grid'];
 export const RailMe = ({ badge }: { badge?: number }) => (
   <span className="prd-rail-me"><G n="pr" />{badge ? <span className="prd-badge" key={badge}>{badge}</span> : null}</span>
 );
-export function Win({ title = 'My PRs', badge, children, over, top }: { title?: string; badge?: number; children: ReactNode; over?: ReactNode; top?: ReactNode }) {
+export function Win({ title = 'My PRs', badge, children, over, top, winRef }: { title?: string; badge?: number; children: ReactNode; over?: ReactNode; top?: ReactNode; winRef?: Ref<HTMLDivElement> }) {
   return (
-    <div className="prd-win">
+    <div className="prd-win" ref={winRef}>
       <div className="prd-rail" aria-hidden="true">{RAIL.map(n => <G key={n} n={n} />)}<RailMe badge={badge} /><span className="prd-rail-gap" /><G n="gear" /></div>
       <div className="prd-top"><G n="pr" />{title}{top}<span className="prd-top-end"><G n="sliders" /></span></div>
       <div className="prd-page">{children}</div>

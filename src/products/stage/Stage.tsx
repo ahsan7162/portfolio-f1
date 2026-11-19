@@ -26,7 +26,7 @@ const OUI_HOLD = <div className="oud" aria-hidden="true"><div className="oud-cam
 const MdDemo = lazy(() => import('./MdDemo').then(m => ({ default: m.MdDemo })));
 const MD_HOLD = <div className="mwd"><div className="mwd-cam"><div className="mwd-win" /></div></div>;
 const PrDemo = lazy(() => import('./PrDemo').then(m => ({ default: m.PrDemo })));
-const PR_HOLD = <div className="prd"><div className="prd-cam"><div><div className="prd-win" /></div></div></div>;
+const PR_HOLD = <div className="prd"><div className="prd-cam"><div className="prd-win" /></div></div>;
 
 /** What a live demo's number counts, as two short lines. A demo without an entry shows no number. */
 export const TALLY: Partial<Record<StageKind, [string, string]>> = { 'pr-demo': ['blockers', 'left'], 'dash-demo': ['model calls', 'so far'], 'md-demo': ['lines changed', 'in the file'], 'jira-demo': ['tickets', 'open'], 'openui-demo': ['words sent', 'without typing'] };

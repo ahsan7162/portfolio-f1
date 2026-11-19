@@ -214,8 +214,7 @@ export function PrDemo({ active, onTally, scene }: DemoProps) {
   return (
     <div className="prd prd-demo" ref={root} data-film={film ? '' : undefined} onClickCapture={takeOver} onKeyDownCapture={takeOver}>
       <div className="prd-cam" ref={cam}>
-        <div ref={win}>
-          <Win badge={ui.banner ? 1 : 0} top={changed && !film ? <button type="button" className="prd-again" onClick={again}>Start over</button> : null} over={<>
+          <Win winRef={win} badge={ui.banner ? 1 : 0} top={changed && !film ? <button type="button" className="prd-again" onClick={again}>Start over</button> : null} over={<>
             {ui.thread && <ThreadPanel prompt={ui.prompt} steps={steps.slice(0, Math.max(1, Math.min(steps.length, ui.steps + 1)))}><button type="button" className="prd-x" aria-label="Close the thread" onClick={() => act(x => ({ ...x, thread: false }))}>✕</button></ThreadPanel>}
             {w.picked.length > 0 && (
               <div className="prd-batch">
@@ -233,7 +232,6 @@ export function PrDemo({ active, onTally, scene }: DemoProps) {
             <i className="prd-click" data-click="" aria-hidden="true" />
             <svg className="prd-hand" viewBox="0 0 14 19" aria-hidden="true"><path d="M1 1v14.5l3.6-3.3 2.7 6 2.4-1.1-2.6-5.8H12z" /></svg>
           </>}>{page}</Win>
-        </div>
       </div>
     </div>
   );
