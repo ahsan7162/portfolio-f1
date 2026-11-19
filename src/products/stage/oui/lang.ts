@@ -6,7 +6,7 @@
 import { OUI_AVAILABLE, OUI_CHECK_SIG, OUI_PARAMS } from './check.gen';
 
 /** A component call. `props` are its arguments by name, in the order the component declares them. */
-export interface El { el: string; args: Val[]; props: Record<string, Val> }
+export interface El { el: string; args: Val[]; props: Record<string, Val>; /** The statement it was written in, when it has one of its own. */ id?: string }
 /** A name that was used: resolved, it becomes what its statement holds. */
 export interface Ref { ref: string }
 
@@ -122,7 +122,8 @@ export function resolve(src: string): Val {
       if (v.ref.startsWith('$')) return null;
       const def = defs.get(v.ref);
       if (def === undefined || seen.has(v.ref)) return PENDING;
-      return walk(def, new Set(seen).add(v.ref));
+      const out = walk(def, new Set(seen).add(v.ref));
+      return isEl(out) ? { ...out, id: v.ref } : out;
     }
     if (Array.isArray(v)) return v.map((x) => walk(x, seen));
     if (isEl(v)) {
@@ -133,7 +134,9 @@ export function resolve(src: string): Val {
     return v;
   };
   const root = defs.get('root');
-  return root === undefined ? PENDING : walk(root, new Set(['root']));
+  if (root === undefined) return PENDING;
+  const out = walk(root, new Set(['root']));
+  return isEl(out) ? { ...out, id: 'root' } : out;
 }
 
 /** What a declared type admits, for the checks check_openui makes: a primitive, or a choice of strings. */
