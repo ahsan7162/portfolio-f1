@@ -1,6 +1,6 @@
 // The product's live demo playing itself through named scenes, a tab per scene; the reader can take it over at any point.
 // Each scene lands its headline and its cost tag; the demo says when the cost is spent (a bubbling `scene-cost` event).
-import { useId, useRef, useState, type ReactNode, type RefObject } from 'react';
+import { useEffect, useId, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { gsap, reducedMotion, SplitText, useGSAP } from '../../motion';
 import { Stage, tallyWords } from '../../stage/Stage';
 import { Ask, HOLD_SCENE, PauseButton, RotTabs } from './Cases';
@@ -77,6 +77,13 @@ export function Scenes({ block, product, n }: BlockProps<'scenes'>) {
   // Using the demo itself is taking over: the scene stops being driven, the reader drives.
   // A click, not a pointer down: a finger scrolling the page across the demo must not count.
   const take = () => { if (playing) r.take(); };
+  // A demo that hears keys on the whole page says so with a bubbling `scene-take`, since those keys never pass through the stage.
+  useEffect(() => {
+    const el = root.current;
+    if (!el) return;
+    el.addEventListener('scene-take', take);
+    return () => el.removeEventListener('scene-take', take);
+  });
   // Each row of the block keeps one item per scene in a single cell, so it never changes height.
   const items = (render: (s: (typeof block.scenes)[number], i: number) => ReactNode) => block.scenes.map((s, i) => (
     <div key={s.tab} className="bv-rot-item" data-scene={i} data-on={i === r.index || undefined} inert={i !== r.index}>{render(s, i)}</div>

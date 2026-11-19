@@ -175,7 +175,9 @@ export const fresh = (): JState => ({
 });
 
 /** My Tickets: assigned to me, in the tab's scope, newest update first (the plugin's JQL). */
-export function mine(s: Pick<JState, 'issues'>, scope: Scope): Ticket[] {
+export function mine(s: Pick<JState, 'issues' | 'site'>, scope: Scope): Ticket[] {
+  // the second site has nothing for Jane, so it shows the plugin's empty state
+  if (s.site !== 'acme-software') return [];
   return Object.values(s.issues)
     .filter((i) => i.assignee === ME && (STATUS_CAT[i.status] === 'done') === (scope === 'done'))
     .sort((a, b) => a.updated - b.updated)

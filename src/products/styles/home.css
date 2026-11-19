@@ -34,6 +34,7 @@
 .ft-stage[data-stage='browser'], .ft-stage[data-stage='window'] { width: min(96%, 660px); }
 .ft-stage[data-stage='dash-demo'] { width: min(100%, 680px); }
 .ft-stage[data-stage='md-demo'] { width: min(100%, 700px); }
+.ft-stage[data-stage='jira-demo'] { width: min(100%, 700px); }
 .ft-glow { position: absolute; inset: -22%; border-radius: 50%; z-index: -1; pointer-events: none; background: radial-gradient(closest-side, color-mix(in srgb, var(--acc) 17%, transparent), transparent 72%); }
 .ft-tilt { transform-style: preserve-3d; will-change: transform; }
 .ft-stamp {

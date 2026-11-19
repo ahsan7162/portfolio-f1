@@ -9,7 +9,7 @@ import { PrDemo } from './PrDemo';
 import '../styles/stage.css';
 
 /** What a live demo's number counts, as two short lines. A demo without an entry shows no number. */
-export const TALLY: Partial<Record<StageKind, [string, string]>> = { 'pr-demo': ['blockers', 'left'], 'dash-demo': ['model calls', 'so far'], 'md-demo': ['lines changed', 'in the file'] };
+export const TALLY: Partial<Record<StageKind, [string, string]>> = { 'pr-demo': ['blockers', 'left'], 'dash-demo': ['model calls', 'so far'], 'md-demo': ['lines changed', 'in the file'], 'jira-demo': ['tickets', 'open'] };
 
 /** A demo's tally words for a number: "1 line changed", "4 lines changed" (the first plural loses its s at 1). */
 export function tallyWords(stage: StageKind, n: number | null | undefined): [string, string] | undefined {
@@ -23,7 +23,7 @@ export function Stage({ product, active, onTally, scene }: { product: Product } 
   const shot = (i: number, standIn: Media) => <Shot media={product.shots?.[i] ?? standIn} kind={product.kind} />;
   switch (product.stage) {
     case 'pr-demo': return <PrDemo active={active} onTally={onTally} />;
-    case 'jira-demo': return <JiraDemo active={active} onTally={onTally} />;
+    case 'jira-demo': return <JiraDemo active={active} onTally={onTally} scene={scene} />;
     case 'openui-demo': return <OpenUiDemo active={active} />;
     case 'dash-demo': return <DashDemo active={active} onTally={onTally} scene={scene} />;
     case 'md-demo': return <MdDemo active={active} onTally={onTally} scene={scene} />;

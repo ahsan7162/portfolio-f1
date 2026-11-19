@@ -58,6 +58,7 @@
 .dt-stage--browser, .dt-stage--window { max-width: 1240px; }
 .dt-stage--dash-demo { max-width: 1040px; }
 .dt-stage--md-demo { max-width: 1120px; }
+.dt-stage--jira-demo { max-width: 1120px; }
 .dt-hint { position: relative; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px 14px; margin-top: 28px; color: var(--dim); text-align: center; }
 .dt-live { width: 8px; height: 8px; border-radius: 50%; background: var(--acc); box-shadow: 0 0 0 4px color-mix(in srgb, var(--acc) 22%, transparent); }
 .dt-tally { color: var(--acc); }
