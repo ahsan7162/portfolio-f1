@@ -64,6 +64,8 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (id.includes('node_modules/three')) return 'three';
+          // Plugins only one page uses (products: Draggable, Inertia; portfolio: DrawSVG, MotionPath) stay with that page.
+          if (/node_modules\/gsap\/(Draggable|InertiaPlugin|utils\/VelocityTracker|DrawSVGPlugin|MotionPathPlugin|utils\/paths)\.js/.test(id)) return;
           if (id.includes('node_modules/gsap') || id.includes('node_modules/lenis')) return 'motion-core';
         },
       },
