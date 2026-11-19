@@ -41,7 +41,7 @@ export const RULES: Record<RuleSetName, RuleSet> = {
       const facts = prUnder(v);
       const blockers = blockersOf(facts);
       return (
-        <div className="prd-rows">
+        <div className="prd-rows prd-rows--big">
           <Row pr={{ number: PR.number, title: PR.title, additions: 186, deletions: 42, updated: '26m ago', facts, blockers, tone: rowTone(facts, blockers), draft: facts.isDraft, jobs: facts.ci === 'failing' ? ['test › unit', 'ci › lint'] : undefined }} focused />
         </div>
       );

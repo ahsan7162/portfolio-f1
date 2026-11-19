@@ -269,3 +269,8 @@ button.prd-row:hover > .prd-spine, .prd-row[data-focus] > .prd-spine { transform
 .prd-push .prd-app-ic { width: 2.2em; height: 2.2em; }
 @media (max-width: 639px) { .prd-reach { grid-template-columns: minmax(0, 1fr); } }
 @media (prefers-reduced-motion: reduce) { .prd-badge, .prd-stat b, .prd-toasts--flow .prd-toast, .prd-push { animation: none; } }
+/* the rules block's row, drawn large */
+.prd-rows--big { background: var(--c-ground); box-shadow: inset 0 0 0 1px var(--c-border), 0 2em 4em -1em var(--shadow-deep); }
+.prd-rows--big .prd-row { padding: 1.1em 1.4em 1.1em 1.7em; min-height: 9.4em; }
+.prd-rows--big .prd-pill { animation: prd-pop 0.45s var(--prd-spring); }
+@media (prefers-reduced-motion: reduce) { .prd-rows--big .prd-pill { animation: none; } }
