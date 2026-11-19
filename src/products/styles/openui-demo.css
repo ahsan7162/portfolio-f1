@@ -52,19 +52,13 @@
   color: var(--oud-dim); font-family: var(--mono); font-size: 0.8em; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; font-variant-ligatures: none;
 }
 .oud-src code { font: inherit; }
+/* The render line: shown only while the program streams in, sweeping across as it arrives. */
 .oud-seam {
-  position: absolute; top: 0; bottom: 0; left: calc(var(--x) * 100%); z-index: 2; width: 0.14em; margin-left: -0.07em;
-  background: var(--oud-acc); box-shadow: 0 0 1.2em 0.1em color-mix(in oklch, var(--oud-acc) 55%, transparent); cursor: ew-resize; touch-action: none;
+  position: absolute; top: 0; bottom: 0; left: calc(var(--x) * 100%); z-index: 2; width: 0.14em; margin-left: -0.07em; pointer-events: none;
+  background: var(--oud-acc); box-shadow: 0 0 1.2em 0.1em color-mix(in oklch, var(--oud-acc) 55%, transparent);
 }
-.oud-seam i {
-  position: absolute; top: 50%; left: 50%; display: grid; place-items: center; width: 2.3em; height: 2.3em; margin: -1.15em 0 0 -1.15em; border-radius: 50%;
-  background: var(--oud-acc); color: #000000; font-style: normal; font-size: 0.8em; font-weight: 700; opacity: 0; transition: opacity 0.2s;
-}
-/* At rest the line waits at the right edge, a handle showing; while streaming it is the render line, sweeping. */
-.oud-block:not([data-streaming]) .oud-seam i { opacity: 1; }
+/* Reply and Code wipe into each other along the same line */
 .oud-block:not([data-streaming]) .oud-layers { transition: --x 0.55s cubic-bezier(0.65, 0, 0.35, 1); }
-.oud-block:not([data-streaming]) .oud-seam { box-shadow: none; opacity: 0.9; }
-@media (pointer: coarse) { .oud-seam { pointer-events: none; } .oud-seam i { display: none; } }
 @media (prefers-reduced-motion: reduce) { .oud-layers { transition: none !important; } }
 
 /* Edit: the program beside the reply it draws */

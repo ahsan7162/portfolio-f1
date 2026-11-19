@@ -920,7 +920,7 @@ export const products: Product[] = [
     facts: ['for bb', 'any agent', 'v0.1', 'MIT'],
     line: 'Any agent in bb answers in live UI: plans you approve, decisions you tune, quizzes and forms, and your click goes back as your next message.',
     hook: 'Why read a reply you could click?',
-    hint: 'Tune the weights, then answer with a click. Or drag the line on a reply to see the program behind it.',
+    hint: 'Tune the weights, then answer with a click. Or pick Code on a reply to see the program behind it.',
     stack: ['TypeScript', 'React', 'OpenUI Lang', 'Zod'],
     featured: true,
     stage: 'openui-demo',

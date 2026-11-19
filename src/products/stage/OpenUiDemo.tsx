@@ -1,8 +1,9 @@
 // OpenUI Live Replies, playable: a bb thread where the agent's reply is a block you use, and a click in it is
-// your next message. Each block has the render line, the page's x-ray: drag it (or pick Code) to see the
-// openui-lang program behind the reply, or Edit the program and watch the reply redraw, with problems listed in
-// check_openui's words. Given a `scene`, the demo plays it (ouiScenes.ts) and the visitor can take over.
-import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as RPointerEvent } from 'react';
+// your next message. As a block streams in, the render line sweeps across it, the program on one side and the
+// reply it draws on the other. Code shows the openui-lang program behind a reply; Edit changes it and the reply
+// redraws, with problems listed in check_openui's words. Given a `scene`, the demo plays it (ouiScenes.ts) and the
+// visitor can take over.
+import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { flushSync } from 'react-dom';
 import { gsap, reducedMotion, useGSAP } from '../motion';
 import type { DemoProps } from '../types';
@@ -41,18 +42,12 @@ function Block({ program, t, ask }: { program: string; t: number; ask: (text: st
   const streaming = text.length < program.length;
   const [view, setView] = useState<View>('reply');
   const [edit, setEdit] = useState(program);
-  const [x, setX] = useState<number | null>(null); // a dragged render line, 0 to 1
-  const layers = useRef<HTMLDivElement>(null);
   const id = useId();
   const src = view === 'edit' ? edit : text;
   const problems = useMemo(() => (view === 'edit' ? check(edit) : ''), [view, edit]);
   const renders = !isPending(resolve(src));
-  const at = streaming ? text.length / program.length : view === 'code' ? 0 : x ?? 1;
-
-  const drag = (ev: RPointerEvent<HTMLElement>) => {
-    const box = layers.current?.getBoundingClientRect();
-    if (box) setX(Math.min(1, Math.max(0, (ev.clientX - box.left) / box.width)));
-  };
+  // Where the render line stands: it sweeps across as the program streams in; after that, Code moves it all the way left.
+  const at = streaming ? text.length / program.length : view === 'code' ? 0 : 1;
 
   return (
     <div className="oud-block" data-view={view} data-streaming={streaming || undefined}>
@@ -61,7 +56,7 @@ function Block({ program, t, ask }: { program: string; t: number; ask: (text: st
         <span className="oud-seg" role="group" aria-label="Show the block as">
           {(['reply', 'code', 'edit'] as const).map((v) => (
             <button key={v} type="button" aria-pressed={view === v} disabled={streaming}
-              onClick={() => { setView(v); setX(null); if (v === 'edit') setEdit(program); }}>{v === 'reply' ? 'Reply' : v === 'code' ? 'Code' : 'Edit'}</button>
+              onClick={() => { setView(v); if (v === 'edit') setEdit(program); }}>{v === 'reply' ? 'Reply' : v === 'code' ? 'Code' : 'Edit'}</button>
           ))}
         </span>
       </div>
@@ -78,16 +73,10 @@ function Block({ program, t, ask }: { program: string; t: number; ask: (text: st
           </div>
         </div>
       ) : (
-        <div className="oud-layers" ref={layers} style={{ '--x': at } as Vars}>
+        <div className="oud-layers" style={{ '--x': at } as Vars}>
           <div className="oud-ui" inert={at < 0.02}><OuiBlock src={text} streaming={streaming} ask={ask} /></div>
           <pre className="oud-src" aria-hidden={at > 0.98}><code>{text}</code></pre>
-          <span className="oud-seam" role="slider" tabIndex={streaming ? -1 : 0} aria-label="Render line: drag to see the program behind the reply"
-            aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(at * 100)}
-            onPointerDown={(ev) => { if (streaming || ev.pointerType === 'touch') return; ev.currentTarget.setPointerCapture(ev.pointerId); drag(ev); }}
-            onPointerMove={(ev) => { if (ev.currentTarget.hasPointerCapture(ev.pointerId)) drag(ev); }}
-            onKeyDown={(ev) => { const d = ev.key === 'ArrowLeft' ? -0.1 : ev.key === 'ArrowRight' ? 0.1 : 0; if (d) { ev.preventDefault(); setX(Math.min(1, Math.max(0, at + d))); } }}>
-            <i aria-hidden="true">⟨⟩</i>
-          </span>
+          {streaming && <i className="oud-seam" aria-hidden="true" />}
         </div>
       )}
     </div>
