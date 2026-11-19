@@ -1,3 +1,6 @@
+import { MW_CHECKS, MW_DIFF, MW_TESTS } from './stage/mwData.gen';
+import { DOCUMENT_TEMPLATES, fillTemplate } from './stage/mdTemplates';
+import type { LiveName } from './stage/names';
 import type { Product } from './types';
 
 const pr = '/products-media/pr-dashboard';
@@ -273,12 +276,79 @@ export const products: Product[] = [
         ],
       },
       {
+        type: 'diff',
+        label: 'What git sees',
+        head: 'One sentence added. Saved two ways.',
+        file: 'rollout-notes.md',
+        edit: 'A sentence added to one paragraph of a file written in another team’s habits',
+        before: MW_DIFF.before,
+        ways: [
+          { name: 'Markwright', after: MW_DIFF.markwright, pick: true },
+          { name: 'The whole file written out', after: MW_DIFF.rewrite },
+        ],
+        note: 'Both files come from the plugin’s own code. The second is the same edit written back out as a whole document through the same serializer, which puts every block in its own style. Markwright keeps the untouched blocks’ bytes. The block you edit is written out whole, so in that paragraph _never_ becomes *never*.',
+      },
+      {
+        type: 'deck',
+        label: 'Start from a template',
+        head: 'Eleven documents, ready on an empty file.',
+        note: 'An empty file offers all eleven, and any of them can be inserted at the cursor from the / menu. These are the plugin’s own templates, as they open.',
+        views: ['Rich', 'Source'],
+        cards: DOCUMENT_TEMPLATES.map((t) => ({
+          title: t.label,
+          body: t.description,
+          media: { live: `md:tpl-${t.id}` as LiveName, alt: `The ${t.label} template as it opens: ${t.description.toLowerCase()}` },
+          source: fillTemplate(t.markdown),
+        })),
+      },
+      {
         type: 'stats',
         stats: [
           { value: '39', label: 'entries in the / menu' },
           { value: '800', unit: 'ms', label: 'from your last keystroke to saved' },
           { value: '0', label: 'bytes rewritten in blocks you didn’t touch' },
         ],
+      },
+      {
+        type: 'tour',
+        label: 'In the real thing',
+        head: 'Markwright itself, in bb.',
+        steps: [
+          {
+            title: 'Type / for anything',
+            body: 'The / menu filters as you type: /dia narrows it to the eight diagram starters.',
+            media: { src: `${mw}/slash-menu.jpg`, alt: 'The / menu filtered to Diagrams: flowchart, sequence, class, state, entity relationship, Gantt, pie and mind map', width: 1920, height: 1200 },
+            focus: { x: 0.27, y: 0.74, zoom: 1.3 },
+          },
+          {
+            title: 'Edit a diagram',
+            body: 'Edit diagram shows the Mermaid source above its live preview, and the diagram follows as you type.',
+            media: { src: `${mw}/mermaid.jpg`, alt: 'A Mermaid flowchart with its source open above the rendered diagram', width: 1920, height: 1200 },
+            focus: { x: 0.5, y: 0.62, zoom: 1.25 },
+          },
+          {
+            title: 'Begin from a template',
+            body: 'An empty file offers the eleven templates, or a / for any block.',
+            media: { src: `${mw}/templates.jpg`, alt: 'An empty file offering eleven templates: README, meeting notes, ADR, PRD, RFC, changelog, bug report, runbook, PR description, postmortem and weekly status', width: 1920, height: 1200 },
+            focus: { x: 0.5, y: 0.45, zoom: 1.2 },
+          },
+          {
+            title: 'Changed on disk',
+            body: 'If the file changes while you have unsaved edits, Compare shows both versions before you choose Use theirs or Keep mine.',
+            media: { src: `${mw}/conflict.jpg`, alt: 'The changed-on-disk banner with Compare open: the version on disk and the unsaved version, line by line', width: 1920, height: 1200 },
+            focus: { x: 0.4, y: 0.32, zoom: 1.25 },
+          },
+        ],
+      },
+      {
+        type: 'checks',
+        label: 'Proven on real files',
+        head: 'Open it, save it unedited, compare the bytes.',
+        note: 'The plugin’s own test corpus: a README, a changelog, a design doc, a getting-started guide, and files built to trip it up, with CRLF line endings, front matter, raw HTML and mixed list styles. Two use syntax it will not rewrite, so they open read-only instead.',
+        steps: ['open', 'save unedited', 'compare'],
+        // the passes first, then the two it refuses on purpose
+        items: [...MW_CHECKS].sort((a, b) => Number(b.pass) - Number(a.pass)),
+        total: { value: String(MW_TESTS), label: 'tests pass in the plugin’s own suite' },
       },
       {
         type: 'keys',
@@ -295,6 +365,15 @@ export const products: Product[] = [
           { keys: ['Tab'], does: 'In a table, the next cell; in the last cell, a new row.' },
           { keys: ['⌘', 'S'], does: 'Save at once, without waiting for autosave.' },
         ],
+      },
+      {
+        type: 'compare',
+        label: 'Light and dark',
+        before: { src: `${mw}/overview-light.jpg`, alt: 'The Orbit 2.0 launch plan open in Markwright in bb’s light mode', width: 1920, height: 1200 },
+        after: { src: `${mw}/overview.jpg`, alt: 'The Orbit 2.0 launch plan open in Markwright in bb’s dark mode', width: 1920, height: 1200 },
+        beforeLabel: 'Light',
+        afterLabel: 'Dark',
+        caption: 'The same document in bb’s light and dark mode.',
       },
       {
         type: 'faq',
