@@ -568,7 +568,7 @@ export const products: Product[] = [
     facts: ['for bb', 'v0.4', 'MIT'],
     line: 'The Jira tickets assigned to you, in a calm list you can filter, group and work through without leaving bb.',
     hook: 'Every ticket that is yours, in one calm list.',
-    hint: 'Press J and K to move through the list. Drag a ticket to change its status.',
+    hint: 'Press J and K to move, Enter to open, S to change the status.',
     stack: ['TypeScript', 'React', 'OAuth + PKCE', 'Atlassian Rovo MCP'],
     featured: true,
     stage: 'jira-demo',
@@ -584,6 +584,17 @@ export const products: Product[] = [
     ],
     blocks: [
       {
+        type: 'scenes',
+        label: 'Watch it work',
+        note: 'Redrawn for this page, with invented content. Touch it to take over.',
+        scenes: [
+          { tab: 'Close the tabs', head: 'One list.', cost: '1 tab', caption: 'Every ticket assigned to you, from every board and epic, in one tab in bb’s rail. Open and Done, 50 to a page.' },
+          { tab: 'Hands on the keys', head: 'Hands on the keys.', cost: '0 clicks', caption: 'J and K move, Enter opens a ticket beside the list, ] goes to the next one, and U opens its parent: the epic, then the initiative.' },
+          { tab: 'Move it on', head: 'Move it on.', cost: '1 click', caption: 'S shows only the moves this ticket’s workflow allows. Done takes it out of your open list.' },
+          { tab: 'Hand it off · New', head: 'The right Alex.', cost: '1 ticket handed off', caption: 'New in 0.5. Search the people Jira lets you assign this ticket to. It assigns by account, not by name, and the ticket leaves your list.' },
+        ],
+      },
+      {
         type: 'statement',
         label: 'Why',
         head: 'Your tickets are spread across *boards and epics*. Here they are *one list* you can *work through*.',
@@ -597,7 +608,6 @@ export const products: Product[] = [
           'Any Jira Cloud site',
         ],
       },
-      { type: 'stage' },
       {
         type: 'showcase',
         label: 'Screens',
