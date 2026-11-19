@@ -5,6 +5,9 @@ import { addRow, change, fileOf, find, insert, parse, read, setCell, toggleTask,
 import { CATALOG } from './mdCatalog';
 import { DOCUMENT_TEMPLATES, fillTemplate } from './mdTemplates';
 import { MW_DEMO } from './mwData.gen';
+import { products } from '../data';
+import { findBlock } from '../types';
+import { STORY } from './mdState';
 
 const demo = MW_DEMO.committed;
 const tasks = (b: MdBlock) => b.t === 'list' && b.items.some((i) => i.done !== undefined);
@@ -86,4 +89,15 @@ void test('every template reads into blocks with nothing left as raw syntax', ()
       if (p.b.t === 'p') assert.doesNotMatch(p.b.text, /^(#|>|\||```|- |\d+\.)/, `${tpl.id}: ${p.src}`);
     }
   }
+});
+
+void test('each scene costs what its edit really changes in the file', () => {
+  const page = products.find((p) => p.slug === 'markwright')!;
+  const scenes = findBlock(page, 'scenes')!.scenes;
+  for (let i = 0; i < 3; i++) {
+    const n = Number(/^\d+/.exec(scenes[i].cost ?? '')?.[0]);
+    assert.equal(linesChanged(fileOf(STORY[i].disk), fileOf(STORY[i + 1].disk)), n, `${scenes[i].tab}: ${scenes[i].cost}`);
+  }
+  // Agents welcome: the agent's write while an edit waits is stopped, and the disk never holds a version nobody chose
+  assert.equal(STORY[4].theirs, null);
 });
