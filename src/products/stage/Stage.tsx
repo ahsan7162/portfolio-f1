@@ -17,7 +17,7 @@ if (typeof window !== 'undefined') (window.requestIdleCallback ?? ((f: () => voi
 const JiraHold = () => <div className="jbd" aria-hidden="true"><div className="jbd-cam"><div className="jbd-win" /></div></div>;
 
 /** What a live demo's number counts, as two short lines. A demo without an entry shows no number. */
-export const TALLY: Partial<Record<StageKind, [string, string]>> = { 'pr-demo': ['blockers', 'left'], 'dash-demo': ['model calls', 'so far'], 'md-demo': ['lines changed', 'in the file'], 'jira-demo': ['tickets', 'open'] };
+export const TALLY: Partial<Record<StageKind, [string, string]>> = { 'pr-demo': ['blockers', 'left'], 'dash-demo': ['model calls', 'so far'], 'md-demo': ['lines changed', 'in the file'], 'jira-demo': ['tickets', 'open'], 'openui-demo': ['words sent', 'without typing'] };
 
 /** A demo's tally words for a number: "1 line changed", "4 lines changed" (the first plural loses its s at 1). */
 export function tallyWords(stage: StageKind, n: number | null | undefined): [string, string] | undefined {
@@ -32,7 +32,7 @@ export function Stage({ product, active, onTally, scene }: { product: Product } 
   switch (product.stage) {
     case 'pr-demo': return <PrDemo active={active} onTally={onTally} />;
     case 'jira-demo': return <Suspense fallback={<JiraHold />}><JiraDemo active={active} onTally={onTally} scene={scene} /></Suspense>;
-    case 'openui-demo': return <OpenUiDemo active={active} />;
+    case 'openui-demo': return <OpenUiDemo active={active} onTally={onTally} scene={scene} />;
     case 'dash-demo': return <DashDemo active={active} onTally={onTally} scene={scene} />;
     case 'md-demo': return <MdDemo active={active} onTally={onTally} scene={scene} />;
     case 'window':

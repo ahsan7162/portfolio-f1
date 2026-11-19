@@ -1,57 +1,112 @@
-/* OpenUI Live Replies demo. Everything inside .oud-win is sized in em off the container width. */
-.oud { container-type: inline-size; width: 100%; }
+/* OpenUI Live Replies demo: a bb thread whose replies are blocks you use. bb's band theme, declared once on .oud
+   (the block's own components take theirs from oui.css). Everything is in em off the container's width, so the
+   demo scales with its box and never changes its height. */
+@property --x { syntax: '<number>'; inherits: true; initial-value: 1; }
 
-.oud-win {
-  font-size: clamp(0.5625rem, 2.5cqw, 1rem);
-  font-family: var(--text); line-height: 1.35; color: var(--ink);
-  background: var(--raise); border-radius: 1.1em; padding-bottom: 1.1em;
-  box-shadow: 0 0 0 1px var(--line), 0 3.5em 7em -2em var(--shadow-deep);
-  overflow: hidden; user-select: none;
+.oud {
+  --oud-canvas: #000000; --oud-panel: #070707; --oud-border: #262624; --oud-hair: #1a1a19; --oud-ink: #f3f2ee;
+  --oud-dim: color-mix(in oklch, var(--oud-ink) 60%, var(--oud-canvas));
+  --oud-faint: color-mix(in oklch, var(--oud-ink) 34%, var(--oud-canvas));
+  --oud-raise: color-mix(in oklch, var(--oud-ink) 7%, var(--oud-panel));
+  --oud-acc: oklch(from var(--acc) max(l, 0.7) c h);
+  container: oud / inline-size; width: 100%;
+  color: var(--oud-ink); font-family: var(--text); line-height: 1.45; font-variation-settings: 'wdth' 100;
 }
-.oud button { font-size: inherit; }
-.oud button:focus-visible { outline: 0.14em solid var(--acc); outline-offset: 0.18em; }
+.oud :where(p, pre) { margin: 0; }
+.oud button { font: inherit; color: inherit; cursor: pointer; background: none; border: 0; }
+.oud button:disabled { cursor: default; }
+.oud :is(button, textarea, [role='slider']):focus-visible { outline: 0.14em solid var(--oud-ink); outline-offset: 0.12em; }
 
-/* title bar: the thread's name, Reset, and the Reply / Source switch */
-.oud-bar { display: flex; align-items: center; padding: 0.8em 1.25em; border-bottom: 1px solid var(--line); font-weight: 600; font-size: 0.94em; }
-.oud-bar-end { margin-left: auto; display: flex; align-items: center; gap: 0.9em; }
-.oud-reset { font-family: var(--mono); font-size: 0.78em; letter-spacing: 0.06em; color: var(--dim); transition: color 0.2s; }
-.oud-reset:hover { color: var(--acc); }
-.oud-view { display: flex; padding: 0.2em; border-radius: 0.6em; background: var(--ground); box-shadow: inset 0 0 0 1px var(--line); }
-.oud-view button { padding: 0.3em 0.8em; border-radius: 0.45em; font-size: 0.86em; font-weight: 600; color: var(--dim); transition: background-color 0.2s, color 0.2s; }
-.oud-view button[aria-pressed='true'] { background: var(--acc); color: var(--on-acc); }
+.oud-cam { position: relative; isolation: isolate; }
+.oud-win {
+  position: relative; overflow: hidden; display: grid; grid-template-rows: auto minmax(0, 1fr) auto;
+  height: 42em; border-radius: 1em; background: var(--oud-canvas);
+  font-size: clamp(0.5625rem, 1.95cqw, 0.875rem);
+  box-shadow: 0 0 0 1px var(--oud-border), 0 3.5em 7em -2em var(--shadow-deep);
+}
+@container oud (min-width: 760px) { .oud-win { font-size: clamp(0.75rem, 1.32cqw, 0.875rem); height: 44em; } }
 
-/* the visitor's messages, on the right as in a chat */
-.oud-me { margin: 1em 1.25em 0 auto; width: fit-content; max-width: 80%; padding: 0.6em 0.95em; border-radius: 0.9em; background: var(--raise-2); box-shadow: inset 0 0 0 1px var(--line); font-size: 0.9em; }
-.oud-sent { white-space: pre; visibility: hidden; }
-.oud-sent[data-on] { visibility: visible; background: var(--acc); color: var(--on-acc); box-shadow: none; font-weight: 600; }
-.oud-sent[data-on] { @media (prefers-reduced-motion: no-preference) { animation: oud-in 0.4s var(--ease); } }
-@keyframes oud-in { from { opacity: 0; transform: translateY(0.8em) scale(0.94); } }
+/* the thread's header */
+.oud-bar { display: flex; align-items: center; gap: 0.8em; min-height: 3.2em; padding: 0 1.2em; border-bottom: 1px solid var(--oud-hair); }
+.oud-title { font-weight: 600; }
+.oud-model { padding: 0.15em 0.6em; border-radius: 1em; background: var(--oud-raise); color: var(--oud-dim); font-size: 0.82em; }
+.oud-reset { margin-left: auto; font-size: 0.86em; color: var(--oud-dim); padding: 0.3em 0.6em; border-radius: 0.4em; }
+.oud-reset:not(:disabled):hover { color: var(--oud-ink); background: var(--oud-raise); }
+.oud-reset:disabled { visibility: hidden; }
 
-/* the agent's reply: the decision, or the block that draws it */
-.oud-reply { display: grid; margin: 1em 1.25em 0; border: 1px solid var(--line); border-radius: 0.8em; background: var(--ground); }
-.oud-reply > * { grid-area: 1 / 1; min-width: 0; padding: 1.1em 1.2em; transition: opacity 0.2s; }
-.oud-reply > [data-off] { opacity: 0; visibility: hidden; }
-.oud-note { font-size: 0.8em; color: var(--dim); }
+/* the thread: it scrolls itself to the newest words; the wheel stays with the page */
+.oud-thread { min-height: 0; overflow: hidden; }
+.oud-list { display: flex; flex-direction: column; gap: 1.1em; padding: 1.4em 1.4em 1.6em; max-width: 52em; margin: 0 auto; }
+.oud-empty { margin: auto; padding-top: 8em; color: var(--oud-faint); text-align: center; }
+.oud-me { align-self: flex-end; max-width: 78%; padding: 0.6em 0.95em; border-radius: 1em 1em 0.3em 1em; background: var(--oud-raise); box-shadow: inset 0 0 0 1px var(--oud-hair); overflow-wrap: anywhere; }
+.oud-me[data-byclick] { background: color-mix(in oklch, var(--oud-acc) 18%, var(--oud-panel)); box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--oud-acc) 40%, transparent); }
+.oud-agent { display: grid; gap: 0.6em; }
+.oud-who { font-size: 0.78em; color: var(--oud-faint); font-weight: 600; }
+.oud-prose { min-height: 1.45em; }
+.oud-thinking { display: flex; gap: 0.3em; padding: 0.4em 0; }
+.oud-thinking i { width: 0.45em; height: 0.45em; border-radius: 50%; background: var(--oud-faint); }
+@media (prefers-reduced-motion: no-preference) {
+  .oud-thinking i { animation: oud-dot 0.9s ease-in-out infinite; }
+  .oud-thinking i:nth-child(2) { animation-delay: 0.15s; } .oud-thinking i:nth-child(3) { animation-delay: 0.3s; }
+}
+@keyframes oud-dot { 50% { opacity: 0.2; transform: translateY(-0.2em); } }
 
-.oud-weights { display: flex; flex-wrap: wrap; gap: 0.6em 1.3em; margin-top: 0.8em; }
-.oud-weight { display: flex; align-items: center; gap: 0.5em; font-size: 0.88em; font-weight: 600; }
-.oud-weight button { display: grid; place-items: center; width: 1.9em; height: 1.9em; border-radius: 0.5em; box-shadow: inset 0 0 0 1px var(--line); color: var(--ink); transition: background-color 0.15s, color 0.15s, box-shadow 0.15s; }
-.oud-weight button:not(:disabled):hover { background: var(--acc); color: var(--on-acc); box-shadow: none; }
-.oud-weight button:disabled { color: var(--faint); cursor: default; }
-.oud-weight b { width: 1em; text-align: center; font-variant-numeric: tabular-nums; }
+/* a block: the live reply, and under the render line the program that draws it */
+.oud-block { border-radius: 0.8em; background: var(--oud-panel); box-shadow: inset 0 0 0 1px var(--oud-hair); overflow: hidden; }
+.oud-block-bar { display: flex; align-items: center; justify-content: space-between; gap: 1em; padding: 0.45em 0.6em 0.45em 0.95em; border-bottom: 1px solid var(--oud-hair); }
+.oud-lang { font-family: var(--mono); font-size: 0.78em; color: var(--oud-faint); }
+.oud-seg { display: flex; padding: 0.15em; border-radius: 0.5em; box-shadow: inset 0 0 0 1px var(--oud-border); }
+.oud-seg button { padding: 0.2em 0.7em; border-radius: 0.35em; font-size: 0.82em; color: var(--oud-dim); transition: background-color 0.15s, color 0.15s; }
+.oud-seg button[aria-pressed='true'] { background: var(--oud-acc); color: #000000; }
+.oud-seg button:disabled:not([aria-pressed='true']) { opacity: 0.4; }
 
-.oud-rows { list-style: none; margin-top: 1em; border-top: 1px solid var(--line); }
-.oud-row { display: grid; grid-template-columns: minmax(0, 1fr) 6em 2.8em; align-items: center; gap: 1em; padding: 0.7em 0.5em; border-bottom: 1px solid var(--line); font-size: 0.92em; background: var(--ground); }
-.oud-row[data-lead] { background: color-mix(in srgb, var(--acc) 12%, var(--ground)); }
-.oud-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.oud-name small { margin-left: 0.6em; font-weight: 400; color: var(--dim); }
-.oud-bar-track { height: 0.4em; border-radius: 99em; background: var(--raise-2); overflow: hidden; }
-.oud-bar-track i { display: block; height: 100%; border-radius: inherit; background: var(--acc); transform-origin: 0 50%; transition: transform 0.4s var(--ease); }
-.oud-share { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+.oud-layers { position: relative; display: grid; }
+.oud-ui { padding: 1em 1.1em 1.1em; clip-path: inset(0 calc((1 - var(--x)) * 100%) 0 0); }
+.oud-src {
+  position: absolute; inset: 0; overflow: hidden; padding: 1em 1.1em; clip-path: inset(0 0 0 calc(var(--x) * 100%));
+  background: repeating-linear-gradient(0deg, transparent 0 1.6em, color-mix(in oklch, var(--oud-ink) 2.5%, transparent) 1.6em 3.2em), var(--oud-panel);
+  color: var(--oud-dim); font-family: var(--mono); font-size: 0.8em; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; font-variant-ligatures: none;
+}
+.oud-src code { font: inherit; }
+.oud-seam {
+  position: absolute; top: 0; bottom: 0; left: calc(var(--x) * 100%); z-index: 2; width: 0.14em; margin-left: -0.07em;
+  background: var(--oud-acc); box-shadow: 0 0 1.2em 0.1em color-mix(in oklch, var(--oud-acc) 55%, transparent); cursor: ew-resize; touch-action: none;
+}
+.oud-seam i {
+  position: absolute; top: 50%; left: 50%; display: grid; place-items: center; width: 2.3em; height: 2.3em; margin: -1.15em 0 0 -1.15em; border-radius: 50%;
+  background: var(--oud-acc); color: #000000; font-style: normal; font-size: 0.8em; font-weight: 700; opacity: 0; transition: opacity 0.2s;
+}
+/* At rest the line waits at the right edge, a handle showing; while streaming it is the render line, sweeping. */
+.oud-block:not([data-streaming]) .oud-seam i { opacity: 1; }
+.oud-block:not([data-streaming]) .oud-layers { transition: --x 0.55s cubic-bezier(0.65, 0, 0.35, 1); }
+.oud-block:not([data-streaming]) .oud-seam { box-shadow: none; opacity: 0.9; }
+@media (pointer: coarse) { .oud-seam { pointer-events: none; } .oud-seam i { display: none; } }
+@media (prefers-reduced-motion: reduce) { .oud-layers { transition: none !important; } }
 
-.oud-go { margin-top: 1em; padding: 0.7em 1.2em; border-radius: 0.6em; background: var(--acc); color: var(--on-acc); font-weight: 700; transition: transform 0.2s var(--ease), opacity 0.2s; }
-.oud-go:not(:disabled):hover { transform: translateY(-0.12em); }
-.oud-go:not(:disabled):active { transform: scale(0.97); }
-.oud-go:disabled { opacity: 0.45; cursor: default; }
+/* Edit: the program beside the reply it draws */
+.oud-edit { display: grid; gap: 0; }
+@container oud (min-width: 640px) { .oud-edit { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); } .oud-edit-src { border-left: 1px solid var(--oud-hair); } }
+.oud-edit-ui { padding: 1em 1.1em; min-width: 0; }
+.oud-edit-src { display: grid; grid-template-rows: minmax(12em, 1fr) auto; min-width: 0; border-top: 1px solid var(--oud-hair); }
+.oud-edit-src textarea {
+  width: 100%; min-height: 12em; resize: none; padding: 1em 1.1em; border: 0; background: color-mix(in oklch, var(--oud-ink) 2%, var(--oud-panel));
+  color: var(--oud-ink); font: 0.8em/1.6 var(--mono); font-variant-ligatures: none; caret-color: var(--oud-acc);
+}
+.oud-check { padding: 0.6em 1.1em; border-top: 1px solid var(--oud-hair); font-size: 0.8em; color: #ff8b7e; font-family: var(--mono); white-space: pre-wrap; overflow-wrap: anywhere; max-height: 7em; overflow: hidden; }
+.oud-check[data-ok] { color: var(--oud-acc); }
+.oud-check b { font-weight: 600; }
+.oud-asis { padding: 0.8em; border-radius: 0.6em; background: var(--oud-raise); color: var(--oud-dim); font: 0.8em/1.6 var(--mono); white-space: pre-wrap; overflow-wrap: anywhere; }
 
-.oud-src { margin: 0; font-family: var(--mono); font-size: 0.74em; line-height: 1.75; color: var(--ink); white-space: pre-wrap; overflow-wrap: anywhere; user-select: text; }
+/* the composer */
+.oud-composer { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 0.6em; padding: 0.8em 1.2em 1em; border-top: 1px solid var(--oud-hair); }
+.oud-chip { flex-basis: 100%; width: fit-content; max-width: 100%; text-align: left; padding: 0.4em 0.85em; border-radius: 1em; background: var(--oud-raise); box-shadow: inset 0 0 0 1px var(--oud-border); font-size: 0.9em; }
+.oud-chip:hover { box-shadow: inset 0 0 0 1px var(--oud-acc); }
+.oud-input { flex: 1; min-width: 0; min-height: 2.6em; display: flex; align-items: center; padding: 0 1em; border-radius: 0.8em; background: var(--oud-raise); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.oud-input[data-empty] { color: var(--oud-faint); }
+.oud-send { flex: none; width: 2.6em; height: 2.6em; border-radius: 50%; background: var(--oud-acc); color: #000000; font-weight: 700; transition: opacity 0.2s; }
+.oud-send:disabled { opacity: 0.35; }
+
+/* the film layer: the pointer, shown only while a scene plays */
+.oud-hand { position: absolute; left: 0; top: 0; z-index: 8; width: 1.5em; height: 2em; visibility: hidden; pointer-events: none; fill: var(--oud-ink); stroke: var(--oud-canvas); stroke-width: 1.1; stroke-linejoin: round; filter: drop-shadow(0 0.2em 0.3em var(--shadow)); }
+.oud-click { position: absolute; left: 0; top: 0; z-index: 7; width: 2.6em; height: 2.6em; margin: -1.3em 0 0 -1.3em; border-radius: 50%; visibility: hidden; opacity: 0; pointer-events: none; box-shadow: inset 0 0 0 0.12em var(--oud-ink), 0 0 0.8em color-mix(in oklch, var(--oud-ink) 25%, transparent); }
+.oud-glow { position: absolute; left: 0; top: 0; z-index: 3; width: 18em; height: 18em; margin: -9em 0 0 -9em; border-radius: 50%; pointer-events: none; opacity: 0; visibility: hidden; background: radial-gradient(closest-side, color-mix(in oklch, var(--oud-ink) 8%, transparent), transparent); }

@@ -15,4 +15,4 @@ export type DashName = Extract<LiveName, `dash:${string}`>;
 export const DASH_NAMES = LIVE_NAMES.filter((n): n is DashName => n.startsWith('dash:'));
 
 /** How many scenes a live demo can play by itself, by stage. A `scenes` block must have exactly this many. */
-export const SCENES: Partial<Record<string, number>> = { 'dash-demo': 4, 'md-demo': 4, 'jira-demo': 4 };
+export const SCENES: Partial<Record<string, number>> = { 'dash-demo': 4, 'md-demo': 4, 'jira-demo': 4, 'openui-demo': 4 };
