@@ -333,8 +333,13 @@
 .bv-turn-meter b { color: var(--ink); font-weight: 600; font-size: 1.15em; font-variant-numeric: tabular-nums; }
 .bv-turn-win { color: var(--acc-lit); }
 @media (max-width: 899px) {
-  .bv-turn { justify-items: start; }
-  .bv-turn-goals { grid-template-columns: minmax(0, 1fr); }
+  .bv-turn { justify-items: start; gap: 10px; }
+  .bv-turn-goals { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+  .bv-turn-goals li { grid-template-columns: 20px minmax(0, 1fr); gap: 8px; padding: 7px 10px 7px 7px; font-size: 0.86rem; }
+  .bv-turn-goals li i { width: 20px; height: 20px; }
+  .bv-turn-goals li small { display: none; }
+  /* stacked, the goals would hold their height under every scene's headline: only the one showing takes room */
+  .bv-scenes-asks > .bv-rot-item:not([data-on]) { display: none; }
 }
 
 /* anatomy: one thing drawn large, its parts numbered above it */
