@@ -672,12 +672,50 @@ export const products: Product[] = [
         ],
       },
       {
-        type: 'steps',
-        label: 'How',
-        steps: [
-          { tag: 'You', title: 'Connect Jira once', body: 'You click Connect Jira and sign in with Atlassian in the browser. There is no app to create.' },
-          { tag: 'The plugin', title: 'Registers and keeps tokens', body: 'Each install registers itself with dynamic client registration and PKCE. The refresh token stays in a secret setting on the machine running bb, the access token only in memory.' },
-          { tag: 'Atlassian', title: 'Answers through Rovo MCP', body: 'Requests go from bb to Atlassian’s Rovo MCP server, and nowhere else. Disconnect removes the token.' },
+        type: 'route',
+        label: 'Where it goes',
+        head: 'From bb to Atlassian, and nowhere else.',
+        stops: [
+          { name: 'Your browser', where: 'Connect only', holds: ['Where you sign in with Atlassian'] },
+          { name: 'bb', where: 'On your machine', holds: ['The refresh token, in a secret setting', 'The access token, in memory only'] },
+          { name: 'Atlassian', where: 'mcp.atlassian.com', holds: ['Its sign-in server', 'Rovo MCP, v2'] },
+          { name: 'Your Jira site', where: 'Read by Atlassian, not by bb', holds: ['Jira Cloud'] },
+        ],
+        never: 'Any other server',
+        runs: [
+          {
+            name: 'Connect',
+            hops: [
+              { from: 1, to: 2, says: 'Registers itself once, as BB Jira Board: no app to create, and no client secret' },
+              { from: 1, to: 0, says: 'Opens Atlassian’s sign-in page, with a PKCE challenge' },
+              { from: 0, to: 1, says: 'Atlassian sends you back to bb on localhost, with a one-time code' },
+              { from: 1, to: 2, says: 'Swaps the code and its PKCE verifier for a refresh and an access token' },
+            ],
+          },
+          {
+            name: 'Every list',
+            hops: [
+              { from: 1, to: 2, says: 'tools/call searchJiraIssuesUsingJql · assignee = currentUser() AND statusCategory != Done ORDER BY updated DESC · 50 at a time' },
+              { from: 2, to: 3, says: 'Rovo MCP runs the search on your site' },
+              { from: 2, to: 1, says: 'Your tickets come back, and become rows on your machine' },
+            ],
+          },
+          {
+            name: 'A status change',
+            hops: [
+              { from: 1, to: 2, says: 'getTransitionsForJiraIssue · the moves this ticket’s workflow allows' },
+              { from: 1, to: 2, says: 'transitionJiraIssue · the move you picked, sent only when you click' },
+              { from: 2, to: 3, says: 'The ticket moves on your site' },
+            ],
+          },
+          {
+            name: 'An assignment',
+            hops: [
+              { from: 1, to: 2, says: 'listJiraIssueAssignableUsers · by issue, so Jira’s permission rules apply' },
+              { from: 1, to: 2, says: 'editJiraIssue · assignee set to the account you picked, never a name' },
+              { from: 2, to: 3, says: 'The ticket is assigned on your site' },
+            ],
+          },
         ],
       },
       {

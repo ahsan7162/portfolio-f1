@@ -25,6 +25,7 @@ import { Palette } from './Palette';
 import { Film } from './Film';
 import { Get } from './Get';
 import { Keys } from './Keys';
+import { Route } from './Route';
 import { Scenes } from './Scenes';
 import { Screens } from './Screens';
 import type { BlockProps } from './shared';
@@ -67,6 +68,7 @@ const registry: { [K in Block['type']]: ComponentType<BlockProps<K>> } = {
   deck: Deck,
   scenes: Scenes,
   anatomy: Anatomy,
+  route: Route,
 };
 
 function One<K extends Block['type']>({ block, product, n }: { block: BlockOf<K>; product: Product; n?: string }) {

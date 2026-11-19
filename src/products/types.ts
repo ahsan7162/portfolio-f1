@@ -132,6 +132,15 @@ export type Block =
       type: 'anatomy'; label: string; head?: string; note?: string; media: Media; start?: string;
       parts: { id: string; name: string; body: string; states?: string[]; at?: { x: number; y: number; w: number; h: number } }[];
     }
+  /**
+   * Where the product's requests go: its `stops` set large along one line, and `runs` (tabs that rotate) that send a
+   * light along their hops while each hop says what it carries. `never` is a last stop, struck through: where nothing goes.
+   */
+  | {
+      type: 'route'; label: string; head?: string; note?: string; never?: string;
+      stops: { name: string; where: string; holds?: string[] }[];
+      runs: { name: string; hops: { from: number; to: number; says: string }[] }[];
+    }
   | { type: 'get'; label: string; note: string; via: { kind: 'command'; command: string } | { kind: 'stores' } | { kind: 'link'; href: string; label: string } };
 
 export type BlockOf<T extends Block['type']> = Extract<Block, { type: T }>;
