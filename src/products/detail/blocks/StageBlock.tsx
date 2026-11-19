@@ -1,7 +1,7 @@
 // The product itself: its live demo or framed screens, settling into place as it scrolls in.
 import { useEffect, useRef, useState } from 'react';
 import { gsap } from '../../motion';
-import { Stage, TALLY } from '../../stage/Stage';
+import { Stage, tallyWords } from '../../stage/Stage';
 import { useBlockMotion, type BlockProps } from './shared';
 
 export function StageBlock({ product }: BlockProps<'stage'>) {
@@ -9,7 +9,6 @@ export function StageBlock({ product }: BlockProps<'stage'>) {
   const stageRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(false);
   const [tally, setTally] = useState<number | null>(null);
-  const counts = TALLY[product.stage];
 
   useEffect(() => {
     const el = stageRef.current;
@@ -37,7 +36,7 @@ export function StageBlock({ product }: BlockProps<'stage'>) {
       <p className="dt-hint pp-mono">
         <span className="dt-live" aria-hidden="true" />
         {product.hint}
-        {counts && tally !== null && <span className="dt-tally" aria-live="polite">{tally} {counts.join(' ')}</span>}
+        {tally !== null && tallyWords(product.stage, tally) && <span className="dt-tally" aria-live="polite">{tally} {tallyWords(product.stage, tally)?.join(' ')}</span>}
       </p>
     </div>
   );

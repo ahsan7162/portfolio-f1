@@ -2,7 +2,7 @@
 // Each scene lands its headline and its cost tag; the demo says when the cost is spent (a bubbling `scene-cost` event).
 import { useId, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { gsap, reducedMotion, SplitText, useGSAP } from '../../motion';
-import { Stage, TALLY } from '../../stage/Stage';
+import { Stage, tallyWords } from '../../stage/Stage';
 import { Ask, HOLD_SCENE, PauseButton, RotTabs } from './Cases';
 import { useRotate } from './rotate';
 import { Label, type BlockProps } from './shared';
@@ -70,7 +70,6 @@ export function Scenes({ block, product, n }: BlockProps<'scenes'>) {
   const root = useRef<HTMLElement>(null);
   const id = useId();
   const [tally, setTally] = useState<number | null>(null);
-  const counts = TALLY[product.stage];
   const r = useRotate(root, { count: block.scenes.length, hold: HOLD_SCENE });
   const playing = !r.stopped;
   const scene = playing && r.inView ? r.index : undefined;
@@ -109,7 +108,7 @@ export function Scenes({ block, product, n }: BlockProps<'scenes'>) {
       <p className="dt-hint pp-mono">
         <span className="dt-live" aria-hidden="true" />
         {product.hint}
-        {counts && tally !== null && <span className="dt-tally" aria-live="polite">{tally} {counts.join(' ')}</span>}
+        {tally !== null && tallyWords(product.stage, tally) && <span className="dt-tally" aria-live="polite">{tally} {tallyWords(product.stage, tally)?.join(' ')}</span>}
       </p>
       <div className="bv-rot-bar">
         <RotTabs tabs={block.scenes.map(s => s.tab)} r={r} id={id} keep controls={`${id}-stage`} />

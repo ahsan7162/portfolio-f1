@@ -6,7 +6,7 @@ import { gsap, ScrollTrigger, useGSAP } from '../motion';
 import { pad } from '../format';
 import { Link, productPath } from '../router';
 import { isJumping, setWheelGate, stepToY } from '../scroll';
-import { Stage, TALLY } from '../stage/Stage';
+import { Stage, tallyWords } from '../stage/Stage';
 import { FILM_ID, findBlock, KINDS, type Product } from '../types';
 import { SiteHeader, toAll } from './Header';
 
@@ -21,7 +21,7 @@ function Slide({ product, index, active, tally, report }: {
   // PR Dashboard's demo ends when every blocker is cleared: the screen floods and stamps Merged.
   const done = product.stage === 'pr-demo' && tally === 0;
   const onTally = useCallback((value: number) => report(product.slug, value), [report, product.slug]);
-  const label = TALLY[product.stage];
+  const label = tallyWords(product.stage, tally);
   const film = findBlock(product, 'film');
 
   useGSAP(() => {

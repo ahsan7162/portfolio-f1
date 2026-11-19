@@ -10,6 +10,12 @@ import '../styles/stage.css';
 /** What a live demo's number counts, as two short lines. A demo without an entry shows no number. */
 export const TALLY: Partial<Record<StageKind, [string, string]>> = { 'pr-demo': ['blockers', 'left'], 'dash-demo': ['model calls', 'so far'] };
 
+/** A demo's tally words for a number: "1 line changed", "4 lines changed" (the first plural loses its s at 1). */
+export function tallyWords(stage: StageKind, n: number | null | undefined): [string, string] | undefined {
+  const w = TALLY[stage];
+  return w && n === 1 ? [w[0].replace(/s\b/, ''), w[1]] : w;
+}
+
 export function Stage({ product, active, onTally, scene }: { product: Product } & DemoProps) {
   const v = product.variant ?? 0;
   /** The product's own picture for a slot on the stage, or the sample screen that stands in for it. */
