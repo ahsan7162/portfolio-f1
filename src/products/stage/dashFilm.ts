@@ -4,28 +4,8 @@
 // Elements in, tweens out: the demo tracks every tween that touches the dashboard, so a take-over lands it.
 import { gsap } from '../motion';
 import { build } from './DashView';
+import { box, mid } from './film';
 
-export interface Box { x: number; y: number; w: number; h: number }
-
-/** An element's box in the window's own pixels, from layout, so the camera and a card's lift never move it. */
-export function box(el: Element, win: HTMLElement): Box {
-  if (!(el instanceof HTMLElement)) {
-    // SVG has no offsets: measure on screen and undo the camera's scale (it is flat whenever this runs)
-    const w = win.getBoundingClientRect();
-    const r = el.getBoundingClientRect();
-    const k = w.width / win.offsetWidth || 1;
-    return { x: (r.left - w.left) / k, y: (r.top - w.top) / k, w: r.width / k, h: r.height / k };
-  }
-  let [x, y] = [0, 0];
-  for (let n: HTMLElement | null = el; n && n !== win; n = n.offsetParent as HTMLElement | null) {
-    x += n.offsetLeft;
-    y += n.offsetTop;
-    const p = n.offsetParent as HTMLElement | null;
-    if (p && p !== win) { x += p.clientLeft; y += p.clientTop; }
-  }
-  return { x, y, w: el.offsetWidth, h: el.offsetHeight };
-}
-export const mid = (b: Box) => ({ x: b.x + b.w / 2, y: b.y + b.h / 2 });
 const em = (win: HTMLElement) => parseFloat(getComputedStyle(win).fontSize) || 15;
 const all = <T extends Element = HTMLElement>(el: ParentNode, s: string) => [...el.querySelectorAll<T>(s)];
 

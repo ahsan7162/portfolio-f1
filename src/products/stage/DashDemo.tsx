@@ -374,7 +374,7 @@ export function DashDemo({ active, onTally, scene }: DemoProps) {
 
           {/* the film layer: drawn over the product only while a scene plays */}
           <i className="dsd-dim" aria-hidden="true" />
-          <i className="dsd-glow" aria-hidden="true" />
+          <i className="dsd-glow" data-glow="" aria-hidden="true" />
           <div className="dsd-film" aria-hidden="true">
             <Code which="build" lines={BUILD_CODE} />
             <Code which="change" lines={CHANGE_CODE} />
@@ -385,7 +385,7 @@ export function DashDemo({ active, onTally, scene }: DemoProps) {
             <i className="dsd-burst" />
           </div>
           <i className="dsd-ring" aria-hidden="true" />
-          <i className="dsd-click" aria-hidden="true" />
+          <i className="dsd-click" data-click="" aria-hidden="true" />
           <svg className="dsd-hand" viewBox="0 0 14 19" aria-hidden="true"><path d="M1 1v14.5l3.6-3.3 2.7 6 2.4-1.1-2.6-5.8H12z" /></svg>
         </div>
       </div>
