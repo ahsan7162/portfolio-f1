@@ -93,6 +93,15 @@ src/products/
     mdCatalog.ts, mdTemplates.ts the plugin's 39 / menu entries and its eleven templates, copied from it (MIT)
     MdPage.tsx                   a template drawn as a page: the md:tpl-* live screens
     mwData.gen.ts                generated from the plugin's own code by motion-lab/products-directions/markwright/mwdata.sh: the demo's real saves, the diff block's two files, the corpus checks
+    OpenUiDemo.tsx               the OpenUI Live Replies demo, loaded on its own: a bb thread whose blocks answer back, the render line, Edit with check_openui's words
+    ouiThread.ts, ouiScenes.ts   its conversation (who said what, what a click sends, the tally) and its four scenes
+    oui/                         the OpenUI drawing kit, loaded only with the demo or an oui:* live screen:
+      lang.ts                    an OpenUI Lang reader: whole statements as they stream, problems worded as check_openui words them
+      kit.tsx, render.tsx        the renderer and OpenUI's core; numbers, planning, reports, web.tsx draw the plugin's groups
+      OuiLive.tsx                the oui:* live screens (replies that stream in, the CI reply, oui:spec-<Component>)
+      copy.ts, programs.ts       the page's words (in every products bundle), and its programs (with the kit)
+      plugin/                    the plugin's pure logic, copied unchanged (MIT): scoring, PERT, chart layout, report parsers
+      *.gen.ts                   generated from the plugin by motion-lab/products-directions/openui/ouidata.ts: the catalogue, the examples, check_openui's wording on 23 programs
     Frames.tsx                   PhoneFrame, BrowserFrame, WindowFrame, KindFrame (the frame for a kind), SampleScreen
   detail/                        a product's own page
     Detail.tsx                   top bar, hero, outline, the blocks, the Next band
@@ -125,6 +134,8 @@ CSS class prefixes, one per area. Keep to them so nothing collides:
 | `jbd-`, `jbf-` | `jira-demo.css` | the Jira Board demo (`jbd-`), its film layer (`jbf-`), and its row screen (`.jbd-live`) |
 | `dsd-` | `dash-demo.css`, `dash-film.css` | the bb Dashboards demo and its dashboard kit; the demo's film layer, camera and versions deck |
 | `mwd-` | `md-demo.css` | the Markwright demo, its film layer, and its template pages (`.mwd-live`) |
+| `oud-` | `openui-demo.css` (its box in `stage.css`) | the OpenUI Live Replies demo: the thread, the render line, Edit, the film layer |
+| `oui-`, `oul-` | `oui.css` | the OpenUI drawing kit (every component a reply can hold) and its live screens |
 
 ---
 
@@ -427,6 +438,9 @@ The shapes are in `types.ts` (the `Block` union) with a comment on each. TypeScr
 | `chips` | required | A wall of names as pills | What it works with or supports |
 | `diff` | required | One edit and the file each way of saving it leaves, side by side: the block diffs and counts the lines itself, marks run down every file on one clock as it enters, the picked way in the product's colour and the others in grey, struck through. Changes only / Whole file folds unchanged runs; on a phone, a tab per way | A formatter, a codemod, a save that keeps diffs small: what git sees |
 | `checks` | required | A wall of named checks a light runs over in turn; each stamps a pass (with an optional `proof`) or a refusal with its reason, then a `total` counts up. Run again replays it | Test results, a support matrix, files it was proven on |
+| `morph` | required | The same content as plain text, then as the product's own interface (`to.media`, a live screen marking its parts `data-part`). It changes over once as it comes into view; a switch flips it. A line that starts `{key}` flies to its part; the rest cross-fades | A log viewer, a formatter, an import: raw in, structured out |
+| `prompts` | required | A prompt bar with suggested asks as chips. A pick types into the bar and goes; the reply's words arrive, then its screen (a live screen, active) builds in a fixed box. It plays the first ask once as it comes into view | Any chat or agent product, a command-line tool, a search |
+| `specimens` | required | Every named part of a product set large as a wall of words in groups, beside a sticky inspector: pointing at a name shows its drawing (`media`), signature (`sig`) and line; picking keeps it; on a phone a pick opens a sheet. `also` names what it builds on | A design system's components, an API's endpoints, a CLI's commands |
 | `deck` | required | A hand of cards: fanned on a wide screen (it deals as it enters, a card lifts under the pointer or focus), a swipe row on a phone. Picking one flies it into a dialog at full size; a card with `source` gets a second view (`views`, e.g. Rich and Source) | Templates, themes, presets, sample projects |
 | `anatomy` | required | One screen drawn large and taken apart: its parts numbered above it, placed over where the drawing marks them. Hover previews a part, a click pins it (separate, like the hero car's parts), and the pinned part plays its `states` in the drawing; arrow keys walk the parts. On a phone the labels are chips under the drawing | A row, a card, a screen whose every piece means something |
 | `route` | required | Where requests go: the `stops` set large along one line (a column on a phone), and `runs` as rotating tabs that send a light along their hops while each hop's payload types in. `never` is a last stop, struck through | Privacy and data flow: what is sent where, and what never leaves |
@@ -638,7 +652,7 @@ Things an agent will hit. Fix the one you need, as part of the work that needs i
 - **Store buttons are disabled.** `StoreButtons` in `blocks/shared.tsx` has no URLs to link. When a real app ships, add the store links to the `get` block's `stores` variant and link them.
 - **Films have no captions.** The `film` block has no captions track. Add an optional captions path when a film has speech.
 - **Only PR Dashboard has a finish on the featured stage** (the flood and the Merged stamp). It is tied to `stage === 'pr-demo'` in `Featured.tsx`. A second demo with an ending should turn that into something the demo reports, not a second special case.
-- **Most demos are in the products bundle.** The Jira Board demo loads on its own (see section 12); the other four load on every products page. With it, the bundle is 327 kB of script, 102 kB gzipped (2026-11-19). Moving another demo out needs a placeholder that holds its exact height at every width, or the page jumps when it loads.
+- **Three demos are in the products bundle.** The Jira Board demo (see section 12) and the OpenUI demo with its kit load on their own, each behind a placeholder of its exact size (`jira-demo.css`, `stage.css`); PR, Dashboards and Markwright load with every products page. The last two gain little alone: their kits also draw live screens (`dash:*`, `md:tpl-*`) that `live.tsx` imports directly, so both would need to go lazy together, each demo behind a placeholder of its exact height.
 - **The Jira Board demo's panes do not scroll by wheel**, for the same reason as Markwright's: it keeps the ring and an open menu in view itself.
 - **The Markwright demo's panes do not scroll by wheel.** On the featured section a scrolling pane would catch the page's scroll, so the demo scrolls its panes itself to keep each change in view; a long inserted template is seen in full in the template deck instead.
 - **Not yet checked on real devices:** trackpad and mouse feel on the featured section, tablet widths, 1920 wide, and a real pointer drag on the compare handle. The car is small on phones.
