@@ -3,11 +3,11 @@ import { lazy, Suspense } from 'react';
 import type { DemoProps, Media, Product, StageKind } from '../types';
 import { DashDemo } from './DashDemo';
 import { BrowserFrame, PhoneFrame, Shot, WindowFrame } from './Frames';
-import { PrDemo } from './PrDemo';
 import '../styles/stage.css';
 import '../styles/jira-demo.css';
 // Loaded eagerly so a lazy demo's placeholder (its own empty window) already has the demo's exact size.
 import '../styles/md-demo.css';
+import '../styles/pr-demo.css';
 
 // The Jira Board demo and its invented site load on their own, on idle, so the other pages don't carry them.
 const loadJira = () => import('./JiraDemo');
@@ -25,6 +25,8 @@ const OUI_HOLD = <div className="oud" aria-hidden="true"><div className="oud-cam
 // (Demos sized by their content stay in the bundle: an empty box would jump when they arrive.)
 const MdDemo = lazy(() => import('./MdDemo').then(m => ({ default: m.MdDemo })));
 const MD_HOLD = <div className="mwd"><div className="mwd-cam"><div className="mwd-win" /></div></div>;
+const PrDemo = lazy(() => import('./PrDemo').then(m => ({ default: m.PrDemo })));
+const PR_HOLD = <div className="prd"><div className="prd-cam"><div><div className="prd-win" /></div></div></div>;
 
 /** What a live demo's number counts, as two short lines. A demo without an entry shows no number. */
 export const TALLY: Partial<Record<StageKind, [string, string]>> = { 'pr-demo': ['blockers', 'left'], 'dash-demo': ['model calls', 'so far'], 'md-demo': ['lines changed', 'in the file'], 'jira-demo': ['tickets', 'open'], 'openui-demo': ['words sent', 'without typing'] };
@@ -40,7 +42,7 @@ export function Stage({ product, active, onTally, scene }: { product: Product } 
   /** The product's own picture for a slot on the stage, or the sample screen that stands in for it. */
   const shot = (i: number, standIn: Media) => <Shot media={product.shots?.[i] ?? standIn} kind={product.kind} />;
   switch (product.stage) {
-    case 'pr-demo': return <PrDemo active={active} onTally={onTally} />;
+    case 'pr-demo': return <Suspense fallback={PR_HOLD}><PrDemo active={active} onTally={onTally} scene={scene} /></Suspense>;
     case 'jira-demo': return <Suspense fallback={<JiraHold />}><JiraDemo active={active} onTally={onTally} scene={scene} /></Suspense>;
     case 'openui-demo': return <Suspense fallback={OUI_HOLD}><OpenUiDemo active={active} onTally={onTally} scene={scene} /></Suspense>;
     case 'dash-demo': return <DashDemo active={active} onTally={onTally} scene={scene} />;

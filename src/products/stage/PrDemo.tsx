@@ -1,155 +1,241 @@
-// PR Dashboard, playable: clear the three blockers on the stuck pull request and it merges.
-import { useEffect, useRef, useState } from 'react';
-import { gsap, reducedMotion, useGSAP } from '../motion';
+// PR Dashboard, playable: see why the stuck pull request is stuck, pick what blocks it with Fix with agent,
+// send it to the agent on its branch, and watch it go green. The agent and the reviewer are played by the
+// demo; the prompt is the plugin's own (prData.gen.ts) and the blockers come from its own rule (pr.ts).
+// Given a `scene`, it plays that scene by itself (prScenes.ts) until the visitor takes over.
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { flushSync } from 'react-dom';
+import { reducedMotion, useGSAP } from '../motion';
 import type { DemoProps } from '../types';
-import '../styles/pr-demo.css';
+import { AGENT_STEPS, blockersOf, CHECKS, facts, pick, push, rows, START, tally, THREADS, totals, type World } from './pr';
+import { PR, THREAD, type FindingKey } from './prSample';
+import { APPROVAL, FRESH, landUi, openUi, PR_SCENES, rest, sendUi, type PrUi } from './prScenes';
+import { AlertToast, Av, Banner, Blockers, CheckCard, G, jobName, ListHead, Pill, Row, Side, Spine, ThreadCard, ThreadPanel, Toast, Win, type AlertLine, type RowData } from './PrView';
 
-const BLOCKERS = [
-  { stuck: 'CI failing', done: '✓ CI passing' },
-  { stuck: 'Changes requested', done: '✓ Approved' },
-  { stuck: '2 unresolved comments', done: '✓ 0 unresolved' },
-] as const;
-const FRESH = [false, false, false];
+/** Already waiting in "New since you last looked" when the demo opens. */
+const EARLIER: AlertLine = { kind: 'ci', headline: `CI failing · ${PR.repo}#${PR.number}`, detail: `${CHECKS.map(jobName).join(', ')} — ${PR.title}` };
 
-export function PrDemo({ active, onTally }: DemoProps) {
+/** One Send's beats in the visitor's hands: the agent works, pushes, CI reports, and the reviewer answers. */
+const BEATS = { step: 600, push: 2300, land: 3700, close: 5600 };
+
+export function PrDemo({ active, onTally, scene }: DemoProps) {
   const root = useRef<HTMLDivElement>(null);
-  const [cleared, setCleared] = useState<boolean[]>(FRESH);
-  const [touched, setTouched] = useState(false);
-  const [resets, setResets] = useState(0);
-  const left = cleared.filter((c) => !c).length;
-  const next = cleared.indexOf(false);
-  const merged = left === 0;
-
-  useEffect(() => { onTally?.(left); }, [left, onTally]);
-
-  // Soft pulsing ring on the first blocker until the first click.
-  useGSAP(() => {
-    if (touched || !active || next < 0 || reducedMotion()) return;
-    const hint = root.current?.querySelector(`[data-blocker="${next}"] .prd-chip-hint`) ?? null;
-    gsap.fromTo(hint, { scaleX: 1, scaleY: 1, opacity: 0.75 },
-      { scaleX: 1.1, scaleY: 1.55, opacity: 0, duration: 1.5, ease: 'sine.out', repeat: -1, repeatDelay: 0.6 });
-  }, { scope: root, dependencies: [touched, active, next], revertOnUpdate: true });
-
-  // After a reset has rendered: bring the failing jobs and the blockers back in.
-  useGSAP(() => {
-    if (!resets || reducedMotion()) return;
-    gsap.from('.prd-jobs', { height: 0, opacity: 0, marginTop: 0, duration: 0.55, ease: 'expo.out', clearProps: 'all' });
-    gsap.from('.prd-chip', { scale: 0.85, opacity: 0, duration: 0.5, stagger: 0.06, ease: 'back.out(2)', clearProps: 'all' });
-  }, { scope: root, dependencies: [resets] });
-
+  const cam = useRef<HTMLDivElement>(null);
+  const win = useRef<HTMLDivElement>(null);
+  const startOf = (n: number | undefined) => {
+    const sc = n === undefined ? undefined : PR_SCENES[n];
+    return sc && (reducedMotion() ? sc.end : sc.start);
+  };
+  const [ui, setUi] = useState<PrUi>(() => startOf(scene) ?? FRESH);
+  const [playing, setPlaying] = useState(scene);
+  if (scene !== playing) {
+    setPlaying(scene);
+    const st = startOf(scene);
+    if (st) setUi(st);
+  }
+  const now = useRef(ui);
+  useLayoutEffect(() => { now.current = ui; });
+  const fx = useRef(new Set<gsap.core.Animation>());
+  const tl = useRef<gsap.core.Timeline | null>(null);
+  const timers = useRef<number[]>([]);
   const { contextSafe } = useGSAP({ scope: root });
+  const film = scene !== undefined && !reducedMotion();
 
-  // Handlers find the root through the clicked element: the refs lint can't see that contextSafe runs on click.
-  const clear = contextSafe((i: number, from: Element) => {
-    if (i < 0 || cleared[i]) return;
-    const last = left === 1;
-    setTouched(true);
-    setCleared((c) => c.map((v, j) => v || j === i));
-    const el = from.closest('.prd');
-    if (!el || reducedMotion()) return;
+  const act = (f: (x: PrUi) => PrUi) => { const n = f(now.current); if (n !== now.current) { now.current = n; setUi(n); } };
+  const world = (f: (w: World) => World) => act(x => ({ ...x, w: f(x.w) }));
+  const clearTimers = () => { for (const t of timers.current) clearTimeout(t); timers.current = []; };
+  const finish = () => { for (const a of fx.current) a.progress(1).kill(); fx.current.clear(); };
+  const stop = () => { tl.current?.kill(); tl.current = null; finish(); if (root.current) rest(root.current); };
+  // Timers die with the demo. clearTimers only reads a ref, so the first one is the one.
+  // oxlint-disable-next-line react/exhaustive-effect-dependencies
+  useEffect(() => clearTimers, []);
 
-    const chip = el.querySelector(`[data-blocker="${i}"]`);
-    if (!chip) return;
-    // The new class lands on the next render; these tweens bridge to it and then hand back to CSS.
-    gsap.timeline()
-      .fromTo(chip, { scaleX: 1.09, scaleY: 0.84 }, { scaleX: 1, scaleY: 1, duration: 0.75, ease: 'elastic.out(1, 0.42)', clearProps: 'transform' })
-      .fromTo(chip.querySelector('.prd-chip-ring'), { scale: 1, opacity: 0.9 }, { scaleX: 1.22, scaleY: 1.9, opacity: 0, duration: 0.65, ease: 'expo.out', clearProps: 'all' }, 0)
-      .fromTo(chip.querySelector('.prd-was'), { yPercent: 0, opacity: 1 }, { yPercent: -80, opacity: 0, duration: 0.3, ease: 'power2.in', clearProps: 'all' }, 0)
-      .fromTo(chip.querySelector('.prd-now'), { yPercent: 80, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.5, clearProps: 'all' }, 0.12);
+  const count = tally(ui.w);
+  useEffect(() => { onTally?.(count); }, [count, onTally]);
 
-    if (i === 0) {
-      const jobs = el.querySelector<HTMLElement>('.prd-jobs');
-      if (jobs) gsap.fromTo(jobs, { height: jobs.offsetHeight, opacity: 1 }, { height: 0, opacity: 0, marginTop: 0, duration: 0.55, ease: 'expo.inOut', clearProps: 'all' });
-    }
-    if (last) {
-      gsap.fromTo(el.querySelector('.prd-pr--stuck .prd-stripe'), { scaleY: 0.3 }, { scaleY: 1, duration: 0.8, delay: 0.1, clearProps: 'transform' });
-      gsap.fromTo(el.querySelector('.prd-fix .prd-now'), { yPercent: 80, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.5, delay: 0.15, clearProps: 'all' });
-      gsap.fromTo(el.querySelector('.prd-fix .prd-was'), { opacity: 1 }, { opacity: 0, duration: 0.2, clearProps: 'all' });
-    }
+  // A scene change stops what was playing: the visitor took over, or another scene was picked.
+  useGSAP(() => { stop(); clearTimers(); }, { dependencies: [scene], scope: root });
+  useGSAP(() => {
+    const sc = scene === undefined ? undefined : PR_SCENES[scene];
+    const [w, c, el] = [win.current, cam.current, root.current];
+    const hand = w?.querySelector('.prd-hand');
+    if (!sc || tl.current || !w || !c || !el || !hand || reducedMotion()) return;
+    rest(el);
+    const at = (sel: string) => {
+      const box = w.getBoundingClientRect();
+      const k = box.width / w.offsetWidth || 1;
+      const r = w.querySelector(sel)?.getBoundingClientRect();
+      return r ? { x: (r.left + r.width / 2 - box.left) / k, y: (r.top + r.height / 2 - box.top) / k } : { x: 0, y: 0 };
+    };
+    tl.current = sc.play({
+      hand, at, win: w, cam: c,
+      act: f => flushSync(() => act(f)),
+      fx: make => contextSafe(() => { const a = make(); fx.current.add(a); void a.then(() => fx.current.delete(a)); })(),
+      amp: Math.min(1, Math.max(0.4, (w.offsetWidth - 300) / 700)),
+      cost: () => el.dispatchEvent(new CustomEvent('scene-cost', { bubbles: true })),
+    });
+  }, { dependencies: [scene], scope: root });
+
+  // ---- what the visitor can do ----
+  const open = () => act(openUi);
+  const back = () => act(x => ({ ...x, w: { ...x.w, view: 'list' }, menu: false }));
+  const toggle = (k: FindingKey) => world(w => pick(w, k));
+  /** Send the picks (or, from the menu, every finding left) to the thread on the branch, then let the world answer. */
+  const handOff = (all = false) => {
+    const before = now.current;
+    act(x => sendUi(x, all));
+    if (film || now.current === before) return;
+    clearTimers();
+    const later = (ms: number, f: () => void) => timers.current.push(window.setTimeout(f, reducedMotion() ? 0 : ms));
+    now.current.agent.forEach((_, i) => later(BEATS.step * (i + 1), () => act(x => ({ ...x, steps: i + 1 }))));
+    later(BEATS.push, () => world(push));
+    later(BEATS.land, () => act(landUi));
+    later(BEATS.close, () => act(x => ({ ...x, thread: false, toasts: x.toasts.slice(-1) })));
+  };
+  const again = () => { clearTimers(); act(() => ({ ...FRESH, seen: true })); };
+
+  // j and k move through the list, Enter opens: only while this demo is on screen, never while typing.
+  useEffect(() => {
+    if (!active || film) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey || (e.target as Element).closest('input, textarea, [contenteditable]')) return;
+      const x = now.current;
+      if (x.w.view !== 'list') return;
+      const n = rows(x.w).flatMap(g => g.prs).length;
+      if (e.key === 'j' || e.key === 'k') act(y => ({ ...y, focus: (y.focus + (e.key === 'j' ? 1 : n - 1)) % n }));
+      else if (e.key === 'Enter' && x.focus === 0) open();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
   });
 
-  const reset = contextSafe((from: Element) => {
-    const stuck = from.closest('.prd')?.querySelectorAll('.prd-pr--stuck *, .prd-reset');
-    if (stuck) { gsap.killTweensOf(stuck); gsap.set(stuck, { clearProps: 'all' }); }
-    setCleared(FRESH);
-    setResets((n) => n + 1);
-  });
+  const takeOver = () => { if (scene !== undefined) { stop(); } };
+  const w = ui.w;
+  const f = facts(w);
+  const all: RowData[] = rows(w).flatMap(g => g.prs.map(p => ({ ...p, jobs: p.number === PR.number && f.ci === 'failing' ? CHECKS.filter(k => !w.fixed.includes(k)).map(jobName) : undefined })));
+  const changed = w !== START || ui.thread || ui.toasts.length > 0;
+  const alerts = ui.banner ? [APPROVAL, EARLIER] : [EARLIER];
+
+  const fixBtn = (k: FindingKey) => {
+    const picked = w.picked.includes(k);
+    return (
+      <button type="button" className="prd-btn" data-fix={k} aria-pressed={picked} disabled={w.sent.includes(k)} onClick={() => toggle(k)}>
+        <G n={picked ? 'check' : 'fix'} />Fix with agent
+      </button>
+    );
+  };
+
+  let page: ReactNode;
+  if (w.view === 'list') {
+    page = (
+      <>
+        <ListHead />
+        <div className="prd-cols">
+          <div>
+            {rows(w).map(g => (
+              <section className="prd-grp" key={g.repo}>
+                <h3 className="prd-grp-h"><G n="chev" />{g.repo.split('/')[0]}/<b>{g.repo.split('/')[1]}</b><i>{g.prs.length}</i></h3>
+                <div className="prd-rows">
+                  {g.prs.map(p => {
+                    const r = all.find(x => x.number === p.number)!;
+                    const i = all.indexOf(r);
+                    return p.number === PR.number
+                      ? <Row key={p.number} pr={r} onOpen={open} focused={ui.focus === i} hint={!ui.seen} />
+                      : <Row key={p.number} pr={r} focused={ui.focus === i} />;
+                  })}
+                </div>
+              </section>
+            ))}
+          </div>
+          <Side totals={totals(w)} alerts={alerts} />
+        </div>
+      </>
+    );
+  } else {
+    const blockers = blockersOf(f);
+    const failing = CHECKS.filter(k => !w.fixed.includes(k));
+    const running = w.running ? failing.filter(k => w.sent.includes(k)) : [];
+    const stuck = failing.filter(k => !running.includes(k));
+    const unresolved = THREADS.filter(k => !w.fixed.includes(k));
+    page = (
+      <>
+        <div className="prd-pr">
+          <Spine tone={f.ci === 'failing' || blockers.some(b => /changes|unresolved/i.test(b)) ? 'bad' : f.ci === 'pending' ? 'warn' : 'good'} />
+          <div className="prd-back">
+            <button type="button" onClick={back}><G n="back" />All PRs</button>
+            <span className="prd-back-end">
+              <span className="prd-btn" aria-hidden="true"><G n="draft" />Convert to draft</span>
+              <span className="prd-btn" aria-hidden="true"><G n="ext" />Open on GitHub</span>
+              <button type="button" className="prd-btn prd-btn--ghost" aria-label="Pull request actions" aria-expanded={ui.menu} data-menu="" onClick={() => act(x => ({ ...x, menu: !x.menu }))}><G n="more" /></button>
+              {ui.menu && (
+                <span className="prd-menu" role="menu">
+                  <span>Link to thread</span><span>Ask a question</span><span>Explain this PR</span>
+                  <button type="button" role="menuitem" data-fixall="" disabled={!failing.length && !unresolved.length} onClick={() => handOff(true)}>Fix findings in a thread</button>
+                  <hr /><span>Open on GitHub</span><span>Copy link</span><span>Copy PR number</span><span>Close pull request</span>
+                </span>
+              )}
+            </span>
+          </div>
+          <p className="prd-state"><Pill tone="good" icon={false}><G n="pr" />Open</Pill>{PR.repo}#{PR.number}</p>
+          <h3 className="prd-h1"><u>[PAY-214]</u> {PR.title.replace('[PAY-214] ', '')}</h3>
+          <p className="prd-by"><span className="prd-who"><Av who={PR.author} />{PR.author}</span>wants to merge<code>{PR.headRefName}</code>→<code>{PR.baseRefName}</code><span className="prd-add">+186</span><span className="prd-del">−42</span>in 4 files</p>
+          <p className="prd-revs">Reviewers
+            <span className="prd-who" data-tone="warn"><Av who="pa" />@payments-reviewers<G n="clock" /></span>
+            <span className="prd-who" data-tone={w.approved ? 'good' : 'bad'}><Av who="mi" />mina-k<G n={w.approved ? 'check' : 'x'} /></span>
+            <span className="prd-who" data-tone="good"><Av who="pr" />priya-n<G n="check" /></span>
+          </p>
+          <p className="prd-blk" data-tone={blockers.length ? 'bad' : 'good'}><span>{blockers.length ? 'Not mergeable yet:' : 'Ready:'}</span><Blockers blockers={blockers} facts={f} icons={false} /></p>
+        </div>
+        <div className="prd-tabs" role="tablist">
+          <span aria-disabled="true"><G n="file" />Overview <b>4</b></span>
+          <button type="button" role="tab" aria-selected={w.tab === 'checks'} data-tab="checks" onClick={() => world(x => ({ ...x, tab: 'checks' }))}><G n="check" />Checks <b data-tone={failing.length ? 'bad' : undefined}>6</b></button>
+          <span aria-disabled="true"><G n="file" />Files <b>4</b></span>
+          <span aria-disabled="true"><G n="commit" />Commits <b>5</b></span>
+          <button type="button" role="tab" aria-selected={w.tab === 'comments'} data-tab="comments" onClick={() => world(x => ({ ...x, tab: 'comments' }))}><G n="msg" />Comments <b data-tone={unresolved.length ? 'bad' : undefined}>{unresolved.length}</b></button>
+        </div>
+        <div className="prd-body" role="tabpanel">
+          {w.tab === 'checks' ? (
+            <>
+              <div className="prd-prog">
+                <div className="prd-prog-bar"><i data-tone="bad" style={{ flexGrow: stuck.length }} /><i data-tone="warn" style={{ flexGrow: running.length }} /><i data-tone="good" style={{ flexGrow: 6 - failing.length }} /></div>
+                <p><span data-tone="bad"><G n="x" />{stuck.length} failing</span><span data-tone={running.length ? 'warn' : undefined}><G n="clock" />{running.length} running</span><span data-tone="good"><G n="check" />{6 - failing.length} passed</span><span>0 skipped</span></p>
+              </div>
+              {CHECKS.map(k => <CheckCard key={k} k={k} done={w.fixed.includes(k)} running={running.includes(k)} action={fixBtn(k)} />)}
+            </>
+          ) : (
+            [...THREADS].sort((a, b) => Number(w.fixed.includes(a)) - Number(w.fixed.includes(b))).map(k => <ThreadCard key={k} k={k} done={w.fixed.includes(k)} action={fixBtn(k)} />)
+          )}
+        </div>
+      </>
+    );
+  }
+
+  const steps = [...ui.agent.map(k => AGENT_STEPS[k]), `Pushed to ${PR.headRefName}`].map((text, i) => ({ text, done: i < ui.steps }));
 
   return (
-    <div className="prd" ref={root}>
-      <div className={`prd-win${merged ? ' is-merged' : ''}`}>
-        <div className="prd-bar">
-          <svg className="prd-bar-icon" viewBox="0 0 16 16" aria-hidden="true">
-            <circle cx="4" cy="3.5" r="1.75" /><circle cx="4" cy="12.5" r="1.75" /><circle cx="12" cy="12.5" r="1.75" />
-            <path d="M4 5.25v5.5M12 10.75V7a2.5 2.5 0 0 0-2.5-2.5H7.5" />
-          </svg>
-          <span>My PRs</span>
-          <span className="prd-bar-end">
-            {merged && <button type="button" className="prd-reset" onClick={(e) => reset(e.currentTarget)}>Reset</button>}
-            <i /><i /><i />
-          </span>
-        </div>
-
-        <div className="prd-tabs" aria-hidden="true">
-          <span className="prd-tab is-on">Open <small>6</small></span>
-          <span className="prd-tab">Review requested <small>3</small></span>
-          <span className="prd-tab">Reviewed <small>2</small></span>
-          <span className="prd-tab">Merged <small>128</small></span>
-        </div>
-
-        <div className="prd-repo">acme/<b>payments-api</b></div>
-
-        <div className="prd-list">
-          <div className="prd-pr prd-pr--stuck">
-            <span className="prd-stripe" />
-            <h3 className="prd-title">[PAY-214] Retry failed webhook deliveries with backoff</h3>
-            <div className="prd-chips">
-              {BLOCKERS.map((b, i) => (
-                <button
-                  key={b.stuck}
-                  type="button"
-                  data-blocker={i}
-                  className={`prd-chip${cleared[i] ? ' is-done' : ''}`}
-                  aria-disabled={cleared[i]}
-                  onClick={(e) => clear(i, e.currentTarget)}
-                >
-                  <span className="prd-chip-hint" aria-hidden="true" />
-                  <span className="prd-chip-ring" aria-hidden="true" />
-                  <span className="prd-stack">
-                    <span className="prd-was" aria-hidden={cleared[i]}>{b.stuck}</span>
-                    <span className="prd-now" aria-hidden={!cleared[i]}>{b.done}</span>
-                  </span>
-                </button>
-              ))}
+    <div className="prd prd-demo" ref={root} data-film={film ? '' : undefined} onClickCapture={takeOver} onKeyDownCapture={takeOver}>
+      <div className="prd-cam" ref={cam}>
+        <div ref={win}>
+          <Win badge={ui.banner ? 1 : 0} top={changed && !film ? <button type="button" className="prd-again" onClick={again}>Start over</button> : null} over={<>
+            {ui.thread && <ThreadPanel prompt={ui.prompt} steps={steps.slice(0, Math.max(1, Math.min(steps.length, ui.steps + 1)))}><button type="button" className="prd-x" aria-label="Close the thread" onClick={() => act(x => ({ ...x, thread: false }))}>✕</button></ThreadPanel>}
+            {w.picked.length > 0 && (
+              <div className="prd-batch">
+                <span>{w.picked.length} to fix</span>
+                <button type="button" className="prd-btn prd-btn--solid" data-send="" onClick={() => handOff()}><G n="fix" />Send to agent</button>
+                <button type="button" className="prd-btn prd-btn--ghost" onClick={() => world(x => ({ ...x, picked: [] }))}>Clear</button>
+              </div>
+            )}
+            <div className="prd-toasts" aria-live="polite">
+              {ui.toasts.slice(-2).map(t => (t.sent ? <Toast key={t.id} title={`Sent to ${THREAD.title}`} action="Open" /> : t.alert ? <AlertToast key={t.id} a={t.alert} /> : null))}
             </div>
-            <div className={`prd-jobs${cleared[0] ? ' is-gone' : ''}`} aria-hidden={cleared[0]}>
-              <div>✕ test › unit</div>
-              <div>✕ ci › lint</div>
-            </div>
-            <div className="prd-sub">
-              <span>#482</span><span className="prd-add">+186</span><span className="prd-del">−42</span><span>updated 26m ago</span>
-              <button type="button" className="prd-fix" disabled={merged} onClick={(e) => clear(next, e.currentTarget)}>
-                <span className="prd-stack">
-                  <span className="prd-was" aria-hidden={merged}>Fix with agent</span>
-                  <span className="prd-now" aria-hidden={!merged}>Merged ✓</span>
-                </span>
-              </button>
-            </div>
-          </div>
-
-          <div className="prd-pr prd-pr--ok">
-            <span className="prd-stripe" />
-            <h3 className="prd-title">Add idempotency keys to the refund endpoint</h3>
-            <div className="prd-chips"><span className="prd-tag">✓ Approved, ready to merge</span></div>
-          </div>
-
-          <div className="prd-pr prd-pr--wait">
-            <span className="prd-stripe" />
-            <h3 className="prd-title">Show saved cards first in the payment step</h3>
-            <div className="prd-chips"><span className="prd-tag">CI running</span><span className="prd-tag">Awaiting review</span></div>
-          </div>
+            {ui.banner && <Banner title={APPROVAL.headline} body={APPROVAL.detail} />}
+            {ui.clock && <span className="prd-clock">{ui.clock}</span>}
+            <i className="prd-glow" data-glow="" aria-hidden="true" />
+            <i className="prd-click" data-click="" aria-hidden="true" />
+            <svg className="prd-hand" viewBox="0 0 14 19" aria-hidden="true"><path d="M1 1v14.5l3.6-3.3 2.7 6 2.4-1.1-2.6-5.8H12z" /></svg>
+          </>}>{page}</Win>
         </div>
       </div>
     </div>
   );
 }
+

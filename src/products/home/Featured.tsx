@@ -18,7 +18,7 @@ function Slide({ product, index, active, tally, report }: {
 }) {
   const el = useRef<HTMLElement>(null);
   const mounted = useRef(false);
-  // PR Dashboard's demo ends when every blocker is cleared: the screen floods and stamps Merged.
+  // PR Dashboard's demo ends when every blocker is cleared: the screen floods and stamps Ready to merge (the plugin itself never merges).
   const done = product.stage === 'pr-demo' && tally === 0;
   const onTally = useCallback((value: number) => report(product.slug, value), [report, product.slug]);
   const label = tallyWords(product.stage, tally);
@@ -60,7 +60,7 @@ function Slide({ product, index, active, tally, report }: {
         <div className="ft-stage pp-branded" data-stage={product.stage}>
           <div className="ft-glow" />
           <div className="ft-tilt"><Stage product={product} active={active} onTally={onTally} /></div>
-          {product.stage === 'pr-demo' && <div className="ft-stamp pp-display" aria-hidden={!done}>Merged</div>}
+          {product.stage === 'pr-demo' && <div className="ft-stamp pp-display" aria-hidden={!done}>Ready<br />to merge</div>}
         </div>
       </div>
       {label && (

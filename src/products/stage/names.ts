@@ -19,7 +19,7 @@ export type DashName = Extract<(typeof LIVE_NAMES)[number], `dash:${string}`>;
 export const DASH_NAMES = LIVE_NAMES.filter((n): n is DashName => n.startsWith('dash:'));
 
 /** How many scenes a live demo can play by itself, by stage. A `scenes` block must have exactly this many. */
-export const SCENES: Partial<Record<string, number>> = { 'dash-demo': 4, 'md-demo': 4, 'jira-demo': 4, 'openui-demo': 4 };
+export const SCENES: Partial<Record<string, number>> = { 'dash-demo': 4, 'md-demo': 4, 'jira-demo': 4, 'openui-demo': 4, 'pr-demo': 4 };
 
 /** OpenUI Live Replies components the page does not draw (they need a file, an image or Mermaid): signature only. */
 export const OUI_UNDRAWN = ['Diagram', 'Snippet', 'FileImage', 'Transcript', 'ImageSearch'];
