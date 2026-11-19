@@ -521,13 +521,40 @@ export const products: Product[] = [
         runs: prRuns,
       },
       {
-        type: 'screens',
-        label: 'Screens',
-        screens: [
-          { src: `${pr}/list.jpg`, title: 'The list', caption: 'The Open tab: pull requests grouped by repository, with blockers, totals and new alerts.' },
-          { src: `${pr}/checks.jpg`, title: 'Checks', caption: 'Failing jobs with their errors, and Fix with agent.' },
-          { src: `${pr}/files.jpg`, title: 'Files', caption: 'The file list beside the diff, with a review thread under its line.' },
-          { src: `${pr}/reviewed.jpg`, title: 'Reviewed', caption: 'The Reviewed tab: a pull request with new commits since you approved, in amber.' },
+        type: 'tour',
+        label: 'In the real thing',
+        head: 'The plugin itself, in bb.',
+        steps: [
+          {
+            title: 'Blockers first',
+            body: 'Every pull request you are part of, grouped by repository, each leading with what blocks it. The Open tab adds the totals and what is new since you last looked.',
+            media: { src: `${pr}/list.jpg`, alt: 'The Open tab: pull requests grouped by repository, #482 leading with CI failing, changes requested and 2 unresolved comments, and new alerts beside them' },
+            focus: { x: 0.32, y: 0.35, zoom: 1.3 },
+          },
+          {
+            title: 'Pick, then send',
+            body: 'Fix with agent picks a finding. Picks stay while you switch tabs, and the bar sends them to the agent as one prompt.',
+            media: { src: `${pr}/batch.jpg`, alt: 'The Checks tab of #482 with both failed jobs picked, and the bar reading 4 to fix, Send to agent, Clear' },
+            focus: { x: 0.5, y: 0.82, zoom: 1.35 },
+          },
+          {
+            title: 'Code review in bb',
+            body: 'Every review thread sits under its line in the diff, with Reply, Resolve and Fix with agent beside it.',
+            media: { src: `${pr}/files.jpg`, alt: 'The Files tab: retry.ts with a review thread under line 18, waiting on your reply' },
+            focus: { x: 0.72, y: 0.78, zoom: 1.3 },
+          },
+          {
+            title: 'Reviews to redo',
+            body: 'Reviewed keeps the pull requests you reviewed, and turns amber when the author pushes after your review.',
+            media: { src: `${pr}/reviewed.jpg`, alt: 'The Reviewed tab: one pull request marked New commits since you approved, in amber' },
+            focus: { x: 0.3, y: 0.3, zoom: 1.35 },
+          },
+          {
+            title: 'The ⋯ menu',
+            body: 'Link the pull request to any bb thread, ask about it, have it explained, or send every finding at once.',
+            media: { src: `${pr}/menu.jpg`, alt: 'The ⋯ menu open on #482: Link to thread, Ask a question, Explain this PR, Fix findings in a thread, and the copy and close actions' },
+            focus: { x: 0.86, y: 0.25, zoom: 1.3 },
+          },
         ],
       },
       {
@@ -554,6 +581,15 @@ export const products: Product[] = [
           { keys: ['n', 'p'], does: 'In a pull request, the next and previous unresolved comment.' },
           { keys: ['[', ']'], does: 'In a pull request, the previous and next pull request in the list.' },
         ],
+      },
+      {
+        type: 'compare',
+        label: 'Light and dark',
+        before: { src: `${pr}/pr-light.jpg`, alt: '#482 open on its Overview tab in bb’s light mode' },
+        after: { src: `${pr}/pr-dark.jpg`, alt: '#482 open on its Overview tab in bb’s dark mode' },
+        beforeLabel: 'Light',
+        afterLabel: 'Dark',
+        caption: 'The plugin follows bb’s theme in light and dark mode.',
       },
       {
         type: 'faq',
