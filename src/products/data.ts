@@ -3,6 +3,8 @@ import { MW_CHECKS, MW_DIFF, MW_TESTS } from './stage/mwData.gen';
 import { OUI_DOCS_CHARS, OUI_GROUPS, OUI_OPENUI, OUI_PROMPT_CHARS } from './stage/oui/catalog.gen';
 import { ASK_COPY, CI_TEXT } from './stage/oui/copy';
 import { DOCUMENT_TEMPLATES, fillTemplate } from './stage/mdTemplates';
+import { PR_MENU, PR_PROMPTS, PR_RUNS } from './stage/prData.gen';
+import { FINDINGS, MORNING, OPEN, PR } from './stage/prSample';
 import { OUI_UNDRAWN, type LiveName } from './stage/names';
 import type { Product } from './types';
 
@@ -12,6 +14,22 @@ const usage = '/products-media/usage-explorer';
 const openui = '/products-media/openui-live-replies';
 const dash = '/products-media/bb-dashboards';
 const mw = '/products-media/markwright';
+
+// PR Dashboard's replay: the morning in prSample.ts, and what the plugin's own code made of it for every setting
+// (prData.gen.ts). An event that never alerted says why, from the rules the plugin applied.
+const onOff = (b: string) => (b === '1' ? 'On' : 'Off');
+const repoOf = (n: number) => OPEN.find(g => g.prs.some(p => p.number === n))!.repo;
+const prRuns = Object.fromEntries(Object.entries(PR_RUNS).map(([key, checks]) => {
+  const [flags, ignore, every] = key.split('|');
+  const skipped = Object.fromEntries(MORNING.events.flatMap((e, i) => {
+    const alerted = checks.some(c => c.alerts.some(a => a.headline.startsWith(e.fails ? 'CI failing' : `${e.who} commented`) && a.headline.endsWith(`#${e.pr}`)));
+    if (alerted) return [];
+    const why = 'bot' in e ? 'a bot' : e.who === PR.author ? 'your own' : e.who === ignore ? 'ignored' : e.fails ? 'notifyCi is off' : 'notifyComments is off';
+    return [[i, why]];
+  }));
+  return [[onOff(flags[0]), onOff(flags[1]), ignore, every].join('|'), { checks, skipped }];
+}));
+const cfg = (key: string) => `bb plugin config bb-github-pr-dashboard set ${key} {}`;
 
 export const products: Product[] = [
   {
@@ -437,6 +455,13 @@ export const products: Product[] = [
     ],
     blocks: [
       {
+        type: 'rules',
+        label: 'Why is it stuck?',
+        head: 'Flip what’s wrong with it. The plugin’s *own rules* name every reason, worst first.',
+        note: 'Six can hold at once, since CI and the review each have one state. The row is redrawn by the plugin’s own blocker rule.',
+        set: 'pr:blockers',
+      },
+      {
         type: 'statement',
         label: 'Why',
         head: 'A pull request can sit open for *eight reasons*. PR Dashboard *names them*, and hands the fix to *any agent*.',
@@ -455,12 +480,45 @@ export const products: Product[] = [
         ],
       },
       {
+        type: 'compose',
+        label: 'What the agent gets',
+        head: 'Pick what blocks it. This is the prompt the agent gets, *word for word*.',
+        note: 'Every text here is written by the plugin’s own code for the sample pull request: findingsPrompt for each pick, and the ⋯ menu’s thread prompts.',
+        parts: 'pr:findings',
+        items: FINDINGS.map(f => ({ id: f.key, title: f.subject.kind === 'thread' ? `${f.subject.thread.path.split('/').pop()}:${f.subject.thread.startLine ? `${f.subject.thread.startLine}–` : ''}${f.subject.thread.line}` : `${f.subject.check.workflow} › ${f.subject.check.name}` })),
+        start: ['jitter', 'unit', 'lint'],
+        unit: 'to fix',
+        outputs: PR_PROMPTS,
+        modes: [{ name: 'Explain this PR', text: PR_MENU.explain }, { name: 'Ask a question', text: PR_MENU.ask }, { name: 'Link to thread', text: PR_MENU.link }],
+        footer: `→ The bb thread on ${PR.headRefName}, queued if it’s busy`,
+      },
+      {
         type: 'stats',
         stats: [
           { value: '1', label: 'request for the tab you open, with every tab’s count' },
           { value: '8', label: 'reasons a pull request is stuck, each named' },
           { value: '0', label: 'writes to GitHub until you click' },
         ],
+      },
+      {
+        type: 'replay',
+        label: 'It taps you',
+        head: 'Every five minutes it looks. You hear only *what changed*.',
+        note: 'The morning is invented. Which pull request alerts reach you, and how, is worked out by the plugin’s own code for every setting.',
+        from: MORNING.from,
+        to: MORNING.to,
+        surfaces: 'pr:alerts',
+        events: MORNING.events.map(e => ({ at: e.at, who: e.who, what: `${e.what} on ${repoOf(e.pr)}#${e.pr}` })),
+        settings: [
+          { id: 'notifyCi', label: 'notifyCi', line: cfg('notifyCi'), options: ['Off', 'On'], now: 'On', run: true },
+          { id: 'notifyComments', label: 'notifyComments', line: cfg('notifyComments'), options: ['Off', 'On'], now: 'On', run: true },
+          { id: 'ignoreAuthors', label: 'ignoreAuthors', line: cfg('ignoreAuthors'), options: ['', 'ci-helper'], now: '', run: true },
+          { id: 'checkEveryMinutes', label: 'checkEveryMinutes', line: cfg('checkEveryMinutes'), options: ['5', '10'], now: '5', run: true },
+          { id: 'showToasts', label: 'showToasts', line: cfg('showToasts'), options: ['Off', 'On'], now: 'On' },
+          { id: 'showBadge', label: 'showBadge', line: cfg('showBadge'), options: ['Off', 'On'], now: 'On' },
+          { id: 'showDesktop', label: 'showDesktop', line: cfg('showDesktop'), options: ['Off', 'On'], now: 'On' },
+        ],
+        runs: prRuns,
       },
       {
         type: 'screens',
