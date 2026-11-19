@@ -330,14 +330,15 @@ export function MdDemo({ active, onTally, scene }: DemoProps) {
             <p className="mwd-file-head">
               <span className="mwd-file-name">{FILE}</span>
               <span className="mwd-file-on">on disk</span>
-              <span className="mwd-counts" aria-label={`${plus} lines added, ${minus} removed since the last commit`}><b>+{plus}</b> <i>−{minus}</i></span>
+              <span className="mwd-counts" aria-hidden="true"><b>+{plus}</b> <i>−{minus}</i></span>
+              <span className="pp-sr">{count} {count === 1 ? 'line' : 'lines'} changed since the last commit</span>
             </p>
             <div className="mwd-agent">
               <span className="mwd-agent-av" aria-hidden="true">A</span>
               <p><b>Agent</b> <span>{next ? next.say : 'Done for now.'}</span></p>
               <button type="button" className="mwd-mini" disabled={!next} onClick={() => act(agentWrites)}>Let it write</button>
             </div>
-            <div className="mwd-lines" ref={linesEl} aria-label={`${FILE}, ${count} ${count === 1 ? 'line' : 'lines'} changed since the last commit`}>
+            <div className="mwd-lines" ref={linesEl}>
               {disk.replace(/\n$/, '').split('\n').map((l, i) => (
                 // oxlint-disable-next-line react/no-array-index-key -- lines of the file, by position
                 <p key={i} className="mwd-ln" data-ln={i} data-mark={marks.marks[i]} data-cut={marks.cuts.has(i) ? '' : undefined}>
