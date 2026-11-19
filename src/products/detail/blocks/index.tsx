@@ -9,7 +9,10 @@ import { Compare } from './Compare';
 import { Bento } from './Bento';
 import { Cases } from './Cases';
 import { Chips } from './Chips';
+import { Checks } from './Checks';
 import { Code } from './Code';
+import { Deck } from './Deck';
+import { Diff } from './Diff';
 import { Notes } from './Notes';
 import { Specs } from './Specs';
 import { Marquee } from './Marquee';
@@ -58,6 +61,9 @@ const registry: { [K in Block['type']]: ComponentType<BlockProps<K>> } = {
   chips: Chips,
   cases: Cases,
   tour: Tour,
+  diff: Diff,
+  checks: Checks,
+  deck: Deck,
   scenes: Scenes,
 };
 

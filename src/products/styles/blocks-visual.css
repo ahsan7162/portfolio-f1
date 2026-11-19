@@ -252,3 +252,64 @@
   .bv-rot-tab { padding: 11px 14px; }
   .bv-rot-ask { padding: 12px 16px; }
 }
+
+/* deck: a hand of cards. Wide, the hand fans: --k is a card's place from the middle (-5 to 5 for eleven);
+   narrow, the cards sit in a row you swipe */
+.bv-deck-head { margin-top: 18px; max-width: 24ch; font-size: clamp(1.75rem, 3.4vw, 3.25rem); text-wrap: balance; }
+.bv-deck-hand { --w: clamp(150px, 14.5vw, 230px); list-style: none; position: relative; margin: clamp(36px, 4.6vw, 64px) 0 0; padding: 0; height: calc(var(--w) * 1.62 + 9vw); }
+.bv-deck-slot { position: absolute; left: 50%; top: 0; width: var(--w); --spread: calc(min(78vw, 1180px) / (var(--n) + 1)); }
+.bv-deck-card {
+  --k: 0; display: block; width: 100%; text-align: left; cursor: pointer; padding: 0; border-radius: 14px; color: var(--ink);
+  transform: translateX(calc(-50% + var(--k) * var(--spread))) translateY(calc(var(--k) * var(--k) * 0.32vw)) rotate(calc(var(--k) * 4deg));
+  transform-origin: 50% 120%; transition: transform 0.45s var(--ease), box-shadow 0.45s var(--ease);
+}
+.bv-deck-slot { --k: 0; }
+.bv-deck-slot .bv-deck-card { --k: inherit; }
+.bv-deck-card:is(:hover, :focus-visible) {
+  z-index: 2; transform: translateX(calc(-50% + var(--k) * var(--spread))) translateY(-34px) rotate(0deg) scale(1.06);
+}
+.bv-deck-slot:has(.bv-deck-card:is(:hover, :focus-visible)) { z-index: 2; }
+.bv-deck-face { position: relative; display: block; aspect-ratio: 3 / 4; overflow: hidden; border-radius: 12px; border: 1px solid var(--line); background: var(--raise); box-shadow: 0 24px 50px -24px var(--shadow-deep); }
+.bv-deck-face .frm-shot { width: 100%; height: 100%; object-fit: cover; }
+.bv-deck-card:is(:hover, :focus-visible) .bv-deck-face { border-color: var(--acc); box-shadow: 0 30px 60px -20px var(--shadow-deep), 0 0 0 1px var(--acc); }
+.bv-deck-tag {
+  position: absolute; left: 8px; right: 8px; bottom: 8px; z-index: 1; padding: 7px 9px; border-radius: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  background: color-mix(in srgb, var(--raise-2) 94%, transparent); box-shadow: 0 0 0 1px var(--line); color: var(--ink); font-size: 0.625rem; letter-spacing: 0.06em;
+}
+.bv-deck-title { display: block; margin-top: 12px; font-weight: 600; font-size: 0.9375rem; line-height: 1.25; }
+.bv-deck-body { display: block; margin-top: 4px; font-size: 0.8125rem; line-height: 1.4; }
+/* in the fan the face's tag names each card; the lifted card also shows its name and what it holds */
+@media (min-width: 900px) {
+  .bv-deck-title, .bv-deck-body { opacity: 0; transition: opacity 0.25s; }
+  .bv-deck-card:is(:hover, :focus-visible) :is(.bv-deck-title, .bv-deck-body) { opacity: 1; }
+}
+@media (max-width: 899px) {
+  .bv-deck-hand { display: flex; gap: 14px; height: auto; margin-inline: calc(-1 * var(--pad)); padding: 8px var(--pad) 18px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scroll-padding-inline: var(--pad); scrollbar-width: none; }
+  .bv-deck-slot { position: static; flex: none; width: 62vw; max-width: 260px; scroll-snap-align: start; }
+  .bv-deck-card, .bv-deck-card:is(:hover, :focus-visible) { transform: none; }
+}
+
+/* the open card */
+.bv-deck-dialog { padding: 0; border: 0; background: transparent; color: var(--ink); max-width: none; max-height: none; width: 100%; height: 100%; overflow: visible; }
+.bv-deck-dialog::backdrop { background: color-mix(in srgb, var(--black) 78%, transparent); backdrop-filter: blur(6px); }
+.bv-deck-open {
+  position: absolute; inset: 0; margin: auto; width: min(94vw, 1080px); height: min(90svh, 860px);
+  display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); overflow: hidden;
+  border-radius: 20px; border: 1px solid var(--line); background: var(--raise); box-shadow: 0 50px 100px -30px var(--shadow-deep);
+}
+.bv-deck-page { position: relative; min-height: 0; overflow-y: auto; overscroll-behavior: contain; border-right: 1px solid var(--line); }
+.bv-deck-face--big { position: absolute; inset: 0; aspect-ratio: auto; border: 0; border-radius: 0; box-shadow: none; }
+.bv-deck-src { margin: 0; padding: clamp(20px, 3vw, 40px); white-space: pre-wrap; overflow-wrap: anywhere; font-family: var(--mono); font-size: 0.875rem; line-height: 1.7; color: var(--ink); font-variant-ligatures: none; }
+.bv-deck-side { display: flex; flex-direction: column; gap: 14px; padding: clamp(24px, 3.4vw, 48px); }
+.bv-deck-open-t { font-size: clamp(1.75rem, 3vw, 2.75rem); text-wrap: balance; }
+.bv-deck-views { display: flex; gap: 6px; padding: 4px; border-radius: 999px; border: 1px solid var(--line); align-self: start; }
+.bv-deck-views button { padding: 8px 16px; border-radius: 999px; color: var(--dim); }
+.bv-deck-views button[aria-pressed='true'] { background: var(--acc); color: var(--on-acc); }
+.bv-deck-close { margin-top: auto; align-self: start; padding: 12px 18px; border-radius: 999px; border: 1px solid var(--line); }
+.bv-deck-close:hover { background: var(--raise-2); }
+@media (max-width: 899px) {
+  .bv-deck-open { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; }
+  .bv-deck-page { border-right: 0; border-bottom: 1px solid var(--line); }
+  .bv-deck-side { padding: 18px 20px 20px; gap: 10px; }
+  .bv-deck-side .pp-dim:not(.pp-mono) { display: none; }
+}

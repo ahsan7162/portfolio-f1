@@ -107,6 +107,12 @@ export type Block =
   /** A wall of names: what it works with, what it supports. */
   | { type: 'chips'; label: string; note?: string; items: string[] }
   /** How to get the product: an install command, store buttons, or a link. */
+  /** One edit, and the file each way of saving it leaves: changed lines marked and counted, the picked way in the product's colour. */
+  | { type: 'diff'; label: string; head?: string; note?: string; edit: string; file: string; before: string; ways: { name: string; after: string; pick?: boolean }[] }
+  /** A wall of named checks that run in turn: each passes, or is refused by design with its reason; a total lands at the end. */
+  | { type: 'checks'; label: string; head?: string; note?: string; steps: string[]; items: { name: string; pass: boolean; detail: string; proof?: string }[]; total?: { value: string; label: string } }
+  /** A hand of cards that fans out; pick one and it opens full size. `source` is the text behind a card, shown by the second of `views`. */
+  | { type: 'deck'; label: string; head?: string; note?: string; views?: [string, string]; cards: { title: string; body: string; media: Media; source?: string }[] }
   | { type: 'get'; label: string; note: string; via: { kind: 'command'; command: string } | { kind: 'stores' } | { kind: 'link'; href: string; label: string } };
 
 export type BlockOf<T extends Block['type']> = Extract<Block, { type: T }>;
