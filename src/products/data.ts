@@ -781,10 +781,10 @@ export const products: Product[] = [
       {
         type: 'film',
         label: 'Film',
-        src: `${jira}/film.mp4`,
-        poster: `${jira}/poster.jpg`,
-        duration: '0:57',
-        title: 'A short tour of Jira Board',
+        src: `${jira}/film-keys.mp4`,
+        poster: `${jira}/poster-keys.jpg`,
+        duration: '0:20',
+        title: 'Jira Board, worked from the keyboard',
       },
       {
         type: 'get',
