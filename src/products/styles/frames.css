@@ -119,3 +119,6 @@
   .frm-edit { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
   .frm-pills > i { width: 18em; height: 6em; }
 }
+
+/* A lazy live screen (stage/oui) holds its box while its code loads. */
+.oul { position: absolute; inset: 0; }

@@ -111,7 +111,7 @@ function Reply({ msg, ask, onDone }: { msg: Msg; ask: (text: string) => void; on
   );
 }
 
-export function OpenUiDemo({ active, onTally, scene }: DemoProps) {
+export default function OpenUiDemo({ active, onTally, scene }: DemoProps) {
   const root = useRef<HTMLDivElement>(null);
   const cam = useRef<HTMLDivElement>(null);
   const win = useRef<HTMLDivElement>(null);

@@ -1,30 +1,14 @@
 /* OpenUI Live Replies demo: a bb thread whose replies are blocks you use. bb's band theme, declared once on .oud
    (the block's own components take theirs from oui.css). Everything is in em off the container's width, so the
-   demo scales with its box and never changes its height. */
+   demo scales with its box and never changes its height. The rules that size the box live in stage.css, so the
+   placeholder shown while this code loads is the same size. */
 @property --x { syntax: '<number>'; inherits: true; initial-value: 1; }
 
-.oud {
-  --oud-canvas: #000000; --oud-panel: #070707; --oud-border: #262624; --oud-hair: #1a1a19; --oud-ink: #f3f2ee;
-  --oud-dim: color-mix(in oklch, var(--oud-ink) 60%, var(--oud-canvas));
-  --oud-faint: color-mix(in oklch, var(--oud-ink) 34%, var(--oud-canvas));
-  --oud-raise: color-mix(in oklch, var(--oud-ink) 7%, var(--oud-panel));
-  --oud-acc: oklch(from var(--acc) max(l, 0.7) c h);
-  container: oud / inline-size; width: 100%;
-  color: var(--oud-ink); font-family: var(--text); line-height: 1.45; font-variation-settings: 'wdth' 100;
-}
 .oud :where(p, pre) { margin: 0; }
 .oud button { font: inherit; color: inherit; cursor: pointer; background: none; border: 0; }
 .oud button:disabled { cursor: default; }
 .oud :is(button, textarea, [role='slider']):focus-visible { outline: 0.14em solid var(--oud-ink); outline-offset: 0.12em; }
 
-.oud-cam { position: relative; isolation: isolate; }
-.oud-win {
-  position: relative; overflow: hidden; display: grid; grid-template-rows: auto minmax(0, 1fr) auto;
-  height: 42em; border-radius: 1em; background: var(--oud-canvas);
-  font-size: clamp(0.5625rem, 1.95cqw, 0.875rem);
-  box-shadow: 0 0 0 1px var(--oud-border), 0 3.5em 7em -2em var(--shadow-deep);
-}
-@container oud (min-width: 760px) { .oud-win { font-size: clamp(0.75rem, 1.32cqw, 0.875rem); height: 44em; } }
 
 /* the thread's header */
 .oud-bar { display: flex; align-items: center; gap: 0.8em; min-height: 3.2em; padding: 0 1.2em; border-bottom: 1px solid var(--oud-hair); }

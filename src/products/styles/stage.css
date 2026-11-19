@@ -8,3 +8,23 @@
 /* A sample screen has no height of its own; a real screenshot sets the window's height itself. */
 .stg-window .frm-s { position: relative; aspect-ratio: 16 / 10; }
 .stg-phone--site { width: 20%; left: -6%; bottom: 0; transform: rotate(-4deg); }
+
+/* The OpenUI demo's box (the rest is in openui-demo.css, which loads with the demo): the placeholder shown while it
+   loads uses these too, so it is exactly the demo's size. Its palette is the drawing's own, declared once here. */
+.oud {
+  --oud-canvas: #000000; --oud-panel: #070707; --oud-border: #262624; --oud-hair: #1a1a19; --oud-ink: #f3f2ee;
+  --oud-dim: color-mix(in oklch, var(--oud-ink) 60%, var(--oud-canvas));
+  --oud-faint: color-mix(in oklch, var(--oud-ink) 34%, var(--oud-canvas));
+  --oud-raise: color-mix(in oklch, var(--oud-ink) 7%, var(--oud-panel));
+  --oud-acc: oklch(from var(--acc) max(l, 0.7) c h);
+  container: oud / inline-size; width: 100%;
+  color: var(--oud-ink); font-family: var(--text); line-height: 1.45; font-variation-settings: 'wdth' 100;
+}
+.oud-cam { position: relative; isolation: isolate; }
+.oud-win {
+  position: relative; overflow: hidden; display: grid; grid-template-rows: auto minmax(0, 1fr) auto;
+  height: 42em; border-radius: 1em; background: var(--oud-canvas);
+  font-size: clamp(0.5625rem, 1.95cqw, 0.875rem);
+  box-shadow: 0 0 0 1px var(--oud-border), 0 3.5em 7em -2em var(--shadow-deep);
+}
+@container oud (min-width: 760px) { .oud-win { font-size: clamp(0.75rem, 1.32cqw, 0.875rem); height: 44em; } }

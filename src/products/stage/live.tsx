@@ -1,17 +1,20 @@
 // Live screens: screens drawn in code, looked up by the name a block's `media` gives.
-import type { ComponentType } from 'react';
+import { lazy, Suspense, type ComponentType } from 'react';
 import type { LiveProps } from '../types';
 import { DASHES } from './dash';
 import { DashView } from './DashView';
 import { JiraRow } from './JiraRow';
 import { MdPage } from './MdPage';
-import type { DashName, LiveName } from './names';
+import type { DashName, LiveName, OuiName } from './names';
+
+// The OpenUI kit is the heaviest drawing on the site: it loads only when one of its screens is about to show.
+const OuiLive = lazy(() => import('./oui/OuiLive'));
 
 const dash = (name: DashName) => (p: LiveProps) => <DashView dash={DASHES[name]} {...p} />;
 const page = (template: string) => (p: LiveProps) => <MdPage template={template} {...p} />;
 
 /** Name to component. Typed by LiveName, so a name with no component does not compile. */
-const LIVE: Record<LiveName, ComponentType<LiveProps>> = {
+const LIVE: Record<Exclude<LiveName, OuiName>, ComponentType<LiveProps>> = {
   'dash:sales': dash('dash:sales'),
   'dash:branch': dash('dash:branch'),
   'dash:bench': dash('dash:bench'),
@@ -32,6 +35,9 @@ const LIVE: Record<LiveName, ComponentType<LiveProps>> = {
 };
 
 export function LiveScreen({ name, ...props }: LiveProps & { name: LiveName }) {
-  const C = LIVE[name];
+  if (name.startsWith('oui:')) {
+    return <Suspense fallback={<div className="oul" aria-label={props.alt} role="img" />}><OuiLive name={name as OuiName} {...props} /></Suspense>;
+  }
+  const C = LIVE[name as Exclude<LiveName, OuiName>];
   return <C {...props} />;
 }
