@@ -11,6 +11,7 @@ import { Bento } from './Bento';
 import { Cases } from './Cases';
 import { Chips } from './Chips';
 import { Checks } from './Checks';
+import { Compose } from './Compose';
 import { Code } from './Code';
 import { Deck } from './Deck';
 import { Diff } from './Diff';
@@ -29,6 +30,8 @@ import { Film } from './Film';
 import { Get } from './Get';
 import { Keys } from './Keys';
 import { Route } from './Route';
+import { Replay } from './Replay';
+import { Rules } from './Rules';
 import { Scenes } from './Scenes';
 import { Screens } from './Screens';
 import type { BlockProps } from './shared';
@@ -63,6 +66,9 @@ const registry: { [K in Block['type']]: ComponentType<BlockProps<K>> } = {
   code: Code,
   specs: Specs,
   notes: Notes,
+  rules: Rules,
+  compose: Compose,
+  replay: Replay,
   chips: Chips,
   cases: Cases,
   tour: Tour,

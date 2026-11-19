@@ -16,10 +16,12 @@ const esc = (s: unknown) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;
 const ld = (graph: object[]) => `<script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\\u003c')}</script>`;
 
 /** Fields that are settings or file paths, not words to read. */
-const NOT_COPY = new Set(['type', 'id', 'label', 'side', 'src', 'poster', 'hex', 'sample', 'dark', 'warn', 'max', 'kind', 'live', 'focus', 'before', 'after', 'file', 'proof', 'pass', 'pick', 'source', 'sig']);
+const NOT_COPY = new Set(['type', 'label', 'side', 'src', 'poster', 'hex', 'sample', 'dark', 'warn', 'max', 'kind', 'live', 'focus', 'before', 'after', 'file', 'proof', 'pass', 'pick', 'source', 'sig', 'set', 'surfaces', 'outputs', 'options', 'now', 'start']);
 /** Fields that are settings in one block type and copy in another, by the types they are settings in: a route's
-    `from` and `to` are stop numbers, a morph's are its two sides in words. */
-const NOT_COPY_IN: Partial<Record<string, string[]>> = { route: ['from', 'to'] };
+    `from` and `to` are stop numbers, a morph's are its two sides in words; compose's `parts` and replay's `runs` are a
+    drawing's name and worked-out data, anatomy's and route's are copy; a replay setting's `line` is config, a specimen's
+    is what it does; the ids of Your turn's goals and of anatomy's parts tie them to code, a replay setting's is its name. */
+const NOT_COPY_IN: Partial<Record<string, string[]>> = { scenes: ['id'], anatomy: ['id'], route: ['from', 'to'], compose: ['parts'], replay: ['runs', 'line'] };
 /** The words in a value, in order: a block's copy without knowing the block. `*accents*` lose their marks. */
 function words(value: unknown, skip = NOT_COPY): string {
   if (Array.isArray(value)) return value.map(v => words(v, skip)).filter(Boolean).join(' · ');

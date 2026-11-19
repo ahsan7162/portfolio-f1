@@ -1,4 +1,4 @@
-import type { LiveName } from './stage/names';
+import type { LiveName, PartsName, RuleSetName, SurfacesName } from './stage/names';
 
 /** What a product is. Adding a kind here adds its filter, its stage frame and its Get-it slot. */
 export type Kind = 'plugin' | 'app' | 'site';
@@ -158,6 +158,26 @@ export type Block =
       stops: { name: string; where: string; holds?: string[] }[];
       runs: { name: string; hops: { from: number; to: number; says: string }[] }[];
     }
+  /**
+   * A product's own rules, live: the visitor flips its inputs and the result is redrawn as the product draws it,
+   * with a big count beside it. The inputs, the rule and the drawing are a named set in stage/pieces.tsx.
+   */
+  | { type: 'rules'; label: string; head?: string; note?: string; set: RuleSetName }
+  /**
+   * Pick parts and the text they make writes itself: `outputs` holds the product's own text for every pick, keyed
+   * by the picked part ids in order, joined with "+". Each `### ` heading in the text is the next picked part's
+   * section, marked when its part is hovered. `parts` names the drawing of a part (stage/pieces.tsx).
+   */
+  | { type: 'compose'; label: string; head?: string; note?: string; parts: PartsName; items: { id: string; title: string }[]; start?: string[]; unit: string; outputs: Record<string, string>; modes?: { name: string; text: string }[]; footer?: string }
+  /**
+   * A stretch of time replayed fast: events arrive, and the product's surfaces show what reached you. `runs` holds,
+   * for every value of the settings marked `run`, what the product made of the events (keyed by those values in
+   * order, joined with "|"); the other settings only change where things show. `surfaces` names the drawing.
+   */
+  | { type: 'replay'; label: string; head?: string; note?: string; from: string; to: string; surfaces: SurfacesName;
+      events: { at: string; who: string; what: string }[];
+      settings: { id: string; label: string; line: string; options: string[]; now: string; run?: boolean }[];
+      runs: Record<string, { checks: { at: string; alerts: { kind: string; headline: string; detail: string }[]; push: { title: string; body: string } | null }[]; skipped: Record<number, string> }> }
   | { type: 'get'; label: string; note: string; via: { kind: 'command'; command: string } | { kind: 'stores' } | { kind: 'link'; href: string; label: string } };
 
 export type BlockOf<T extends Block['type']> = Extract<Block, { type: T }>;

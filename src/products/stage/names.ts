@@ -23,3 +23,11 @@ export const SCENES: Partial<Record<string, number>> = { 'dash-demo': 4, 'md-dem
 
 /** OpenUI Live Replies components the page does not draw (they need a file, an image or Mermaid): signature only. */
 export const OUI_UNDRAWN = ['Diagram', 'Snippet', 'FileImage', 'Transcript', 'ImageSearch'];
+
+/** Product drawings the rules, compose and replay blocks can show, by name. stage/pieces.tsx draws each one. */
+export const RULE_SET_NAMES = ['pr:blockers'] as const;
+export type RuleSetName = (typeof RULE_SET_NAMES)[number];
+export const PARTS_NAMES = ['pr:findings'] as const;
+export type PartsName = (typeof PARTS_NAMES)[number];
+export const SURFACES_NAMES = ['pr:alerts'] as const;
+export type SurfacesName = (typeof SURFACES_NAMES)[number];
