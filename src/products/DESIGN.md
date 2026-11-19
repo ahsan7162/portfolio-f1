@@ -80,6 +80,14 @@ src/products/
     DashDemo.tsx, dashScenes.ts  the bb Dashboards demo and its four scenes (beat sheets: camera, pointer, state changes)
     dashFilm.ts                  what a playing scene draws over that demo: the program streaming in, its check, parts growing out of their lines, ripples, the pulse, the versions deck, and rest()
     DashView.tsx, dash.ts        the dashboard kit the demo and the live screens draw with, and its data
+    film.ts                      what every filmed scene shares: box(), the camera and the drawn pointer (glow and click ring marked data-glow, data-click)
+    MdDemo.tsx                   the Markwright demo: the editor beside the file it writes, the / menu, the agent's writes and the conflict banner
+    md.ts, mdState.ts            Markwright's document model (blocks that keep their source; an edit rewrites only its block) and every change the demo makes
+    mdScenes.ts, mdFilm.ts       its four scenes (Tick it, Insert it, Draw it, Agents welcome) and their film layer: the Mermaid source typing in as its diagram grows
+    mdRender.tsx, mdDiagrams.tsx a block drawn as the plugin shows it; the eight Mermaid starters drawn by hand
+    mdCatalog.ts, mdTemplates.ts the plugin's 39 / menu entries and its eleven templates, copied from it (MIT)
+    MdPage.tsx                   a template drawn as a page: the md:tpl-* live screens
+    mwData.gen.ts                generated from the plugin's own code by motion-lab/products-directions/markwright/mwdata.sh: the demo's real saves, the diff block's two files, the corpus checks
     Frames.tsx                   PhoneFrame, BrowserFrame, WindowFrame, KindFrame (the frame for a kind), SampleScreen
   detail/                        a product's own page
     Detail.tsx                   top bar, hero, outline, the blocks, the Next band
@@ -88,6 +96,8 @@ src/products/
     blocks/shared.tsx            BlockProps, Label, useBlockMotion, countUp, useCopy, usePreload
     blocks/<Name>.tsx            one file per block type
     blocks/rotate.ts             the timer and index logic the cases, tour and scenes blocks share
+    blocks/keyMatch.ts           which shortcut row a key press is (the keys block lights it)
+  lineDiff.ts                    a line diff as git counts it: every "lines changed" on these pages comes from it
     blocks/MediaView.tsx         a Media value in the frame its product's kind calls for
   styles/                        plain CSS, one file per area
   products.test.ts               routes and product integrity
@@ -108,6 +118,7 @@ CSS class prefixes, one per area. Keep to them so nothing collides:
 | `stg-`, `frm-` | `stage.css`, `frames.css` | stages and device frames |
 | `prd-`, `jrd-` | `pr-demo.css`, `jira-demo.css` | the two live demos |
 | `dsd-` | `dash-demo.css`, `dash-film.css` | the bb Dashboards demo and its dashboard kit; the demo's film layer, camera and versions deck |
+| `mwd-` | `md-demo.css` | the Markwright demo, its film layer, and its template pages (`.mwd-live`) |
 
 ---
 
@@ -280,7 +291,7 @@ Append an object to `products` in `data.ts`. Its position in the array is its nu
 | `hook` | yes | a short question or claim under the name on the featured stage |
 | `hint` | yes | how to use the stage: "Click a blocker to clear it." |
 | `stack` | yes | what it is built with. Searchable in the catalogue. |
-| `stage` | yes | `'pr-demo'`, `'jira-demo'`, `'openui-demo'`, `'dash-demo'`, `'window'`, `'phone'` or `'browser'`. The last three show `shots` in frames; use `'window'` for a plugin or desktop tool with no live demo. |
+| `stage` | yes | `'pr-demo'`, `'jira-demo'`, `'openui-demo'`, `'dash-demo'`, `'md-demo'`, `'window'`, `'phone'` or `'browser'`. The last three show `shots` in frames; use `'window'` for a plugin or desktop tool with no live demo. |
 | `links` | yes | `{ label, href }` buttons in the hero. May be empty. |
 | `blocks` | yes | the detail page. See the next section. |
 | `featured` | no | `true` gives it a full screen at the top of the main page |
@@ -388,7 +399,7 @@ The shapes are in `types.ts` (the `Block` union) with a comment on each. TypeScr
 | `features` | required | A grid of title plus one sentence | What it does. Six items sit best; keep each body to one sentence. |
 | `steps` | required | Connected steps, each with a tag, title and body | How a request travels, or how to set it up. Three or four. |
 | `stats` | none | A few huge numbers with labels | Proof in numbers. Three reads best. `unit` is optional. |
-| `keys` | required | Keycaps and what they do | Keyboard shortcuts |
+| `keys` | required | Keycaps and what they do. While it is on screen, pressing a shortcut it lists presses its caps and lights its row (nothing else happens). Modifier caps (⌘ ⇧ ⌥ ⌃) combine with the rest; other caps are alternatives, so `['j', 'k']` is j or k | Keyboard shortcuts |
 | `screens` | required | A sideways gallery, pinned to the scroll on desktop, a swipe row on touch | Many screenshots, each with a title and caption |
 | `film` | required | A poster with a play button, then the video | The product's film. The first one is the target of the hero's button. |
 | `split` | optional | A screen on one side, words and points on the other | Walking through one feature at a time |
@@ -408,13 +419,16 @@ The shapes are in `types.ts` (the `Block` union) with a comment on each. TypeScr
 | `tour` | required | A list of points beside one screen that steps on by itself, with an optional camera move to the part each step is about | Several features of one screen |
 | `scenes` | required | The product's live demo playing itself through named scenes, a tab per scene; the visitor can take over. Each scene may set `head`, a short line set large as it plays ("Ask for it."), and `cost`, a number then its words ("1 model call"): the number rolls in when the demo spends it, or pulses if it is 0 | Only a product whose demo lists its scenes in `SCENES` |
 | `chips` | required | A wall of names as pills | What it works with or supports |
+| `diff` | required | One edit and the file each way of saving it leaves, side by side: the block diffs and counts the lines itself, marks run down every file on one clock as it enters, the picked way in the product's colour and the others in grey, struck through. Changes only / Whole file folds unchanged runs; on a phone, a tab per way | A formatter, a codemod, a save that keeps diffs small: what git sees |
+| `checks` | required | A wall of named checks a light runs over in turn; each stamps a pass (with an optional `proof`) or a refusal with its reason, then a `total` counts up. Run again replays it | Test results, a support matrix, files it was proven on |
+| `deck` | required | A hand of cards: fanned on a wide screen (it deals as it enters, a card lifts under the pointer or focus), a swipe row on a phone. Picking one flies it into a dialog at full size; a card with `source` gets a second view (`views`, e.g. Rich and Source) | Templates, themes, presets, sample projects |
 | `get` | required | An install command with Copy, store buttons, or a link, on a band in the product's colour | How to get it. Always last. |
 
 **Media.** `split`, `showcase`, `compare` and `bento` take a `Media` value:
 
 - `{ src, alt }`: a real image. Write `alt` as what the screen shows.
 - `{ sample, dark? }`: a drawn placeholder screen. For dummy products only.
-- `{ live, alt }`: a screen drawn in code, by name from `stage/names.ts`, that builds itself in when its block shows it. It works in any block that takes `Media`.
+- `{ live, alt }`: a screen drawn in code, by name from `stage/names.ts`, that builds itself in when its block shows it. It works in any block that takes `Media`. Today: `dash:*` (bb Dashboards' dashboards) and `md:tpl-*` (Markwright's templates, each as the page it starts).
 
 `MediaView` puts either one in the frame the product's kind calls for, so a block never chooses a frame. The stage does the same with a product's `shots`. Both draw the picture with `Shot` from `stage/Frames.tsx`: the frames are code, and a screenshot is only what goes inside one.
 
@@ -507,6 +521,8 @@ export function Pricing({ block, n }: BlockProps<'pricing'>) {
 **A live demo** is the strongest thing a product can have: a small, playable copy of the product's main idea. `PrDemo.tsx` and `JiraDemo.tsx` are the models.
 
 - Its props are `DemoProps`: `active`, `onTally`, and an optional `scene`, the scene to play by itself (undefined means the visitor drives).
+- A filmed demo builds its camera and pointer from `stage/film.ts` (`camera`, `pointer`), so every product's film moves the same way. Mark the pointer's glow and click ring `data-glow` and `data-click`.
+- A demo of a real product's behaviour should be checked against the product's own code where it can be: Markwright's `md.test.ts` asserts the demo writes the same bytes the plugin writes for the same edits (`mwData.gen.ts`).
 - A demo with scenes lists how many in `SCENES` in `stage/names.ts`. A `scenes` block must have exactly that many.
 - A scene's timeline must end inside the block's hold (`HOLD_SCENE` in `blocks/Cases.tsx`, 8.5 s). When a scene spends what its `cost` says (its model call), the demo dispatches a bubbling `scene-cost` event from its root; the block ticks the cost tag then.
 - A scene may be filmed (the bb Dashboards demo: a camera, overlays, a versions deck), but taking over must leave the demo whole and flat at once: every tween that touches the product is landed (`finish()`), every film layer goes back to its CSS rest (`rest()` in `dashFilm.ts`), and nothing filmed shows when the visitor drives. Move the camera only by scale and translate while anything is measured or aimed at; tilt only between those moments.
@@ -612,6 +628,8 @@ Things an agent will hit. Fix the one you need, as part of the work that needs i
 - **Store buttons are disabled.** `StoreButtons` in `blocks/shared.tsx` has no URLs to link. When a real app ships, add the store links to the `get` block's `stores` variant and link them.
 - **Films have no captions.** The `film` block has no captions track. Add an optional captions path when a film has speech.
 - **Only PR Dashboard has a finish on the featured stage** (the flood and the Merged stamp). It is tied to `stage === 'pr-demo'` in `Featured.tsx`. A second demo with an ending should turn that into something the demo reports, not a second special case.
+- **Every demo is in the products bundle.** All five demos load on every products page: 271 kB of script, 81 kB gzipped (2026-11-19, with Markwright). A dynamic import per demo would lighten it, but each needs a placeholder that holds the demo's exact height at every width, or the page jumps when it loads.
+- **The Markwright demo's panes do not scroll by wheel.** On the featured section a scrolling pane would catch the page's scroll, so the demo scrolls its panes itself to keep each change in view; a long inserted template is seen in full in the template deck instead.
 - **Not yet checked on real devices:** trackpad and mouse feel on the featured section, tablet widths, 1920 wide, and a real pointer drag on the compare handle. The car is small on phones.
 
 ---
