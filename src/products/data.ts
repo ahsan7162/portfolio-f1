@@ -227,7 +227,7 @@ export const products: Product[] = [
   },
   {
     slug: 'markwright',
-    brand: '#D29922',
+    brand: '#2F81F7',
     name: 'Markwright',
     lines: ['Markwright'],
     kind: 'plugin',
