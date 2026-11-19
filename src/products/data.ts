@@ -235,7 +235,7 @@ export const products: Product[] = [
     facts: ['for bb', 'v0.1', 'MIT'],
     line: 'Edit any Markdown file in bb like a Notion page, and a save rewrites only the blocks you changed.',
     hook: 'Why type Markdown at all?',
-    hint: 'Tick a box, or type / on an empty line, and watch the file underneath.',
+    hint: 'Tick a box, or type / on an empty line, and watch the file it writes.',
     stack: ['TypeScript', 'React', 'Tiptap 3', 'ProseMirror', 'highlight.js'],
     stage: 'md-demo',
     featured: true,
@@ -258,7 +258,7 @@ export const products: Product[] = [
           { tab: 'Tick it', head: 'Click, don’t type.', cost: '1 line changed', caption: 'A tick in the document is one line in the file: - [ ] becomes - [x], written 800 ms after the click.' },
           { tab: 'Insert it', head: 'Type / for anything.', cost: '3 lines added', caption: 'The / menu holds every block. A callout is written as GitHub writes one, > [!WARNING], and nothing else moves.' },
           { tab: 'Draw it', head: 'Draw with text.', cost: '8 lines added', caption: 'A Mermaid diagram is a plain fence in the file. Edit diagram shows its source, and the diagram follows as you type.' },
-          { tab: 'Agents welcome', head: 'Nothing lost.', cost: '0 silent overwrites', caption: 'An agent’s change appears in place. If you have unsaved edits, the write is stopped and you choose: Compare, Use theirs or Keep mine.' },
+          { tab: 'Agents welcome', head: 'You choose.', cost: '0 silent overwrites', caption: 'An agent’s change appears in place. If you have unsaved edits, the write is stopped and you choose: Compare, Use theirs or Keep mine.' },
         ],
       },
       {
@@ -394,7 +394,7 @@ export const products: Product[] = [
         label: 'Requirements',
         rows: [
           { name: 'bb', value: '0.49 or later', note: 'Plugin SDK 0.6.132 or later.' },
-          { name: 'Opens', value: '.md and .markdown files', note: 'In a thread’s side panel, from a file link, the file picker or bb thread open.' },
+          { name: 'Opens', value: '.md and .markdown files', note: 'In a thread’s side panel.' },
           { name: 'Saving', value: 'Autosave after 800 ms', note: '⌘S saves at once; a pending save is flushed when the tab loses focus or closes.' },
           { name: 'Account', value: 'None', note: 'No API key or external service.' },
           { name: 'Licence', value: 'MIT' },
