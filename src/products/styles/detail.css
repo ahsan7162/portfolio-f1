@@ -193,7 +193,8 @@
    the face sinks into the side when its row is hovered (translate, so GSAP's transform is left alone). */
 .dt-keys-note { margin-top: 18px; max-width: 62ch; color: var(--dim); }
 .dt-keys { list-style: none; margin-top: clamp(28px, 3.6vw, 44px); border-bottom: 1px solid var(--line); }
-.dt-keys-row { display: grid; grid-template-columns: minmax(220px, 1fr) minmax(0, 2fr); gap: 12px 24px; align-items: center; padding-block: clamp(14px, 1.6vw, 22px); border-top: 1px solid var(--line); }
+.dt-keys-row { display: grid; grid-template-columns: minmax(220px, 1fr) minmax(0, 2fr); gap: 12px 24px; align-items: center; padding-block: clamp(14px, 1.6vw, 22px); border-top: 1px solid var(--line);
+  --hit: 0; background: linear-gradient(90deg, color-mix(in srgb, var(--acc) calc(var(--hit) * 16%), transparent), transparent 70%); }
 .dt-keys-caps { display: flex; flex-wrap: wrap; gap: 10px; }
 .dt-keys-does { font-family: var(--display); font-weight: 600; font-variation-settings: 'wdth' 104; font-size: clamp(1.1875rem, 2vw, 1.875rem); letter-spacing: -0.02em; line-height: 1.2; }
 .dt-key { --cap: clamp(46px, 4.4vw, 64px); display: inline-block; padding-bottom: calc(var(--cap) * 0.11); border-radius: calc(var(--cap) * 0.24); background: color-mix(in srgb, var(--ink) 12%, var(--ground)); font: inherit; }
@@ -203,6 +204,8 @@
   box-shadow: inset 0 0 0 1px var(--line), inset 0 1px 0 color-mix(in srgb, var(--ink) 14%, transparent);
   transition: translate 0.18s var(--ease), box-shadow 0.2s;
 }
+/* the row of a shortcut the visitor just pressed: lit, its caps ringed in the product's colour */
+.dt-keys-row .dt-key-face { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--acc) calc(var(--hit) * 100%), var(--line)), inset 0 1px 0 color-mix(in srgb, var(--ink) 14%, transparent); }
 .dt-keys-row:hover .dt-key-face { translate: 0 3px; box-shadow: inset 0 0 0 1px var(--acc); }
 
 /* next: a full-bleed bone band, one link */
