@@ -1053,7 +1053,7 @@ export const products: Product[] = [
         type: 'faq',
         label: 'Questions',
         items: [
-          { q: 'Which agents can use it?', a: 'Any agent provider in bb. The plugin gives each one the same instructions and tools, whether the model is Claude, Codex or an open model you run there.' },
+          { q: 'Which agents can use it?', a: 'Any agent provider in bb. The plugin gives each one the same instructions and tools, and nothing in it depends on one model.' },
           { q: 'What does it cost in tokens?', a: 'About 3,000 tokens of instructions in each session a person reads; worker threads get none. Signatures for most components load only when the agent asks for them.' },
           { q: 'Do I need an OpenUI account or an API key?', a: 'No. There is no OpenUI Gateway and no key. Gateway’s automatic error correction is not used, so a block with no renderable root shows as its code.' },
           { q: 'What does my click send?', a: 'Words the agent reads, as your next message. Go with sends “Go with Redis queue (weights: Throughput 5, Ops cost 1, Delivery 4, Local dev 2)”; a plan sends “Approve the plan”; a quiz sends your score and what you missed; a form sends one line per field.' },
