@@ -17,6 +17,9 @@ import { Diff } from './Diff';
 import { Notes } from './Notes';
 import { Specs } from './Specs';
 import { Marquee } from './Marquee';
+import { Morph } from './Morph';
+import { Prompts } from './Prompts';
+import { Specimens } from './Specimens';
 import { Scores } from './Scores';
 import { Timeline } from './Timeline';
 import { Faq } from './Faq';
@@ -69,6 +72,9 @@ const registry: { [K in Block['type']]: ComponentType<BlockProps<K>> } = {
   scenes: Scenes,
   anatomy: Anatomy,
   route: Route,
+  morph: Morph,
+  prompts: Prompts,
+  specimens: Specimens,
 };
 
 function One<K extends Block['type']>({ block, product, n }: { block: BlockOf<K>; product: Product; n?: string }) {

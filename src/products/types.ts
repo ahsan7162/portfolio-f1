@@ -121,6 +121,23 @@ export type Block =
   | { type: 'diff'; label: string; head?: string; note?: string; edit: string; file: string; before: string; ways: { name: string; after: string; pick?: boolean }[] }
   /** A wall of named checks that run in turn: each passes, or is refused by design with its reason; a total lands at the end. */
   | { type: 'checks'; label: string; head?: string; note?: string; steps: string[]; items: { name: string; pass: boolean; detail: string; proof?: string }[]; total?: { value: string; label: string } }
+  /**
+   * The same content two ways: as plain text, then as the product's own interface. It changes over once as it
+   * comes into view, then a switch flips it. A line that starts `{key}` flies to the part of the screen marked
+   * `data-part="key"`; the rest cross-fades.
+   */
+  | { type: 'morph'; label: string; head?: string; note?: string; from: { name: string; lines: string[] }; to: { name: string; media: Media } }
+  /** A prompt bar with suggested asks: pick one and its reply streams in, its words and then its screen building itself. */
+  | { type: 'prompts'; label: string; head?: string; note?: string; prompts: { chip: string; ask: string; reply: string; media: Media }[] }
+  /**
+   * Every named part of a product, set large as a wall of words in groups. Point at a name to see it in the
+   * inspector (its drawing, its signature, what it does); pick it to keep it there. `also` names what it builds on.
+   */
+  | {
+      type: 'specimens'; label: string; head?: string; note?: string;
+      groups: { name: string; items: { name: string; line: string; sig?: string; code?: string; media?: Media }[] }[];
+      also?: { note: string; names: string[] };
+    }
   /** A hand of cards that fans out; pick one and it opens full size. `source` is the text behind a card, shown by the second of `views`. */
   | { type: 'deck'; label: string; head?: string; note?: string; views?: [string, string]; cards: { title: string; body: string; media: Media; source?: string }[] }
   /**
