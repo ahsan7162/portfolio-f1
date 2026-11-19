@@ -103,7 +103,14 @@ export type Block =
    * `head` is a short line set large as the scene plays ("Ask for it."). `cost` is what the scene costs, a number
    * then its words ("1 model call"): the number rolls in when the demo spends it, or pulses if it is 0.
    */
-  | { type: 'scenes'; label: string; note?: string; scenes: { tab: string; head?: string; cost?: string; ask?: string; caption?: string }[] }
+  | {
+      type: 'scenes'; label: string; note?: string; scenes: { tab: string; head?: string; cost?: string; ask?: string; caption?: string }[];
+      /**
+       * A last tab where the scenes stop and the visitor drives, with goals to do. The demo dispatches a bubbling
+       * `scene-goal` (detail: the goal's id) when one is done, and `scene-input` for each key it answers; the block counts both, and clicks.
+       */
+      turn?: { tab: string; head: string; caption?: string; goals: { id: string; text: string; keys?: string }[] };
+    }
   /** A wall of names: what it works with, what it supports. */
   | { type: 'chips'; label: string; note?: string; items: string[] }
   /** How to get the product: an install command, store buttons, or a link. */

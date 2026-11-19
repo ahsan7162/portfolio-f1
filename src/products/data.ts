@@ -593,6 +593,17 @@ export const products: Product[] = [
           { tab: 'Move it on', head: 'Move it on.', cost: '1 click', caption: 'S shows only the moves this ticket’s workflow allows. Done takes it out of your open list.' },
           { tab: 'Hand it off · New', head: 'The right Alex.', cost: '1 ticket handed off', caption: 'New in 0.5. Search the people Jira lets you assign this ticket to. It assigns by account, not by name, and the ticket leaves your list.' },
         ],
+        turn: {
+          tab: 'Your turn',
+          head: 'Your turn.',
+          caption: 'The scenes stop here and the panel is yours. Each goal ticks when you do it, and the count keeps your keys and clicks.',
+          goals: [
+            { id: 'review', text: 'Open a ticket in review', keys: 'J · K · Enter' },
+            { id: 'epic', text: 'Go up to its epic', keys: 'U' },
+            { id: 'done', text: 'Move a ticket to Done', keys: 'S' },
+            { id: 'search', text: 'Open ACME-160 from search', keys: '/ then the key' },
+          ],
+        },
       },
       {
         type: 'statement',

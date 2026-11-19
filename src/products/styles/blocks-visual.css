@@ -315,3 +315,20 @@
   .bv-deck-side { padding: 18px 20px 20px; gap: 10px; }
   .bv-deck-side .pp-dim:not(.pp-mono) { display: none; }
 }
+
+/* Your turn: the goals beside the headline, ticked as the visitor does them */
+.bv-turn { display: grid; gap: 12px; justify-items: end; padding-bottom: 0.4em; }
+.bv-turn-goals { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, auto)); gap: 6px 10px; margin: 0; padding: 0; }
+.bv-turn-goals li { display: grid; grid-template-columns: 24px minmax(0, auto); gap: 10px; align-items: center; padding: 8px 14px 8px 9px; border-radius: 14px; box-shadow: inset 0 0 0 1px var(--line); color: var(--dim); font-size: 0.98rem; line-height: 1.25; transition: color 0.3s var(--ease), box-shadow 0.3s var(--ease), background-color 0.3s var(--ease); }
+.bv-turn-goals li i { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px var(--faint); font-style: normal; font-family: var(--mono); font-size: 0.72rem; }
+.bv-turn-goals li small { display: block; margin-top: 3px; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--faint); }
+.bv-turn-goals li[data-done] { color: var(--ink); background: color-mix(in srgb, var(--acc) 9%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--acc) 55%, transparent); }
+.bv-turn-goals li[data-done] i { background: var(--acc); color: var(--on-acc); box-shadow: none; @media (prefers-reduced-motion: no-preference) { animation: bv-turn-tick 0.5s var(--spring); } }
+@keyframes bv-turn-tick { from { scale: 0.4; } }
+.bv-turn-meter { display: flex; gap: 18px; font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--dim); }
+.bv-turn-meter b { color: var(--ink); font-weight: 600; font-size: 1.15em; font-variant-numeric: tabular-nums; }
+.bv-turn-win { color: var(--acc); }
+@media (max-width: 899px) {
+  .bv-turn { justify-items: start; }
+  .bv-turn-goals { grid-template-columns: minmax(0, 1fr); }
+}

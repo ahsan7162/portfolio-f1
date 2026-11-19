@@ -66,14 +66,58 @@ function useSceneMotion(root: RefObject<HTMLElement | null>, scene: number | und
   }, { scope: root, dependencies: [scene], revertOnUpdate: true });
 }
 
+/** Your turn: the goals, ticked as the demo reports them, with the keys and clicks it took. Listens only while it is the tab showing. */
+function Turn({ goals, live, root }: { goals: NonNullable<BlockProps<'scenes'>['block']['turn']>['goals']; live: boolean; root: RefObject<HTMLElement | null> }) {
+  const [done, setDone] = useState<string[]>([]);
+  const [keys, setKeys] = useState(0);
+  const [clicks, setClicks] = useState(0);
+  useEffect(() => {
+    const el = root.current;
+    if (!live || !el) return;
+    const goal = (e: Event) => { const g = (e as CustomEvent<string>).detail; setDone((d) => (d.includes(g) || !goals.some((x) => x.id === g) ? d : [...d, g])); };
+    const key = () => setKeys((k) => k + 1);
+    const click = (e: Event) => { if (e.target instanceof Element && e.target.closest('.bv-scenes-stage')) setClicks((c) => c + 1); };
+    el.addEventListener('scene-goal', goal);
+    el.addEventListener('scene-input', key);
+    el.addEventListener('click', click, true);
+    return () => { el.removeEventListener('scene-goal', goal); el.removeEventListener('scene-input', key); el.removeEventListener('click', click, true); };
+  }, [live, root, goals]);
+  const all = done.length === goals.length;
+  return (
+    <div className="bv-turn">
+      <ol className="bv-turn-goals">
+        {goals.map((g, i) => (
+          <li key={g.id} data-done={done.includes(g.id) || undefined}>
+            <i aria-hidden="true">{done.includes(g.id) ? '✓' : i + 1}</i>
+            <span>{g.text}{g.keys && <small className="pp-mono">{g.keys}</small>}</span>
+            <span className="pp-sr">{done.includes(g.id) ? 'done' : 'to do'}</span>
+          </li>
+        ))}
+      </ol>
+      <p className="bv-turn-meter pp-mono" aria-live="polite">
+        {all ? <span className="bv-turn-win">All {goals.length}, in {keys} {keys === 1 ? 'key' : 'keys'} and {clicks} {clicks === 1 ? 'click' : 'clicks'}.</span>
+          : <><span><b>{keys}</b> {keys === 1 ? 'key' : 'keys'}</span><span><b>{clicks}</b> {clicks === 1 ? 'click' : 'clicks'}</span><span>{done.length} of {goals.length}</span></>}
+      </p>
+    </div>
+  );
+}
+
 export function Scenes({ block, product, n }: BlockProps<'scenes'>) {
   const root = useRef<HTMLElement>(null);
   const id = useId();
   const [tally, setTally] = useState<number | null>(null);
-  const r = useRotate(root, { count: block.scenes.length, hold: HOLD_SCENE });
+  const turnAt = block.turn ? block.scenes.length : -1;
+  const all = block.turn ? [...block.scenes, { tab: block.turn.tab, head: block.turn.head, caption: block.turn.caption, cost: undefined, ask: undefined }] : block.scenes;
+  const r = useRotate(root, { count: all.length, hold: HOLD_SCENE });
   const playing = !r.stopped;
-  const scene = playing && r.inView ? r.index : undefined;
-  useSceneMotion(root, r.live ? scene : undefined);
+  const onTurn = r.index === turnAt;
+  const scene = playing && r.inView && !onTurn ? r.index : undefined;
+  useSceneMotion(root, r.live ? (scene ?? (onTurn ? turnAt : undefined)) : undefined);
+  // Reaching Your turn stops the clock: from here the visitor drives. Each visit starts its count afresh.
+  useEffect(() => { if (onTurn && r.rotating) r.take(); });
+  const [visit, setVisit] = useState(0);
+  const [wasOn, setWasOn] = useState(false);
+  if (onTurn !== wasOn) { setWasOn(onTurn); if (onTurn) setVisit((v) => v + 1); }
   // Using the demo itself is taking over: the scene stops being driven, the reader drives.
   // A click, not a pointer down: a finger scrolling the page across the demo must not count.
   const take = () => { if (playing) r.take(); };
@@ -85,7 +129,7 @@ export function Scenes({ block, product, n }: BlockProps<'scenes'>) {
     return () => el.removeEventListener('scene-take', take);
   });
   // Each row of the block keeps one item per scene in a single cell, so it never changes height.
-  const items = (render: (s: (typeof block.scenes)[number], i: number) => ReactNode) => block.scenes.map((s, i) => (
+  const items = (render: (s: (typeof all)[number], i: number) => ReactNode) => all.map((s, i) => (
     <div key={s.tab} className="bv-rot-item" data-scene={i} data-on={i === r.index || undefined} inert={i !== r.index}>{render(s, i)}</div>
   ));
 
@@ -101,7 +145,7 @@ export function Scenes({ block, product, n }: BlockProps<'scenes'>) {
           </>)}
         </div>
         <div className="bv-rot-stack bv-scenes-asks">
-          {items((s, i) => s.ask && <Ask text={s.ask} i={i} />)}
+          {items((s, i) => (i === turnAt && block.turn ? <Turn key={visit} goals={block.turn.goals} live={onTurn} root={root} /> : s.ask && <Ask text={s.ask} i={i} />))}
         </div>
       </div>
       <div className="bv-scenes-stage" role="tabpanel" id={`${id}-stage`} aria-labelledby={`${id}-t${r.index}`} onClickCapture={take} onKeyDownCapture={take}>
@@ -118,7 +162,7 @@ export function Scenes({ block, product, n }: BlockProps<'scenes'>) {
         {tally !== null && tallyWords(product.stage, tally) && <span className="dt-tally" aria-live="polite">{tally} {tallyWords(product.stage, tally)?.join(' ')}</span>}
       </p>
       <div className="bv-rot-bar">
-        <RotTabs tabs={block.scenes.map(s => s.tab)} r={r} id={id} keep controls={`${id}-stage`} />
+        <RotTabs tabs={all.map(s => s.tab)} r={r} id={id} keep controls={`${id}-stage`} />
         {/* One slot for both, so the row never changes size when the reader takes over. */}
         <div className="bv-rot-slot">
           <PauseButton r={r} />
