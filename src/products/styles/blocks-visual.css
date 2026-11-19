@@ -190,6 +190,8 @@
   font-family: var(--display); font-weight: 800; font-variation-settings: 'wdth' 125;
   font-size: clamp(2.5rem, 7.2vw, 7.25rem); line-height: 0.9; letter-spacing: -0.045em; white-space: nowrap;
 }
+/* a phone: a long headline wraps (every scene shares one cell, so the block keeps the tallest height) */
+@media (max-width: 599px) { .bv-scenes-head { font-size: clamp(2rem, 11vw, 2.5rem); white-space: normal; text-wrap: balance; } }
 /* the mask its letters rise out of, padded so it keeps the descenders and the lean */
 .bv-scenes-head-t { display: inline-block; overflow: clip; padding: 0.05em 0.08em 0.16em 0; margin: -0.05em -0.08em -0.16em 0; }
 .bv-scenes-cost {
