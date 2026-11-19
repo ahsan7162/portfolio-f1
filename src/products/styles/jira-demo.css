@@ -147,7 +147,7 @@
 .jbd-row[data-sel] { background: var(--jbd-muted); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--jbd-ring) 45%, transparent); }
 .jbd-row[data-depth='1'] { padding-left: 2.3em; }
 .jbd-row > .jbd-ty { grid-area: ty; align-self: start; margin-top: 0.1em; }
-.jbd-row-title { grid-area: title; min-width: 0; font-weight: 500; font-size: 0.98em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.jbd-row-title { grid-area: title; min-width: 0; contain: inline-size; font-weight: 500; font-size: 0.98em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .jbd-row-key { grid-area: key; color: var(--jbd-dim); font-size: 0.86em; }
 .jbd-row-par { grid-area: par; min-width: 0; display: inline-flex; align-items: center; gap: 0.3em; font-size: 0.86em; color: var(--jbd-dim); white-space: nowrap; overflow: hidden; }
 .jbd-row-par > span:last-child { overflow: hidden; text-overflow: ellipsis; }
@@ -308,3 +308,12 @@
 .jbd-live[data-show='type'] [data-part='type'], .jbd-live[data-show='key'] [data-part='key'], .jbd-live[data-show='title'] [data-part='title'], .jbd-live[data-show='parent'] [data-part='parent'], .jbd-live[data-show='status'] [data-part='status'], .jbd-live[data-show='priority'] [data-part='priority'], .jbd-live[data-show='age'] [data-part='age'] { opacity: 1; }
 /* narrow: the second toolbar row wraps, as the plugin's does */
 @container jbd (max-width: 859px) { .jbd-row2 { flex-wrap: wrap; row-gap: 0.4em; } }
+/* the row screen in a narrow box: the plugin's own narrow row, title above its muted line */
+@container jbd (max-width: 599px) {
+  .jbd-live .jbd-rows { font-size: clamp(10px, 3.7cqw, 16px); }
+  .jbd-live .jbd-row { grid-template-columns: 1.3em auto minmax(0, 1fr) auto auto auto; grid-template-areas: 'ty title title title title title' 'ty key par st prio age'; gap: 0.25em 0.7em; }
+  .jbd-live .jbd-row > .jbd-ty { align-self: start; margin-top: 0.1em; }
+  .jbd-live .jbd-row-title { font-size: 0.98em; }
+  .jbd-live :is(.jbd-row-key, .jbd-row-par, .jbd-row-age, .jbd-prio) { font-size: 0.82em; }
+  .jbd-live .jbd-st { font-size: 0.9em; }
+}
