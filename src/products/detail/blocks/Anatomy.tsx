@@ -78,7 +78,20 @@ export function Anatomy({ block, n }: BlockProps<'anatomy'>) {
     pin(k);
     e.currentTarget.parentElement?.querySelectorAll<HTMLElement>('[role="tab"]')[k]?.focus();
   };
-  const spot = boxes[shown];
+  // The ring follows the shown part as it is drawn now: a state can change its width ("35m", "Apr 2025"), while
+  // the labels and hit zones keep the boxes measured at rest, so they never move under the pointer.
+  const spotEl = useRef<HTMLSpanElement>(null);
+  useLayoutEffect(() => {
+    const [el, ring] = [art.current, spotEl.current];
+    if (!el || !ring) return;
+    const p = block.parts[shown];
+    const r = el.getBoundingClientRect();
+    const d = el.querySelector(`[data-part="${p.id}"]`)?.getBoundingClientRect();
+    const b = p.at ? boxes[shown] : d && { x: d.left - r.left, y: d.top - r.top, w: d.width, h: d.height };
+    ring.dataset.state = String(state);
+    ring.style.visibility = b && b.w > 0 ? 'visible' : 'hidden';
+    if (b) Object.assign(ring.style, { left: `${b.x - 10}px`, top: `${b.y - 10}px`, width: `${b.w + 20}px`, height: `${b.h + 20}px` });
+  }, [shown, state, boxes, block.parts]);
   const media = block.media;
 
   return (
@@ -92,7 +105,7 @@ export function Anatomy({ block, n }: BlockProps<'anatomy'>) {
             ? <LiveScreen name={media.live} alt={media.alt} active part={block.parts[shown].id} state={hover === null ? state : 0} />
             : 'src' in media ? <img src={media.src} alt={media.alt} width={media.width} height={media.height} loading="lazy" decoding="async" /> : null}
         </div>
-        {spot && spot.w > 0 && <span className="bv-anat-spot" aria-hidden="true" style={{ left: spot.x - 10, top: spot.y - 10, width: spot.w + 20, height: spot.h + 20 }} />}
+        <span className="bv-anat-spot" ref={spotEl} aria-hidden="true" />
         {/* fixed hit zones over the parts: they never move, so pointing never flickers */}
         {boxes.map((b, i) => b.w > 0 && (
           <span key={block.parts[i].id} className="bv-anat-hit" aria-hidden="true" style={{ left: b.x - 6, top: b.y - 14, width: b.w + 12, height: b.h + 28 }}

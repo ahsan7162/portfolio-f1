@@ -154,8 +154,8 @@
 .jbd-par-ty { display: inline-grid; color: var(--c); }
 .jbd-par-ty svg { width: 0.95em; height: 0.95em; }
 .jbd-row-st { grid-area: st; position: relative; z-index: 2; }
-.jbd-row > .jbd-prio { grid-area: prio; }
-.jbd-row-age { grid-area: age; justify-self: end; font-size: 0.86em; color: var(--jbd-dim); font-variant-numeric: tabular-nums; }
+.jbd-row > .jbd-prio { grid-area: prio; justify-self: start; }
+.jbd-row-age { grid-area: age; justify-self: end; font-size: 0.86em; color: var(--jbd-dim); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .jbd-row-hit { position: absolute; inset: 0; z-index: 1; border-radius: inherit; }
 .jbd-row-hit:focus-visible { outline-offset: -2px; }
 .jbd-row-strip { grid-column: 1 / -1; position: relative; z-index: 2; margin-top: 0.4em; }
@@ -295,7 +295,7 @@
 /* A live screen: one ticket row, drawn large, for the anatomy block. */
 .jbd-live { position: absolute; inset: 0; display: grid; align-content: center; padding: 0 2%; container: jbd / inline-size; }
 .jbd-live .jbd-rows { font-size: clamp(9px, 2.1cqw, 30px); }
-.jbd-live .jbd-row { grid-template-columns: 1.3em 5.4em minmax(0, 1fr) 8.2em 2.2em 4.2em 2.4em; grid-template-areas: 'ty key title par st prio age'; padding: 0.7em 0.9em; gap: 0 0.7em; }
+.jbd-live .jbd-row { grid-template-columns: 1.3em 5.4em minmax(0, 1fr) 8.2em 2.2em 4.2em 3.4em; grid-template-areas: 'ty key title par st prio age'; padding: 0.7em 0.9em; gap: 0 0.7em; }
 .jbd-live .jbd-row > .jbd-ty { align-self: center; margin: 0; }
 .jbd-live .jbd-row-title { font-size: 0.82em; }
 .jbd-live :is(.jbd-row-key, .jbd-row-par, .jbd-row-age) { font-size: 0.62em; }
