@@ -3,10 +3,11 @@ import { lazy, Suspense } from 'react';
 import type { DemoProps, Media, Product, StageKind } from '../types';
 import { DashDemo } from './DashDemo';
 import { BrowserFrame, PhoneFrame, Shot, WindowFrame } from './Frames';
-import { MdDemo } from './MdDemo';
 import { PrDemo } from './PrDemo';
 import '../styles/stage.css';
 import '../styles/jira-demo.css';
+// Loaded eagerly so a lazy demo's placeholder (its own empty window) already has the demo's exact size.
+import '../styles/md-demo.css';
 
 // The Jira Board demo and its invented site load on their own, on idle, so the other pages don't carry them.
 const loadJira = () => import('./JiraDemo');
@@ -19,6 +20,11 @@ const JiraHold = () => <div className="jbd" aria-hidden="true"><div className="j
 // placeholder of exactly its size (stage.css), so nothing moves when it arrives.
 const OpenUiDemo = lazy(() => import('./OpenUiDemo'));
 const OUI_HOLD = <div className="oud" aria-hidden="true"><div className="oud-cam"><div className="oud-win" /></div></div>;
+
+// A demo whose window has a fixed size loads on its own, after the page: the placeholder is that window, empty.
+// (Demos sized by their content stay in the bundle: an empty box would jump when they arrive.)
+const MdDemo = lazy(() => import('./MdDemo').then(m => ({ default: m.MdDemo })));
+const MD_HOLD = <div className="mwd"><div className="mwd-cam"><div className="mwd-win" /></div></div>;
 
 /** What a live demo's number counts, as two short lines. A demo without an entry shows no number. */
 export const TALLY: Partial<Record<StageKind, [string, string]>> = { 'pr-demo': ['blockers', 'left'], 'dash-demo': ['model calls', 'so far'], 'md-demo': ['lines changed', 'in the file'], 'jira-demo': ['tickets', 'open'], 'openui-demo': ['words sent', 'without typing'] };
@@ -38,7 +44,7 @@ export function Stage({ product, active, onTally, scene }: { product: Product } 
     case 'jira-demo': return <Suspense fallback={<JiraHold />}><JiraDemo active={active} onTally={onTally} scene={scene} /></Suspense>;
     case 'openui-demo': return <Suspense fallback={OUI_HOLD}><OpenUiDemo active={active} onTally={onTally} scene={scene} /></Suspense>;
     case 'dash-demo': return <DashDemo active={active} onTally={onTally} scene={scene} />;
-    case 'md-demo': return <MdDemo active={active} onTally={onTally} scene={scene} />;
+    case 'md-demo': return <Suspense fallback={MD_HOLD}><MdDemo active={active} onTally={onTally} scene={scene} /></Suspense>;
     case 'window':
       return <WindowFrame className="stg-window" title={product.name}>{shot(0, { sample: v })}</WindowFrame>;
     case 'phone':
