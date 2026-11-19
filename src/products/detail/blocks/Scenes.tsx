@@ -1,6 +1,6 @@
 // The product's live demo playing itself through named scenes, a tab per scene; the reader can take it over at any point.
 // Each scene lands its headline and its cost tag; the demo says when the cost is spent (a bubbling `scene-cost` event).
-import { useEffect, useId, useRef, useState, type ReactNode, type RefObject } from 'react';
+import { useEffect, useId, useRef, useState, type ReactNode, type RefObject, type SyntheticEvent } from 'react';
 import { gsap, reducedMotion, SplitText, useGSAP } from '../../motion';
 import { Stage, tallyWords } from '../../stage/Stage';
 import { Ask, HOLD_SCENE, PauseButton, RotTabs } from './Cases';
@@ -119,14 +119,16 @@ export function Scenes({ block, product, n }: BlockProps<'scenes'>) {
   const [wasOn, setWasOn] = useState(false);
   if (onTurn !== wasOn) { setWasOn(onTurn); if (onTurn) setVisit((v) => v + 1); }
   // Using the demo itself is taking over: the scene stops being driven, the reader drives.
-  // A click, not a pointer down: a finger scrolling the page across the demo must not count.
-  const take = () => { if (playing) r.take(); };
+  // A click, not a pointer down: a finger scrolling the page across the demo must not count; nor does a scene's own
+  // scripted click on the demo's buttons (untrusted).
+  const take = (e: SyntheticEvent) => { if (playing && e.nativeEvent.isTrusted) r.take(); };
   // A demo that hears keys on the whole page says so with a bubbling `scene-take`, since those keys never pass through the stage.
   useEffect(() => {
     const el = root.current;
     if (!el) return;
-    el.addEventListener('scene-take', take);
-    return () => el.removeEventListener('scene-take', take);
+    const taken = () => { if (playing) r.take(); };
+    el.addEventListener('scene-take', taken);
+    return () => el.removeEventListener('scene-take', taken);
   });
   // Each row of the block keeps one item per scene in a single cell, so it never changes height.
   const items = (render: (s: (typeof all)[number], i: number) => ReactNode) => all.map((s, i) => (
