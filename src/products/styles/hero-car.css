@@ -44,7 +44,7 @@
 .hc[data-picked='wheels'] .hc-start rect { stroke: var(--ink); }
 .hc-streaks { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; opacity: 0; }
 
-/* ── picking a part ──
+/* Picking a part.
    Every part has a fixed hit zone that never moves, so a part that lifts away cannot slip out from
    under the pointer. Picking steps the rest of the car back and shows what the part really is. */
 .hc-hits { fill: transparent; pointer-events: all; cursor: pointer; }

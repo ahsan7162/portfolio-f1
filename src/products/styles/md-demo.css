@@ -35,7 +35,7 @@
   .mwd-file { border-top: 0; border-left: 1px solid var(--mwd-border); }
 }
 
-/* ---------- the editor ---------- */
+/* The editor */
 .mwd-doc { position: relative; min-height: 0; display: flex; flex-direction: column; background: var(--mwd-canvas); }
 .mwd-bar { display: flex; align-items: center; gap: 0.9em; min-height: 3em; padding: 0 1.1em; border-bottom: 1px solid var(--mwd-hair); flex: none; }
 .mwd-name { flex: 1; min-width: 0; font-weight: 600; font-size: 0.92em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -178,7 +178,7 @@ ol.mwd-list li::before { content: counter(mwd) '.'; position: absolute; left: -1
 .mwd-cmp-row[data-op='add'] { background: color-mix(in oklch, var(--mwd-add) 16%, transparent); }
 .mwd-cmp-row[data-op='del'] { background: color-mix(in oklch, var(--mwd-del) 16%, transparent); }
 
-/* ---------- the file on disk ---------- */
+/* The file on disk */
 .mwd-file { min-height: 0; display: flex; flex-direction: column; border-top: 1px solid var(--mwd-border); background: var(--mwd-file); }
 .mwd-file-head { display: flex; align-items: center; gap: 0.7em; min-height: 3em; padding: 0 1.1em; border-bottom: 1px solid var(--mwd-hair); flex: none; font-family: var(--mono); font-size: 0.78em; white-space: nowrap; }
 .mwd-file-name { color: var(--mwd-ink); overflow: hidden; text-overflow: ellipsis; }
@@ -218,12 +218,12 @@ ol.mwd-list li::before { content: counter(mwd) '.'; position: absolute; left: -1
   .mwd-file-foot { display: none; }
 }
 
-/* ---------- the film layer: rests hidden, so the demo by hand is exactly the plain demo ---------- */
+/* The film layer rests hidden, so the demo by hand is exactly the plain demo. */
 .mwd-hand { position: absolute; left: 0; top: 0; z-index: 8; width: 1.5em; height: 2em; visibility: hidden; pointer-events: none; fill: var(--mwd-ink); stroke: var(--mwd-canvas); stroke-width: 1.1; stroke-linejoin: round; filter: drop-shadow(0 0.2em 0.3em var(--shadow)); }
 .mwd-click { position: absolute; left: 0; top: 0; z-index: 7; width: 2.6em; height: 2.6em; margin: -1.3em 0 0 -1.3em; border-radius: 50%; visibility: hidden; opacity: 0; pointer-events: none; box-shadow: inset 0 0 0 0.12em var(--mwd-ink), 0 0 0.8em color-mix(in oklch, var(--mwd-ink) 25%, transparent); }
 .mwd-glow { position: absolute; left: 0; top: 0; z-index: 3; width: 18em; height: 18em; margin: -9em 0 0 -9em; border-radius: 50%; pointer-events: none; opacity: 0; visibility: hidden; background: radial-gradient(closest-side, color-mix(in oklch, var(--mwd-ink) 8%, transparent), transparent); }
 
-/* ---------- a live screen: a document drawn as a page, filling its box ---------- */
+/* A live screen: a document drawn as a page, filling its box. */
 .mwd-live { position: absolute; inset: 0; overflow: hidden; container: mwd-live / size; background: var(--mwd-canvas); }
 .mwd-sheet { position: absolute; inset: 0; padding: 7% 9% 0; font-size: max(5px, 3.1cqw); line-height: 1.45; mask-image: linear-gradient(#000 82%, transparent); }
 .mwd-sheet .mwd-blk { margin-bottom: 0.7em; }

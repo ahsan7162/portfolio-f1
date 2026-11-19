@@ -139,7 +139,6 @@ export function Car() {
               {/* floor edge fences */}
               <path className="c-carbon-2" d="M1078 396L1094 378H1150L1166 396Z" />
               <path className="c-edge" d="M300 408H1190M318 396H1168" />
-              {/* the plank */}
               <path className="c-plank" d="M420 409.5H1100" />
             </Part>
 
@@ -165,7 +164,6 @@ export function Car() {
               <path className="c-seam" d="M876 266C770 270 640 296 470 350" />
               {/* exhaust */}
               <ellipse className="c-dark" cx="326" cy="326" rx="6" ry="9" />
-              {/* the number */}
               <text className="c-number" x="716" y="282" textAnchor="middle" transform="translate(716 282) skewX(-10) translate(-716 -282)">04</text>
             </Part>
 

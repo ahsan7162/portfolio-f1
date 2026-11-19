@@ -68,8 +68,6 @@ export interface Dash {
   parts: Part[];
 }
 
-// ---------- formatting ----------
-
 const whole = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 });
 const cents = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const MINUS = '−';
@@ -131,7 +129,7 @@ export function ticks(min: number, max: number): number[] {
   return Array.from({ length: Math.round((hi - lo) / step) + 1 }, (_, i) => lo + i * step);
 }
 
-// ---------- Harbor Coffee: the plugin's example program, split by channel ----------
+// Harbor Coffee: the plugin's example program, split by channel.
 
 export const WEEKS = ['Sep 21', 'Sep 28', 'Oct 5', 'Oct 12', 'Oct 19', 'Oct 26', 'Nov 2', 'Nov 9'];
 const REVENUE = [18420, 18960, 19310, 18870, 19740, 20380, 21150, 22460];
@@ -227,7 +225,7 @@ export function salesDash(ch: Channel, spec: Spec = FIRST): Dash {
   };
 }
 
-// ---------- the other four dashboards ----------
+// The other four dashboards.
 
 /** A benchmark row: p50 and p95 for this run and the previous one, in ms. */
 export interface Bench { endpoint: string; p50: number; p50prev: number; p95: number; p95prev: number }
@@ -345,7 +343,7 @@ function ordersDash(): Dash {
   };
 }
 
-// ---------- the café what-if ----------
+// The café what-if.
 
 /** Beans, milk and the cup: what one coffee costs to make. Invented. */
 export const COST_PER_CUP = 1.1;
@@ -411,7 +409,7 @@ export const DASHES: Record<DashName, Dash> = {
   'dash:pricing': pricingDash(),
 };
 
-// ---------- colours: copied from the plugin's ui/colours.tsx (MIT), dark mode only ----------
+// Colours: copied from the plugin's ui/colours.tsx (MIT), dark mode only.
 
 type Rgb = { r: number; g: number; b: number };
 type Hsl = { h: number; s: number; l: number };
@@ -477,7 +475,7 @@ export const ACCENTS = [
   { name: 'Purple', hex: '#7048e8' },
 ] as const;
 
-// ---------- the demo's state ----------
+// The demo's state.
 
 /** The two ready-made requests the Edit popover offers, worded for what the chart is now. */
 export const requests = (s: Spec) => [

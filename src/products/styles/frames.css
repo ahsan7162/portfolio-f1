@@ -6,7 +6,6 @@
 .frm-fill { position: absolute; inset: 0; }
 .frm-shot { display: block; width: 100%; height: 100%; object-fit: cover; object-position: left top; }
 
-/* phone */
 .frm-phone-body {
   position: absolute; inset: 0; border-radius: 15.3em; background: var(--ground);
   border: 0.7em solid var(--raise-2);
@@ -18,7 +17,6 @@
   border-radius: 99em; background: var(--ground); transform: translateX(-50%);
 }
 
-/* browser */
 .frm-browser-body {
   border-radius: 2.4em; overflow: hidden; background: var(--raise);
   border: 0.2em solid var(--raise-2);
@@ -34,7 +32,6 @@
 .frm-url > span { overflow: hidden; text-overflow: ellipsis; }
 .frm-page { position: relative; aspect-ratio: 16 / 10; overflow: hidden; background: var(--ground); }
 
-/* window */
 .frm-window-body {
   border-radius: 2em; overflow: hidden; background: var(--raise); border: 0.2em solid var(--raise-2);
   box-shadow: 0 8em 14em -4em var(--shadow-deep), 0 2em 4em -1em var(--shadow);

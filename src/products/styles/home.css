@@ -1,7 +1,7 @@
-/* ───────── hero: its frame (the car itself is styled in hero-car.css) ───────── */
+/* Hero: its frame (the car itself is styled in hero-car.css). */
 .hero { position: relative; min-height: max(100svh, 640px); overflow: hidden; }
 
-/* ───────── header (lives inside the featured screen, so it scrolls away with it) ───────── */
+/* Header: it lives inside the featured screen, so it scrolls away with it. */
 .hd { position: absolute; left: 0; right: 0; top: 0; z-index: 6; display: flex; justify-content: space-between; align-items: center; padding: 26px var(--pad); color: var(--ink); }
 .hd-brand { display: flex; gap: 12px; align-items: center; }
 .hd-brand i { width: 13px; height: 13px; background: var(--acc); }
@@ -11,7 +11,7 @@
 @media (max-width: 599px) { .hd nav button { display: none; } }
 .hd nav :is(a, button):hover { color: var(--acc); }
 
-/* ───────── featured ───────── */
+/* Featured */
 .ft { position: relative; height: 100svh; min-height: 660px; overflow: hidden; }
 .ft-slide {
   position: absolute; inset: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr); align-items: center;
@@ -85,7 +85,7 @@
   .ft-strip { display: none; }
 }
 
-/* ───────── catalogue ───────── */
+/* Catalogue */
 .cat { position: relative; padding: clamp(80px, 13vh, 150px) var(--pad) 0; }
 .cat-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; }
 .cat-title { display: flex; gap: 0.16em; overflow: hidden; font-size: clamp(52px, 15vw, 250px); --wdth: 125; letter-spacing: -0.05em; line-height: 0.8; padding: 0.04em 0.08em 0 0; }
@@ -170,7 +170,7 @@
   .cat-name .pp-sample { font-size: 0.5625rem; padding: 2px 5px; }
 }
 
-/* ───────── footer ───────── */
+/* Footer */
 .ftr { margin-top: clamp(90px, 14vh, 170px); border-top: 1px solid var(--line); overflow: hidden; }
 .ftr-marquee { display: flex; white-space: nowrap; padding: clamp(22px, 3.4vh, 40px) 0 clamp(14px, 2.4vh, 28px); font-size: clamp(56px, 10vw, 170px); --wdth: 125; letter-spacing: -0.04em; }
 .ftr-track { display: flex; flex: none; gap: 0.32em; padding-right: 0.32em; @media (prefers-reduced-motion: no-preference) { animation: ftr-run 30s linear infinite; } }

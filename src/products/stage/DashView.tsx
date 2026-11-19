@@ -458,8 +458,6 @@ export function Head({ title, mode, children }: { title: string; mode?: string; 
 
 export const Chevron = () => <svg className="dsd-chev" viewBox="0 0 10 6" aria-hidden="true"><path d="M1 1l4 4 4-4" /></svg>;
 
-// ---------- motion ----------
-
 /** Rewrites a number from `from` to its own value, in its own format. */
 function count(n: HTMLElement, from: number, duration: number) {
   const to = Number(n.dataset.v);
