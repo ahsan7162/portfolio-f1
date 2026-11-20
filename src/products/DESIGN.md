@@ -273,7 +273,7 @@ Sections that take over the wheel do so through `setWheelGate()` in `scroll.ts` 
 
 **Catalogue** (`Catalogue.tsx`). Every product. Filter by kind (the buttons are built from `KINDS`), search by name, kind, year or stack (`/` focuses the field), and switch between a list and a wall. In the list a preview follows the pointer. This is the part that scales: a new product appears here with no layout work.
 
-**Footer.** A marquee of the kinds, the room, and a link back to the portfolio.
+**Footer.** The room, and a link back to the portfolio.
 
 **The room** (`home/room/`). My day on a loop, drawn by hand in SVG: I sleep, eat biryani, code with Claude and Codex, watch Netflix and play a game, then go back to bed, while the cat keeps its own day around me (it walks across the keyboard and types into Codex, takes the monitor, gets a bite of biryani, curls up on the couch). The loop is four days long, and each night's game is different: football and a platformer on the couch, racing on a wheel and a PC game at the desk.
 
@@ -557,7 +557,7 @@ export function Pricing({ block, n }: BlockProps<'pricing'>) {
 
 **A new kind** (say, a command-line tool):
 
-1. Add it to `Kind` and to `KINDS` in `types.ts` (`label`, `plural`, a three-letter `tag`, and `fact`, the heading for the last entry of `facts`). The catalogue filter, the footer marquee and the hero meta pick it up.
+1. Add it to `Kind` and to `KINDS` in `types.ts` (`label`, `plural`, a three-letter `tag`, and `fact`, the heading for the last entry of `facts`). The catalogue filter and the hero meta pick it up.
 2. Decide its frame in `KindFrame` in `stage/Frames.tsx`, which the blocks use. `home/Preview.tsx` and `stage/Stage.tsx` arrange frames their own way; add the kind there too.
 3. Give it its own small mark in the catalogue list (`[data-kind='…'] .cat-k i` in `home.css`): a shape, not a colour.
 4. Add a stage for it (below).

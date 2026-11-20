@@ -1,7 +1,6 @@
 // The main page: the introduction, the featured products, then the whole catalogue.
 import { lazy, startTransition, Suspense, useEffect, useRef, useState } from 'react';
 import { products } from '../data';
-import { KINDS } from '../types';
 import { Catalogue } from './Catalogue';
 import { Featured } from './Featured';
 import { HeroCar } from './hero/HeroCar';
@@ -9,8 +8,6 @@ import '../styles/home.css';
 
 // The footer room is the heaviest drawing on the page: it loads on its own, only when the footer comes near.
 const Room = lazy(() => import('./room/Room'));
-
-const words = Object.values(KINDS).map(k => k.plural);
 
 export function Home() {
   return (
@@ -21,11 +18,6 @@ export function Home() {
         <Catalogue items={products} />
       </main>
       <footer className="ftr">
-        <div className="ftr-marquee pp-display" aria-hidden="true">
-          {[0, 1].map(n => (
-            <div className="ftr-track" key={n}>{words.flatMap(w => [<span key={w}>{w}</span>, <span key={`${w}-star`}>✳</span>])}</div>
-          ))}
-        </div>
         <RoomSlot />
         <div className="ftr-base pp-mono">
           <span>Built by Muhammad Ahsan</span>
