@@ -1,0 +1,92 @@
+/* The footer room: a day on a loop, drawn in SVG (home/room/).
+   Its palette is declared once here, as pairs: the night value and the day value. --day (0 night, 1 day)
+   is the only thing the script changes; every colour is a mix of the pair. At night the room is
+   lit by its screens; by day it is the hero car's solid greys in a lit box. */
+.rm {
+  --day: 0;
+  --mix: calc(var(--day) * 100%);
+  --o: color-mix(in srgb, #2A2A28 var(--mix), #121211);
+  --o2: color-mix(in srgb, #3C3C39 var(--mix), #171716);
+  --o3: color-mix(in srgb, #6E6C65 var(--mix), #22221F);
+  --o4: color-mix(in srgb, #8C8981 var(--mix), #2C2B29);
+  --wd: color-mix(in srgb, #4C4B47 var(--mix), #191918);
+  --sk: color-mix(in srgb, #C9C5BA var(--mix), #8A867D);
+  --sk2: color-mix(in srgb, #A9A59B var(--mix), #6E6B64);
+  --hr: #0A0A09;
+  --cl: color-mix(in srgb, #E3E0D6 var(--mix), #3E3D3A);
+  --cl2: color-mix(in srgb, #CFCBC0 var(--mix), #33322F);
+  --cl3: color-mix(in srgb, #B5B1A6 var(--mix), #2C2B28);
+  --pn: color-mix(in srgb, #3C3C39 var(--mix), #1E1E1C);
+  --pn2: color-mix(in srgb, #2E2E2B var(--mix), #161615);
+  --sh: color-mix(in srgb, #F7F4EB var(--mix), #55534E);
+  --cat: color-mix(in srgb, #77756E var(--mix), #2E2D2A);
+  --leaf: color-mix(in srgb, #5C5A54 var(--mix), #1A1A18);
+  --det: color-mix(in srgb, #5C5A54 var(--mix), color-mix(in srgb, #ECE9DF 22%, transparent));
+  --edge: color-mix(in srgb, transparent var(--mix), color-mix(in srgb, #ECE9DF 13%, transparent));
+  --wall: color-mix(in srgb, #0E0E0D var(--mix), transparent);
+  --base: color-mix(in srgb, #181817 var(--mix), transparent);
+  --floor: color-mix(in srgb, #2A2A28 var(--mix), color-mix(in srgb, #ECE9DF 16%, transparent));
+  --wire: color-mix(in srgb, #6E6C65 var(--mix), #2C2B29);
+  --hand: color-mix(in srgb, #2A2A28 var(--mix), #0E0E0D);
+  --sky1: color-mix(in srgb, #8C8981 var(--mix), #000000);
+  --sky2: color-mix(in srgb, #BAB7AD var(--mix), #121211);
+  --city: color-mix(in srgb, #3C3C39 var(--mix), #0B0B0A);
+  --light: #ECE9DF;
+  --sun: #F7F4EB;
+  --lens: color-mix(in srgb, #ECE9DF 24%, transparent);
+  --scr: #141413;
+  --code: color-mix(in srgb, #ECE9DF 86%, transparent);
+  --code2: color-mix(in srgb, #ECE9DF 36%, transparent);
+  position: relative;
+}
+
+/* the stage's size is in home.css, so the space is held before this file loads */
+.rm-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden; pointer-events: none; }
+@container ftr (max-width: 699px) { .rm-spot { display: none; } }
+
+/* paint roles */
+.rm :is(.o, .o2, .o3, .o4, .wd, .sk, .sk2, .hr, .cl, .cl2, .cl3, .pn, .pn2, .sh, .cat, .city, .leaf) { stroke: var(--edge); stroke-width: 1.2; stroke-linejoin: round; }
+.rm .o { fill: var(--o); } .rm .o2 { fill: var(--o2); } .rm .o3 { fill: var(--o3); } .rm .o4 { fill: var(--o4); } .rm .wd { fill: var(--wd); }
+.rm .sk { fill: var(--sk); } .rm .sk2 { fill: var(--sk2); } .rm .hr { fill: var(--hr); }
+.rm .cl { fill: var(--cl); } .rm .cl2 { fill: var(--cl2); } .rm .cl3 { fill: var(--cl3); }
+.rm .pn { fill: var(--pn); } .rm .pn2 { fill: var(--pn2); } .rm .sh { fill: var(--sh); } .rm .sh2 { fill: var(--sh); opacity: 0.75; }
+.rm .cat { fill: var(--cat); } .rm .leaf { fill: var(--leaf); } .rm .city { fill: var(--city); }
+.rm .tail { fill: none; stroke: var(--cat); stroke-width: 7; stroke-linecap: round; }
+.rm .det { fill: none; stroke: var(--det); stroke-width: 1.5; stroke-linecap: round; }
+.rm .wire { fill: none; stroke: var(--wire); stroke-width: 1.5; }
+.rm .hand { fill: none; stroke: var(--hand); stroke-width: 2.6; stroke-linecap: round; }
+.rm .eye, .rm .cpup { fill: var(--hr); }
+.rm .brow { fill: none; stroke: var(--hr); stroke-width: 2.6; stroke-linecap: round; }
+.rm .ln { fill: var(--lens); stroke: var(--hr); stroke-width: 2.2; }
+.rm .frl { fill: none; stroke: var(--hr); stroke-width: 2; stroke-linecap: round; }
+.rm .glint { fill: none; stroke: var(--light); stroke-width: 1.4; stroke-linecap: round; opacity: 0.7; }
+.rm .ceye { fill: var(--light); }
+.rm .wall { fill: var(--wall); } .rm .base { fill: var(--base); } .rm .floor { stroke: var(--floor); stroke-width: 1.5; }
+.rm .sky1 { stop-color: var(--sky1); } .rm .sky2 { stop-color: var(--sky2); }
+.rm .moon, .rm .star { fill: var(--light); } .rm .sun { fill: var(--sun); } .rm .lit { fill: var(--light); opacity: 0.55; }
+.rm .scr { fill: var(--scr); } .rm .code { fill: var(--code); } .rm .code2 { fill: var(--code2); } .rm .led { fill: var(--light); }
+.rm .ink { fill: var(--light); } .rm .ink-line { fill: none; stroke: var(--light); stroke-width: 1.2; stroke-linecap: round; }
+.rm .ink-dim { fill: var(--code2); } .rm .ink-dim-line { fill: none; stroke: var(--code2); stroke-width: 1; }
+.rm .fan { fill: none; stroke: color-mix(in srgb, var(--light) 55%, transparent); stroke-width: 2.5; }
+.rm .gl { stop-color: var(--light); }
+.rm .steam { fill: none; stroke: var(--det); stroke-width: 1.6; stroke-linecap: round; }
+.rm .txt { fill: var(--light); font-family: var(--mono); font-weight: 700; letter-spacing: 0.04em; }
+.rm .txt-dark { fill: var(--scr); font-family: var(--mono); font-weight: 700; letter-spacing: 0.04em; }
+.rm .bubble { fill: var(--light); font-family: var(--display); font-weight: 900; }
+
+/* the drawing lets clicks through to the objects under it, except on the cat, which answers one */
+.rm-cat { pointer-events: visiblePainted; cursor: pointer; }
+
+/* the objects you can click to skip to their part of the day (pointer only; the bar below is the keyboard way) */
+.rm-spot { position: absolute; border-radius: 10px; cursor: pointer; }
+.rm-spot:hover { background: color-mix(in srgb, var(--ink) 4%, transparent); }
+
+/* the line under the room: what I am doing now, the five parts of the day, and pause */
+.rm-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; color: var(--dim); }
+.rm-now { display: flex; gap: 14px; align-items: baseline; color: var(--ink); }
+.rm-now time { font-variant-numeric: tabular-nums; }
+.rm-ctrl { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; list-style: none; }
+.rm-ctrl button { padding: 8px 10px; border-radius: 999px; color: var(--dim); transition: color 0.2s, background-color 0.2s; }
+.rm-ctrl button:hover { color: var(--ink); }
+.rm-ctrl button[aria-current='true'] { color: var(--on-acc); background: var(--acc); }
+.rm-ctrl .rm-pause { margin-left: 8px; box-shadow: inset 0 0 0 1px var(--line); color: var(--ink); }
