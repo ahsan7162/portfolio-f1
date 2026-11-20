@@ -72,6 +72,10 @@ src/products/
     Featured.tsx                 featured products, one full screen each
     Catalogue.tsx                every product: filters, search, list and wall
     Preview.tsx                  a product's small picture in the catalogue
+    room/                        the footer room, loaded on its own when the footer comes near (see section 7)
+      Scene.tsx                  the drawing: the room, me as a jointed figure, the cat, the screens
+      day.ts                     the four-day timeline, the poses, and render(), which draws the state
+      Room.tsx                   starts and stops it, the skip bar, pause, the clickable objects, the cat's click
   stage/                         how a product is shown "live"
     Stage.tsx                    picks the demo or frame from product.stage; TALLY, what a demo's number counts
     names.ts                     the live screen names (LIVE_NAMES), SCENES, and the names of the pieces below; no browser code, so tests can import it
@@ -173,7 +177,7 @@ Where it is not: the hero, the catalogue chrome (filters, search, rows), the foo
 
 **Do not**
 
-- Write a hex or `rgb()` value anywhere outside the token block in `base.css`. The one exception is a drawing's own local palette, declared once as custom properties on its root (the car's greys on `.hc`). For a tint, use `color-mix()` on a token.
+- Write a hex or `rgb()` value anywhere outside the token block in `base.css`. The one exception is a drawing's own local palette, declared once as custom properties on its root (the car's greys on `.hc`, the room's night and day pairs on `.rm`). For a tint, use `color-mix()` on a token.
 - Add a hue to the page chrome.
 - Use `--bad` or `--warn` as decoration.
 - Put text on `--acc` in any colour except `--on-acc`.
@@ -269,7 +273,19 @@ Sections that take over the wheel do so through `setWheelGate()` in `scroll.ts` 
 
 **Catalogue** (`Catalogue.tsx`). Every product. Filter by kind (the buttons are built from `KINDS`), search by name, kind, year or stack (`/` focuses the field), and switch between a list and a wall. In the list a preview follows the pointer. This is the part that scales: a new product appears here with no layout work.
 
-**Footer.** A marquee of the kinds, and a link back to the portfolio.
+**Footer.** A marquee of the kinds, the room, and a link back to the portfolio.
+
+**The room** (`home/room/`). My day on a loop, drawn by hand in SVG: I sleep, eat biryani, code, watch Netflix and play a game, then go back to bed, while the cat keeps its own day around me (it takes the monitor, gets a bite of biryani, curls up on the couch). The loop is four days long, and each night's game is different: football and a platformer on the couch, racing on a wheel and a PC game at the desk.
+
+- One GSAP timeline tweens numbers in one state object; `render()` turns the state into transforms and opacities, writing only what changed. Small motions (typing, chewing, breathing, the walk cycle, the tail) are worked out from the timeline's time, so pause and fast-forward carry them too.
+- I am a jointed figure: each limb is a `data-j` group rotated about its joint. Poses are lists of angles; arms are placed by where the hands go (`reach()`). The walk cycle follows the distance walked, so feet don't slide.
+- The look is the one picked from three: at night the room is dark and lit by its screens, the moon and the PC; by day it becomes the car's solid greys in a lit box. `--day` (0 to 1) is the only thing the script sets; every colour in `room.css` is a mix of a night value and a day value. No hue, as in the rest of the page chrome.
+- No trademarks are drawn: the TV shows a generic streaming screen, the games have no logos.
+- Skips: the bar under the room (Sleep, Eat, Code, Watch, Play) fast-forwards the day to that part. Clicking the bed, the table, the desk, the couch or the console does the same; those spots are pointer-only, and the bar is the keyboard and screen-reader way. Clicking the cat makes it answer.
+- It plays only when revealed and on screen, stops when scrolled away, and has a pause button (WCAG 2.2.2). With reduced motion it holds one moment at the desk, and a skip jumps straight to its part.
+- Below 700px wide the camera follows me across the room (a narrower viewBox).
+- It loads as its own chunk when the footer is within 900px, into a box of the same size, so nothing moves.
+- `day.test.ts` checks that the loop ends where it starts and that every part can be skipped to.
 
 ---
 
