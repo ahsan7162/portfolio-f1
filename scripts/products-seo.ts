@@ -30,7 +30,7 @@ function words(value: unknown, skip = NOT_COPY): string {
   return typeof value === 'string' || typeof value === 'number' ? String(value).replace(/\*/g, '').replace(/^\{[\w-]+\}/, '') : '';
 }
 
-/** A block as plain HTML: its label as a heading, then each field as a paragraph or a list. Works for any block type. */
+/** A block as a plain HTML section: its label as a heading, then each field as a paragraph or a list. Works for any block type. */
 function blockHtml(block: object) {
   const out: string[] = [];
   const skip = new Set([...NOT_COPY, ...(NOT_COPY_IN['type' in block ? String(block.type) : ''] ?? [])]);
@@ -41,24 +41,26 @@ function blockHtml(block: object) {
     else if (key === 'head') out.push(`<h3>${esc(words(value, skip))}</h3>`);
     else if (words(value, skip)) out.push(`<p>${esc(words(value, skip))}</p>`);
   }
-  return out.join('');
+  return out.length ? `<section>${out.join('')}</section>` : '';
 }
 
-/** What is in #root before the app starts: the page-change curtain the app opens under, then the page's words. */
+/** What is in #root before the app starts: the page-change curtain the app opens under, then the page's words,
+    between a header with the site's links and a footer, so a reader without JavaScript gets the page's landmarks too. */
 function body(curtain: string, brand: string | undefined, main: string) {
   const tint = brand ? ` data-branded style="--brand:${esc(brand)}"` : '';
-  return `<div class="pp-curtain" aria-hidden="true"${tint}><span class="pp-display">${esc(curtain)}</span></div><main>${main}</main>`;
+  return `<div class="pp-curtain" aria-hidden="true"${tint}><span class="pp-display">${esc(curtain)}</span></div>`
+    + `<header><nav aria-label="Site"><a href="/">Portfolio of ${ME}, full stack and AI developer</a> · <a href="${HOME}">All products by ${ME}</a></nav></header>`
+    + `<main>${main}</main>`
+    + `<footer><p>Plugins, apps and websites built by ${ME}.</p></footer>`;
 }
 
 const homeBody = () => body('Products', undefined, [
   `<h1>Products by ${ME}</h1>`,
   `<p>${esc(homeMeta.description)}</p>`,
-  `<ul>${real.map(p => `<li><a href="${productPath(p.slug)}">${esc(p.name)}</a>: ${esc(KINDS[p.kind].label)}, ${p.year}. ${esc(p.line)}</li>`).join('')}</ul>`,
-  `<p><a href="/">Portfolio of ${ME}, full stack and AI developer</a></p>`,
+  `<section><h2>All products</h2><ul>${real.map(p => `<li><a href="${productPath(p.slug)}">${esc(p.name)}</a>: ${esc(KINDS[p.kind].label)}, ${p.year}. ${esc(p.line)}</li>`).join('')}</ul></section>`,
 ].join(''));
 
 const productBody = (p: Product) => body(p.name, p.brand, [
-  `<p><a href="${HOME}">All products by ${ME}</a></p>`,
   `<h1>${esc(p.name)}</h1>`,
   `<p>${esc(p.line)}</p>`,
   `<p>${esc(p.hook)}</p>`,

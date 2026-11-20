@@ -642,7 +642,7 @@ Measure timing with these scripts, not in a browser tab that is in the backgroun
 
 ## Search engines
 
-The build gives every products URL its own HTML file (`scripts/products-seo.ts`, run by `scripts/prerender.ts`): its own title, description, canonical address, link-preview tags and structured data, plus the page's words as plain HTML that the app replaces when it starts. Titles and descriptions come from `seo.ts`, which the browser tab uses too.
+The build gives every products URL its own HTML file (`scripts/products-seo.ts`, run by `scripts/prerender.ts`): its own title, description, canonical address, link-preview tags and structured data, plus the page's words as plain HTML that the app replaces when it starts: a header with the site's links, each block as a section inside `<main>`, and a footer, so a reader without JavaScript still gets the page's landmarks. Titles and descriptions come from `seo.ts`, which the browser tab uses too.
 
 - A real product is in the sitemap as soon as it is in `data.ts`. Give it a `seo` field.
 - A sample product is marked `noindex` and left out of the sitemap.
