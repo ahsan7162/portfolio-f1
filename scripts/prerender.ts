@@ -1,11 +1,12 @@
 // Renders the app to static HTML after the client build, so crawlers and no-JS visitors
 // get every heading and paragraph (main.tsx then hydrates it), and writes what needs the
-// site's absolute address: the canonical and social tags, the JSON-LD and the sitemap.
+// site's absolute address: the canonical and social tags, the JSON-LD, the sitemap and the llms.txt files.
 import { createHash } from 'node:crypto';
 import { readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { EMAIL, SITE_URL, SOCIAL, education, jobs, profile } from '../src/content/data';
+import { writeLlmsFiles } from './llms';
 import { writeProductPages } from './products-seo';
 
 const CARD_ALT = 'Muhammad Ahsan, Senior Full-Stack Developer: React, Go, Python, .NET and AI agents, 450+ AI agents shipped. The 04 helmet.';
@@ -119,6 +120,9 @@ writeFileSync(resolve(dist, 'index.html'), html
   .replace('<!--seo-->', () => seoTags(site, pageTitle, builtAt))
   .replace('<!--app-->', () => app));
 const productPaths = writeProductPages(dist, site, builtAt);
-if (site) writeSitemap(dist, site, builtAt.slice(0, 10), productPaths);
+if (site) {
+  writeSitemap(dist, site, builtAt.slice(0, 10), productPaths);
+  writeLlmsFiles(dist, site);
+}
 rmSync(resolve('dist-ssr'), { recursive: true, force: true });
 console.log(`prerender: wrote ${(app.length / 1024).toFixed(1)} KB of HTML`);
