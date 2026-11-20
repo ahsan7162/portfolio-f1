@@ -48,7 +48,7 @@ export default function Room() {
         ))}
         <Scene />
         <figcaption className="pp-sr">
-          A drawing of my room, on a loop: I sleep, eat biryani, code, watch Netflix and play a game, a different one each night, while my cat keeps its own day around me.
+          A drawing of my room, on a loop: I sleep, eat biryani, code with Claude and Codex, watch Netflix and play a game, a different one each night, while my cat keeps its own day around me.
         </figcaption>
       </figure>
       <div className="rm-bar pp-mono">

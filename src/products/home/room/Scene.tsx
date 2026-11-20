@@ -7,8 +7,13 @@ export const CODE: [number, number][] = [
   [3, 44], [2, 12], [1, 28], [0, 8], [0, 0], [0, 30], [1, 42], [1, 56], [2, 34], [1, 18], [0, 8], [0, 0],
   [0, 44], [1, 26], [2, 48], [2, 30], [1, 14], [1, 40], [0, 8], [0, 0], [0, 34], [1, 52], [1, 22], [0, 8],
 ];
-export const CODE_STEP = 5.6;
-const LINES = CODE.flatMap(([indent, w], i) => (w ? [{ indent, w, y: 321 + i * CODE_STEP }] : []));
+export const CODE_STEP = 5.6, CODE_TOP = 311;
+const LINES = CODE.flatMap(([indent, w], i) => (w ? [{ indent, w: w * 0.8, y: CODE_TOP + i * CODE_STEP }] : []));
+
+/** The two agent panes beside the code. A line starting ">" is what I (or the cat) typed. */
+export const CLAUDE = ['> add retries to sync', '● reading sync.ts', '● editing sync.ts', '✓ +12 −3, tests in', '> ship it', '✓ build passed'];
+export const CODEX = ['> fjjjj;;;;gggggf', '● looks like a cat', "> review claude's diff", '● reviewing 2 files', '✓ approved, 1 nit'];
+const said = (line: string) => (line.startsWith('●') ? 'ink-dim' : 'ink');
 
 const STARS = [[148, 170], [178, 200], [205, 166], [290, 176], [312, 214], [160, 232], [250, 206], [226, 244], [318, 168]];
 const LIT = [[150, 318], [158, 306], [178, 326], [196, 300], [214, 318], [236, 310], [258, 326], [266, 302], [292, 316], [310, 306], [322, 324]];
@@ -23,7 +28,8 @@ export function Scene() {
         <radialGradient id="rm-warm"><stop offset="0" className="gl" stopOpacity="0.26" /><stop offset="1" className="gl" stopOpacity="0" /></radialGradient>
         <linearGradient id="rm-beam" x1="0" y1="0" x2="0" y2="1"><stop offset="0" className="gl" stopOpacity="0.2" /><stop offset="1" className="gl" stopOpacity="0" /></linearGradient>
         <clipPath id="rm-win"><rect x="136" y="156" width="198" height="198" /></clipPath>
-        <clipPath id="rm-mon"><rect x="1027" y="315" width="100" height="64" rx="2" /></clipPath>
+        <clipPath id="rm-mon"><rect x="1008" y="298" width="140" height="88" rx="2" /></clipPath>
+        <clipPath id="rm-ed"><rect x="1008" y="305" width="75" height="81" /></clipPath>
         <clipPath id="rm-tv"><rect x="1474" y="300" width="106" height="64" rx="2" /></clipPath>
       </defs>
 
@@ -140,37 +146,48 @@ export function Scene() {
       <rect className="o2" x="1050" y="424" width="48" height="6" rx="3" />
       <rect className="o2" x="1068" y="380" width="12" height="46" />
       <g transform="skewY(-4) translate(0 74)">
-        <rect className="o" x="1022" y="310" width="110" height="74" rx="5" />
-        <rect className="scr" x="1027" y="315" width="100" height="64" rx="2" />
+        <rect className="o" x="1004" y="294" width="148" height="96" rx="5" />
+        <rect className="scr" x="1008" y="298" width="140" height="88" rx="2" />
         <g data-r="monOn" opacity="0" clipPath="url(#rm-mon)">
+          {/* the editor on the left, Claude and Codex on the right */}
           <g data-r="mCode">
-            <g data-r="code">
-              {LINES.map(l => <rect key={l.y} data-code={l.w} className={l.indent % 2 ? 'code2' : 'code'} x={1033 + l.indent * 7} y={l.y} width="0" height="2.6" rx="1.3" />)}
+            <rect className="ink-dim" x="1008" y="298" width="140" height="7" opacity="0.35" />
+            <text className="txt" x="1012" y="303.4" fontSize="3.8" opacity="0.8">sync.ts</text>
+            <g clipPath="url(#rm-ed)">
+              <g data-r="code">
+                {LINES.map(l => <rect key={l.y} data-code={l.w} className={l.indent % 2 ? 'code2' : 'code'} x={1014 + l.indent * 5} y={l.y} width="0" height="2.6" rx="1.3" />)}
+              </g>
+              <g data-r="mDiff" opacity="0">
+                {[333.6, 339.2, 344.8].map(y => <rect key={y} className="ink" x="1008" y={y - 1.4} width="75" height="5.4" opacity="0.12" />)}
+                {[333.6, 339.2, 344.8].map(y => <text key={y} className="txt" x="1009" y={y + 2.6} fontSize="4.4">+</text>)}
+              </g>
             </g>
-          </g>
-          <g data-r="mJunk" opacity="0">
-            <text className="txt" x="1033" y="330" fontSize="7">fffffffffffff</text>
-            <text className="txt" x="1033" y="340" fontSize="7">jjjjjjjjjj;;;;</text>
-            <text className="txt" x="1033" y="350" fontSize="7">ggggggggggggg</text>
-            <text className="txt" x="1033" y="360" fontSize="7">&gt;&gt;&gt;&gt;&gt;mrrrrrrr</text>
+            <rect className="ink-dim" x="1083" y="305" width="0.8" height="81" />
+            <rect className="ink-dim" x="1084" y="344.5" width="64" height="0.8" />
+            <text className="txt" x="1087" y="311" fontSize="4.6">claude</text>
+            <circle data-r="dotA" className="led" cx="1142" cy="309.4" r="1.5" opacity="0.35" />
+            {CLAUDE.map((line, i) => <text key={line} data-msg="a" data-text={line} className={`txt ${said(line)}`} x="1087" y={316.8 + i * 4.9} fontSize="4.2" />)}
+            <text className="txt" x="1087" y="351" fontSize="4.6">codex</text>
+            <circle data-r="dotB" className="led" cx="1142" cy="349.4" r="1.5" opacity="0.35" />
+            {CODEX.map((line, i) => <text key={line} data-msg="b" data-text={line} className={`txt ${said(line)}`} x="1087" y={357.4 + i * 5} fontSize="4.2" />)}
           </g>
           <g data-r="mPass" opacity="0">
-            <rect className="ink" x="1041" y="334" width="72" height="24" rx="4" />
-            <text className="txt-dark" x="1077" y="349.5" fontSize="7.5" textAnchor="middle">✓ BUILD PASSED</text>
+            <rect className="ink" x="1042" y="333" width="72" height="22" rx="4" />
+            <text className="txt-dark" x="1078" y="346.6" fontSize="7" textAnchor="middle">✓ BUILD PASSED</text>
           </g>
           <g data-r="mRace" opacity="0">
-            <path className="ink-dim" d="M1074 333 L1080 333 L1127 379 L1027 379 Z" />
-            <path className="ink-dim-line" d="M1027 333 H1127" />
-            <g data-r="raceDash">{[0, 1, 2, 3, 4].map(n => <rect key={n} className="ink" x="1076" y={330 + n * 12} width="2" height="5" />)}</g>
-            <path className="ink" d="M1064 364 L1090 364 L1094 376 L1060 376 Z" />
-            <rect className="ink" x="1058" y="372" width="6" height="6" rx="1" /><rect className="ink" x="1090" y="372" width="6" height="6" rx="1" />
-            <text data-r="raceWin" className="txt" x="1033" y="327" fontSize="8" opacity="0.5">P1</text>
+            <path className="ink-dim" d="M1074 316 L1082 316 L1148 386 L1008 386 Z" />
+            <path className="ink-dim-line" d="M1008 316 H1148" />
+            <g data-r="raceDash">{[0, 1, 2, 3, 4, 5].map(n => <rect key={n} className="ink" x="1076.8" y={312 + n * 14} width="2.5" height="6" />)}</g>
+            <path className="ink" d="M1062 368 L1094 368 L1099 382 L1057 382 Z" />
+            <rect className="ink" x="1054" y="377" width="7" height="7" rx="1" /><rect className="ink" x="1095" y="377" width="7" height="7" rx="1" />
+            <text data-r="raceWin" className="txt" x="1013" y="312" fontSize="8" opacity="0.5">P1</text>
           </g>
           <g data-r="mAim" opacity="0">
-            <path className="ink-dim-line" d="M1027 352 H1127" />
-            <rect className="ink-dim" x="1040" y="338" width="10" height="14" /><rect className="ink-dim" x="1096" y="332" width="12" height="20" /><rect className="ink-dim" x="1068" y="344" width="8" height="8" />
+            <path className="ink-dim-line" d="M1008 352 H1148" />
+            <rect className="ink-dim" x="1024" y="336" width="12" height="16" /><rect className="ink-dim" x="1110" y="328" width="14" height="24" /><rect className="ink-dim" x="1070" y="344" width="10" height="8" />
             <g data-r="cross"><circle className="ink-line" r="6" /><path className="ink-line" d="M-10 0 H-3 M3 0 H10 M0 -10 V-3 M0 3 V10" /></g>
-            <text data-r="aimWin" className="txt" x="1077" y="330" fontSize="7.5" textAnchor="middle" opacity="0">+100</text>
+            <text data-r="aimWin" className="txt" x="1078" y="322" fontSize="8" textAnchor="middle" opacity="0">+100</text>
           </g>
         </g>
       </g>

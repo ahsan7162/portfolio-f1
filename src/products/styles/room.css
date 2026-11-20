@@ -72,6 +72,7 @@
 .rm .gl { stop-color: var(--light); }
 .rm .steam { fill: none; stroke: var(--det); stroke-width: 1.6; stroke-linecap: round; }
 .rm .txt { fill: var(--light); font-family: var(--mono); font-weight: 700; letter-spacing: 0.04em; }
+.rm .txt.ink-dim { fill: color-mix(in srgb, var(--light) 58%, transparent); }
 .rm .txt-dark { fill: var(--scr); font-family: var(--mono); font-weight: 700; letter-spacing: 0.04em; }
 .rm .bubble { fill: var(--light); font-family: var(--display); font-weight: 900; }
 
@@ -80,6 +81,8 @@
 
 /* the objects you can click to skip to their part of the day (pointer only; the bar below is the keyboard way) */
 .rm-spot { position: absolute; border-radius: 10px; cursor: pointer; }
+/* while the camera is pushed in, the spots no longer sit over their objects */
+.rm[data-zoomed] .rm-spot { display: none; }
 .rm-spot:hover { background: color-mix(in srgb, var(--ink) 4%, transparent); }
 
 /* the line under the room: what I am doing now, the five parts of the day, and pause */

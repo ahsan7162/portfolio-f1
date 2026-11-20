@@ -1,7 +1,7 @@
 // The day in the room: one GSAP timeline of four days, a different game each night, on a loop.
 // Every tween moves a number in one state object; render() turns that object into the drawing.
 import { gsap } from '../../motion';
-import { CODE, CODE_STEP } from './Scene';
+import { CLAUDE, CODE, CODE_STEP, CODE_TOP, CODEX } from './Scene';
 
 export type Act = 'sleep' | 'eat' | 'code' | 'watch' | 'play';
 export const ACTS: { id: Act; name: string }[] = [
@@ -18,7 +18,7 @@ const START = {
   cx: 395, cy: 468, cface: 1, cpose: 3, chang: 0, hop: 0, heart: 0, meow: 0,
   // the room: daylight, the sun and moon across the window, lamps, screens
   day: 0, sun: 0, moon: 0.35, dawn: 0, blanket: 0, alarm: 0, rice: 1,
-  mon: 0, mMode: 1, code: 0, tv: 0, tMode: 0, tT: 0, wheel: 0, flash: 0, lampF: 0, lampB: 0,
+  mon: 0, mMode: 1, code: 0, aiA: 0, aiB: 0, zoom: 0, tv: 0, tMode: 0, tT: 0, wheel: 0, flash: 0, lampF: 0, lampB: 0,
   // where the pointer is, in the drawing's units (the cat watches it)
   px: 800, py: 300,
 };
@@ -204,31 +204,46 @@ function day(tl: gsap.core.Timeline, loop: Loop, S: State, t0: number, game: (ty
   set({ cpose: 0, cface: -1 }, c);
   set({ face: 1 }, desk);
   to(DESK, desk, 0.45);
+  // The camera pushes in on the screen: the code on the left, Claude and Codex on the right.
+  // aiA and aiB count the lines shown in each agent's pane; the fraction is the line being typed.
+  to({ zoom: 1 }, a(20.4), 1.5, 'power3.inOut');
   to({ mon: 1 }, a(20.6), 0.4);
-  set({ mMode: 1 }, a(20.6));
+  set({ mMode: 1, aiA: 0, aiB: 0 }, a(20.6));
   clock(a(20.8), 9, 30);
-  doing(a(20.8), 'code', 'Coding');
+  doing(a(20.8), 'code', 'Coding with Claude and Codex');
   mark(a(20.8), 'code');
   to({ type: 1 }, a(20.8), 0.2);
-  tl.fromTo(S, { code: 0 }, { code: 0.42, duration: 1.9, ease: 'none' }, a(20.8));
+  tl.fromTo(S, { code: 0 }, { code: 0.3, duration: 1.8, ease: 'none' }, a(20.8));
+  const ai = (k: 'aiA' | 'aiB', n: number, at: number, d = 0.3) => { tl.to(S, { [k]: n, duration: d, ease: 'none' }, a(at)); };
+  ai('aiA', 1, 21.2, 0.8);
+  ai('aiA', 2, 22.2);
+  // the cat walks the keyboard: it types into Codex, and Claude keeps working while I lean back
   catWalk(948, a(22.6), 70);
   to({ type: 0 }, a(22.8), 0.2);
-  set({ mMode: 2 }, a(22.9));
   to(DESK_BACK, a(22.9), 0.4);
-  c = catJump(1078, 308, a(24), 0.55);
+  ai('aiB', 1, 22.7, 1.1);
+  ai('aiA', 3, 22.9);
+  c = catJump(1028, 295, a(24), 0.55);
   set({ cpose: 2, cface: -1, chang: 1 }, c);
+  ai('aiB', 2, 24.1);
+  ai('aiA', 4, 24.4);
   to(DESK, a(24.6), 0.4);
-  set({ mMode: 1 }, a(24.9));
   to({ type: 1 }, a(24.8), 0.2);
-  to({ code: 1 }, a(24.9), 4, 'none');
+  ai('aiB', 3, 24.9, 1);
+  ai('aiB', 4, 26.2);
   to({ head: 6 }, a(25.3), 0.4);
   to({ head: -2 }, a(26.5), 0.5);
+  to({ code: 0.6 }, a(26.5), 1.2, 'none');
+  ai('aiB', 5, 27.3);
+  ai('aiA', 5, 27.8, 0.6);
+  ai('aiA', 6, 28.7, 0.2);
   to({ dawn: 0.8 }, a(27.4), 1.4);
   to({ day: 0.25 }, a(27.6), 2.6, 'sine.inOut');
   to({ dawn: 0 }, a(29), 1.6);
   to({ type: 0 }, a(28.9), 0.2);
   set({ mMode: 3 }, a(29));
   to(DESK_UP, a(29.1), 0.5, 'back.out(1.4)');
+  to({ zoom: 0 }, a(29.5), 1.5, 'power3.inOut');
   to(DESK, a(30.1), 0.4);
   clock(a(31), 18, 30);
 
@@ -370,7 +385,11 @@ export function makeRender(svg: SVGSVGElement, S: State, loop: Loop, ui: Ui) {
     const [ax, ay] = g.dataset.at!.split(',').map(Number);
     return { g, k: g.dataset.j!, ax, ay };
   });
-  const lines = Array.from(svg.querySelectorAll<SVGRectElement>('[data-code]'), r => ({ r, w: Number(r.dataset.code), i: Math.round((Number(r.getAttribute('y')) - 321) / CODE_STEP) }));
+  const lines = Array.from(svg.querySelectorAll<SVGRectElement>('[data-code]'), r => ({ r, w: Number(r.dataset.code), i: Math.round((Number(r.getAttribute('y')) - CODE_TOP) / CODE_STEP) }));
+  const msgs = Array.from(svg.querySelectorAll<SVGTextElement>('[data-msg]'), el => {
+    const pane = el.dataset.msg!, text = el.dataset.text!;
+    return { el, pane, text, i: (pane === 'a' ? CLAUDE : CODEX).indexOf(text) };
+  });
   const zs = Array.from(svg.querySelectorAll<SVGTextElement>('[data-z]'));
   const players = Array.from(svg.querySelectorAll<SVGCircleElement>('[data-p]'));
 
@@ -388,7 +407,7 @@ export function makeRender(svg: SVGSVGElement, S: State, loop: Loop, ui: Ui) {
   const tr = (el: Element | undefined, v: string) => put(el, 'transform', v);
   const text = (el: Element | undefined, v: string) => { if (el && el.textContent !== v) el.textContent = v; };
 
-  let lit = -1, code = -1, cam = -1, shown = '';
+  let lit = -1, code = -1, cam = -1, shown = '', inClose = false;
   const angle: Record<string, number> = {};
 
   return function render() {
@@ -440,13 +459,24 @@ export function makeRender(svg: SVGSVGElement, S: State, loop: Loop, ui: Ui) {
     // the monitor
     op(R.monOn, S.mon);
     const mm = Math.round(S.mMode);
-    op(R.mCode, mm === 1); op(R.mJunk, mm === 2); op(R.mPass, mm === 3); op(R.mRace, mm === 4); op(R.mAim, mm === 5);
+    op(R.mCode, mm === 1 || mm === 3); op(R.mPass, mm === 3); op(R.mRace, mm === 4); op(R.mAim, mm === 5);
+    if (mm === 1 || mm === 3) {
+      for (const m of msgs) {
+        const p = m.pane === 'a' ? S.aiA : S.aiB;
+        text(m.el, m.text.slice(0, p >= m.i + 1 ? m.text.length : p > m.i ? Math.round(m.text.length * (p - m.i)) : 0));
+      }
+      // a pane's dot pulses while its agent is working
+      const busy = (p: number, said: string[]) => { const at = said[Math.min(said.length - 1, Math.floor(p))]; return p > 0 && p < said.length && !at.startsWith('>') ? 1 : 0; };
+      op(R.dotA, 0.35 + 0.65 * busy(S.aiA, CLAUDE) * Math.abs(Math.sin(t * 6)));
+      op(R.dotB, 0.35 + 0.65 * busy(S.aiB, CODEX) * Math.abs(Math.sin(t * 6)));
+      op(R.mDiff, Math.min(1, Math.max(0, (S.aiA - 3.5) * 2)));
+    }
     const typed = S.code * CODE.length, step = Math.floor(typed * 8);
     if (step !== code) {
       code = step;
       const whole = Math.floor(typed);
       for (const l of lines) put(l.r, 'width', n2(l.i < whole ? l.w : l.i === whole ? l.w * (typed % 1) : 0));
-      tr(R.code, `translate(0 ${n2(-Math.max(0, whole - 10) * CODE_STEP)})`);
+      tr(R.code, `translate(0 ${n2(-Math.max(0, whole - 12) * CODE_STEP)})`);
     }
     if (mm === 4) { tr(R.raceDash, `translate(0 ${n2((t * 40) % 12)})`); op(R.raceWin, 0.45 + 0.55 * S.flash); }
     if (mm === 5) { tr(R.cross, `translate(${n2(1077 + 30 * Math.sin(t * 1.7))} ${n2(344 + 8 * Math.sin(t * 2.3))})`); op(R.aimWin, S.flash); }
@@ -516,13 +546,21 @@ export function makeRender(svg: SVGSVGElement, S: State, loop: Loop, ui: Ui) {
     tr(R.heart, `translate(${n2(S.cx - 6 * S.cface)} ${n2(S.cy - 62 - S.heart * 10)})`); op(R.heart, S.heart);
     put(R.meow, 'x', n2(S.cx)); put(R.meow, 'y', n2(S.cy - (cp === 0 ? 70 : cp === 2 ? 48 : 38) - S.meow * 6)); op(R.meow, S.meow);
 
-    // phones: the camera follows me across the room
+    // the camera: the whole room, or on phones a window that follows me; it pushes in on the screen while I code
+    let view = [0, 120, 1600, 460];
     if (ui.narrow.on) {
       const target = Math.min(1000, Math.max(0, S.x - 300));
       // eases after me as I walk; jumps when I'm far off (a skip, or the first frame)
       cam = cam < 0 || Math.abs(target - cam) > 150 ? target : cam + (target - cam) * 0.12;
-      put(svg, 'viewBox', `${n2(cam)} 150 600 430`);
-    } else if (cam >= 0) { cam = -1; put(svg, 'viewBox', '0 120 1600 460'); }
+      view = [cam, 150, 600, 430];
+    } else cam = -1;
+    if (S.zoom > 0.001) {
+      const near = ui.narrow.on ? [888, 246, 282, 202.2] : [690, 253, 640, 184];
+      view = view.map((v, i) => v + (near[i] - v) * S.zoom);
+    }
+    put(svg, 'viewBox', view.map(n2).join(' '));
+    const zoomed = S.zoom > 0.02;
+    if (zoomed !== inClose) { inClose = zoomed; ui.root.toggleAttribute('data-zoomed', zoomed); }
 
     // the bar under the room
     const [, act, says] = doingAt(loop, local);

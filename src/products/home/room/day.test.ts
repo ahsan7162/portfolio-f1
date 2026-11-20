@@ -6,7 +6,7 @@ void test('the room loop ends where it starts, so the seam does not show', () =>
   const S = initialState(), start = { ...S };
   const loop = buildLoop(S);
   loop.tl.totalTime(loop.length - 0.001);
-  for (const k of ['x', 'y', 'rot', 'face', 'walk', 'phone', 'blanket', 'cx', 'cy', 'cpose', 'cface', 'day', 'mon', 'tv'] as const) {
+  for (const k of ['x', 'y', 'rot', 'face', 'walk', 'phone', 'blanket', 'cx', 'cy', 'cpose', 'cface', 'day', 'mon', 'tv', 'zoom'] as const) {
     assert.ok(Math.abs(S[k] - start[k]) < 0.05, `${k}: ${S[k]} at the end, ${start[k]} at the start`);
   }
   assert.ok(Math.abs(S.moon - start.moon) < 0.01);

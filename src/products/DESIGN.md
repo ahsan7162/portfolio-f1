@@ -275,12 +275,13 @@ Sections that take over the wheel do so through `setWheelGate()` in `scroll.ts` 
 
 **Footer.** A marquee of the kinds, the room, and a link back to the portfolio.
 
-**The room** (`home/room/`). My day on a loop, drawn by hand in SVG: I sleep, eat biryani, code, watch Netflix and play a game, then go back to bed, while the cat keeps its own day around me (it takes the monitor, gets a bite of biryani, curls up on the couch). The loop is four days long, and each night's game is different: football and a platformer on the couch, racing on a wheel and a PC game at the desk.
+**The room** (`home/room/`). My day on a loop, drawn by hand in SVG: I sleep, eat biryani, code with Claude and Codex, watch Netflix and play a game, then go back to bed, while the cat keeps its own day around me (it walks across the keyboard and types into Codex, takes the monitor, gets a bite of biryani, curls up on the couch). The loop is four days long, and each night's game is different: football and a platformer on the couch, racing on a wheel and a PC game at the desk.
 
 - One GSAP timeline tweens numbers in one state object; `render()` turns the state into transforms and opacities, writing only what changed. Small motions (typing, chewing, breathing, the walk cycle, the tail) are worked out from the timeline's time, so pause and fast-forward carry them too.
 - I am a jointed figure: each limb is a `data-j` group rotated about its joint. Poses are lists of angles; arms are placed by where the hands go (`reach()`). The walk cycle follows the distance walked, so feet don't slide.
 - The look is the one picked from three: at night the room is dark and lit by its screens, the moon and the PC; by day it becomes the car's solid greys in a lit box. `--day` (0 to 1) is the only thing the script sets; every colour in `room.css` is a mix of a night value and a day value. No hue, as in the rest of the page chrome.
-- No trademarks are drawn: the TV shows a generic streaming screen, the games have no logos.
+- While I code the camera pushes in on the screen (`zoom`, a narrower viewBox) and pulls back out at Build passed, onto the sunset. The screen is the code beside two agent panes, `claude` and `codex` (`CLAUDE` and `CODEX` in `Scene.tsx`); `aiA` and `aiB` count the lines shown in each, and the fraction is the line being typed. The pointer spots hide while the camera is in.
+- No trademarks are drawn: the agents are their command names in plain text, no logos; the TV shows a generic streaming screen, the games have no logos.
 - Skips: the bar under the room (Sleep, Eat, Code, Watch, Play) fast-forwards the day to that part. Clicking the bed, the table, the desk, the couch or the console does the same; those spots are pointer-only, and the bar is the keyboard and screen-reader way. Clicking the cat makes it answer.
 - It plays only when revealed and on screen, stops when scrolled away, and has a pause button (WCAG 2.2.2). With reduced motion it holds one moment at the desk, and a skip jumps straight to its part.
 - Below 700px wide the camera follows me across the room (a narrower viewBox).
