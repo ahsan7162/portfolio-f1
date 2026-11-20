@@ -68,7 +68,9 @@ function structuredData(site: string, pageTitle: string, builtAt: string) {
   const graph = site ? [
     { '@type': 'WebSite', '@id': `${site}/#website`, url: `${site}/`, name: profile.name, inLanguage: 'en' },
     { '@type': 'ProfilePage', '@id': `${site}/#page`, url: `${site}/`, name: pageTitle, inLanguage: 'en',
-      isPartOf: { '@id': `${site}/#website` }, mainEntity: { '@id': `${site}/#person` }, dateModified: builtAt },
+      isPartOf: { '@id': `${site}/#website` }, mainEntity: { '@id': `${site}/#person` }, dateModified: builtAt,
+      // The same author a products page names, by the same @id: the person this page is about wrote it.
+      author: { '@type': 'Person', '@id': `${site}/#person`, name: profile.name, url: `${site}/` } },
     person,
   ] : [person];
   // `<` escaped, so no string in the data can close the script tag.

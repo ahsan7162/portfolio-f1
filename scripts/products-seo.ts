@@ -72,7 +72,7 @@ const productBody = (p: Product) => body(p.name, p.brand, [
 function homeData(site: string, url: string, builtAt: string) {
   return [
     { '@type': 'CollectionPage', '@id': `${url}#page`, url, name: homeMeta.title, description: homeMeta.description, inLanguage: 'en', dateModified: builtAt,
-      isPartOf: { '@id': `${site}/#website` }, author: { '@id': `${site}/#person` },
+      isPartOf: { '@id': `${site}/#website` }, author: { '@type': 'Person', '@id': `${site}/#person`, name: ME, url: `${site}/` },
       mainEntity: { '@type': 'ItemList', itemListElement: real.map((p, i) => ({ '@type': 'ListItem', position: i + 1, name: p.name, url: site + productPath(p.slug) })) } },
     { '@type': 'BreadcrumbList', itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Portfolio', item: `${site}/` },
