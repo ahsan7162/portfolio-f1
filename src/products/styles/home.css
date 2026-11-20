@@ -174,10 +174,14 @@
 }
 
 /* Footer */
-.ftr { margin-top: clamp(90px, 14vh, 170px); border-top: 1px solid var(--line); overflow: hidden; }
+.ftr { margin-top: clamp(90px, 14vh, 170px); border-top: 1px solid var(--line); overflow: hidden; container: ftr / inline-size; }
 .ftr-marquee { display: flex; white-space: nowrap; padding: clamp(22px, 3.4vh, 40px) 0 clamp(14px, 2.4vh, 28px); font-size: clamp(56px, 10vw, 170px); --wdth: 125; letter-spacing: -0.04em; }
 .ftr-track { display: flex; flex: none; gap: 0.32em; padding-right: 0.32em; @media (prefers-reduced-motion: no-preference) { animation: ftr-run 30s linear infinite; } }
 .ftr-track span:nth-child(even) { color: var(--acc); }
+/* the room's box (home/room/, styles/room.css): held at its exact size before the drawing loads, so nothing below it moves */
+.rm-stage { position: relative; aspect-ratio: 1600 / 460; }
+.rm-bar { min-height: 64px; padding: 18px var(--pad); border-top: 1px solid var(--line); }
+@container ftr (max-width: 699px) { .rm-stage { aspect-ratio: 600 / 430; } }
 @keyframes ftr-run { to { transform: translateX(-100%); } }
 .ftr-base { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; padding: 22px var(--pad) 30px; color: var(--dim); border-top: 1px solid var(--line); }
 .ftr-base a:hover { color: var(--acc); }
