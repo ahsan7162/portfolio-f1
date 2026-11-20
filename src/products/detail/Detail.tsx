@@ -159,18 +159,20 @@ export function Detail({ product }: { product: Product }) {
       </header>
 
       <Blocks product={product} />
+      </main>
 
       {next && (
-        <Link to={productPath(next.slug)} className="dt-next">
-          <span className="dt-next-in pp-wrap">
-            <span className="pp-mono">Next · {pad(((at + 1) % total) + 1)} / {pad(total)}</span>
-            <span className="dt-next-name pp-display" ref={nextRef}>
-              <span className="dt-fit"><span className="dt-next-text">{next.name}</span> <span className="dt-arrow" aria-hidden="true">→</span></span>
+        <footer>
+          <Link to={productPath(next.slug)} className="dt-next">
+            <span className="dt-next-in pp-wrap">
+              <span className="pp-mono">Next · {pad(((at + 1) % total) + 1)} / {pad(total)}</span>
+              <span className="dt-next-name pp-display" ref={nextRef}>
+                <span className="dt-fit"><span className="dt-next-text">{next.name}</span> <span className="dt-arrow" aria-hidden="true">→</span></span>
+              </span>
             </span>
-          </span>
-        </Link>
+          </Link>
+        </footer>
       )}
-      </main>
     </div>
   );
 }
