@@ -6,7 +6,7 @@ import { resolve } from 'node:path';
 import { products } from '../src/products/data';
 import { HOME, productPath } from '../src/products/paths';
 import { homeMeta, productMeta, type PageMeta } from '../src/products/seo';
-import { KINDS, type Product } from '../src/products/types';
+import { KINDS, findBlock, type BlockOf, type Product } from '../src/products/types';
 
 const ME = 'Muhammad Ahsan';
 const real = products.filter(p => !p.sample);
@@ -66,8 +66,11 @@ const productBody = (p: Product) => body(p.name, p.brand, [
   `<p>${esc(p.hook)}</p>`,
   `<p>${esc([KINDS[p.kind].label, ...p.facts, p.year].join(' · '))}. Built with ${esc(p.stack.join(', '))}.</p>`,
   p.links.length ? `<ul>${p.links.map(l => `<li><a href="${esc(l.href)}">${esc(l.label)}</a></li>`).join('')}</ul>` : '',
-  ...p.blocks.map(blockHtml),
+  ...p.blocks.map(b => (b.type === 'faq' ? faqHtml(b) : blockHtml(b))),
 ].join(''));
+
+/** Questions keep their shape, a heading each with its answer under it, so the FAQPage data (productData) matches the page word for word. */
+const faqHtml = (b: BlockOf<'faq'>) => `<section><h2>${esc(b.label)}</h2>${b.items.map(i => `<h3>${esc(i.q)}</h3><p>${esc(i.a)}</p>`).join('')}</section>`;
 
 function homeData(site: string, url: string, builtAt: string) {
   return [
@@ -84,6 +87,7 @@ function homeData(site: string, url: string, builtAt: string) {
 function productData(p: Product, m: PageMeta, site: string, url: string, builtAt: string) {
   const openSource = p.facts.includes('MIT');
   const repo = p.links.find(l => l.label === 'GitHub')?.href;
+  const faq = findBlock(p, 'faq');
   return [
     { '@type': 'WebPage', '@id': `${url}#page`, url, name: m.title, description: m.description, inLanguage: 'en', dateModified: builtAt,
       isPartOf: { '@id': `${site}/#website` }, mainEntity: { '@id': `${url}#product` } },
@@ -100,6 +104,9 @@ function productData(p: Product, m: PageMeta, site: string, url: string, builtAt
       { '@type': 'ListItem', position: 2, name: 'Products', item: site + HOME },
       { '@type': 'ListItem', position: 3, name: p.name, item: url },
     ] },
+    // Exactly the questions the page shows (faqHtml), in the same words.
+    ...(faq ? [{ '@type': 'FAQPage', '@id': `${url}#faq`, isPartOf: { '@id': `${url}#page` },
+      mainEntity: faq.items.map(i => ({ '@type': 'Question', name: i.q, acceptedAnswer: { '@type': 'Answer', text: i.a } })) }] : []),
   ];
 }
 
