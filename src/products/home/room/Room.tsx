@@ -1,5 +1,5 @@
 // The footer room: my day on a loop. Loaded on its own, when the footer comes near (Home.tsx).
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { onReveal } from '../../arrive';
 import { gsap, reducedMotion } from '../../motion';
 import { ACTS, buildLoop, initialState, makeRender, nextMark, type Act } from './day';
@@ -27,67 +27,12 @@ export default function Room() {
   const toggle = useRef<() => void>(() => {});
   const [paused, setPaused] = useState(false);
 
-  useLayoutEffect(() => {
-    const el = root.current!, svg = el.querySelector('svg')!;
-    const S = initialState();
-    const loop = buildLoop(S);
-    const narrow = { on: false };
-    const render = makeRender(svg, S, loop, {
-      root: el, time: time.current!, doing: doing.current!, narrow,
-      acts: Array.from(el.querySelectorAll<HTMLElement>('[data-act]')),
-    });
-    const { tl } = loop;
-    tl.eventCallback('onUpdate', render);
-    const still = reducedMotion();
-    let seen = false, revealed = false, stopped = false, skipping: gsap.core.Tween | null = null;
-    const run = () => { if (skipping) return; if (seen && revealed && !stopped && !still) tl.play(); else tl.pause(); };
-
-    // Reduced motion: the room holds one moment (mid-morning at the desk) and a skip jumps straight to its part.
-    tl.totalTime(still ? nextMark(loop, 'code', 0) + 2.5 : 0);
-    render();
-
-    jumpTo.current = act => {
-      const at = nextMark(loop, act, tl.totalTime());
-      skipping?.kill();
-      if (still) { tl.totalTime(at + 2.5); render(); return; }
-      tl.pause();
-      // the day fast-forwards to it, everything in the room moving at speed
-      skipping = gsap.to(tl, {
-        totalTime: at, duration: Math.min(2.4, Math.max(0.9, (at - tl.totalTime()) / 25)), ease: 'power2.inOut',
-        onComplete: () => { skipping = null; run(); },
-      });
-    };
-    toggle.current = () => { stopped = !stopped; setPaused(stopped); run(); };
-
-    const io = new IntersectionObserver(([e]) => { seen = e.isIntersecting; run(); });
-    io.observe(el);
-    const cancel = onReveal(() => { revealed = true; run(); });
-    const ro = new ResizeObserver(([e]) => { narrow.on = e.contentRect.width < 700; render(); });
-    ro.observe(el);
-
-    // the cat watches the pointer, and answers a click
-    const watch = (e: PointerEvent) => {
-      const m = svg.getScreenCTM();
-      if (!m) return;
-      const p = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse());
-      S.px = p.x; S.py = p.y;
-    };
-    const cat = svg.querySelector('[data-r="cat"]')!;
-    const meow = () => {
-      gsap.timeline({ onUpdate: render })
-        .fromTo(S, { hop: 0 }, { hop: 1, duration: 0.45, ease: 'power1.inOut' })
-        .to(S, { meow: 1, duration: 0.2 }, 0)
-        .to(S, { meow: 0, duration: 0.4 }, 1.3);
-    };
-    el.addEventListener('pointermove', watch, { passive: true });
-    cat.addEventListener('click', meow);
-
-    return () => {
-      io.disconnect(); ro.disconnect(); cancel();
-      el.removeEventListener('pointermove', watch);
-      cat.removeEventListener('click', meow);
-      skipping?.kill(); tl.kill(); gsap.killTweensOf(S);
-    };
+  useEffect(() => {
+    // The drawing mounts hidden; the timeline is built and the room posed in the next idle moment,
+    // so the mount and the setup never share one frame.
+    let stop = () => {};
+    const idle = requestIdleCallback(() => { stop = setUp(root.current!, { time: time.current!, doing: doing.current!, jumpTo, toggle, setPaused }); }, { timeout: 600 });
+    return () => { cancelIdleCallback(idle); stop(); };
   }, []);
 
   return (
@@ -117,4 +62,71 @@ export default function Room() {
       </div>
     </div>
   );
+}
+
+type Handles = { time: HTMLTimeElement; doing: HTMLSpanElement; jumpTo: { current: (act: Act) => void }; toggle: { current: () => void }; setPaused: (on: boolean) => void };
+
+/** Builds the day, poses the room and starts watching for when it should play. Returns the clean-up. */
+function setUp(el: HTMLDivElement, { time, doing, jumpTo, toggle, setPaused }: Handles) {
+  const svg = el.querySelector('svg')!;
+  const S = initialState();
+  const loop = buildLoop(S);
+  const narrow = { on: false };
+  const render = makeRender(svg, S, loop, {
+    root: el, time, doing, narrow,
+    acts: Array.from(el.querySelectorAll<HTMLElement>('[data-act]')),
+  });
+  const { tl } = loop;
+  tl.eventCallback('onUpdate', render);
+  const still = reducedMotion();
+  let seen = false, revealed = false, stopped = false, skipping: gsap.core.Tween | null = null;
+  const run = () => { if (skipping) return; if (seen && revealed && !stopped && !still) tl.play(); else tl.pause(); };
+
+  // Reduced motion: the room holds one moment (mid-morning at the desk) and a skip jumps straight to its part.
+  tl.totalTime(still ? nextMark(loop, 'code', 0) + 2.5 : 0);
+  render();
+  el.dataset.ready = '';
+
+  jumpTo.current = act => {
+    const at = nextMark(loop, act, tl.totalTime());
+    skipping?.kill();
+    if (still) { tl.totalTime(at + 2.5); render(); return; }
+    tl.pause();
+    // the day fast-forwards to it, everything in the room moving at speed
+    skipping = gsap.to(tl, {
+      totalTime: at, duration: Math.min(2.4, Math.max(0.9, (at - tl.totalTime()) / 25)), ease: 'power2.inOut',
+      onComplete: () => { skipping = null; run(); },
+    });
+  };
+  toggle.current = () => { stopped = !stopped; setPaused(stopped); run(); };
+
+  const io = new IntersectionObserver(([e]) => { seen = e.isIntersecting; run(); });
+  io.observe(el);
+  const cancel = onReveal(() => { revealed = true; run(); });
+  const ro = new ResizeObserver(([e]) => { narrow.on = e.contentRect.width < 700; render(); });
+  ro.observe(el);
+
+  // the cat watches the pointer, and answers a click
+  const watch = (e: PointerEvent) => {
+    const m = svg.getScreenCTM();
+    if (!m) return;
+    const p = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse());
+    S.px = p.x; S.py = p.y;
+  };
+  const cat = svg.querySelector('[data-r="cat"]')!;
+  const meow = () => {
+    gsap.timeline({ onUpdate: render })
+      .fromTo(S, { hop: 0 }, { hop: 1, duration: 0.45, ease: 'power1.inOut' })
+      .to(S, { meow: 1, duration: 0.2 }, 0)
+      .to(S, { meow: 0, duration: 0.4 }, 1.3);
+  };
+  el.addEventListener('pointermove', watch, { passive: true });
+  cat.addEventListener('click', meow);
+
+  return () => {
+    io.disconnect(); ro.disconnect(); cancel();
+    el.removeEventListener('pointermove', watch);
+    cat.removeEventListener('click', meow);
+    skipping?.kill(); tl.kill(); gsap.killTweensOf(S);
+  };
 }

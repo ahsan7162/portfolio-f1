@@ -1,5 +1,5 @@
 // The main page: the introduction, the featured products, then the whole catalogue.
-import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { lazy, startTransition, Suspense, useEffect, useRef, useState } from 'react';
 import { products } from '../data';
 import { KINDS } from '../types';
 import { Catalogue } from './Catalogue';
@@ -41,9 +41,15 @@ function RoomSlot() {
   const ref = useRef<HTMLDivElement>(null);
   const [near, setNear] = useState(false);
   useEffect(() => {
-    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setNear(true); io.disconnect(); } }, { rootMargin: '900px 0px' });
+    let idle = 0;
+    // mounted in idle time, as a transition React can split up, so it never lands in a scroll frame
+    const io = new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting) return;
+      io.disconnect();
+      idle = requestIdleCallback(() => startTransition(() => setNear(true)), { timeout: 1500 });
+    }, { rootMargin: '900px 0px' });
     io.observe(ref.current!);
-    return () => io.disconnect();
+    return () => { io.disconnect(); cancelIdleCallback(idle); };
   }, []);
   const shell = <div className="rm"><div className="rm-stage" /><div className="rm-bar" /></div>;
   return <div ref={ref}>{near ? <Suspense fallback={shell}><Room /></Suspense> : shell}</div>;

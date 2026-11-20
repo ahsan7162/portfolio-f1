@@ -284,7 +284,7 @@ Sections that take over the wheel do so through `setWheelGate()` in `scroll.ts` 
 - Skips: the bar under the room (Sleep, Eat, Code, Watch, Play) fast-forwards the day to that part. Clicking the bed, the table, the desk, the couch or the console does the same; those spots are pointer-only, and the bar is the keyboard and screen-reader way. Clicking the cat makes it answer.
 - It plays only when revealed and on screen, stops when scrolled away, and has a pause button (WCAG 2.2.2). With reduced motion it holds one moment at the desk, and a skip jumps straight to its part.
 - Below 700px wide the camera follows me across the room (a narrower viewBox).
-- It loads as its own chunk when the footer is within 900px, into a box of the same size, so nothing moves.
+- It loads as its own chunk when the footer is within 900px, into a box of the same size, so nothing moves. It mounts in idle time as a React transition, hidden, and the timeline is built and the room posed in the next idle moment, so the mount and the setup never land in one scroll frame.
 - `day.test.ts` checks that the loop ends where it starts and that every part can be skipped to.
 
 ---
