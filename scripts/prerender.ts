@@ -26,6 +26,9 @@ function siteUrl() {
  * speculation rules by hash (inline rules are blocked without one).
  * Inline styles stay allowed: React and GSAP set style attributes throughout the page.
  * frame-ancestors can't be set from a meta tag, so it is a header (vercel.json).
+ * vercel.json also sends this whole policy as a header on "/", for scanners that read only
+ * headers; see checkPolicyHeader. Only "/": a products page's sandboxed demo frame inherits
+ * its page's policy and runs inline scripts that no hash list could keep up with.
  */
 function contentSecurityPolicy(html: string) {
   const inlineHashes = [...html.matchAll(/<script(?: type="speculationrules")?>([\s\S]*?)<\/script>/g)]
@@ -101,6 +104,18 @@ function writeSitemap(dist: string, site: string, day: string, paths: string[]) 
   writeFileSync(robots, `${readFileSync(robots, 'utf8').trimEnd()}\n\nSitemap: ${site}/sitemap.xml\n`);
 }
 
+/**
+ * The header copy of the policy is static, so it goes stale when index.html's inline scripts change,
+ * and a stale hash would block them. The build stops instead, saying what the header must be.
+ */
+function checkPolicyHeader(policy: string) {
+  type Rule = { source: string; headers: { key: string; value: string }[] };
+  const { headers } = JSON.parse(readFileSync(resolve('vercel.json'), 'utf8')) as { headers: Rule[] };
+  const sent = headers.find(r => r.source === '/')?.headers.find(h => h.key === 'Content-Security-Policy')?.value;
+  const want = `${policy}; frame-ancestors 'none'`;
+  if (sent !== want) throw new Error(`prerender: vercel.json's Content-Security-Policy header for "/" is out of date. Set it to:\n${want}`);
+}
+
 const dist = resolve('dist');
 const { render } = await import(pathToFileURL(resolve('dist-ssr/entry-server.js')).href);
 const html = readFileSync(resolve(dist, 'index.html'), 'utf8');
@@ -114,9 +129,11 @@ const builtAt = new Date().toISOString();
 // The profile page is named after index.html's <title>, so the two never drift apart.
 const pageTitle = (/<title>(.*?)<\/title>/.exec(html)?.[1] ?? profile.name).replace(/&amp;/g, '&');
 if (!site) console.warn('prerender: SITE_URL is empty, so no canonical or og:image tags and no sitemap (they need an absolute URL). Set it in src/content/data.ts or pass SITE_URL=https://…');
+const policy = contentSecurityPolicy(html);
+checkPolicyHeader(policy);
 // Function replacements: a string one would read `$&` or `$'` in the page's text as a pattern.
 writeFileSync(resolve(dist, 'index.html'), html
-  .replace('<!--csp-->', () => `<meta http-equiv="Content-Security-Policy" content="${contentSecurityPolicy(html)}" />`)
+  .replace('<!--csp-->', () => `<meta http-equiv="Content-Security-Policy" content="${policy}" />`)
   .replace('<!--seo-->', () => seoTags(site, pageTitle, builtAt))
   .replace('<!--app-->', () => app));
 const productPaths = writeProductPages(dist, site, builtAt);
