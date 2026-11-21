@@ -22,7 +22,6 @@
   --cat: color-mix(in srgb, #77756E var(--mix), #2E2D2A);
   --leaf: color-mix(in srgb, #5C5A54 var(--mix), #1A1A18);
   --det: color-mix(in srgb, #5C5A54 var(--mix), color-mix(in srgb, #ECE9DF 22%, transparent));
-  --edge: color-mix(in srgb, transparent var(--mix), color-mix(in srgb, #ECE9DF 13%, transparent));
   --wall: color-mix(in srgb, #0E0E0D var(--mix), transparent);
   --base: color-mix(in srgb, #181817 var(--mix), transparent);
   --floor: color-mix(in srgb, #2A2A28 var(--mix), color-mix(in srgb, #ECE9DF 16%, transparent));
@@ -37,6 +36,8 @@
   --scr: #141413;
   --code: color-mix(in srgb, #ECE9DF 86%, transparent);
   --code2: color-mix(in srgb, #ECE9DF 36%, transparent);
+  --shade: color-mix(in srgb, #000 30%, transparent);
+  --hl: color-mix(in srgb, #FFF calc(7% + var(--day) * 8%), transparent);
   position: relative;
 }
 
@@ -46,7 +47,34 @@
 @container ftr (max-width: 699px) { .rm-spot { display: none; } }
 
 /* paint roles */
-.rm :is(.o, .o2, .o3, .o4, .wd, .sk, .sk2, .hr, .cl, .cl2, .cl3, .pn, .pn2, .sh, .cat, .city, .leaf) { stroke: var(--edge); stroke-width: 1.2; stroke-linejoin: round; }
+/* fine film grain over the whole room: one static tile, so it costs nothing per frame */
+.rm .rm-stage::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0.55; mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+/* the finish: shade and light laid over the flat paint, as black and white at low alpha, so --day still drives every colour */
+.rm .f-s { fill: var(--shade); }
+.rm .f-sl { fill: none; stroke: var(--shade); stroke-linecap: round; }
+.rm .f-st { fill: none; stroke: var(--shade); stroke-width: 1.6; stroke-linecap: round; }
+.rm .f-h { fill: none; stroke: var(--hl); stroke-width: 1.2; stroke-linecap: round; }
+.rm .f-hf { fill: var(--hl); }
+.rm .f-ao { fill: url(#rm-ao); }
+.rm .f-wallao { fill: url(#rm-wallao); }
+.rm .f-glass { fill: color-mix(in srgb, #FFF calc(3% + var(--day) * 6%), transparent); }
+.rm .f-rim { fill: none; stroke: color-mix(in srgb, var(--light) 60%, transparent); stroke-width: 1; stroke-linecap: round; opacity: var(--rim, 0); }
+/* round things: dark on the side away from the light, and the side that faces a lit screen brightens with it */
+.rm .f-tube { fill: url(#rm-tube); }
+.rm .rim-s { stop-opacity: calc(0.05 + var(--rim, 0) * 0.3); }
+.rm .f-d { fill: none; stroke: var(--det); stroke-width: 1; stroke-linecap: round; }
+.rm .f-bd { fill: none; stroke: color-mix(in srgb, var(--light) 14%, transparent); stroke-width: 0.8; stroke-linecap: round; }
+.rm .f-sheen { fill: none; stroke: color-mix(in srgb, var(--light) 13%, transparent); stroke-width: 2.2; stroke-linecap: round; }
+.rm .f-in { fill: color-mix(in srgb, #FFF 14%, transparent); }
+/* the skyline's roofs catch a little light, so it still reads against the night sky */
+.rm .city { stroke: var(--hl); stroke-width: 0.8; }
+.rm .city-far { opacity: 0.5; }
+.rm .glassb { fill: color-mix(in srgb, var(--light) 7%, transparent); stroke: color-mix(in srgb, var(--light) 30%, transparent); stroke-width: 0.8; }
+.rm .water { fill: color-mix(in srgb, var(--light) 12%, transparent); }
+.rm .f-w { fill: none; stroke: color-mix(in srgb, var(--light) 42%, transparent); stroke-width: 0.6; stroke-linecap: round; }
 .rm .o { fill: var(--o); } .rm .o2 { fill: var(--o2); } .rm .o3 { fill: var(--o3); } .rm .o4 { fill: var(--o4); } .rm .wd { fill: var(--wd); }
 .rm .sk { fill: var(--sk); } .rm .sk2 { fill: var(--sk2); } .rm .hr { fill: var(--hr); }
 .rm .cl { fill: var(--cl); } .rm .cl2 { fill: var(--cl2); } .rm .cl3 { fill: var(--cl3); }

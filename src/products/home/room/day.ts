@@ -407,7 +407,7 @@ export function makeRender(svg: SVGSVGElement, S: State, loop: Loop, ui: Ui) {
   const tr = (el: Element | undefined, v: string) => put(el, 'transform', v);
   const text = (el: Element | undefined, v: string) => { if (el && el.textContent !== v) el.textContent = v; };
 
-  let lit = -1, code = -1, cam = -1, shown = '', inClose = false;
+  let lit = -1, rimAt = -1, code = -1, cam = -1, shown = '', inClose = false;
   const angle: Record<string, number> = {};
 
   return function render() {
@@ -416,6 +416,9 @@ export function makeRender(svg: SVGSVGElement, S: State, loop: Loop, ui: Ui) {
 
     // daylight: one number, every colour follows (room.css)
     if (Math.abs(S.day - lit) > 0.002) { lit = S.day; ui.root.style.setProperty('--day', lit.toFixed(3)); }
+    // the edge of me that faces a lit screen catches its light
+    const rim = Math.round(Math.max(S.mon, S.tv, S.phone * 0.7) * (1 - 0.6 * S.day) * 50) / 50;
+    if (rim !== rimAt) { rimAt = rim; ui.root.style.setProperty('--rim', String(rim)); }
 
     // the window
     const sunX = 110 + S.sun * 250, sunY = 345 - Math.sin(Math.PI * S.sun) * 175;
@@ -454,7 +457,7 @@ export function makeRender(svg: SVGSVGElement, S: State, loop: Loop, ui: Ui) {
     const flicker = tm === 2 || tm >= 5 ? 0.82 + 0.18 * Math.sin(t * 7.3) * Math.sin(t * 2.9) : 1;
     op(R.tvGlow, S.tv * flicker * (1 - 0.6 * S.day));
     op(R.pcGlow, (0.3 + 0.5 * S.mon) * (1 - 0.6 * S.day));
-    op(R.floorGlow, S.lampF); op(R.floorBulb, S.lampF); op(R.bedGlow, S.lampB);
+    op(R.floorGlow, S.lampF); op(R.floorBulb, S.lampF); op(R.floorCone, S.lampF * 0.8); op(R.bedGlow, S.lampB); op(R.bedCone, S.lampB * 0.8);
 
     // the monitor
     op(R.monOn, S.mon);
