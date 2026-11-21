@@ -287,6 +287,7 @@ Sections that take over the wheel do so through `setWheelGate()` in `scroll.ts` 
 - It plays only when revealed and on screen, stops when scrolled away, and has a pause button (WCAG 2.2.2). With reduced motion it holds one moment at the desk, and a skip jumps straight to its part.
 - Below 700px wide the camera follows me across the room (a narrower viewBox).
 - It loads as its own chunk when the footer is within 900px, into a box of the same size, so nothing moves. It mounts in idle time as a React transition, hidden, and the timeline is built and the room posed in the next idle moment, so the mount and the setup never land in one scroll frame.
+- Raised arms (stretching, cheering) go up and a little back with the elbows bent, so they pass behind my face, not across it. Turning round takes a beat (the body narrows through the turn); the cat turns the same way, blinks, and breathes when it lies down.
 - `day.test.ts` checks that the loop ends where it starts and that every part can be skipped to.
 
 ---

@@ -52,20 +52,20 @@ const STAND: Pose = { rot: 0, y: 426, spine: 0, head: 0, ...STILL_LEGS, uarmN: 0
 const LIE: Pose = { x: 262, y: 446, rot: -90, spine: 0, head: -8, ...STILL_LEGS, uarmN: 4, farmN: -6, uarmF: 2, farmF: -4 };
 const LIE_PHONE: Pose = { ...LIE, ...pick(reach({ x: 0, y: 0, spine: 0 }, [46, -138], [10, -40]), 'uarmN', 'farmN', 'uarmF', 'farmF') };
 const SIT_UP: Pose = { x: 262, y: 458, rot: 0, spine: 4, head: 0, thighN: -90, shinN: 0, footN: 0, thighF: -88, shinF: 0, footF: 0, uarmN: -20, farmN: -30, uarmF: -16, farmF: -30 };
-const STRETCH: Pose = { ...SIT_UP, spine: -2, head: -14, uarmN: -172, farmN: -8, uarmF: -166, farmF: -12 };
+const STRETCH: Pose = { ...SIT_UP, spine: -2, head: -14, uarmN: -188, farmN: -6, uarmF: -182, farmF: -10 };
 const TABLE = reach({ x: 612, y: 488, rot: 0, spine: 6, head: 2, ...SIT }, [700, 422], [690, 427]);
 const BITE = reach({ ...TABLE, spine: 6 }, [650, 372], [690, 427]);
 const GIVE = reach({ ...TABLE, spine: 24, head: 10 }, [728, 420], [690, 427]);
 const DESK = reach({ x: 892, y: 488, rot: 0, spine: 6, head: -2, ...SIT }, [975, 420], [962, 422]);
 const DESK_BACK = reach({ ...DESK, spine: -6, head: -6 }, [930, 472], [922, 474]);
-const DESK_UP: Pose = { ...DESK, spine: -8, head: -14, uarmN: -165, farmN: -18, uarmF: -160, farmF: -22 };
+const DESK_UP: Pose = { ...DESK, spine: -8, head: -14, uarmN: -196, farmN: 26, uarmF: -186, farmF: 20 };
 const RACE = reach({ ...DESK, spine: 8, head: 0 }, [962, 380], [958, 410]);
 const PC = reach({ ...DESK, spine: 14, head: 4 }, [996, 421], [960, 422]);
 const SOFA = reach({ x: 1300, y: 486, rot: 0, spine: -10, head: 4, ...COUCH }, [1342, 474], [1334, 476]);
 const SOFA_UP = reach({ ...SOFA, spine: 2, head: -3 }, [1342, 474], [1334, 476]);
 const PAD = reach({ ...SOFA, spine: 6, head: 2 }, [1352, 436], [1346, 440]);
 const PAD_LEAN = reach({ ...SOFA, spine: 14, head: 6 }, [1360, 440], [1354, 444]);
-const CHEER: Pose = { ...SOFA, spine: -4, head: -12, uarmN: -165, farmN: -20, uarmF: -158, farmF: -26 };
+const CHEER: Pose = { ...SOFA, spine: -4, head: -12, uarmN: -196, farmN: 26, uarmF: -186, farmF: 20 };
 
 function pick(p: Pose, ...keys: (keyof State)[]): Pose {
   return Object.fromEntries(keys.map(k => [k, p[k]]));
@@ -110,7 +110,7 @@ function day(tl: gsap.core.Timeline, loop: Loop, S: State, t0: number, game: (ty
   let me = 262;
   const walk = (x: number, at: number, speed = 120) => {
     const d = Math.abs(x - me) / speed;
-    set({ face: x >= me ? 1 : -1 }, at);
+    to({ face: x >= me ? 1 : -1 }, at, 0.18, 'power1.inOut');
     to({ walk: 1 }, at, 0.2);
     tl.to(S, { x, duration: d, ease: 'none' }, at);
     to({ walk: 0 }, at + d - 0.2, 0.2);
@@ -120,13 +120,15 @@ function day(tl: gsap.core.Timeline, loop: Loop, S: State, t0: number, game: (ty
   let cat = { x: 395, y: 468 };
   const catWalk = (x: number, at: number, speed = 150) => {
     const d = Math.abs(x - cat.x) / speed;
-    set({ cpose: 1, cface: x >= cat.x ? 1 : -1 }, at);
+    set({ cpose: 1 }, at);
+    to({ cface: x >= cat.x ? 1 : -1 }, at, 0.14, 'power1.inOut');
     tl.to(S, { cx: x, duration: d, ease: 'none' }, at);
     cat = { ...cat, x };
     return at + d;
   };
   const catJump = (x: number, y: number, at: number, d = 0.45) => {
-    set({ cpose: 1, cface: x >= cat.x ? 1 : -1 }, at);
+    set({ cpose: 1 }, at);
+    to({ cface: x >= cat.x ? 1 : -1 }, at, 0.12, 'power1.inOut');
     tl.to(S, { cx: x, duration: d, ease: 'none' }, at);
     tl.to(S, { cy: Math.min(cat.y, y) - 30, duration: d / 2, ease: 'power2.out' }, at);
     tl.to(S, { cy: y, duration: d / 2, ease: 'power2.in' }, at + d / 2);
@@ -171,7 +173,7 @@ function day(tl: gsap.core.Timeline, loop: Loop, S: State, t0: number, game: (ty
   // Breakfast is biryani. Three bites, and one for the cat.
   doing(a(10.6), 'eat', 'Off to breakfast');
   const sat = walk(612, a(10.6));
-  set({ face: 1 }, sat);
+  to({ face: 1 }, sat, 0.16);
   to(TABLE, sat, 0.45);
   set({ spoon: 1 }, sat + 0.2);
   clock(a(12.4), 8, 30);
@@ -202,7 +204,7 @@ function day(tl: gsap.core.Timeline, loop: Loop, S: State, t0: number, game: (ty
   c = catWalk(992, c + 0.1);
   c = catJump(1042, 430, c + 0.05);
   set({ cpose: 0, cface: -1 }, c);
-  set({ face: 1 }, desk);
+  to({ face: 1 }, desk, 0.16);
   to(DESK, desk, 0.45);
   // The camera pushes in on the screen: the code on the left, Claude and Codex on the right.
   // aiA and aiB count the lines shown in each agent's pane; the fraction is the line being typed.
@@ -261,7 +263,7 @@ function day(tl: gsap.core.Timeline, loop: Loop, S: State, t0: number, game: (ty
   c = catWalk(1400, c + 0.1);
   c = catJump(1410, 496, c + 0.05);
   set({ cpose: 3, cface: -1 }, c);
-  set({ face: 1 }, sofa);
+  to({ face: 1 }, sofa, 0.16);
   to(SOFA, sofa, 0.5);
   clock(a(35.4), 19, 30);
   doing(a(35.4), 'watch', 'Watching Netflix');
@@ -307,7 +309,7 @@ function day(tl: gsap.core.Timeline, loop: Loop, S: State, t0: number, game: (ty
     to({ tv: 0 }, a(42.6), 0.4);
     to({ ...SOFA, ...STAND, x: 1300 }, a(42.7), 0.4);
     const back = walk(892, a(43.1));
-    set({ face: 1 }, back);
+    to({ face: 1 }, back, 0.16);
     to(pose, back, 0.45);
     to({ mon: 1 }, back, 0.4);
     set({ mMode: racing ? 4 : 5 }, back + 0.1);
@@ -334,7 +336,7 @@ function day(tl: gsap.core.Timeline, loop: Loop, S: State, t0: number, game: (ty
   const atBed = walk(445, end + 0.5, 140);
   to({ lampF: 0 }, end + 1.4, 0.4);
   to({ lampB: 1 }, atBed - 0.8, 0.3);
-  set({ face: 1 }, atBed);
+  to({ face: 1 }, atBed, 0.16);
   to(LIE_PHONE, atBed, 0.7);
   to({ blanket: 0 }, atBed + 0.3, 0.5);
   set({ phone: 1 }, atBed + 0.6);
@@ -514,7 +516,7 @@ export function makeRender(svg: SVGSVGElement, S: State, loop: Loop, ui: Ui) {
     };
     for (const { k } of joints) angle[k] = S[k as keyof State] * (1 - w) + (stride[k] ?? 0) * w;
     angle.spine += Math.sin(t * 1.7) * 0.8 + S.sway * 5 * Math.sin(t * 1.4);
-    angle.head += S.chew * 2.5 * Math.sin(t * 13) - S.sway * 3 * Math.sin(t * 1.4 + 0.6);
+    angle.head += S.chew * 2.5 * Math.sin(t * 13) - S.sway * 3 * Math.sin(t * 1.4 + 0.6) + S.type * 1.2 * Math.sin(t * 3.1);
     angle.farmN += S.type * 5 * Math.sin(t * 23);
     angle.farmF += S.type * 5 * Math.sin(t * 19 + 1.3);
     // hands stay level, so the spoon and the controller don't tip with the arm
@@ -546,6 +548,12 @@ export function makeRender(svg: SVGSVGElement, S: State, loop: Loop, ui: Ui) {
     const len = Math.hypot(dx, dy) || 1, look = Math.min(1.3, len / 60);
     const eyes = `translate(${n2((dx / len) * look)} ${n2((dy / len) * look * 0.6)})`;
     tr(R.pupS, eyes); tr(R.pupL, eyes);
+    const shut = (t + 1.3) % 4.3 < 0.14 ? 0.15 : 1;
+    tr(R.blinkS, shut < 1 ? `translate(0 -45) scale(1 ${shut}) translate(0 45)` : 'scale(1)');
+    tr(R.blinkL, shut < 1 ? `translate(0 -22) scale(1 ${shut}) translate(0 22)` : 'scale(1)');
+    tr(R.blinkW, shut < 1 ? `translate(0 -32) scale(1 ${shut}) translate(0 32)` : 'scale(1)');
+    const breath = `scale(1 ${n2(1 + 0.025 * Math.sin(t * 2.4))})`;
+    tr(R.catLoaf, breath); tr(R.catCurl, breath);
     tr(R.heart, `translate(${n2(S.cx - 6 * S.cface)} ${n2(S.cy - 62 - S.heart * 10)})`); op(R.heart, S.heart);
     put(R.meow, 'x', n2(S.cx)); put(R.meow, 'y', n2(S.cy - (cp === 0 ? 70 : cp === 2 ? 48 : 38) - S.meow * 6)); op(R.meow, S.meow);
 
