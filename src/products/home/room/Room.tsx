@@ -71,7 +71,8 @@ function setUp(el: HTMLDivElement, { time, doing, jumpTo, toggle, setPaused }: H
   const svg = el.querySelector('svg')!;
   const S = initialState();
   const loop = buildLoop(S);
-  const narrow = { on: false };
+  const w0 = el.getBoundingClientRect().width;
+  const narrow = { on: w0 < 700, w: w0 };
   const render = makeRender(svg, S, loop, {
     root: el, time, doing, narrow,
     acts: Array.from(el.querySelectorAll<HTMLElement>('[data-act]')),
@@ -103,7 +104,7 @@ function setUp(el: HTMLDivElement, { time, doing, jumpTo, toggle, setPaused }: H
   const io = new IntersectionObserver(([e]) => { seen = e.isIntersecting; run(); });
   io.observe(el);
   const cancel = onReveal(() => { revealed = true; run(); });
-  const ro = new ResizeObserver(([e]) => { narrow.on = e.contentRect.width < 700; render(); });
+  const ro = new ResizeObserver(([e]) => { narrow.on = e.contentRect.width < 700; narrow.w = e.contentRect.width; render(); });
   ro.observe(el);
 
   // the cat watches the pointer, and answers a click

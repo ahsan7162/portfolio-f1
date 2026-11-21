@@ -377,7 +377,10 @@ export function nextMark(loop: Loop, act: Act, now: number) {
   return Math.min(...times.filter(t => t > now + 0.3));
 }
 
-export type Ui = { root: HTMLElement; time: HTMLElement; doing: HTMLElement; acts: HTMLElement[]; narrow: { on: boolean } };
+export type Ui = { root: HTMLElement; time: HTMLElement; doing: HTMLElement; acts: HTMLElement[]; narrow: { on: boolean; w: number } };
+
+// The camera's framings, in the drawing's units: x, y, width, height.
+const FULL = [0, 120, 1600, 460], WIDE = [0, 150, 1600, 430], NEAR = [690, 253, 640, 184], NEAR_PHONE = [888, 246, 282, 202.2];
 
 /** The drawing, from the state. Writes only what changed. */
 export function makeRender(svg: SVGSVGElement, S: State, loop: Loop, ui: Ui) {
@@ -409,7 +412,7 @@ export function makeRender(svg: SVGSVGElement, S: State, loop: Loop, ui: Ui) {
   const tr = (el: Element | undefined, v: string) => put(el, 'transform', v);
   const text = (el: Element | undefined, v: string) => { if (el && el.textContent !== v) el.textContent = v; };
 
-  let lit = -1, rimAt = -1, code = -1, cam = -1, shown = '', inClose = false;
+  let lit = -1, rimAt = -1, code = -1, cam = -1, shown = '', inClose = false, drawn = '', sized = '', moved = '';
   const angle: Record<string, number> = {};
 
   return function render() {
@@ -557,19 +560,34 @@ export function makeRender(svg: SVGSVGElement, S: State, loop: Loop, ui: Ui) {
     tr(R.heart, `translate(${n2(S.cx - 6 * S.cface)} ${n2(S.cy - 62 - S.heart * 10)})`); op(R.heart, S.heart);
     put(R.meow, 'x', n2(S.cx)); put(R.meow, 'y', n2(S.cy - (cp === 0 ? 70 : cp === 2 ? 48 : 38) - S.meow * 6)); op(R.meow, S.meow);
 
-    // the camera: the whole room, or on phones a window that follows me; it pushes in on the screen while I code
-    let view = [0, 120, 1600, 460];
+    // the camera: the whole room, or on phones a window that follows me; it pushes in on the screen while I code.
+    // It moves by sliding and scaling a layer that is already drawn (no repaint), and redraws sharp once it settles.
+    const W = ui.narrow.w || 1;
+    let base = FULL, layer = FULL;
     if (ui.narrow.on) {
       const target = Math.min(1000, Math.max(0, S.x - 300));
       // eases after me as I walk; jumps when I'm far off (a skip, or the first frame)
       cam = cam < 0 || Math.abs(target - cam) > 150 ? target : cam + (target - cam) * 0.12;
-      view = [cam, 150, 600, 430];
+      base = [cam, 150, 600, 430];
+      layer = WIDE;
     } else cam = -1;
-    if (S.zoom > 0.001) {
-      const near = ui.narrow.on ? [888, 246, 282, 202.2] : [690, 253, 640, 184];
-      view = view.map((v, i) => v + (near[i] - v) * S.zoom);
+    const near = ui.narrow.on ? NEAR_PHONE : NEAR;
+    const view = S.zoom > 0.001 ? base.map((v, i) => v + (near[i] - v) * S.zoom) : base;
+    if (S.zoom >= 0.995) layer = near;
+    const unit = W / (layer === near ? near[2] : base[2]);
+    const key = layer.map(n2).join(' ');
+    if (key !== drawn) { drawn = key; svg.setAttribute('viewBox', key); }
+    // the layer's size follows the stage's width too, so a resize redraws it at the new size
+    const size = `${(layer[2] * unit).toFixed(1)}x${(layer[3] * unit).toFixed(1)}`;
+    if (size !== sized) {
+      sized = size;
+      svg.style.width = `${(layer[2] * unit).toFixed(1)}px`;
+      svg.style.height = `${(layer[3] * unit).toFixed(1)}px`;
     }
-    put(svg, 'viewBox', view.map(n2).join(' '));
+    const k = W / view[2] / unit;
+    const px = (v: number) => (Math.abs(k - 1) < 0.001 ? Math.round(v * 2) / 2 : v).toFixed(2);
+    const move = `translate(${px(-(view[0] - layer[0]) * (W / view[2]))}px, ${px(-(view[1] - layer[1]) * (W / view[2]))}px) scale(${k.toFixed(4)})`;
+    if (move !== moved) { moved = move; svg.style.transform = move; }
     const zoomed = S.zoom > 0.02;
     if (zoomed !== inClose) { inClose = zoomed; ui.root.toggleAttribute('data-zoomed', zoomed); }
 

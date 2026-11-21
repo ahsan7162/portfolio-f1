@@ -42,7 +42,9 @@
 }
 
 /* the stage's size is in home.css, so the space is held before this file loads */
-.rm-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden; pointer-events: none; }
+/* the drawing is its own layer: the camera moves it by transform (day.ts), so a camera move never repaints it */
+.rm .rm-stage { overflow: hidden; }
+.rm-svg { position: absolute; left: 0; top: 0; width: 100%; height: 100%; max-width: none; transform-origin: 0 0; will-change: transform; overflow: hidden; pointer-events: none; }
 .rm:not([data-ready]) .rm-svg { visibility: hidden; }
 @container ftr (max-width: 699px) { .rm-spot { display: none; } }
 
