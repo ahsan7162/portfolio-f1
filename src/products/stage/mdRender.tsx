@@ -1,6 +1,7 @@
 // Markwright's rich view, drawn: a block of the demo's document (stage/md.ts) as the plugin shows it, and a line
 // of the file as plain text. Shared by the demo, its scenes and the template deck's live screens.
 import type { ReactNode } from 'react';
+import { Checkbox } from '@ui-sdk/react/checkbox';
 import { Diagram } from './mdDiagrams';
 import type { MdBlock, Part } from './md';
 
@@ -81,7 +82,7 @@ export function BlockView({ part, hooks }: { part: Part; hooks?: BlockHooks }) {
             // oxlint-disable-next-line react/no-array-index-key -- items have no ids; their place is who they are
             <li key={i} data-done={it.done ? '' : undefined}>
               {it.done !== undefined && (hooks?.onTick
-                ? <button type="button" role="checkbox" aria-checked={it.done} className="mwd-box" data-i={i} aria-label={it.text || 'Task'} onClick={() => hooks.onTick?.(part, i)} />
+                ? <Checkbox checked={it.done} className="mwd-box" data-i={i} aria-label={it.text || 'Task'} onCheckedChange={() => hooks.onTick?.(part, i)} />
                 : <span className="mwd-box" data-on={it.done ? '' : undefined} aria-hidden="true" />)}
               <span className="mwd-li">{it.text ? lines(it.text, `${key}l${i}`) : ' '}</span>
             </li>
