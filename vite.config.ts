@@ -64,8 +64,8 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (id.includes('node_modules/three')) return 'three';
-          // Plugins only the portfolio uses (DrawSVG, MotionPath) stay with it, out of the products pages' download.
-          if (/node_modules\/gsap\/(DrawSVGPlugin|MotionPathPlugin|utils\/paths)\.js/.test(id)) return;
+          // Plugins only the portfolio uses (DrawSVG, MotionPath, ScrambleText) stay with it, out of the products pages' download.
+          if (/node_modules\/gsap\/(DrawSVGPlugin|MotionPathPlugin|utils\/paths|ScrambleTextPlugin|utils\/strings)\.js/.test(id)) return;
           if (id.includes('node_modules/gsap') || id.includes('node_modules/lenis')) return 'motion-core';
         },
       },

@@ -2,7 +2,6 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
 import { Flip } from 'gsap/Flip';
-import { ScrambleTextPlugin } from 'gsap/ScrambleTextPlugin';
 import { useGSAP } from '@gsap/react';
 import { DUR, EASE } from './tokens';
 
@@ -17,7 +16,7 @@ export function ensureGsap(own: object[] = []) {
   if (typeof window === 'undefined') return;
   if (!ready) {
     ready = true;
-    gsap.registerPlugin(ScrollTrigger, SplitText, Flip, ScrambleTextPlugin, useGSAP);
+    gsap.registerPlugin(ScrollTrigger, SplitText, Flip, useGSAP);
     gsap.defaults({ ease: EASE.out, duration: DUR.reveal });
     gsap.ticker.lagSmoothing(0);
     if (import.meta.env.DEV) Object.assign(window, { __gsap: gsap, __ST: ScrollTrigger });

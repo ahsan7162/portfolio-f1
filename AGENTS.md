@@ -8,7 +8,7 @@ Both pages take their tabs, toggles, radio groups and checkboxes from ui-sdk: on
 
 The libraries both pages use are set up in one place each. Apart from these modules, the two pages share no code:
 
-- GSAP: `src/motion/gsap.ts` (`ensureGsap`). Each page passes the plugins only it uses, so they stay in its own bundle; `src/products/motion.ts` re-exports it for the products pages.
+- GSAP: `src/motion/gsap.ts` (`ensureGsap`). The portfolio passes the plugins only it uses (DrawSVG, MotionPath, ScrambleText), and `vite.config.ts` keeps them out of the products pages' download; `src/products/motion.ts` re-exports the setup for the products pages.
 - Lenis: `src/motion/lenis.ts` (`startLenis`). Each page passes its own options.
 - Reduced motion: `src/motion/reduced.ts`.
 - Vercel Analytics and Speed Insights: `src/components/Vitals.tsx`.

@@ -4,13 +4,14 @@ import './index.css';
 import App from './App';
 import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin';
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
+import { ScrambleTextPlugin } from 'gsap/ScrambleTextPlugin';
 import { ensureGsap } from './motion/gsap';
 import { devAgent } from './lib/devAgent';
 
 // Register GSAP before React runs any effect. Inside a section's useGSAP context instead,
 // ScrollTrigger's startup timer would belong to that context, and StrictMode's second effect
 // run (dev) would kill it: every `scrub: <seconds>` would lose its catch-up.
-ensureGsap([DrawSVGPlugin, MotionPathPlugin]);
+ensureGsap([DrawSVGPlugin, MotionPathPlugin, ScrambleTextPlugin]);
 
 const root = document.getElementById('root')!;
 const app = <StrictMode><App /></StrictMode>;
