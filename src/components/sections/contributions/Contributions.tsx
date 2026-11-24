@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
+import { Toggle } from '@ui-sdk/react/toggle';
 import { github } from '@/content/github';
 import { thousands } from '@/lib/format';
 import { cn } from '@/lib/utils';
@@ -27,11 +28,11 @@ function YearPicker({ value, onChange }: { value: number; onChange: (year: numbe
   return (
     <div role="group" aria-label="Year" className="flex max-w-full items-center overflow-x-auto rounded-full border border-line p-[3px] [scrollbar-width:none]">
       {github.years.map(({ year: y }) => (
-        <button key={y} type="button" aria-pressed={y === value} onClick={() => onChange(y)}
+        <Toggle key={y} pressed={y === value} onPressedChange={() => onChange(y)}
           className={cn('flex h-9 shrink-0 items-center rounded-full px-2.5 font-mono text-[11px] font-semibold transition-colors duration-(--dur-hit) ease-out-expo md:px-3.5',
             y === value ? 'bg-fg text-carbon' : 'text-mute hover:text-fg')}>
           {y}
-        </button>
+        </Toggle>
       ))}
     </div>
   );

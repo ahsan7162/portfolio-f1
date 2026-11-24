@@ -1,3 +1,4 @@
+import { Toggle } from '@ui-sdk/react/toggle';
 import { choose3d, use3d } from '@/gl/gl3d';
 import { cn } from '@/lib/utils';
 
@@ -15,11 +16,11 @@ export function GlToggle({ className, inert }: { className?: string; inert?: boo
       {MODES.map(m => {
         const pressed = s.on === m.on;
         return (
-          <button key={m.label} type="button" aria-pressed={pressed} onClick={() => choose3d(m.on)}
+          <Toggle key={m.label} pressed={pressed} onPressedChange={() => choose3d(m.on)}
             className={cn('flex h-9 items-center rounded-full px-2.5 font-mono text-[11px] font-semibold transition-colors duration-(--dur-hit) ease-out-expo md:px-3',
               pressed ? 'bg-fg text-carbon' : 'text-mute hover:text-fg')}>
             {m.label}
-          </button>
+          </Toggle>
         );
       })}
     </div>
