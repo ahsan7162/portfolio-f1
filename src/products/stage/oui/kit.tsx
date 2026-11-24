@@ -3,6 +3,7 @@
 // the accent for the one thing each component is about, worded status). Every component reads its arguments by
 // name (lang.ts names them) and must survive any of them missing, since programs arrive while they stream.
 import { createContext, Fragment, useContext, useState, type ReactNode } from 'react';
+import { Tabs as TabsRoot, TabsList, TabsPanel, TabsTab } from '@ui-sdk/react/tabs';
 import { isEl, isPending, type El, type Val } from './lang';
 
 export type Draw = (p: { e: El }) => ReactNode;
@@ -167,12 +168,12 @@ export const CORE: Record<string, Draw> = {
     const items = els(e.props.items);
     const [on, setOn] = useState(0);
     return (
-      <div className="oui-tabs">
-        <div className="oui-tabbar" role="tablist">{items.map((t, i) => (
-          <button key={str(t.props.value, String(i))} type="button" role="tab" aria-selected={i === on} onClick={() => setOn(i)}>{str(t.props.trigger)}</button>
-        ))}</div>
-        <div role="tabpanel"><Node v={items[on]?.props.content} /></div>
-      </div>
+      <TabsRoot className="oui-tabs" value={String(on)} onValueChange={(v) => setOn(Number(v))}>
+        <TabsList className="oui-tabbar">{items.map((t, i) => (
+          <TabsTab key={str(t.props.value, String(i))} value={String(i)}>{str(t.props.trigger)}</TabsTab>
+        ))}</TabsList>
+        <TabsPanel value={String(on)}><Node v={items[on]?.props.content} /></TabsPanel>
+      </TabsRoot>
     );
   },
   BarChart: ({ e }) => <Chart e={e} bars />,
