@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { Toggle } from '@ui-sdk/react/toggle';
 import { isHex, maxChroma } from '@/art/colour';
 import { fit, groundsFor, RULES, type Seeds } from '@/art/liveries';
 import { cn } from '@/lib/utils';
@@ -39,11 +40,11 @@ export function InkEditor({ ink, seeds, onPick }: { ink: Ink; seeds: Seeds; onPi
         {SWATCHES.map(([name, sw]) => {
           const out = fit(ink, sw, seeds.ground), on = out === current;
           return (
-            <button key={name} type="button" aria-label={name} aria-pressed={on} title={name} onClick={() => jump(sw)}
+            <Toggle key={name} aria-label={name} pressed={on} title={name} onPressedChange={() => jump(sw)}
               className="group grid h-10 place-items-center">
               <span className={cn('size-7 rounded-full ring-offset-2 ring-offset-carbon transition-[box-shadow,transform] duration-(--dur-hit) ease-out-expo group-hover:scale-110',
                 on ? 'ring-2 ring-fg' : 'ring-1 ring-fg/15')} style={{ background: out }} />
-            </button>
+            </Toggle>
           );
         })}
       </div>

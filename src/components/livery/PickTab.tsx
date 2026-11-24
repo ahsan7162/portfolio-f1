@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { TabsPanel } from '@ui-sdk/react/tabs';
+import { Toggle } from '@ui-sdk/react/toggle';
 import { derive, LIVERIES, type Livery, type Seeds } from '@/art/liveries';
 import { setLivery } from '@/art/palette';
 import { cn } from '@/lib/utils';
@@ -18,12 +19,12 @@ function Strip({ seeds }: { seeds: Seeds }) {
 
 function LiveryCard({ seeds, label, active, dashed, onClick }: { seeds: Seeds; label: string; active: boolean; dashed?: boolean; onClick: () => void }) {
   return (
-    <button type="button" aria-pressed={active} onClick={onClick}
+    <Toggle pressed={active} onPressedChange={onClick}
       className={cn('group flex flex-col gap-2 border p-1.5 text-left transition-colors duration-(--dur-hit) ease-out-expo',
         dashed && 'border-dashed', active ? 'border-fg' : 'border-line hover:border-fg/40')}>
       <Strip seeds={seeds} />
       <span className={cn('px-1 pb-0.5 font-mono text-[11px] uppercase leading-tight tracking-[0.1em]', active ? 'text-fg' : 'text-mute group-hover:text-fg')}>{label}</span>
-    </button>
+    </Toggle>
   );
 }
 

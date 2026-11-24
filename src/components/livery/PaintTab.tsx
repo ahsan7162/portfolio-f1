@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { TabsPanel } from '@ui-sdk/react/tabs';
+import { Toggle } from '@ui-sdk/react/toggle';
 import { toLch } from '@/art/colour';
 import { fitGround, type Seeds } from '@/art/liveries';
 import { setLivery } from '@/art/palette';
@@ -69,11 +70,11 @@ export function PaintTab({ on, choices }: { on: Seeds; choices: PaintChoices }) 
           {TINTS.map(([name, t]) => {
             const g = fitGround(t), active = g === on.ground;
             return (
-              <button key={name} type="button" aria-label={name} aria-pressed={active} title={name} onClick={() => edit({ ground: g }, true)}
+              <Toggle key={name} aria-label={name} pressed={active} title={name} onPressedChange={() => edit({ ground: g }, true)}
                 className="group grid h-11 place-items-center">
                 <span className={cn('size-8 rounded-full ring-offset-2 ring-offset-carbon transition-[box-shadow,transform] duration-(--dur-hit) ease-out-expo group-hover:scale-110',
                   active ? 'ring-2 ring-fg' : 'ring-1 ring-fg/25')} style={{ background: g }} />
-              </button>
+              </Toggle>
             );
           })}
         </div>

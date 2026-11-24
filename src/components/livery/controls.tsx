@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef, type CSSProperties, type ReactNode } from 'react';
+import { Toggle } from '@ui-sdk/react/toggle';
 import { cn } from '@/lib/utils';
 import { gsap } from '@/motion/gsap';
 import { motionEnabled } from '@/motion/prefs';
@@ -24,11 +25,11 @@ export function Choice<T extends string>({ label, value, options, onChange }: { 
   return (
     <div role="group" aria-label={label} className="flex flex-wrap gap-1.5">
       {options.map(([v, text]) => (
-        <button key={v} type="button" aria-pressed={v === value} onClick={() => onChange(v)}
+        <Toggle key={v} pressed={v === value} onPressedChange={() => onChange(v)}
           className={cn('h-9 rounded-full border px-3.5 font-mono text-[11px] uppercase tracking-[0.1em] transition-colors duration-(--dur-hit) ease-out-expo',
             v === value ? 'border-fg bg-fg text-carbon' : 'border-line text-mute hover:border-fg/40 hover:text-fg')}>
           {text}
-        </button>
+        </Toggle>
       ))}
     </div>
   );
