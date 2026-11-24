@@ -1,17 +1,12 @@
-// GSAP for the products pages: one registration, one place to read the reduced-motion setting.
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { SplitText } from 'gsap/SplitText';
-import { Flip } from 'gsap/Flip';
+// GSAP for the products pages: the setup both pages share (src/motion/gsap.ts), plus the
+// plugins only these pages use, and the reduced-motion setting from the one place it's read.
 import { Draggable } from 'gsap/Draggable';
 import { InertiaPlugin } from 'gsap/InertiaPlugin';
-import { ScrambleTextPlugin } from 'gsap/ScrambleTextPlugin';
-import { useGSAP } from '@gsap/react';
+import { ensureGsap, Flip, gsap, ScrollTrigger, SplitText, useGSAP } from '@/motion/gsap';
 
-gsap.registerPlugin(ScrollTrigger, SplitText, Flip, Draggable, InertiaPlugin, ScrambleTextPlugin, useGSAP);
-gsap.defaults({ ease: 'expo.out', duration: 0.9 });
+ensureGsap([Draggable, InertiaPlugin]);
 
 /** True when the visitor asked for less motion: skip scrubs, splits and wipes, keep fades. */
-export const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+export { reducedMotion } from '@/motion/reduced';
 
 export { Draggable, Flip, gsap, ScrollTrigger, SplitText, useGSAP };
