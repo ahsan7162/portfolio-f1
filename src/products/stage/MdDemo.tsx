@@ -5,6 +5,7 @@
 // the demo plays it by itself (mdScenes.ts) through the same changes.
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { flushSync } from 'react-dom';
+import { Toggle } from '@ui-sdk/react/toggle';
 import { diffRows, gutter, type Row } from '../lineDiff';
 import { gsap, reducedMotion, useGSAP } from '../motion';
 import type { DemoProps } from '../types';
@@ -293,8 +294,8 @@ export function MdDemo({ active, onTally, scene }: DemoProps) {
               <p className="mwd-name">{FILE}</p>
               <p className="mwd-state" data-state={s.theirs ? 'conflict' : s.saving ? 'saving' : 'saved'} aria-live="polite">{state}</p>
               <div className="mwd-seg" role="group" aria-label="View">
-                <button type="button" aria-pressed={s.view === 'rich'} onClick={() => act((x) => ({ ...x, view: 'rich' }))}>Rich</button>
-                <button type="button" aria-pressed={s.view === 'source'} onClick={() => act((x) => ({ ...x, view: 'source', query: null }))}>Source</button>
+                <Toggle pressed={s.view === 'rich'} onPressedChange={() => act((x) => ({ ...x, view: 'rich' }))}>Rich</Toggle>
+                <Toggle pressed={s.view === 'source'} onPressedChange={() => act((x) => ({ ...x, view: 'source', query: null }))}>Source</Toggle>
               </div>
             </div>
             <div className="mwd-tools">

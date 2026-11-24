@@ -5,6 +5,7 @@
 // visitor can take over.
 import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { flushSync } from 'react-dom';
+import { Toggle } from '@ui-sdk/react/toggle';
 import { gsap, reducedMotion, useGSAP } from '../motion';
 import type { DemoProps } from '../types';
 import { check, isPending, resolve } from './oui/lang';
@@ -55,8 +56,8 @@ function Block({ program, t, ask }: { program: string; t: number; ask: (text: st
         <span className="oud-lang">openui-lang</span>
         <span className="oud-seg" role="group" aria-label="Show the block as">
           {(['reply', 'code', 'edit'] as const).map((v) => (
-            <button key={v} type="button" aria-pressed={view === v} disabled={streaming}
-              onClick={() => { setView(v); if (v === 'edit') setEdit(program); }}>{v === 'reply' ? 'Reply' : v === 'code' ? 'Code' : 'Edit'}</button>
+            <Toggle key={v} pressed={view === v} disabled={streaming}
+              onPressedChange={() => { setView(v); if (v === 'edit') setEdit(program); }}>{v === 'reply' ? 'Reply' : v === 'code' ? 'Code' : 'Edit'}</Toggle>
           ))}
         </span>
       </div>

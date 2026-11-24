@@ -4,6 +4,7 @@
 // Given a `scene`, it plays that scene by itself (prScenes.ts) until the visitor takes over.
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { flushSync } from 'react-dom';
+import { Toggle } from '@ui-sdk/react/toggle';
 import { Tabs, TabsList, TabsTab } from '@ui-sdk/react/tabs';
 import { reducedMotion, useGSAP } from '../motion';
 import type { DemoProps } from '../types';
@@ -120,9 +121,9 @@ export function PrDemo({ active, onTally, scene }: DemoProps) {
   const fixBtn = (k: FindingKey) => {
     const picked = w.picked.includes(k);
     return (
-      <button type="button" className="prd-btn" data-fix={k} aria-pressed={picked} disabled={w.sent.includes(k)} onClick={() => toggle(k)}>
+      <Toggle className="prd-btn" data-fix={k} pressed={picked} disabled={w.sent.includes(k)} onPressedChange={() => toggle(k)}>
         <G n={picked ? 'check' : 'fix'} />Fix with agent
-      </button>
+      </Toggle>
     );
   };
 

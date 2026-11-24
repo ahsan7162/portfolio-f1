@@ -3,6 +3,7 @@
 // first, worst coverage first, change in words. Project components show invented data: on this page there is
 // no thread, branch or pull request to read.
 import { useEffect, useState, type ReactNode } from 'react';
+import { Toggle } from '@ui-sdk/react/toggle';
 import { reducedMotion } from '../../motion';
 import { els, fmt, list, Md, num, plain, rec, State, str, type Draw, type Tone } from './kit';
 import type { El, Val } from './lang';
@@ -246,7 +247,7 @@ function Compare({ e }: { e: El }) {
   const [mode, setMode] = useState<'side' | 'wipe' | 'blink'>('side');
   return (
     <section className="oui-compare">
-      <p className="oui-seg-ctl">{(['side', 'wipe', 'blink'] as const).map((m) => <button key={m} type="button" aria-pressed={mode === m} onClick={() => setMode(m)}>{m === 'side' ? 'Side by side' : m === 'wipe' ? 'Wipe' : 'Blink'}</button>)}</p>
+      <p className="oui-seg-ctl">{(['side', 'wipe', 'blink'] as const).map((m) => <Toggle key={m} pressed={mode === m} onPressedChange={() => setMode(m)}>{m === 'side' ? 'Side by side' : m === 'wipe' ? 'Wipe' : 'Blink'}</Toggle>)}</p>
       <div className="oui-compare-row">{imgs.map((im, i) => <figure key={str(im.props.src)}><NoImage label={i ? 'candidate' : 'reference'} /><figcaption className="oui-label">{str(im.props.label)}</figcaption></figure>)}</div>
     </section>
   );
@@ -258,7 +259,7 @@ function Hotspots({ e }: { e: El }) {
   return (
     <section className="oui-hot">
       <div className="oui-hot-img"><NoImage label="image" />{pts.map((p, i) => (
-        <button key={str(p.props.title)} type="button" aria-pressed={on === i} style={{ left: `${num(p.props.x) ?? 50}%`, top: `${num(p.props.y) ?? 50}%` }} onClick={() => setOn(i)}>{i + 1}</button>
+        <Toggle key={str(p.props.title)} pressed={on === i} style={{ left: `${num(p.props.x) ?? 50}%`, top: `${num(p.props.y) ?? 50}%` }} onPressedChange={() => setOn(i)}>{i + 1}</Toggle>
       ))}</div>
       {pts[on] && <p><b>{str(pts[on].props.title)}</b> <Md text={str(pts[on].props.text)} /></p>}
     </section>

@@ -2,6 +2,7 @@
 // block's replies stream in behind the render line each time they turn active; the CI reply and the component
 // specimens are drawn whole. What a click in one sends shows under it, as the thread would get it.
 import { useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { Toggle } from '@ui-sdk/react/toggle';
 import type { LiveProps } from '../../types';
 import type { OuiName } from '../names';
 import { OUI_EXAMPLES } from './examples.gen';
@@ -60,7 +61,7 @@ export default function OuiLive({ name, active, alt }: LiveProps & { name: OuiNa
       {streaming && <pre className="oul-src" aria-hidden="true">{text}</pre>}
       {code && <textarea className="oul-src oul-prog" readOnly value={program} aria-label="The program behind this reply" spellCheck={false} />}
       {name.startsWith('oui:spec-') && found && (
-        <button type="button" className="oul-toggle" aria-pressed={code} onClick={() => setCode(!code)}>{code ? 'Reply' : 'Program'}</button>
+        <Toggle className="oul-toggle" pressed={code} onPressedChange={() => setCode(!code)}>{code ? 'Reply' : 'Program'}</Toggle>
       )}
       {streaming && <i className="oul-seam" aria-hidden="true" />}
     </div>

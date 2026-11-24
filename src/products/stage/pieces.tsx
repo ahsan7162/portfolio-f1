@@ -1,6 +1,7 @@
 // Product drawings the rules, compose and replay blocks show, by name (stage/names.ts). A block owns its layout,
 // its controls and its motion; the product's own look and rules come from here, drawn with the product's kit.
 import type { ReactNode } from 'react';
+import { Toggle } from '@ui-sdk/react/toggle';
 import { blockersOf, rowTone, type PrFacts } from './pr';
 import { FINDINGS, PR } from './prSample';
 import { AlertList, AlertToast, Av, G, RailMe, Row, Spine } from './PrView';
@@ -67,7 +68,7 @@ export const PARTS: Record<PartsName, PartsDrawer> = {
         </div>
         {first && <p className="prd-cmt-x"><Av who={first.author} />{first.body.replace(/`/g, '').slice(0, 74)}…</p>}
         <div className="prd-acts">
-          <button type="button" className="prd-btn" aria-pressed={picked} onClick={toggle}><G n={picked ? 'check' : 'fix'} />Fix with agent</button>
+          <Toggle className="prd-btn" pressed={picked} onPressedChange={toggle}><G n={picked ? 'check' : 'fix'} />Fix with agent</Toggle>
         </div>
       </div>
     );

@@ -4,6 +4,7 @@
 // a camera, the program streaming in, the versions deck behind the window (dashFilm.ts).
 import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { flushSync } from 'react-dom';
+import { Toggle } from '@ui-sdk/react/toggle';
 import { Flip, gsap, reducedMotion, useGSAP } from '../motion';
 import type { DemoProps } from '../types';
 import { ACCENTS, CHANNEL_NAMES, CHANNELS, FIRST, HAND, palette, parseHex, requests, salesDash, send, shown, type DemoState, type Part } from './dash';
@@ -287,7 +288,7 @@ export function DashDemo({ active, onTally, scene }: DemoProps) {
             </p>
             <div className="dsd-asks">
               {asks.map((r, i) => (
-                <button key={r.text} type="button" aria-pressed={s.request === i} onClick={() => act((x) => ({ ...x, request: i }))}>{r.text}</button>
+                <Toggle key={r.text} pressed={s.request === i} onPressedChange={() => act((x) => ({ ...x, request: i }))}>{r.text}</Toggle>
               ))}
             </div>
             <div className="dsd-pop-foot">
@@ -312,9 +313,9 @@ export function DashDemo({ active, onTally, scene }: DemoProps) {
         </div>
         <div className="dsd-win" ref={win} data-editing={s.editing ? '' : undefined}>
           <Head title={dash?.title ?? 'Dashboards'} mode={dash?.mode}>
-            <button type="button" className="dsd-ctl" data-edit="" aria-pressed={s.editing} disabled={!dash || old}
+            <Toggle className="dsd-ctl" data-edit="" pressed={s.editing} disabled={!dash || old}
               title={old ? 'Old versions are read-only: go back to the latest to ask for a change' : undefined}
-              onClick={() => act((x) => ({ ...x, editing: !x.editing, picked: false, request: null, open: null }))}>Edit</button>
+              onPressedChange={() => act((x) => ({ ...x, editing: !x.editing, picked: false, request: null, open: null }))}>Edit</Toggle>
             <span className="dsd-ctl-wrap">
               <button type="button" className="dsd-ctl" data-colours="" aria-haspopup="dialog" aria-expanded={s.open === 'colours'} disabled={!dash}
                 onClick={() => act((x) => ({ ...x, open: x.open === 'colours' ? null : 'colours' }))}>Colours</button>
@@ -323,8 +324,8 @@ export function DashDemo({ active, onTally, scene }: DemoProps) {
                   <p className="dsd-pop-label">Accent</p>
                   <div className="dsd-swatches">
                     {ACCENTS.map((a, i) => (
-                      <button key={a.name} type="button" className="dsd-sw" data-sw={i} aria-label={a.name} title={a.name} aria-pressed={s.accent === i}
-                        style={{ '--sw': a.hex } as Vars} onClick={() => act((x) => ({ ...x, accent: i }))} />
+                      <Toggle key={a.name} className="dsd-sw" data-sw={i} aria-label={a.name} title={a.name} pressed={s.accent === i}
+                        style={{ '--sw': a.hex } as Vars} onPressedChange={() => act((x) => ({ ...x, accent: i }))} />
                     ))}
                   </div>
                   <div className="dsd-pop-foot">
@@ -342,10 +343,10 @@ export function DashDemo({ active, onTally, scene }: DemoProps) {
               {s.open === 'versions' && (
                 <div className="dsd-pop dsd-pop--versions" role="group" aria-label="Versions">
                   {s.versions.map((_, i) => i).reverse().map((i) => (
-                    <button key={i} type="button" aria-pressed={(s.viewing ?? n - 1) === i}
-                      onClick={() => act((x) => ({ ...close(x), viewing: i === n - 1 ? null : i, editing: false, picked: false, request: null, saved: false }))}>
+                    <Toggle key={i} pressed={(s.viewing ?? n - 1) === i}
+                      onPressedChange={() => act((x) => ({ ...close(x), viewing: i === n - 1 ? null : i, editing: false, picked: false, request: null, saved: false }))}>
                       Version {i + 1}{i === n - 1 && <small>latest</small>}
-                    </button>
+                    </Toggle>
                   ))}
                 </div>
               )}
@@ -364,7 +365,7 @@ export function DashDemo({ active, onTally, scene }: DemoProps) {
             <div className="dsd-filters" data-off={dash ? undefined : ''}>
               <div className="dsd-chips" role="group" aria-label="Channel">
                 {CHANNELS.map((c) => (
-                  <button key={c} type="button" className="dsd-chip" aria-pressed={s.channel === c} onClick={() => act((x) => ({ ...x, channel: c }))}>{CHANNEL_NAMES[c]}</button>
+                  <Toggle key={c} className="dsd-chip" pressed={s.channel === c} onPressedChange={() => act((x) => ({ ...x, channel: c }))}>{CHANNEL_NAMES[c]}</Toggle>
                 ))}
               </div>
               <span className="dsd-calls" aria-live="polite"><b>{s.calls}</b> model {s.calls === 1 ? 'call' : 'calls'}</span>

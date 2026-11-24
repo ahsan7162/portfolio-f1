@@ -4,6 +4,7 @@
 // plugin. Given a `scene`, the demo plays it by itself (jiraScenes.ts) through the same changes.
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKey, type ReactNode } from 'react';
 import { flushSync } from 'react-dom';
+import { Toggle } from '@ui-sdk/react/toggle';
 import { Flip, gsap, reducedMotion, useGSAP } from '../motion';
 import type { DemoProps } from '../types';
 import * as J from './jira';
@@ -367,9 +368,9 @@ export function JiraDemo({ active, onTally, scene }: DemoProps) {
   const inline = statusOpts.slice(0, 3);
   const more = statusOpts.slice(3);
   const chip = (o: (typeof statusOpts)[number]) => (
-    <button key={o.id} type="button" className="jbd-chip" aria-pressed={s.statuses.includes(o.id)} style={catVars(o.cat)} onClick={() => act((x) => J.toggleStatus(x, o.id))}>
+    <Toggle key={o.id} className="jbd-chip" pressed={s.statuses.includes(o.id)} style={catVars(o.cat)} onPressedChange={() => act((x) => J.toggleStatus(x, o.id))}>
       <Ring cat={o.cat} />{o.id} <small>{o.count}</small>
-    </button>
+    </Toggle>
   );
 
   return (
@@ -405,8 +406,8 @@ export function JiraDemo({ active, onTally, scene }: DemoProps) {
               </div>
               <div className="jbd-row2">
                 <span className="jbd-seg" role="group" aria-label="Which tickets">
-                  <button type="button" aria-pressed={s.scope === 'open'} onClick={() => act((x) => J.setScope(x, 'open'))}><Ring cat="indeterminate" />Open <em>{counts.open}</em></button>
-                  <button type="button" aria-pressed={s.scope === 'done'} onClick={() => act((x) => J.setScope(x, 'done'))}><Ring cat="done" />Done <em>{counts.done}</em></button>
+                  <Toggle pressed={s.scope === 'open'} onPressedChange={() => act((x) => J.setScope(x, 'open'))}><Ring cat="indeterminate" />Open <em>{counts.open}</em></Toggle>
+                  <Toggle pressed={s.scope === 'done'} onPressedChange={() => act((x) => J.setScope(x, 'done'))}><Ring cat="done" />Done <em>{counts.done}</em></Toggle>
                 </span>
                 <span className="jbd-chips">
                   {inline.map(chip)}
