@@ -1,6 +1,8 @@
 // A product's own rules, live: flip its inputs and the product redraws the result, with a big count beside it.
 // The inputs, the rule and the drawing are a named set (stage/pieces.tsx); this block owns the controls and motion.
 import { useId, useRef, useState } from 'react';
+import { Toggle } from '@ui-sdk/react/toggle';
+import { Radio, RadioGroup } from '@ui-sdk/react/radio';
 import { gsap } from '../../motion';
 import { RULES } from '../../stage/pieces';
 import { Label, useBlockMotion, type BlockProps } from './shared';
@@ -41,14 +43,14 @@ export function Rules({ block, n }: BlockProps<'rules'>) {
         {set.inputs.map((inp, i) => {
           const isSwitch = inp.options.length === 2 && inp.options[0] === 'Off';
           return isSwitch ? (
-            <button key={inp.label} type="button" className="bv-rules-in" aria-pressed={v[i] === 1} onClick={() => choose(i, 1 - v[i])}>
+            <Toggle key={inp.label} className="bv-rules-in" pressed={v[i] === 1} onPressedChange={() => choose(i, 1 - v[i])}>
               <span className="pp-mono">{inp.label}</span><b>{inp.options[v[i]]}</b>
-            </button>
+            </Toggle>
           ) : (
-            <div key={inp.label} className="bv-rules-in bv-rules-in--seg" role="radiogroup" aria-label={inp.label}>
+            <RadioGroup key={inp.label} className="bv-rules-in bv-rules-in--seg" aria-label={inp.label} value={String(v[i])} onValueChange={(o) => choose(i, Number(o))}>
               <span className="pp-mono" aria-hidden="true">{inp.label}</span>
-              <span>{inp.options.map((o, j) => <button key={o} type="button" role="radio" aria-checked={v[i] === j} onClick={() => choose(i, j)}>{o}</button>)}</span>
-            </div>
+              <span>{inp.options.map((o, j) => <Radio key={o} value={String(j)}>{o}</Radio>)}</span>
+            </RadioGroup>
           );
         })}
       </div>

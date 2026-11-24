@@ -2,6 +2,8 @@
 // you on the other. Flip a setting and it replays with what the product makes of the events then (`runs`).
 // It plays once as it enters; Replay plays it again. With reduced motion it shows the end.
 import { useId, useRef, useState } from 'react';
+import { Toggle } from '@ui-sdk/react/toggle';
+import { Radio, RadioGroup } from '@ui-sdk/react/radio';
 import { gsap, reducedMotion, useGSAP } from '../../motion';
 import { SURFACES } from '../../stage/pieces';
 import { Accented } from './Rules';
@@ -71,11 +73,12 @@ export function Replay({ block, n }: BlockProps<'replay'>) {
       </div>
       <div className="bv-rep-sets">
         {block.settings.map(s => (s.options.length === 2 && s.options[0] === 'Off' ? (
-          <button key={s.id} type="button" className="bv-rep-set" aria-pressed={on[s.id] === 'On'} onClick={() => set(s.id, on[s.id] === 'On' ? 'Off' : 'On')}><i />{s.label}</button>
+          <Toggle key={s.id} className="bv-rep-set" pressed={on[s.id] === 'On'} onPressedChange={() => set(s.id, on[s.id] === 'On' ? 'Off' : 'On')}><i />{s.label}</Toggle>
         ) : (
-          <span key={s.id} className="bv-rep-set bv-rep-set--seg" role="radiogroup" aria-label={s.label}>
-            {s.label}{s.options.map(o => <button key={o} type="button" role="radio" aria-checked={on[s.id] === o} onClick={() => set(s.id, o)}>{o || 'none'}</button>)}
-          </span>
+          <RadioGroup key={s.id} render={<span />} className="bv-rep-set bv-rep-set--seg" aria-label={s.label} value={String(s.options.indexOf(on[s.id]))} onValueChange={(k) => set(s.id, s.options[Number(k)])}>
+            {/* onClick too: choosing the option already on replays the notification, and onValueChange skips it */}
+            {s.label}{s.options.map((o, k) => <Radio key={o} value={String(k)} onClick={() => set(s.id, o)}>{o || 'none'}</Radio>)}
+          </RadioGroup>
         )))}
         <button type="button" className="pp-btn pp-btn--ghost bv-rep-again" onClick={() => play()}>Replay</button>
       </div>
