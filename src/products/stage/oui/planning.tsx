@@ -1,6 +1,8 @@
 // The plugin's Time and planning, and Inputs and learning, groups drawn. The ones that answer back (Plan,
 // Decision, Choice, Quiz, FollowUps) send the same words the plugin sends; the maths is the plugin's own.
 import { useEffect, useRef, useState } from 'react';
+import { Toggle } from '@ui-sdk/react/toggle';
+import { Radio, RadioGroup } from '@ui-sdk/react/radio';
 import { Flip, reducedMotion, useGSAP } from '../../motion';
 import { Btn, els, fmt, list, Md, num, nums, rec, Sendbar, State, str, strs, useOui, type Draw, type Tone } from './kit';
 import type { El } from './lang';
@@ -290,10 +292,10 @@ function Rating({ e }: { e: El }) {
   const max = num(e.props.max) ?? 5;
   const [v, setV] = useState(num(e.props.value) ?? 0);
   return (
-    <div className="oui-rating" role="radiogroup" aria-label={str(e.props.label, 'Rating')}>
+    <RadioGroup className="oui-rating" aria-label={str(e.props.label, 'Rating')} value={v ? String(v) : null} onValueChange={(x) => setV(Number(x))}>
       {e.props.label != null && <span>{str(e.props.label)}</span>}
-      {Array.from({ length: max }, (_, i) => <button key={i} type="button" role="radio" aria-checked={v === i + 1} aria-label={`${i + 1} of ${max}`} data-on={i < v || undefined} onClick={() => setV(i + 1)}>★</button>)}
-    </div>
+      {Array.from({ length: max }, (_, i) => <Radio key={i} value={String(i + 1)} aria-label={`${i + 1} of ${max}`} data-on={i < v || undefined}>★</Radio>)}
+    </RadioGroup>
   );
 }
 
@@ -316,7 +318,7 @@ function Swatches({ e }: { e: El }) {
   const [on, setOn] = useState<string | null>(null);
   return (
     <div className="oui-swatches"><span className="oui-label">{str(e.props.label)}</span>
-      {colors.map((c) => <button key={c.value} type="button" aria-pressed={on === c.value} onClick={() => setOn(c.value)}><i style={{ background: c.value }} />{c.name}</button>)}
+      {colors.map((c) => <Toggle key={c.value} pressed={on === c.value} onPressedChange={() => setOn(c.value)}><i style={{ background: c.value }} />{c.name}</Toggle>)}
     </div>
   );
 }
@@ -375,11 +377,10 @@ function Quiz({ e }: { e: El }) {
     <div className="oui-quiz">
       <p className="oui-label">Question {at + 1} of {qs.length}</p>
       <b>{q.q}</b>
-      <ul role="radiogroup">{q.options.map((o, i) => (
-        <li key={o}><button type="button" role="radio" aria-checked={pick === i} disabled={checked || streaming}
-          data-right={checked && i === q.answer || undefined} data-wrong={checked && pick === i && i !== q.answer || undefined}
-          onClick={() => setPicks(Object.assign([...picks], { [at]: i }))}>{o}</button></li>
-      ))}</ul>
+      <RadioGroup render={<ul />} value={pick === null ? null : String(pick)} onValueChange={(x) => setPicks(Object.assign([...picks], { [at]: Number(x) }))}>{q.options.map((o, i) => (
+        <li key={o}><Radio value={String(i)} disabled={checked || streaming}
+          data-right={checked && i === q.answer || undefined} data-wrong={checked && pick === i && i !== q.answer || undefined}>{o}</Radio></li>
+      ))}</RadioGroup>
       {checked && <p className="oui-why" data-ok={pick === q.answer || undefined}><b>{pick === q.answer ? 'Right.' : 'Not quite.'}</b> {q.why}</p>}
       <span className="oui-actions">{checked
         ? <Btn primary onClick={() => { setAt(at + 1); setChecked(false); }}>{at + 1 < qs.length ? 'Next question' : 'See my score'}</Btn>
