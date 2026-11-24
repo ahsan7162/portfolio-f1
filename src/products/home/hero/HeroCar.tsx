@@ -2,6 +2,7 @@
 // a layer of the work. Point at one (or its label) and it shows what it is; scrolling sends the car
 // off down the road.
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react';
+import { Toggle } from '@ui-sdk/react/toggle';
 import { onReveal } from '../../arrive';
 import { pad } from '../../format';
 import { gsap, useGSAP } from '../../motion';
@@ -103,13 +104,13 @@ export function HeroCar() {
           <Car />
           <div className="hc-tags">
             {PARTS.map(p => (
-              <button type="button" className="hc-tag pp-mono" key={p.id} style={{ '--at': `${(p.at[0] / VIEW.w) * 100}%` } as CSSProperties}
-                aria-pressed={pinned === p.id} data-on={picked === p.id ? '' : undefined}
+              <Toggle className="hc-tag pp-mono" key={p.id} style={{ '--at': `${(p.at[0] / VIEW.w) * 100}%` } as CSSProperties}
+                pressed={pinned === p.id} data-on={picked === p.id ? '' : undefined}
                 onPointerEnter={e => { if (e.pointerType === 'mouse') point(p.id); }} onPointerLeave={() => point(null)}
                 onFocus={() => point(p.id)} onBlur={() => point(null)}
-                onClick={e => { e.stopPropagation(); pin(p.id); }}>
+                onClick={e => e.stopPropagation()} onPressedChange={() => pin(p.id)}>
                 <b>{pad(p.layer + 1)}</b>{ME.layers[p.layer].name}
-              </button>
+              </Toggle>
             ))}
           </div>
         </div>

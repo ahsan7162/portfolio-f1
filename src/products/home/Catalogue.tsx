@@ -1,6 +1,7 @@
 // Every product in one place, however many there are: filter by kind, search, and view as a list or a wall.
 import { useEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
+import { Toggle } from '@ui-sdk/react/toggle';
 import { brandVars } from '../brand';
 import { pad } from '../format';
 import { Flip, gsap, reducedMotion, ScrollTrigger, useGSAP } from '../motion';
@@ -99,19 +100,19 @@ export function Catalogue({ items }: { items: Product[] }) {
             <kbd>/</kbd>
           </label>
           <div className="cat-view pp-mono" role="group" aria-label="View" data-view={view}>
-            <button type="button" className="pp-mono" aria-pressed={view === 'list'} onClick={() => show('list')}>List</button>
-            <button type="button" className="pp-mono" aria-pressed={view === 'wall'} onClick={() => show('wall')}>Wall</button>
+            <Toggle className="pp-mono" pressed={view === 'list'} onPressedChange={() => show('list')}>List</Toggle>
+            <Toggle className="pp-mono" pressed={view === 'wall'} onPressedChange={() => show('wall')}>Wall</Toggle>
           </div>
         </div>
       </div>
 
       <div className="cat-filters" role="group" aria-label="Filter by kind">
-        <button type="button" className="cat-f pp-mono" aria-pressed={kind === 'all'} onClick={() => pick('all')}>All <small>{pad(items.length)}</small></button>
+        <Toggle className="cat-f pp-mono" pressed={kind === 'all'} onPressedChange={() => pick('all')}>All <small>{pad(items.length)}</small></Toggle>
         {/* A kind with no products yet has no filter. */}
         {kinds.filter(k => items.some(p => p.kind === k)).map(k => (
-          <button type="button" className="cat-f pp-mono" key={k} aria-pressed={kind === k} onClick={() => pick(k)}>
+          <Toggle className="cat-f pp-mono" key={k} pressed={kind === k} onPressedChange={() => pick(k)}>
             {KINDS[k].plural} <small>{pad(items.filter(p => p.kind === k).length)}</small>
-          </button>
+          </Toggle>
         ))}
       </div>
 
