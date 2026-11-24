@@ -3,6 +3,7 @@
 // into a dialog at full size, where a card with `source` can also show the text behind it.
 import { useId, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import { flushSync } from 'react-dom';
+import { Toggle } from '@ui-sdk/react/toggle';
 import { Shot } from '../../stage/Frames';
 import { gsap, reducedMotion, useGSAP } from '../../motion';
 import { holdScroll } from '../../scroll';
@@ -105,7 +106,7 @@ export function Deck({ block, product, n }: BlockProps<'deck'>) {
               <p className="pp-dim">{card.body}</p>
               {card.source && (
                 <div className="bv-deck-views" role="group" aria-label="View">
-                  {views.map((v, i) => <button key={v} type="button" className="pp-mono" aria-pressed={view === i} onClick={() => setView(i)}>{v}</button>)}
+                  {views.map((v, i) => <Toggle key={v} className="pp-mono" pressed={view === i} onPressedChange={() => setView(i)}>{v}</Toggle>)}
                 </div>
               )}
               <button type="button" className="bv-deck-close pp-mono" onClick={hide}>Close</button>

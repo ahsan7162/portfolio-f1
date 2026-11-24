@@ -2,6 +2,7 @@
 // lines marked and counted. The block works the diff out itself (lineDiff.ts), so a count can never drift from
 // the text. As it enters, the marks run down every file in step, so a way that changes little stops early.
 import { useId, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { Toggle } from '@ui-sdk/react/toggle';
 import { changed, diffRows, type Row } from '../../lineDiff';
 import { gsap } from '../../motion';
 import { countUp, Label, useBlockMotion, type BlockProps } from './shared';
@@ -60,10 +61,10 @@ export function Diff({ block, n }: BlockProps<'diff'>) {
       <div className="bc-diff-bar">
         <div className="bc-diff-tabs" role="group" aria-label="Way of saving">
           {ways.map((w, i) => (
-            <button key={w.name} type="button" className="pp-mono" aria-pressed={i === on} onClick={() => setOn(i)}>{w.name} · {w.count}</button>
+            <Toggle key={w.name} className="pp-mono" pressed={i === on} onPressedChange={() => setOn(i)}>{w.name} · {w.count}</Toggle>
           ))}
         </div>
-        <button type="button" className="bc-diff-fold pp-mono" aria-pressed={folded} onClick={() => setFolded((f) => !f)}>{folded ? 'Whole file' : 'Changes only'}</button>
+        <Toggle className="bc-diff-fold pp-mono" pressed={folded} onPressedChange={() => setFolded((f) => !f)}>{folded ? 'Whole file' : 'Changes only'}</Toggle>
       </div>
       <div className="bc-diff-ways" style={{ '--ways': ways.length } as CSSProperties}>
         {ways.map((w, i) => (

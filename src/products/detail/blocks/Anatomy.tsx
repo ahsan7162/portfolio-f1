@@ -3,6 +3,7 @@
 // play one after another in the drawing, and each can be picked. Labels sit over the parts a live screen marks with
 // data-part (or an image's `at` boxes), measured from layout, so they never move while you point at them.
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
+import { Toggle } from '@ui-sdk/react/toggle';
 import { Tabs, TabsList, TabsTab } from '@ui-sdk/react/tabs';
 import { pad } from '../../format';
 import { gsap, reducedMotion } from '../../motion';
@@ -123,7 +124,7 @@ export function Anatomy({ block, n }: BlockProps<'anatomy'>) {
         {hover === null && states.length > 0 && (
           <div className="bv-anat-states" role="group" aria-label={`${block.parts[pinned].name}: its states`}>
             {states.map((s, j) => (
-              <button key={s} type="button" className="pp-mono" aria-pressed={j === state} onClick={() => { setState(j); setHeld(true); }}>{s}</button>
+              <Toggle key={s} className="pp-mono" pressed={j === state} onPressedChange={() => { setState(j); setHeld(true); }}>{s}</Toggle>
             ))}
           </div>
         )}

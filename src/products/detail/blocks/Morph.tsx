@@ -1,6 +1,7 @@
 // The same content two ways: plain text, then the product's own interface. Each line that names a part flies to
 // it, so the reader sees where every fact went; a switch flips it back and forth.
 import { useEffect, useEffectEvent, useId, useRef, useState } from 'react';
+import { Toggle } from '@ui-sdk/react/toggle';
 import { gsap, reducedMotion, ScrollTrigger } from '../../motion';
 import { Shot } from '../../stage/Frames';
 import { Label, useBlockMotion, type BlockProps } from './shared';
@@ -79,8 +80,8 @@ export function Morph({ block, product, n }: BlockProps<'morph'>) {
       <Label n={n} id={id}>{block.label}</Label>
       {block.head && <p className="bv-morph-head pp-lede">{block.head}</p>}
       <div className="bv-morph-bar" role="group" aria-label="Show the reply as">
-        <button type="button" className="pp-mono" aria-pressed={!use} onClick={() => flip(false)}>{block.from.name}</button>
-        <button type="button" className="pp-mono" aria-pressed={use} onClick={() => flip(true)}>{block.to.name}</button>
+        <Toggle className="pp-mono" pressed={!use} onPressedChange={() => flip(false)}>{block.from.name}</Toggle>
+        <Toggle className="pp-mono" pressed={use} onPressedChange={() => flip(true)}>{block.to.name}</Toggle>
       </div>
       <div className="bv-morph-stage" data-use={use || undefined}>
         <div className="bv-morph-screen" inert={!use} aria-hidden={!use}>

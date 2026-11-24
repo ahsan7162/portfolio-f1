@@ -1,5 +1,6 @@
 // One stage that rotates through cases: what was asked in a chat bubble, the screen that came of it, a tab per case.
 import { useId, useRef, type ComponentProps, type RefObject } from 'react';
+import { Toggle } from '@ui-sdk/react/toggle';
 import { Tabs, TabsList, TabsTab } from '@ui-sdk/react/tabs';
 import { gsap, SplitText, useGSAP } from '../../motion';
 import { Label, SwapLabel, usePreload, type BlockProps } from './shared';
@@ -55,9 +56,9 @@ export function RotTabs({ tabs, r, id, keep, controls }: { tabs: string[]; r: Ro
 export function PauseButton({ r }: { r: Rot }) {
   const off = !r.rotating;
   return (
-    <button type="button" className="bv-rot-btn pp-mono" aria-pressed={r.paused} aria-label="Pause the rotation" onClick={r.toggle} data-off={off || undefined} disabled={off}>
+    <Toggle className="bv-rot-btn pp-mono" pressed={r.paused} aria-label="Pause the rotation" onPressedChange={r.toggle} data-off={off || undefined} disabled={off}>
       <SwapLabel on={r.paused} off="Pause" onText="Play" />
-    </button>
+    </Toggle>
   );
 }
 

@@ -1,6 +1,7 @@
 // Every named part of a product as a wall of words in groups, beside an inspector. Pointing at a name shows it
 // there (its drawing, its signature, what it does); picking one keeps it. On a narrow screen a pick opens a sheet.
 import { useCallback, useEffect, useId, useRef, useState, useSyncExternalStore } from 'react';
+import { Toggle } from '@ui-sdk/react/toggle';
 import { gsap } from '../../motion';
 import { Shot } from '../../stage/Frames';
 import { CopyStatus, Label, SwapLabel, useBlockMotion, useCopy, type BlockProps } from './shared';
@@ -41,10 +42,10 @@ export function Specimens({ block, product, n }: BlockProps<'specimens'>) {
               <p className="bv-spec-gname pp-mono"><span>{g.name}</span><span className="pp-dim">{g.items.length}</span></p>
               <p className="bv-spec-names">
                 {g.items.map((it) => (
-                  <button key={it.name} type="button" className="bv-spec-name" data-drawn={it.media ? '' : undefined} aria-pressed={pinned === it.name}
+                  <Toggle key={it.name} className="bv-spec-name" data-drawn={it.media ? '' : undefined} pressed={pinned === it.name}
                     onPointerEnter={(e) => { if (e.pointerType === 'mouse') setHover(it.name); }}
                     onFocus={() => setHover(it.name)} onBlur={() => setHover(null)}
-                    onClick={() => { setPinned(it.name); setHover(null); setSheet(true); }}>{it.name}</button>
+                    onPressedChange={() => { setPinned(it.name); setHover(null); setSheet(true); }}>{it.name}</Toggle>
                 ))}
               </p>
             </div>

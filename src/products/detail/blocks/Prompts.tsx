@@ -1,6 +1,7 @@
 // A prompt bar with suggested asks. Pick one: it types into the bar and goes, and the reply streams in under it,
 // its words first and then its screen building itself. It plays the first ask once by itself when it comes into view.
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
+import { Toggle } from '@ui-sdk/react/toggle';
 import { reducedMotion, ScrollTrigger } from '../../motion';
 import { Shot } from '../../stage/Frames';
 import { Label, useBlockMotion, type BlockProps } from './shared';
@@ -69,9 +70,9 @@ export function Prompts({ block, product, n }: BlockProps<'prompts'>) {
       </div>
       <div className="bv-prompts-chips" role="group" aria-label="Ask">
         {block.prompts.map((x, i) => (
-          <button key={x.chip} type="button" className="bv-prompts-chip" aria-pressed={on?.i === i} onClick={() => { picked.current = true; pick(i); }}>
+          <Toggle key={x.chip} className="bv-prompts-chip" pressed={on?.i === i} onPressedChange={() => { picked.current = true; pick(i); }}>
             {x.chip}
-          </button>
+          </Toggle>
         ))}
       </div>
       <div className="bv-prompts-thread" aria-live="polite">
