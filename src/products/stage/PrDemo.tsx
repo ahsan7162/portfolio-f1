@@ -4,6 +4,7 @@
 // Given a `scene`, it plays that scene by itself (prScenes.ts) until the visitor takes over.
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { flushSync } from 'react-dom';
+import { Tabs, TabsList, TabsTab } from '@ui-sdk/react/tabs';
 import { reducedMotion, useGSAP } from '../motion';
 import type { DemoProps } from '../types';
 import { AGENT_STEPS, blockersOf, CHECKS, facts, pick, push, rows, START, tally, THREADS, totals, type World } from './pr';
@@ -186,13 +187,13 @@ export function PrDemo({ active, onTally, scene }: DemoProps) {
           </p>
           <p className="prd-blk" data-tone={blockers.length ? 'bad' : 'good'}><span>{blockers.length ? 'Not mergeable yet:' : 'Ready:'}</span><Blockers blockers={blockers} facts={f} icons={false} /></p>
         </div>
-        <div className="prd-tabs" role="tablist">
+        <TabsList className="prd-tabs">
           <span aria-disabled="true"><G n="file" />Overview <b>4</b></span>
-          <button type="button" role="tab" aria-selected={w.tab === 'checks'} data-tab="checks" onClick={() => world(x => ({ ...x, tab: 'checks' }))}><G n="check" />Checks <b data-tone={failing.length ? 'bad' : undefined}>6</b></button>
+          <TabsTab value="checks" data-tab="checks" onClick={() => world(x => ({ ...x, tab: 'checks' }))}><G n="check" />Checks <b data-tone={failing.length ? 'bad' : undefined}>6</b></TabsTab>
           <span aria-disabled="true"><G n="file" />Files <b>4</b></span>
           <span aria-disabled="true"><G n="commit" />Commits <b>5</b></span>
-          <button type="button" role="tab" aria-selected={w.tab === 'comments'} data-tab="comments" onClick={() => world(x => ({ ...x, tab: 'comments' }))}><G n="msg" />Comments <b data-tone={unresolved.length ? 'bad' : undefined}>{unresolved.length}</b></button>
-        </div>
+          <TabsTab value="comments" data-tab="comments" onClick={() => world(x => ({ ...x, tab: 'comments' }))}><G n="msg" />Comments <b data-tone={unresolved.length ? 'bad' : undefined}>{unresolved.length}</b></TabsTab>
+        </TabsList>
         <div className="prd-body" role="tabpanel">
           {w.tab === 'checks' ? (
             <>
@@ -213,7 +214,10 @@ export function PrDemo({ active, onTally, scene }: DemoProps) {
   const steps = [...ui.agent.map(k => AGENT_STEPS[k]), `Pushed to ${PR.headRefName}`].map((text, i) => ({ text, done: i < ui.steps }));
 
   return (
-    <div className="prd prd-demo" ref={root} data-film={film ? '' : undefined} onClickCapture={takeOver} onKeyDownCapture={takeOver}>
+    // The Tabs root sits here because the tab list lives in the page view, which swaps out with the list view.
+    // Each tab keeps its onClick: a press on the selected one still counts as a change (Start over shows).
+    <Tabs value={w.tab} onValueChange={(v) => world(x => ({ ...x, tab: v as World['tab'] }))} render={<div ref={root} />}
+      className="prd prd-demo" data-film={film ? '' : undefined} onClickCapture={takeOver} onKeyDownCapture={takeOver}>
       <div className="prd-cam" ref={cam}>
           <Win winRef={win} badge={ui.banner ? 1 : 0} top={changed && !film ? <button type="button" className="prd-again" onClick={again}>Start over</button> : null} over={<>
             {ui.thread && <ThreadPanel prompt={ui.prompt} steps={steps.slice(0, Math.max(1, Math.min(steps.length, ui.steps + 1)))}><button type="button" className="prd-x" aria-label="Close the thread" onClick={() => act(x => ({ ...x, thread: false }))}>✕</button></ThreadPanel>}
@@ -234,7 +238,7 @@ export function PrDemo({ active, onTally, scene }: DemoProps) {
             <svg className="prd-hand" viewBox="0 0 14 19" aria-hidden="true"><path d="M1 1v14.5l3.6-3.3 2.7 6 2.4-1.1-2.6-5.8H12z" /></svg>
           </>}>{page}</Win>
       </div>
-    </div>
+    </Tabs>
   );
 }
 
