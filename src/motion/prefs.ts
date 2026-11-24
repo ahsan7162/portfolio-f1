@@ -1,11 +1,12 @@
+import { reducedMotion } from './reduced';
+
 const q = () => (typeof location === 'undefined' ? new URLSearchParams() : new URLSearchParams(location.search));
 
 const isBrowser = () => typeof window !== 'undefined';
 
 /** Motion is on unless the OS asks for reduced motion or `?nomotion` is set. */
 export function motionEnabled() {
-  if (!isBrowser()) return false;
-  return !window.matchMedia('(prefers-reduced-motion: reduce)').matches && !q().has('nomotion');
+  return isBrowser() && !reducedMotion() && !q().has('nomotion');
 }
 
 export const debug = () => isBrowser() && q().has('debug');
