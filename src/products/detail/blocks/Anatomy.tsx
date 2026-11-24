@@ -2,7 +2,8 @@
 // previews it, a click pins it (the two are separate, like the hero car's parts); the pinned part's states then
 // play one after another in the drawing, and each can be picked. Labels sit over the parts a live screen marks with
 // data-part (or an image's `at` boxes), measured from layout, so they never move while you point at them.
-import { useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
+import { Tabs, TabsList, TabsTab } from '@ui-sdk/react/tabs';
 import { pad } from '../../format';
 import { gsap, reducedMotion } from '../../motion';
 import { LiveScreen } from '../../stage/live';
@@ -70,14 +71,6 @@ export function Anatomy({ block, n }: BlockProps<'anatomy'>) {
   }, [seen, held, states.length]);
 
   const pin = (i: number) => { setPinned(i); setState(0); setHeld(false); };
-  const onKey = (e: KeyboardEvent<HTMLButtonElement>, i: number) => {
-    const to = e.key === 'ArrowRight' ? i + 1 : e.key === 'ArrowLeft' ? i - 1 : e.key === 'Home' ? 0 : e.key === 'End' ? block.parts.length - 1 : null;
-    if (to === null) return;
-    e.preventDefault();
-    const k = (to + block.parts.length) % block.parts.length;
-    pin(k);
-    e.currentTarget.parentElement?.querySelectorAll<HTMLElement>('[role="tab"]')[k]?.focus();
-  };
   // The ring follows the shown part as it is drawn now: a state can change its width ("35m", "Apr 2025"), while
   // the labels and hit zones keep the boxes measured at rest, so they never move under the pointer.
   const spotEl = useRef<HTMLSpanElement>(null);
@@ -95,7 +88,7 @@ export function Anatomy({ block, n }: BlockProps<'anatomy'>) {
   const media = block.media;
 
   return (
-    <section className="dt-block dt-sec pp-wrap bv-anat" ref={root} aria-labelledby={id}>
+    <Tabs value={String(pinned)} onValueChange={(v) => pin(Number(v))} render={<section ref={root} />} className="dt-block dt-sec pp-wrap bv-anat" aria-labelledby={id}>
       <Label n={n} id={id}>{block.label}</Label>
       {block.head && <h3 className="bv-anat-head">{block.head}</h3>}
       {block.note && <p className="bv-rot-note">{block.note}</p>}
@@ -111,15 +104,16 @@ export function Anatomy({ block, n }: BlockProps<'anatomy'>) {
           <span key={block.parts[i].id} className="bv-anat-hit" aria-hidden="true" style={{ left: b.x - 6, top: b.y - 14, width: b.w + 12, height: b.h + 28 }}
             onPointerEnter={() => setHover(i)} onClick={() => pin(i)} />
         ))}
-        <div className="bv-anat-parts" role="tablist" aria-label={`Parts of ${block.label.toLowerCase()}`}>
+        <TabsList className="bv-anat-parts" aria-label={`Parts of ${block.label.toLowerCase()}`}>
           {block.parts.map((p, i) => (
-            <button key={p.id} type="button" role="tab" id={`${id}-t${i}`} aria-controls={`${id}-p`} aria-selected={i === pinned} tabIndex={i === pinned ? 0 : -1}
+            // onClick as well: picking the pinned part again restarts its states, and onValueChange skips it
+            <TabsTab key={p.id} value={String(i)} id={`${id}-t${i}`} aria-controls={`${id}-p`}
               className="bv-anat-part pp-mono" data-on={i === shown || undefined} style={boxes[i] ? { left: boxes[i].x + boxes[i].w / 2 } : undefined}
-              onPointerEnter={() => setHover(i)} onFocus={() => setHover(null)} onClick={() => pin(i)} onKeyDown={(e) => onKey(e, i)}>
+              onPointerEnter={() => setHover(i)} onFocus={() => setHover(null)} onClick={() => pin(i)}>
               <b>{pad(i + 1)}</b>{p.name}
-            </button>
+            </TabsTab>
           ))}
-        </div>
+        </TabsList>
       </div>
       <div className="bv-anat-info" role="tabpanel" id={`${id}-p`} aria-labelledby={`${id}-t${pinned}`} aria-live="polite">
         <div>
@@ -135,6 +129,6 @@ export function Anatomy({ block, n }: BlockProps<'anatomy'>) {
         )}
       </div>
       <p className="bv-anat-help pp-mono">Point at a part, or pick one · ← → walk them</p>
-    </section>
+    </Tabs>
   );
 }
