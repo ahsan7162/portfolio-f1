@@ -1,6 +1,7 @@
 // Pick parts and the text they make writes itself: the product's own text for every pick, each `### ` section
 // marked when its part is hovered or focused. Tabs show other texts the product writes (`modes`).
 import { useEffect, useId, useRef, useState } from 'react';
+import { Tabs, TabsList, TabsTab } from '@ui-sdk/react/tabs';
 import { gsap, reducedMotion } from '../../motion';
 import { PARTS } from '../../stage/pieces';
 import { Accented } from './Rules';
@@ -51,7 +52,7 @@ export function Compose({ block, n }: BlockProps<'compose'>) {
   const toggle = (pid: string) => { setMode(-1); setPicked(p => (p.includes(pid) ? p.filter(x => x !== pid) : [...p, pid])); };
 
   return (
-    <section className="dt-block dt-sec pp-wrap bv-compose" ref={root} aria-labelledby={id}>
+    <Tabs value={String(mode)} onValueChange={(v) => setMode(Number(v))} render={<section ref={root} />} className="dt-block dt-sec pp-wrap bv-compose" aria-labelledby={id}>
       <Label n={n} id={id}>{block.label}</Label>
       {block.head && <p className="bv-rules-head pp-lede"><Accented text={block.head} /></p>}
       <div className="bv-comp">
@@ -63,10 +64,10 @@ export function Compose({ block, n }: BlockProps<'compose'>) {
           ))}
         </div>
         <div className="bv-comp-out">
-          <div className="bv-comp-modes" role="tablist">
-            <button type="button" role="tab" aria-selected={mode < 0} onClick={() => setMode(-1)}>{`${order.length} ${block.unit}`}</button>
-            {block.modes?.map((m, i) => <button key={m.name} type="button" role="tab" aria-selected={mode === i} onClick={() => setMode(i)}>{m.name}</button>)}
-          </div>
+          <TabsList className="bv-comp-modes">
+            <TabsTab value="-1">{`${order.length} ${block.unit}`}</TabsTab>
+            {block.modes?.map((m, i) => <TabsTab key={m.name} value={String(i)}>{m.name}</TabsTab>)}
+          </TabsList>
           <div className="bv-comp-text" ref={box} data-lenis-prevent="" aria-label="The text it writes" aria-live="polite">
             {text ? (
               <pre>{parts.map((s, i) => {
@@ -84,6 +85,6 @@ export function Compose({ block, n }: BlockProps<'compose'>) {
         </div>
       </div>
       {block.note && <p className="bc-note bv-rules-note">{block.note}</p>}
-    </section>
+    </Tabs>
   );
 }
