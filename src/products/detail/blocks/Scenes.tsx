@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState, type ReactNode, type RefObject, type SyntheticEvent } from 'react';
 import { gsap, reducedMotion, SplitText, useGSAP } from '../../motion';
 import { Stage, tallyWords } from '../../stage/Stage';
-import { Ask, HOLD_SCENE, PauseButton, RotTabs } from './Cases';
+import { Ask, HOLD_SCENE, PauseButton, RotRoot, RotTabs } from './Cases';
 import { useRotate } from './rotate';
 import { Label, type BlockProps } from './shared';
 import '../../styles/blocks-visual.css';
@@ -136,7 +136,7 @@ export function Scenes({ block, product, n }: BlockProps<'scenes'>) {
   ));
 
   return (
-    <section className="dt-block dt-sec pp-wrap bv-scenes" ref={root} aria-labelledby={id} data-rot-state={r.rotating ? 'run' : 'off'}>
+    <RotRoot r={r} keep root={root} className="dt-block dt-sec pp-wrap bv-scenes" aria-labelledby={id} data-rot-state={r.rotating ? 'run' : 'off'}>
       <Label n={n} id={id}>{block.label}</Label>
       {block.note && <p className="bv-rot-note">{block.note}</p>}
       <div className="bv-scenes-top">
@@ -171,6 +171,6 @@ export function Scenes({ block, product, n }: BlockProps<'scenes'>) {
           <button type="button" className="bv-rot-btn pp-mono" onClick={r.restart} data-off={!r.stopped || undefined} disabled={!r.stopped}>Play again</button>
         </div>
       </div>
-    </section>
+    </RotRoot>
   );
 }

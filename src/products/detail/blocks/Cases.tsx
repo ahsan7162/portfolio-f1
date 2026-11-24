@@ -1,5 +1,6 @@
 // One stage that rotates through cases: what was asked in a chat bubble, the screen that came of it, a tab per case.
-import { useId, useRef, type KeyboardEvent, type RefObject } from 'react';
+import { useId, useRef, type ComponentProps, type RefObject } from 'react';
+import { Tabs, TabsList, TabsTab } from '@ui-sdk/react/tabs';
 import { gsap, SplitText, useGSAP } from '../../motion';
 import { Label, SwapLabel, usePreload, type BlockProps } from './shared';
 import { MediaView } from './MediaView';
@@ -22,33 +23,31 @@ export function Ask({ text, i }: { text: string; i: number }) {
   );
 }
 
-/** The tab pills: the active one fills as the clock runs. Arrow keys move between them. */
+/**
+ * The block's section as the root of its RotTabs: arrow keys, Home and End select through it.
+ * Tabs, not each pill, own the selection, so the list and the panels can sit anywhere inside.
+ */
+export function RotRoot({ r, keep, root, ...props }: { r: Rot; keep?: boolean; root: RefObject<HTMLElement | null> } & Omit<ComponentProps<'section'>, 'defaultValue' | 'ref'>) {
+  return <Tabs value={String(r.index)} onValueChange={(v) => r.go(Number(v), keep)} render={<section ref={root} />} {...props} />;
+}
+
+/** The tab pills: the active one fills as the clock runs. */
 /** `controls` names the one panel every tab drives, when they share a stage; otherwise each tab drives its own `<id>-p<i>`. */
 export function RotTabs({ tabs, r, id, keep, controls }: { tabs: string[]; r: Rot; id: string; keep?: boolean; controls?: string }) {
-  const onKey = (e: KeyboardEvent<HTMLButtonElement>) => {
-    const move = e.key === 'ArrowRight' ? 'next'
-      : e.key === 'ArrowLeft' ? 'prev'
-      : e.key === 'Home' ? 0 : e.key === 'End' ? tabs.length - 1 : null;
-    if (move === null) return;
-    e.preventDefault();
-    const to = move === 'next' ? (r.index + 1) % tabs.length : move === 'prev' ? (r.index + tabs.length - 1) % tabs.length : move;
-    r.go(to, keep);
-    e.currentTarget.parentElement?.querySelectorAll<HTMLElement>('[role="tab"]')[to]?.focus();
-  };
   return (
-    <div className="bv-rot-tabs" role="tablist">
+    <TabsList className="bv-rot-tabs">
       {tabs.map((t, i) => (
-        <button
-          key={t} type="button" role="tab" id={`${id}-t${i}`} aria-controls={controls ?? `${id}-p${i}`}
-          aria-selected={i === r.index} tabIndex={i === r.index ? 0 : -1}
+        <TabsTab
+          key={t} value={String(i)} id={`${id}-t${i}`} aria-controls={controls ?? `${id}-p${i}`}
           className="bv-rot-tab pp-mono" data-rot={i} data-on={i === r.index || undefined}
-          onClick={() => r.go(i, keep)} onKeyDown={onKey}
+          // onValueChange skips the tab already selected, and choosing it still has to stop the clock
+          onClick={() => r.go(i, keep)}
         >
           <span className="bv-rot-fill" aria-hidden="true" />
           <span className="bv-rot-tab-t">{t}</span>
-        </button>
+        </TabsTab>
       ))}
-    </div>
+    </TabsList>
   );
 }
 
@@ -95,7 +94,7 @@ export function Cases({ block, product, n }: BlockProps<'cases'>) {
   useCaseMotion(root, r);
 
   return (
-    <section className="dt-block dt-sec pp-wrap bv-cases" ref={root} aria-labelledby={id} data-rot-state={r.rotating ? 'run' : 'off'}>
+    <RotRoot r={r} root={root} className="dt-block dt-sec pp-wrap bv-cases" aria-labelledby={id} data-rot-state={r.rotating ? 'run' : 'off'}>
       <Label n={n} id={id}>{block.label}</Label>
       {block.note && <p className="bv-rot-note">{block.note}</p>}
       <div className="bv-rot-stack bv-cases-stage">
@@ -116,6 +115,6 @@ export function Cases({ block, product, n }: BlockProps<'cases'>) {
         <RotTabs tabs={block.cases.map(c => c.tab)} r={r} id={id} />
         <PauseButton r={r} />
       </div>
-    </section>
+    </RotRoot>
   );
 }

@@ -4,7 +4,7 @@
 // the run shows at once, and nothing moves.
 import { useId, useRef, type CSSProperties } from 'react';
 import { gsap, reducedMotion, useGSAP } from '../../motion';
-import { PauseButton, RotTabs } from './Cases';
+import { PauseButton, RotRoot, RotTabs } from './Cases';
 import { useRotate } from './rotate';
 import { Label, type BlockProps } from './shared';
 import '../../styles/blocks-visual.css';
@@ -56,7 +56,7 @@ export function Route({ block, n }: BlockProps<'route'>) {
   }, { scope: root, dependencies: [r.index, r.live], revertOnUpdate: true });
 
   return (
-    <section className="dt-block dt-sec pp-wrap bv-route" ref={root} aria-labelledby={id} data-rot-state={r.rotating ? 'run' : 'off'}>
+    <RotRoot r={r} keep root={root} className="dt-block dt-sec pp-wrap bv-route" aria-labelledby={id} data-rot-state={r.rotating ? 'run' : 'off'}>
       <Label n={n} id={id}>{block.label}</Label>
       {block.head && <h3 className="bv-route-head">{block.head}</h3>}
       {block.note && <p className="bv-rot-note">{block.note}</p>}
@@ -90,6 +90,6 @@ export function Route({ block, n }: BlockProps<'route'>) {
           </li>
         ))}
       </ol>
-    </section>
+    </RotRoot>
   );
 }
