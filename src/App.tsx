@@ -1,7 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
-import { Analytics } from '@vercel/analytics/react';
-import { SpeedInsights } from '@vercel/speed-insights/react';
 import { DialogCtx, type Origin } from '@/components/dialogs/context';
 import { Cursor } from '@/components/Cursor';
 import { DetailsDialog } from '@/components/dialogs/DetailsDialog';
@@ -28,6 +26,7 @@ import { refreshSoon } from '@/motion/startup';
 import { useAnchorNav } from '@/motion/useAnchorNav';
 import { useLetterRoll } from '@/motion/useLetterRoll';
 import { useSpeedSkew } from '@/motion/useSpeedSkew';
+import { Vitals } from '@/components/Vitals';
 
 type Open = { sel: { b: Breakdown; o?: Origin } | null; arch: { o?: Origin } | null };
 
@@ -112,8 +111,7 @@ export default function App() {
     <SmoothScroll>
       <Page />
       {/* Cookieless page views and Core Web Vitals, sent only from the deployed site. */}
-      <Analytics />
-      <SpeedInsights />
+      <Vitals />
     </SmoothScroll>
   );
 }
