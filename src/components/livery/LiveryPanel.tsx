@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef, useState, useSyncExternalStore, type RefObject } from 'react';
+import { Tabs, TabsList, TabsTab } from '@ui-sdk/react/tabs';
 import { presetSeeds } from '@/art/liveries';
 import { liveryStore } from '@/art/palette';
 import { cn } from '@/lib/utils';
@@ -70,8 +71,9 @@ export function LiveryPanel({ open, onClose }: { open: boolean; onClose: () => v
   };
 
   return (
+    // The panel is the root of its Tabs, so the list and the panels can sit apart inside it.
     // oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- Esc closes the panel from anywhere inside it
-    <div ref={root} id="livery-panel" role="dialog" aria-label="Livery" inert={!open} data-lenis-prevent
+    <Tabs value={tab} onValueChange={v => switchTab(v as Tab)} render={<div ref={root} />} id="livery-panel" role="dialog" aria-label="Livery" inert={!open} data-lenis-prevent
       onKeyDown={e => { if (e.key === 'Escape') { e.stopPropagation(); onClose(); } }}
       className={cn('invisible z-10 overflow-y-auto overscroll-contain border-line bg-carbon px-5 shadow-[0_30px_80px_-20px_rgb(0_0_0/0.85)]',
         'max-md:fixed max-md:inset-x-0 max-md:bottom-0 max-md:max-h-[62dvh] max-md:border-t max-md:pb-[max(1.25rem,env(safe-area-inset-bottom))] max-md:pt-3',
@@ -92,15 +94,15 @@ export function LiveryPanel({ open, onClose }: { open: boolean; onClose: () => v
 
       <Preview />
 
-      <div data-lv role="tablist" aria-label="Livery" className="mt-4 grid grid-cols-2 rounded-full border border-line p-[3px]">
+      <TabsList data-lv aria-label="Livery" className="mt-4 grid grid-cols-2 rounded-full border border-line p-[3px]">
         {TABS.map(([t, text]) => (
-          <button key={t} type="button" role="tab" aria-selected={tab === t} aria-controls={tab === t ? `livery-${t}` : undefined} id={`livery-tab-${t}`} onClick={() => switchTab(t)}
+          <TabsTab key={t} value={t} aria-controls={tab === t ? `livery-${t}` : undefined} id={`livery-tab-${t}`}
             className={cn('h-9 rounded-full font-mono text-[11px] font-semibold uppercase tracking-[0.12em] transition-colors duration-(--dur-hit) ease-out-expo',
               tab === t ? 'bg-fg text-carbon' : 'text-mute hover:text-fg')}>
             {text}
-          </button>
+          </TabsTab>
         ))}
-      </div>
+      </TabsList>
 
       <div data-lv ref={content} className="mt-4">
         {tab === 'pick'
@@ -108,6 +110,6 @@ export function LiveryPanel({ open, onClose }: { open: boolean; onClose: () => v
           // Painting a ready-made livery starts from its colours.
           : <PaintTab on={livery === 'custom' ? seeds : presetSeeds(livery)} choices={choices} />}
       </div>
-    </div>
+    </Tabs>
   );
 }

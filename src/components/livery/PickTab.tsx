@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { TabsPanel } from '@ui-sdk/react/tabs';
 import { derive, LIVERIES, type Livery, type Seeds } from '@/art/liveries';
 import { setLivery } from '@/art/palette';
 import { cn } from '@/lib/utils';
@@ -29,12 +30,12 @@ function LiveryCard({ seeds, label, active, dashed, onClick }: { seeds: Seeds; l
 /** The ready-made liveries, and the visitor's own (which opens the paint tab). */
 export function PickTab({ livery, seeds, onPaint }: { livery: Livery; seeds: Seeds; onPaint: () => void }) {
   return (
-    <div id="livery-pick" role="tabpanel" aria-labelledby="livery-tab-pick" className="grid grid-cols-3 gap-2">
+    <TabsPanel value="pick" id="livery-pick" aria-labelledby="livery-tab-pick" className="grid grid-cols-3 gap-2">
       {LIVERIES.map(l => (
         <LiveryCard key={l.id} seeds={l.seeds} label={l.label} active={livery === l.id} onClick={() => setLivery(l.id, seeds, { fade: true })} />
       ))}
       <LiveryCard seeds={seeds} label="Yours" active={livery === 'custom'} dashed
         onClick={() => { setLivery('custom', seeds, { fade: true }); onPaint(); }} />
-    </div>
+    </TabsPanel>
   );
 }

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { TabsPanel } from '@ui-sdk/react/tabs';
 import { toLch } from '@/art/colour';
 import { fitGround, type Seeds } from '@/art/liveries';
 import { setLivery } from '@/art/palette';
@@ -42,7 +43,7 @@ export function PaintTab({ on, choices }: { on: Seeds; choices: PaintChoices }) 
   const tint = TINTS.find(([, t]) => fitGround(t) === on.ground)?.[0] ?? '';
 
   return (
-    <div id="livery-paint" role="tabpanel" aria-labelledby="livery-tab-paint" className="border-t border-line">
+    <TabsPanel value="paint" id="livery-paint" aria-labelledby="livery-tab-paint" className="border-t border-line">
       <Row title="Main colour" hint="Buttons, the racing line, the helmet" swatch={on.ac} value={hueName(toLch(on.ac).h)}
         open={row === 'ac'} onToggle={() => toggle('ac')}>
         <InkEditor ink="ac" seeds={on} onPick={paintInk('ac')} />
@@ -78,6 +79,6 @@ export function PaintTab({ on, choices }: { on: Seeds; choices: PaintChoices }) 
         </div>
         <p className="mt-3 text-xs text-mute">Kept dark, so the 3D lighting and the text stay right.</p>
       </Row>
-    </div>
+    </TabsPanel>
   );
 }
