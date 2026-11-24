@@ -234,10 +234,10 @@ Design each new piece at 1440, 900 and 390 wide before calling it done.
 Import GSAP only from `src/products/motion.ts`:
 
 ```ts
-import { gsap, ScrollTrigger, Flip, Draggable, SplitText, useGSAP, reducedMotion } from '../motion';
+import { gsap, ScrollTrigger, Flip, SplitText, useGSAP, reducedMotion } from '../motion';
 ```
 
-It registers the plugins once and sets the defaults (`ease: 'expo.out'`, `duration: 0.9`).
+It takes the GSAP setup both pages share, from `src/motion/gsap.ts`: the plugins, registered once, and the defaults (`ease: 'expo.out'`, `duration: 0.9`).
 
 **Rules**
 
