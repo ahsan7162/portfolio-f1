@@ -9,6 +9,8 @@
 /* Hallmark · answered F1 · the straight quotes left are code: a Python call and a JSON file inside the project scenes */
 /* Hallmark · answered F3 · balance sits on .display, which every display head carries; the flagged rule only resizes one */
 /* Hallmark · answered F19 · display runs 800 (900 on the name) and text 450 and 600; the 500 and 700 are two small roles left as found */
+/* ui-sdk adds its few rules in this layer: declared first, so every style here wins over it. */
+@layer ui-sdk;
 @import "tailwindcss";
 @import "lenis/dist/lenis.css";
 @import "./styles/fonts.css";
