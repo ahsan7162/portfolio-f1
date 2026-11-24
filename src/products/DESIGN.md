@@ -607,6 +607,7 @@ export function Pricing({ block, n }: BlockProps<'pricing'>) {
 - Decorative elements carry `aria-hidden="true"`. Split letters are hidden and the heading carries the full text in `aria-label`.
 - Things that change announce themselves: copy confirmation (`CopyStatus`, `role="status"`), counts and tallies (`aria-live="polite"`).
 - Toggles use `aria-pressed`; the focused row in a demo uses `aria-current`.
+- Tabs, toggles, radio groups and checkboxes are ui-sdk components (`@ui-sdk/react/<name>`), which bring their keyboard handling, focus and ARIA. They render no styles: keep the classes and `data-on`, and style `aria-selected`, `aria-pressed` and `aria-checked` as before. Menus, popovers and the slash-command list in the demos stay hand-rolled: ui-sdk opens menus in the top layer, outside the film camera's transform.
 - Real images have `alt` that says what the screen shows. Posters and thumbs beside a text name use `alt=""`.
 - Text on a brand colour uses `--on-acc`, which `brandVars` picks for contrast. Keep `--dim` for secondary text and `--faint` for hints only.
 - Touch: make targets comfortable to tap, and never make anything depend on hover. `touch-action: manipulation` is already set, so a tap acts at once.
