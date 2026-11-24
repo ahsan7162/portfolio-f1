@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useRef, type ReactNode } from 'react';
-import Lenis from 'lenis';
-import { ensureGsap, gsap, ScrollTrigger } from './gsap';
+import type Lenis from 'lenis';
+import { ensureGsap } from './gsap';
+import { startLenis } from './lenis';
 import { motionEnabled } from './prefs';
 import { refreshSoon } from './startup';
 
@@ -48,23 +49,17 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     }
 
     // Touch keeps the browser's own scrolling (syncTouch off), so no touch multiplier applies.
-    const lenis = new Lenis({ lerp: 0.1, smoothWheel: true, syncTouch: false, autoRaf: false });
+    // First on the ticker: everything else on it (the rail, the marquee, speed skew, the WebGL
+    // stage) reads this frame's scroll, not the last.
+    const { lenis, stop } = startLenis({ lerp: 0.1, smoothWheel: true, syncTouch: false },
+      { onScroll: l => update(l.scroll, l.limit, l.velocity), first: true });
     lenisRef.current = lenis;
-    lenis.on('scroll', (l: Lenis) => {
-      update(l.scroll, l.limit, l.velocity);
-      ScrollTrigger.update();
-    });
     // A lock taken before Lenis existed (the loader locks in a layout effect, before this
     // runs) used the overflow fallback: move it over to Lenis, or touch scrolling stays blocked.
     if (locks.current > 0) { lenis.stop(); document.documentElement.style.overflow = ''; }
-    const tick = (t: number) => lenis.raf(t * 1000);
-    // Prioritized: Lenis runs first in every tick, so everything else on the ticker (the
-    // rail, the marquee, speed skew, the WebGL stage) reads this frame's scroll, not the last.
-    gsap.ticker.add(tick, false, true);
     void document.fonts?.ready.then(refreshSoon);
     return () => {
-      gsap.ticker.remove(tick);
-      lenis.destroy();
+      stop();
       lenisRef.current = null;
     };
   }, []);

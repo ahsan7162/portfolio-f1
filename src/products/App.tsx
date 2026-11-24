@@ -1,8 +1,8 @@
 // The shell: picks the page from the URL, runs smooth scrolling, and wipes a curtain between pages.
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import Lenis from 'lenis';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
+import { startLenis } from '@/motion/lenis';
 import { markCovered, markRevealed } from './arrive';
 import { brandVars } from './brand';
 import { Cursor } from './Cursor';
@@ -41,13 +41,9 @@ export function App() {
   useEffect(() => {
     if (reducedMotion()) return;
     // A light touch: enough to take the steps out of a mouse wheel without the page trailing behind the hand.
-    const lenis = new Lenis({ lerp: 0.13, virtualScroll: wheelGate });
+    const { lenis, stop } = startLenis({ lerp: 0.13, virtualScroll: wheelGate });
     setLenis(lenis);
-    lenis.on('scroll', () => ScrollTrigger.update());
-    const raf = (t: number) => lenis.raf(t * 1000);
-    gsap.ticker.add(raf);
-    gsap.ticker.lagSmoothing(0);
-    return () => { gsap.ticker.remove(raf); lenis.destroy(); setLenis(null); };
+    return () => { stop(); setLenis(null); };
   }, []);
 
   // Leaving by a link: the curtain rises over the page, carrying the name of where it goes.
