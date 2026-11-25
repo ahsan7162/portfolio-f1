@@ -63,12 +63,6 @@ export const products: Product[] = [
         label: 'Ask for it',
         cases: [
           {
-            tab: 'Weekly sales',
-            ask: 'Each Monday I save the shop’s weekly sales to exports/weekly.csv. Build a report of revenue and orders against the previous week, and a chart by product.',
-            media: { live: 'dash:sales', alt: 'A weekly sales report: revenue and orders against the previous week, a trend by week and revenue by product' },
-            caption: 'Reads a CSV file and sets this week against the previous week.',
-          },
-          {
             tab: 'This branch',
             ask: 'Make a dashboard for this branch: its commits since main and the changed files. Keep it refreshing.',
             media: { live: 'dash:branch', alt: 'A branch dashboard that refreshes itself: tiles for commits, checks passed as a strip of status dots, files reviewed as a progress bar and lines added, the list of commits, and a treemap of lines changed by file' },

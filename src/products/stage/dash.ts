@@ -390,19 +390,7 @@ function pricingDash(): Dash {
   };
 }
 
-/** The carousel's sales screen shows the product shares as a donut; the playable demo keeps its bars. */
-function salesShares(): Dash {
-  const d = salesDash('all');
-  const p = sales('all').products;
-  const donut: Part = {
-    kind: 'donut', id: 'b', title: 'Revenue by product', sub: 'Week of Nov 9 · USD', total: 'USD this week',
-    labels: [...PRODUCTS.slice(0, 3), 'Other'], values: [...p.slice(0, 3), p.slice(3).reduce((x, y) => x + y, 0)],
-  };
-  return { ...d, parts: d.parts.map((x) => (x.id === 'b' ? donut : x)) };
-}
-
 export const DASHES: Record<DashName, Dash> = {
-  'dash:sales': salesShares(),
   'dash:branch': branchDash(),
   'dash:bench': benchDash(),
   'dash:orders': ordersDash(),

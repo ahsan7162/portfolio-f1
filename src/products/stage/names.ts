@@ -2,7 +2,7 @@
 
 /** Every live screen (a screen drawn in code). stage/live.tsx must draw each one. */
 export const LIVE_NAMES = [
-  'dash:sales', 'dash:branch', 'dash:bench', 'dash:orders', 'dash:pricing',
+  'dash:branch', 'dash:bench', 'dash:orders', 'dash:pricing',
   // Markwright's document templates, each drawn as the page it starts
   'md:tpl-readme', 'md:tpl-meeting-notes', 'md:tpl-adr', 'md:tpl-prd', 'md:tpl-rfc', 'md:tpl-changelog',
   'md:tpl-bug-report', 'md:tpl-runbook', 'md:tpl-pr-description', 'md:tpl-postmortem', 'md:tpl-weekly-status',

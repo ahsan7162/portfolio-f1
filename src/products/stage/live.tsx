@@ -15,7 +15,6 @@ const page = (template: string) => (p: LiveProps) => <MdPage template={template}
 
 /** Name to component. Typed by LiveName, so a name with no component does not compile. */
 const LIVE: Record<Exclude<LiveName, OuiName>, ComponentType<LiveProps>> = {
-  'dash:sales': dash('dash:sales'),
   'dash:branch': dash('dash:branch'),
   'dash:bench': dash('dash:bench'),
   'dash:orders': dash('dash:orders'),
