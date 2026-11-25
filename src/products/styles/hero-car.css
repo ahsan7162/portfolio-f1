@@ -141,12 +141,13 @@
 /* labels: 01 Design to 05 Front end along the car, each under its part, then 06 Launch on the start line ahead of it */
 .hc-tags { position: absolute; left: 0; right: 0; top: 87%; height: 0; }
 .hc-tag {
-  position: absolute; left: var(--at); top: 0; transform: translateX(-50%); display: inline-flex; gap: 7px; white-space: nowrap;
+  position: absolute; left: var(--at); top: 0; transform: translateX(calc(-50% + var(--nudge, 0px))); display: inline-flex; gap: 7px; white-space: nowrap;
   padding: 7px 11px; border-radius: 999px; color: var(--dim); font-size: 0.6875rem; transition: color 0.15s, background-color 0.15s;
 }
 .hc-tag::after { content: ''; position: absolute; inset: -8px -4px; }
-/* 05 hangs to the left of its leader, so it never runs into 06 on a narrow desktop */
-.hc-tag:nth-child(5) { translate: calc(-50% + 10px) 0; }
+/* 05 hangs to the left of its leader, so it never runs into 06 on a narrow desktop.
+   Part of the transform, not `translate`: the minifier folds `translate: none` into the phone rule's `transform` and drops it. */
+.hc-tag:nth-child(5) { --nudge: calc(-50% + 10px); }
 .hc-tag b { color: var(--faint); font-weight: 500; transition: color 0.15s; }
 .hc-tag:hover { color: var(--ink); }
 .hc-tag[data-on] { color: var(--ground); background: var(--ink); }
@@ -168,7 +169,7 @@
 @media (max-width: 899px), (max-aspect-ratio: 4 / 5) {
   .hc-words { bottom: auto; top: -22cqw; font-size: 31cqw; }
   .hc-tags { position: static; height: auto; display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 2px; margin-top: 10px; }
-  .hc-tags .hc-tag { position: static; transform: none; translate: none; padding: 6px 8px; }
+  .hc-tags .hc-tag { position: static; transform: none; padding: 6px 8px; }
   /* the labels sit in rows here, not under their parts, so there is no line to draw up to them */
   .hc-lead { display: none; }
   .hc-tag::after { inset: -4px -2px; }
