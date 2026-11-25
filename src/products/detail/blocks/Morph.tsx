@@ -4,13 +4,14 @@ import { useEffect, useEffectEvent, useId, useRef, useState } from 'react';
 import { Toggle } from '@ui-sdk/react/toggle';
 import { gsap, reducedMotion, ScrollTrigger } from '../../motion';
 import { Shot } from '../../stage/Frames';
-import { Label, useBlockMotion, type BlockProps } from './shared';
+import { Label, useBlockMotion, useShowcaseFit, type BlockProps } from './shared';
 import '../../styles/blocks-visual.css';
 
 const FLY = 0.85;
 
 export function Morph({ block, product, n }: BlockProps<'morph'>) {
   const root = useRef<HTMLElement>(null);
+  useShowcaseFit(root, { stage: '.bv-morph-stage', top: '.bv-morph-bar', end: '.bv-morph-stage' });
   const id = useId();
   const [use, setUse] = useState(false);
   const busy = useRef(false);

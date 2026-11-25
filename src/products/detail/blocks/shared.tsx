@@ -51,12 +51,13 @@ export function useShowcaseFit(root: RefObject<HTMLElement | null>, { stage, top
       last = key;
       const before = el.style.maxWidth;
       el.style.maxWidth = '';
-      const full = el.getBoundingClientRect().width;
+      // layout sizes, not the box on screen: an entrance may be scaling the screen while this measures
+      const full = el.offsetWidth;
       const floor = Math.max(full / 2, Math.min(full, 320));
       for (let i = 0; i < 4; i++) {
         const over = b.getBoundingClientRect().bottom - a.getBoundingClientRect().top - room;
         if (over < 1) break;
-        const { width, height } = el.getBoundingClientRect();
+        const width = el.offsetWidth, height = el.offsetHeight;
         const next = (width * (height - over)) / height;
         if (next < floor) { el.style.maxWidth = ''; break; }
         if (next >= width - 1) break;

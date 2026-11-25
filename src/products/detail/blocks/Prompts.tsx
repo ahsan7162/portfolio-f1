@@ -4,7 +4,7 @@ import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import { Toggle } from '@ui-sdk/react/toggle';
 import { reducedMotion, ScrollTrigger } from '../../motion';
 import { Shot } from '../../stage/Frames';
-import { Label, useBlockMotion, type BlockProps } from './shared';
+import { Label, useBlockMotion, useShowcaseFit, type BlockProps } from './shared';
 import '../../styles/blocks-visual.css';
 
 const TYPE_MS = 24; // a letter of the ask
@@ -29,6 +29,7 @@ function useArriving(text: string, go: boolean, perSecond: number) {
 
 export function Prompts({ block, product, n }: BlockProps<'prompts'>) {
   const root = useRef<HTMLElement>(null);
+  useShowcaseFit(root, { stage: '.bv-prompts-thread', top: '.bv-prompts-bar', end: '.bv-prompts-thread' });
   const id = useId();
   const [typed, setTyped] = useState('');
   // With reduced motion nothing plays by itself, so the first reply is simply there.

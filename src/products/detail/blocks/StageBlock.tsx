@@ -2,11 +2,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { gsap } from '../../motion';
 import { Stage, tallyWords } from '../../stage/Stage';
-import { useBlockMotion, type BlockProps } from './shared';
+import { useBlockMotion, useShowcaseFit, type BlockProps } from './shared';
 
 export function StageBlock({ product }: BlockProps<'stage'>) {
   const root = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
+  useShowcaseFit(root, { stage: '.dt-stage', top: '.dt-stage', end: '.dt-hint' });
   const [active, setActive] = useState(false);
   const [tally, setTally] = useState<number | null>(null);
 
