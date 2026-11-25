@@ -47,19 +47,21 @@
 /* compare: two layers, the top one wiped by clip-path at --pos */
 .bv-cmp {
   --pos: 50%;
-  position: relative; margin: clamp(32px, 4vw, 48px) auto 0; max-width: min(980px, 100%);
+  /* the top margin holds the two tags, which sit above the frame */
+  position: relative; margin: calc(clamp(32px, 4vw, 48px) + 40px) auto 0; max-width: min(980px, 100%);
   touch-action: pan-y; user-select: none; cursor: ew-resize; border-radius: 14px;
 }
 .bv-cmp--app { max-width: min(360px, 82vw); }
 .bv-cmp-layer { position: relative; }
 .bv-cmp-layer--before { position: absolute; inset: 0; clip-path: inset(0 calc(100% - var(--pos)) 0 0); }
 .bv-cmp-media { width: 100%; }
+/* above the frame, not on it: inside, they covered the product's own header; a phone-width title bar is too small to hold them */
 .bv-cmp-tag {
-  position: absolute; top: clamp(44px, 5vw, 64px); padding: 6px 10px; border-radius: 6px; pointer-events: none;
-  background: color-mix(in srgb, var(--ground) 78%, transparent); color: var(--ink);
+  position: absolute; bottom: calc(100% + 10px); padding: 6px 10px; border-radius: 6px; pointer-events: none;
+  background: var(--raise-2); color: var(--ink);
 }
-.bv-cmp-tag--before { left: 14px; }
-.bv-cmp-tag--after { right: 14px; }
+.bv-cmp-tag--before { left: 0; }
+.bv-cmp-tag--after { right: 0; }
 .bv-cmp-handle { position: absolute; top: 0; bottom: 0; left: var(--pos); width: 2px; translate: -50% 0; background: var(--acc); pointer-events: none; }
 .bv-cmp-knob {
   position: absolute; left: 50%; top: 50%; width: 52px; aspect-ratio: 1; translate: -50% -50%; border-radius: 50%;
