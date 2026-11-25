@@ -102,8 +102,10 @@ img, video, svg { display: block; max-width: 100%; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  /* Transitions finish at once. Animations are not touched here: each one is only declared where motion is allowed. */
-  *, *::before, *::after { transition-duration: 0.01ms !important; }
+  /* No transitions. Animations are not touched here: each one is only declared where motion is allowed.
+     Not a near-zero duration: with transition-property's default of `all`, that makes every property (font-size too) transition,
+     so code that sets a style and measures at once (fit.ts) reads the old value. */
+  *, *::before, *::after { transition: none !important; }
 }
 
 /* The display width axis as a real number, so it can be tweened and transitioned. */
