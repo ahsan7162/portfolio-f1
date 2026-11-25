@@ -41,7 +41,7 @@ export const products: Product[] = [
     year: 2026,
     facts: ['for bb', 'any agent', 'v0.1', 'MIT'],
     line: 'Ask any agent in bb for a dashboard and keep it: Claude, Codex, Qwen, DeepSeek or any open model you run there.',
-    hook: 'Why ask the same question every day?',
+    hook: 'Ask once. Keep the dashboard.',
     hint: 'Filter it and recolour it, then press Edit and click the chart. Only the edit costs a model call.',
     stack: ['TypeScript', 'React', 'OpenUI Lang', 'MCP', 'Zod'],
     stage: 'dash-demo',
@@ -61,7 +61,6 @@ export const products: Product[] = [
       {
         type: 'cases',
         label: 'Ask for it',
-        note: 'Redrawn for this page, with invented data.',
         cases: [
           {
             tab: 'Weekly sales',
@@ -123,7 +122,6 @@ export const products: Product[] = [
       {
         type: 'tour',
         label: 'In the real thing',
-        head: 'The plugin itself, in bb.',
         steps: [
           {
             title: 'Drill down without the model',
@@ -254,7 +252,7 @@ export const products: Product[] = [
     year: 2026,
     facts: ['for bb', 'v0.1', 'MIT'],
     line: 'Edit any Markdown file in bb like a Notion page, and a save rewrites only the blocks you changed.',
-    hook: 'Why type Markdown at all?',
+    hook: 'Edit Markdown like a document.',
     hint: 'Tick a box, or type / on an empty line, and watch the file it writes.',
     stack: ['TypeScript', 'React', 'Tiptap 3', 'ProseMirror', 'highlight.js'],
     stage: 'md-demo',
@@ -273,7 +271,6 @@ export const products: Product[] = [
       {
         type: 'scenes',
         label: 'Watch it work',
-        note: 'Redrawn for this page, with invented content. Touch it to take over.',
         scenes: [
           { tab: 'Tick it', head: 'Click, don’t type.', cost: '1 line changed', caption: 'A tick in the document is one line in the file: `- [ ]` becomes `- [x]`, written 800 ms after the click.' },
           { tab: 'Insert it', head: 'Type / for anything.', cost: '3 lines added', caption: 'The / menu holds every block. A callout is written as GitHub writes one, > [!WARNING], and nothing else moves.' },
@@ -331,7 +328,6 @@ export const products: Product[] = [
       {
         type: 'tour',
         label: 'In the real thing',
-        head: 'Markwright itself, in bb.',
         steps: [
           {
             title: 'Type / for anything',
@@ -436,7 +432,7 @@ export const products: Product[] = [
     year: 2026,
     facts: ['for bb', 'any agent', 'v0.3', 'MIT'],
     line: 'See why every pull request is stuck, and hand the fix to any agent in bb, without leaving it.',
-    hook: 'Why is this PR still open?',
+    hook: 'See what blocks every pull request.',
     hint: 'Open the stuck pull request, press Fix with agent on everything that blocks it, then Send to agent.',
     stack: ['TypeScript', 'React', 'GraphQL', 'GitHub REST', 'Zod'],
     featured: true,
@@ -454,7 +450,7 @@ export const products: Product[] = [
     blocks: [
       {
         type: 'rules',
-        label: 'Why is it stuck?',
+        label: 'Every reason',
         head: 'Flip what’s wrong with it. The plugin’s *own rules* name every reason, worst first.',
         note: 'Six can hold at once, since CI and the review each have one state. The row is redrawn by the plugin’s own blocker rule.',
         set: 'pr:blockers',
@@ -469,7 +465,7 @@ export const products: Product[] = [
       {
         type: 'scenes',
         label: 'Watch it work',
-        note: 'Redrawn for this page, with invented content. The agent and the reviewer are played by the demo. Touch it to take over.',
+        note: 'The agent and the reviewer are played by the demo.',
         scenes: [
           { tab: 'Spot it', head: 'Why is it stuck?', cost: '1 request', caption: 'One GraphQL request fills the tab and every count. Each pull request leads with its blockers, and its spine takes the worst one’s colour.' },
           { tab: 'Pick it', head: 'Pick what blocks it.', cost: '1 more request', caption: 'Opening a pull request is one more request, and it lands on the failing checks. Fix with agent picks a finding, and the bar counts your picks.' },
@@ -520,7 +516,6 @@ export const products: Product[] = [
       {
         type: 'tour',
         label: 'In the real thing',
-        head: 'The plugin itself, in bb.',
         steps: [
           {
             title: 'Blockers first',
@@ -661,7 +656,6 @@ export const products: Product[] = [
       {
         type: 'scenes',
         label: 'Watch it work',
-        note: 'Redrawn for this page, with invented content. Touch it to take over.',
         scenes: [
           { tab: 'Close the tabs', head: 'One list.', cost: '1 tab', caption: 'Every ticket assigned to you, from every board and epic, in one tab in bb’s rail. Open and Done, 50 to a page.' },
           { tab: 'Hands on the keys', head: 'Hands on the keys.', cost: '0 clicks', caption: 'J and K move, Enter opens a ticket beside the list, ] goes to the next one, and U opens its parent: the epic, then the initiative.' },
@@ -767,7 +761,6 @@ export const products: Product[] = [
       {
         type: 'tour',
         label: 'In the real thing',
-        head: 'Jira Board itself, in bb.',
         steps: [
           {
             title: 'Your tickets, one list',
@@ -990,7 +983,7 @@ export const products: Product[] = [
     year: 2026,
     facts: ['for bb', 'any agent', 'v0.1', 'MIT'],
     line: 'Any agent in bb answers in live UI: plans you approve, decisions you tune, quizzes and forms, and your click goes back as your next message.',
-    hook: 'Why read a reply you could click?',
+    hook: 'Replies you can click.',
     hint: 'Tune the weights, then answer with a click. Or pick Code on a reply to see the program behind it.',
     stack: ['TypeScript', 'React', 'OpenUI Lang', 'Zod'],
     featured: true,
@@ -1018,7 +1011,6 @@ export const products: Product[] = [
       {
         type: 'scenes',
         label: 'Watch it work',
-        note: 'Redrawn for this page, with invented data. Touch it to take over.',
         scenes: [
           { tab: 'Ask', head: 'Ask in words.', cost: '1 reply', caption: 'A question in words. The reply streams in: a sentence, then a block the render line draws as the program arrives.' },
           { tab: 'Tune', head: 'Tune it.', cost: '0 model calls', caption: 'Weights from 0 to 5 re-rank the options at once, with no model call: the plugin’s own scoring.' },
@@ -1065,7 +1057,6 @@ export const products: Product[] = [
       {
         type: 'tour',
         label: 'In the real thing',
-        head: 'The plugin itself, in bb.',
         steps: [
           {
             title: 'Tune a decision',

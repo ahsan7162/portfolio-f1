@@ -137,7 +137,7 @@ export function Scenes({ block, product, n }: BlockProps<'scenes'>) {
 
   return (
     <RotRoot r={r} keep root={root} className="dt-block dt-sec pp-wrap bv-scenes" aria-labelledby={id} data-rot-state={r.rotating ? 'run' : 'off'}>
-      <Label n={n} id={id}>{block.label}</Label>
+      <Label n={n} id={id} aside="Redrawn · sample data · try it">{block.label}</Label>
       {block.note && <p className="bv-rot-note">{block.note}</p>}
       <div className="bv-scenes-top">
         <div className="bv-rot-stack bv-scenes-heads">

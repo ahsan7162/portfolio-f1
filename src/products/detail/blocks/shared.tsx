@@ -14,12 +14,14 @@ export type BlockProps<K extends Block['type']> = {
 /** Must match the CSS query that turns a gallery from a swipe row into a pinned track. */
 export const PIN_QUERY = '(min-width: 900px) and (pointer: fine)';
 
-export function Label({ n, id, children }: { n?: string; id: string; children: ReactNode }) {
+/** A section's number, name and rule; `aside` is a short tag at the rule's end (a demo's "Redrawn · sample data"). */
+export function Label({ n, id, children, aside }: { n?: string; id: string; children: ReactNode; aside?: string }) {
   return (
     <h2 className="dt-label pp-mono" id={id}>
       {n && <span className="dt-label-n">{n}</span>}
       <span>{children}</span>
       <span className="dt-label-line" aria-hidden="true" />
+      {aside && <span className="dt-label-aside">{aside}</span>}
     </h2>
   );
 }
