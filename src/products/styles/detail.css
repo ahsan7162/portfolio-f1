@@ -42,6 +42,9 @@
 .dt-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 520px); gap: clamp(32px, 6vw, 96px); margin-top: clamp(28px, 4vw, 48px); align-items: start; }
 .dt-pitch { font-size: clamp(26px, 3.2vw, 46px); max-width: 22ch; }
 .dt-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: clamp(24px, 3vw, 34px); }
+.dt-links { display: flex; flex-wrap: wrap; gap: 0 22px; margin-top: 12px; }
+.dt-link { padding-block: 8px; color: var(--dim); text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 0.3em; transition: color 0.18s, text-decoration-color 0.18s; }
+.dt-link:hover { color: var(--ink); text-decoration-color: currentColor; }
 .dt-cta .pp-btn:disabled, .dt-get-btn:disabled { cursor: not-allowed; opacity: 0.55; }
 .dt-cta .pp-btn:disabled:hover { color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--line); }
 .dt-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 30px; border-top: 1px solid var(--line); padding-top: 22px; }

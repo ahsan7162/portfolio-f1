@@ -132,9 +132,14 @@ export function Detail({ product }: { product: Product }) {
               )}
               {via?.kind === 'stores' && <StoreButtons className="pp-btn pp-btn--ghost" />}
               {via?.kind === 'link' && <a className="pp-btn pp-btn--acc" href={via.href} target="_blank" rel="noopener noreferrer">{via.label} <Out /></a>}
-              {product.links.map(l => <a key={l.href} className="pp-btn pp-btn--ghost" href={l.href} target="_blank" rel="noopener noreferrer">{l.label} <Out /></a>)}
               {film && <button type="button" className="pp-btn pp-btn--ghost" onClick={toFilm}>Watch the film · {film.duration}</button>}
             </div>
+            {/* two buttons at most, so they never wrap; the product's links sit under them as plain links */}
+            {product.links.length > 0 && (
+              <p className="dt-links" data-in>
+                {product.links.map(l => <a key={l.href} className="dt-link" href={l.href} target="_blank" rel="noopener noreferrer">{l.label} <Out /></a>)}
+              </p>
+            )}
             <CopyStatus copied={copied} />
           </div>
           <dl className="dt-facts" data-in>
