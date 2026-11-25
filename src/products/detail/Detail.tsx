@@ -80,7 +80,7 @@ export function Detail({ product }: { product: Product }) {
         {prev && next && (
           <span className="dt-top-right">
             <button type="button" className="dt-top-link dt-pos pp-mono" popoverTarget="dt-jump" aria-label={`Product ${at + 1} of ${total}. Jump to a product`}>
-              {pad(at + 1)} / {pad(total)} <span aria-hidden="true">▾</span>
+              {at + 1} / {total} <span aria-hidden="true">▾</span>
             </button>
             {/* A native popover: Escape and a click outside close it. data-lenis-prevent lets a long list scroll. */}
             <div id="dt-jump" popover="auto" className="dt-jump" ref={jump} data-lenis-prevent>
@@ -163,7 +163,7 @@ export function Detail({ product }: { product: Product }) {
         <footer>
           <Link to={productPath(next.slug)} className="dt-next">
             <span className="dt-next-in pp-wrap">
-              <span className="pp-mono">Next · {pad(((at + 1) % total) + 1)} / {pad(total)}</span>
+              <span className="pp-mono">Next · {((at + 1) % total) + 1} / {total}</span>
               <span className="dt-next-name pp-display" ref={nextRef}>
                 <span className="dt-fit"><span className="dt-next-text">{next.name}</span> <span className="dt-arrow" aria-hidden="true">→</span></span>
               </span>

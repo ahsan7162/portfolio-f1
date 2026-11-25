@@ -92,7 +92,7 @@ export function Catalogue({ items }: { items: Product[] }) {
   return (
     <section className="cat" id="all" ref={root} aria-labelledby="cat-title">
       <div className="cat-head">
-        <h2 className="cat-title pp-display" id="cat-title" aria-label={`All ${items.length} products`}><span>All</span><em>{pad(items.length)}</em></h2>
+        <h2 className="cat-title pp-display" id="cat-title" aria-label={`All ${items.length} products`}><span>All</span><em>{items.length}</em></h2>
         <div className="cat-tools">
           <label className="cat-search pp-mono">
             <input ref={search} className="pp-mono" type="search" value={query} placeholder="Search by name, kind or stack" aria-label="Search products"
@@ -107,11 +107,11 @@ export function Catalogue({ items }: { items: Product[] }) {
       </div>
 
       <div className="cat-filters" role="group" aria-label="Filter by kind">
-        <Toggle className="cat-f pp-mono" pressed={kind === 'all'} onPressedChange={() => pick('all')}>All <small>{pad(items.length)}</small></Toggle>
+        <Toggle className="cat-f pp-mono" pressed={kind === 'all'} onPressedChange={() => pick('all')}>All <small>{items.length}</small></Toggle>
         {/* A kind with no products yet has no filter. */}
         {kinds.filter(k => items.some(p => p.kind === k)).map(k => (
           <Toggle className="cat-f pp-mono" key={k} pressed={kind === k} onPressedChange={() => pick(k)}>
-            {KINDS[k].plural} <small>{pad(items.filter(p => p.kind === k).length)}</small>
+            {KINDS[k].plural} <small>{items.filter(p => p.kind === k).length}</small>
           </Toggle>
         ))}
       </div>
@@ -143,7 +143,7 @@ export function Catalogue({ items }: { items: Product[] }) {
       )}
 
       <p className="cat-count pp-mono" aria-live="polite">
-        {shown ? `Showing ${pad(shown)} of ${pad(items.length)}` : 'Nothing matches. Try another word, or clear the filter.'}
+        {shown ? `Showing ${shown} of ${items.length}` : 'Nothing matches. Try another word, or clear the filter.'}
       </p>
 
       <div className="cat-peek" ref={peekEl} data-on={peek && view === 'list' ? '' : undefined} aria-hidden="true">

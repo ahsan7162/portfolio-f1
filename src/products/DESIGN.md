@@ -61,7 +61,7 @@ src/products/
   types.ts                       Product, Kind, StageKind, Media, and the Block union
   brand.ts                       brandVars(): a product's colour as CSS variables
   motion.ts                      the one GSAP import: plugins registered, defaults set
-  format.ts                      pad(): 1 -> "01", the one numbering helper
+  format.ts                      pad(): 1 -> "01", for an index (a product's number, a section's, a row's); a count stays a plain number
   arrive.ts                      onReveal(): run when the curtain lifts
   scroll.ts                      scrollToY(), scrollToEl(), stepToY(), the wheel gate
   Cursor.tsx                     the pointer label ("Open") on links with data-cursor
