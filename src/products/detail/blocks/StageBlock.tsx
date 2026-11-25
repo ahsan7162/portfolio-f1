@@ -33,7 +33,7 @@ export function StageBlock({ product }: BlockProps<'stage'>) {
       <div className={`dt-stage dt-stage--${product.stage}`} ref={stageRef}>
         <Stage product={product} active={active} onTally={setTally} />
       </div>
-      <p className="dt-hint pp-mono">
+      <p className="dt-hint pp-cap">
         <span className="dt-live" aria-hidden="true" />
         {product.hint}
         {tally !== null && tallyWords(product.stage, tally) && <span className="dt-tally" aria-live="polite">{tally} {tallyWords(product.stage, tally)?.join(' ')}</span>}

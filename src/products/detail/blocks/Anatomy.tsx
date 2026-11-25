@@ -129,7 +129,7 @@ export function Anatomy({ block, n }: BlockProps<'anatomy'>) {
           </div>
         )}
       </div>
-      <p className="bv-anat-help pp-mono">Point at a part, or pick one · ← → walk them</p>
+      <p className="bv-anat-help pp-cap">Point at a part, or pick one · ← → walk them</p>
     </Tabs>
   );
 }

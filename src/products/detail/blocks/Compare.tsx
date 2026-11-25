@@ -71,7 +71,7 @@ export function Compare({ block, product, n }: BlockProps<'compare'>) {
         />
         <span className="bv-cmp-handle" aria-hidden="true"><span className="bv-cmp-knob" /></span>
       </div>
-      {block.caption && <p className="bv-cmp-cap pp-mono pp-dim"><Coded text={block.caption} /></p>}
+      {block.caption && <p className="bv-cmp-cap pp-cap"><Coded text={block.caption} /></p>}
     </section>
   );
 }

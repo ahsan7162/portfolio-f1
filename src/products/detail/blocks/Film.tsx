@@ -37,7 +37,7 @@ export function Film({ block, product, n }: BlockProps<'film'>) {
           </button>
         )}
       </div>
-      <p className="dt-film-cap pp-mono"><span>{block.title}</span><span className="pp-dim">{block.duration}</span></p>
+      <p className="dt-film-cap pp-cap"><span>{block.title}</span><span className="pp-dim">{block.duration}</span></p>
       {block.credit && <p className="dt-credit">{block.credit}</p>}
     </section>
   );

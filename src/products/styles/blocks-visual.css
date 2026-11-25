@@ -369,7 +369,7 @@
   transition: color 0.2s var(--ease), box-shadow 0.2s var(--ease), background-color 0.2s var(--ease); }
 .bv-anat-states button:hover { color: var(--ink); }
 .bv-anat-states button[aria-pressed='true'] { color: var(--ink); background: color-mix(in srgb, var(--acc-lit) 12%, transparent); box-shadow: inset 0 0 0 1.5px var(--acc-lit); }
-.bv-anat-help { margin-top: 22px; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--dim); }
+.bv-anat-help { margin-top: 22px; }
 /* a phone: the labels become a row of chips under the drawing */
 @media (max-width: 699px) {
   .bv-anat-art { padding-top: 0; }

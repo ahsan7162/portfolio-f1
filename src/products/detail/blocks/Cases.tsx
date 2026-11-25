@@ -107,7 +107,7 @@ export function Cases({ block, product, n }: BlockProps<'cases'>) {
               <div className="bv-cases-shot" data-img={'src' in c.media || undefined}>
                 <MediaView media={c.media} product={product} active={on && r.inView} />
               </div>
-              {c.caption && <p className="bv-rot-cap pp-mono pp-dim"><Coded text={c.caption} /></p>}
+              {c.caption && <p className="bv-rot-cap pp-cap"><Coded text={c.caption} /></p>}
             </div>
           );
         })}

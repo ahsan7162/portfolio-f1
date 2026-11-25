@@ -61,6 +61,9 @@ img, video, svg { display: block; max-width: 100%; }
 /* type */
 .pp-display { font-family: var(--display); font-weight: 900; text-transform: uppercase; letter-spacing: -0.02em; line-height: 0.84; font-variation-settings: 'wdth' var(--wdth, 68); }
 .pp-mono { font-family: var(--mono); font-size: 0.75rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; line-height: 1.4; }
+/* a sentence under a demo, a picture or a film: body text, never mono capitals */
+.pp-cap { font-size: 0.9375rem; line-height: 1.5; color: var(--dim); text-wrap: pretty; }
+.pp-cap code { font-family: var(--mono); font-size: 0.9em; }
 /* code in a label keeps its case: `- [x]` must not read as `- [X]` */
 .pp-mono code { font: inherit; text-transform: none; }
 .pp-lede { font-family: var(--display); font-weight: 600; font-variation-settings: 'wdth' 108; letter-spacing: -0.025em; line-height: 1.06; }

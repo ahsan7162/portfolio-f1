@@ -57,7 +57,7 @@ export function Diff({ block, n }: BlockProps<'diff'>) {
     <section className="dt-block dt-sec pp-wrap bc-diff" ref={root} aria-labelledby={id}>
       <Label n={n} id={id}>{block.label}</Label>
       {block.head && <p className="bc-diff-head pp-lede">{block.head}</p>}
-      <p className="bc-diff-edit pp-mono"><span className="bc-diff-file">{block.file}</span><span className="bc-diff-edit-t">{block.edit}</span></p>
+      <p className="bc-diff-edit pp-cap"><code className="bc-diff-file">{block.file}</code><span className="bc-diff-edit-t">{block.edit}</span></p>
       <div className="bc-diff-bar">
         <div className="bc-diff-tabs" role="group" aria-label="Way of saving">
           {ways.map((w, i) => (

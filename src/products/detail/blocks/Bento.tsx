@@ -49,7 +49,7 @@ export function Bento({ block, product, n }: BlockProps<'bento'>) {
               )}
               {t.kind === 'media' && (
                 <>
-                  {t.caption && <span className="bv-tile-cap pp-mono"><Coded text={t.caption} /></span>}
+                  {t.caption && <span className="bv-tile-cap pp-cap"><Coded text={t.caption} /></span>}
                   <MediaView media={t.media} product={product} className="bv-tile-media" />
                 </>
               )}

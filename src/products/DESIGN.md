@@ -197,14 +197,15 @@ Two families, both self-hosted through fontsource and loaded in `base.css`:
 |---|---|---|
 | `pp-display` | weight 900, uppercase, narrow (`wdth` 68), line-height 0.84 | product names, section titles, huge numbers |
 | `pp-lede` | weight 600, wide (`wdth` 108), tight tracking | pitches, block headlines, feature titles |
-| `pp-mono` | 12px, uppercase, tracked | labels, metadata, counts, captions |
+| `pp-mono` | 12px, uppercase, tracked | labels, metadata, counts, keys, code: a name of a few words, or the short phrase under a stat or a route stop |
+| `pp-cap` | 15px body text in `--dim`; its `code` in mono, in its own case | captions and hints: any sentence under a demo, a picture or a film |
 | body | 17px Archivo at `wdth` 100, line-height 1.5 | paragraphs |
 
 Rules:
 
 - The display width is the custom property `--wdth`, registered with `@property`, so it can be tweened. Set `--wdth` on an element to change its width; do not write a new `font-variation-settings` rule.
 - A name that must fill its line uses `useFit(ref, maxVh)` from `detail/fit.ts`. Do not hand-tune a font size per product.
-- Mono text is always uppercase and small. Do not use it for sentences longer than a caption.
+- Mono text is always uppercase and small, so it is for labels only: a name, metadata, the short phrase under a stat or a route stop. A sentence is never mono: a caption or hint uses `pp-cap`. The one exception is the car's hint, a mono sentence kept in its own case.
 - Size type with `clamp()`, never a fixed pixel size above 20px.
 
 ---
@@ -593,7 +594,7 @@ export function Pricing({ block, n }: BlockProps<'pricing'>) {
 - **Samples are fictional and marked.** `sample: true` shows a "Sample" tag everywhere. Sample copy says it is a sample.
 - Plain, direct sentences. Say what the product does for the person using it.
 - Sentence case for everything a person reads. Uppercase comes from the type classes, not from the text.
-- In a caption, put code in backticks (`` `- [x]` ``): it is drawn as code and keeps its case, where the rest of the caption is set in capitals.
+- In a caption, put code in backticks (`` `- [x]` ``): it is drawn as code, in mono, in its own case.
 - `line` is one sentence. `hook` is a short question or claim. `hint` is an instruction.
 - Each product's copy is its own. Don't reuse a pattern across pages: not a "Why…?" hook on every product, not the same tour title ("… itself, in bb."). A demo says it is redrawn once, in its label's tag, not in a sentence.
 - Feature titles are two to four words; feature bodies are one sentence.

@@ -45,7 +45,7 @@ export function Showcase({ block, product, n }: BlockProps<'showcase'>) {
           );
         })}
       </div>
-      {block.caption && <p className="bv-show-cap pp-mono pp-dim"><Coded text={block.caption} /></p>}
+      {block.caption && <p className="bv-show-cap pp-cap"><Coded text={block.caption} /></p>}
     </section>
   );
 }

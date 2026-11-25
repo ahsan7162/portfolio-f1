@@ -81,7 +81,7 @@ export function Compose({ block, n }: BlockProps<'compose'>) {
               })}</pre>
             ) : <p className="bv-comp-none">Pick something to fix.</p>}
           </div>
-          <p className="bv-comp-foot pp-mono"><span>{block.footer}</span><span>{text.length.toLocaleString('en')} characters</span></p>
+          <p className="bv-comp-foot pp-cap"><span>{block.footer}</span><span>{text.length.toLocaleString('en')} characters</span></p>
         </div>
       </div>
       {block.note && <p className="bc-note bv-rules-note">{block.note}</p>}

@@ -156,9 +156,9 @@ export function Scenes({ block, product, n }: BlockProps<'scenes'>) {
         </div>
       </div>
       <div className="bv-rot-stack bv-scenes-caps">
-        {items((s) => s.caption && <p className="bv-rot-cap pp-mono pp-dim"><Coded text={s.caption} /></p>)}
+        {items((s) => s.caption && <p className="bv-rot-cap pp-cap"><Coded text={s.caption} /></p>)}
       </div>
-      <p className="dt-hint pp-mono">
+      <p className="dt-hint pp-cap">
         <span className="dt-live" aria-hidden="true" />
         {product.hint}
         {tally !== null && tallyWords(product.stage, tally) && <span className="dt-tally" aria-live="polite">{tally} {tallyWords(product.stage, tally)?.join(' ')}</span>}

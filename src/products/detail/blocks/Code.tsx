@@ -31,7 +31,7 @@ export function Code({ block, product, n }: BlockProps<'code'>) {
         {block.result && (
           <figure className="bc-code-result">
             <MediaView media={block.result} product={product} />
-            {block.caption && <figcaption className="bc-code-cap pp-mono"><Coded text={block.caption} /></figcaption>}
+            {block.caption && <figcaption className="bc-code-cap pp-cap"><Coded text={block.caption} /></figcaption>}
           </figure>
         )}
       </div>
