@@ -7,7 +7,7 @@ import { pad } from '../format';
 import { gsap, reducedMotion, ScrollTrigger, useGSAP } from '../motion';
 import { HOME, Link, productPath } from '../router';
 import { scrollToEl } from '../scroll';
-import { type Block, FILM_ID, findBlock, KINDS, type Product } from '../types';
+import { FILM_ID, findBlock, KINDS, type Product } from '../types';
 import { Blocks, numbered } from './blocks';
 import { CopyStatus, Out, StoreButtons, SwapLabel, useCopy } from './blocks/shared';
 import { useFit } from './fit';
@@ -15,9 +15,6 @@ import '../styles/detail.css';
 
 /** The letters of each line, keyed by position (the text never reorders). */
 const letters = (line: string) => [...new Intl.Segmenter().segment(line)].map(({ segment: ch, index }) => ({ ch, id: `${index}` }));
-
-/** What the outline calls a block that has no label of its own. */
-const UNLABELLED: Partial<Record<Block['type'], string>> = { stage: 'The product', stats: 'In numbers', text: 'Notes', split: 'Feature', showcase: 'Showcase', marquee: 'Marquee', quote: 'Quote' };
 
 export function Detail({ product }: { product: Product }) {
   const root = useRef<HTMLDivElement>(null);
@@ -70,8 +67,9 @@ export function Detail({ product }: { product: Product }) {
   const via = findBlock(product, 'get')?.via;
   const film = findBlock(product, 'film');
 
-  // The page's own outline: its blocks in order, so the arrangement is visible (and reachable) from the top.
-  const outline = numbered(product.blocks).map(({ block, key, label, n }) => ({ key, n, name: label ?? UNLABELLED[block.type] ?? block.type }));
+  // The page's own outline: its labelled blocks in order, numbered as their sections are, so the arrangement is visible (and reachable) from the top.
+  // A block with no label has no number on the page either, so it is left out; `place` is where it sits among all the blocks.
+  const outline = numbered(product.blocks).map((it, place) => ({ key: it.key, n: it.n, label: it.label, place })).filter(it => it.label);
   const toBlock = (i: number) => scrollToEl(root.current?.querySelectorAll('.dt-block')[i], 24, reducedMotion());
   const toFilm = () => scrollToEl(document.getElementById(FILM_ID), 24, reducedMotion());
 
@@ -149,9 +147,9 @@ export function Detail({ product }: { product: Product }) {
         <nav className="dt-toc pp-mono" aria-label="On this page" data-in>
           <span className="dt-toc-head">On this page</span>
           <ol className="dt-toc-list">
-            {outline.map((o, i) => (
+            {outline.map(o => (
               <li key={o.key}>
-                <button type="button" className="dt-toc-item pp-mono" onClick={() => toBlock(i)}><b>{o.n ?? '·'}</b>{o.name}</button>
+                <button type="button" className="dt-toc-item pp-mono" onClick={() => toBlock(o.place)}><b>{o.n}</b>{o.label}</button>
               </li>
             ))}
           </ol>
