@@ -100,7 +100,8 @@
 }
 .dt-conn::after { content: ''; position: absolute; right: 0; top: -4px; width: 8px; height: 8px; border-top: 1.5px solid var(--acc); border-right: 1.5px solid var(--acc); transform: rotate(45deg); transform-origin: 100% 0; }
 
-.dt-stats { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 30px; }
+/* as many even columns as there are numbers: two or three */
+.dt-stats { list-style: none; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 30px; }
 .dt-stat-num { --wdth: 70; display: block; font-size: clamp(96px, 12vw, 190px); line-height: 0.8; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .dt-stat-num [data-count] { display: inline-block; }
 .dt-stat-num small { font-size: 0.42em; color: var(--acc); margin-left: 0.08em; }
@@ -224,7 +225,11 @@
   .dt-how-item + .dt-how-item { padding-left: 0; padding-top: 48px; }
   .dt-conn { left: clamp(28px, 6vw, 40px); top: 10px; width: 1.5px; height: 28px; }
   .dt-conn::after { right: auto; top: auto; left: -3.5px; bottom: 0; transform: rotate(135deg); transform-origin: 50% 50%; }
-  .dt-stats { grid-template-columns: minmax(0, 1fr); gap: 44px; }
+  /* one compact row per number, the labels lined up beside the widest number */
+  .dt-stats { grid-auto-flow: row; grid-template-columns: auto minmax(0, 1fr); gap: 22px 20px; align-items: end; }
+  .dt-stats li { display: grid; grid-column: span 2; grid-template-columns: subgrid; align-items: end; }
+  .dt-stat-num { font-size: clamp(56px, 16vw, 96px); }
+  .dt-stat-label { margin-top: 0; padding-bottom: 0.3em; }
   .dt-text { grid-template-columns: minmax(0, 1fr); }
   .dt-text-body { grid-column: 1; }
 }

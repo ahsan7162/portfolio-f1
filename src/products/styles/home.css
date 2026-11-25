@@ -47,6 +47,8 @@
 .ft-tally { position: absolute; right: var(--pad); bottom: 100px; z-index: 2; display: flex; align-items: flex-end; gap: 16px; color: var(--acc); }
 .ft-tally b { font-size: clamp(72px, 9.5vw, 176px); line-height: 0.74; --wdth: 125; letter-spacing: -0.04em; @media (prefers-reduced-motion: no-preference) { animation: ft-tick 0.5s var(--ease); } }
 .ft-tally span { text-align: right; line-height: 1.7; padding-bottom: 4px; }
+/* a count still at the zero it started from says nothing yet: it keeps its place, unseen, until the visitor changes it */
+.ft-tally[data-quiet] > * { visibility: hidden; }
 @keyframes ft-tick { from { transform: translateY(0.3em) scale(1.25); opacity: 0; } }
 
 /* Every blocker cleared: the product's colour floods the screen, and the copy and page furniture read on it. */

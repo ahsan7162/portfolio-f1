@@ -440,7 +440,7 @@ The shapes are in `types.ts` (the `Block` union) with a comment on each. TypeScr
 | `text` | optional | Paragraphs under an optional heading | The parts of a story that need sentences in a row |
 | `features` | required | A grid of title plus one sentence | What it does. Six items sit best; keep each body to one sentence. |
 | `steps` | required | Connected steps, each with a tag, title and body | How a request travels, or how to set it up. Three or four. |
-| `stats` | none | A few huge numbers with labels | Proof in numbers. Three reads best. `unit` is optional. |
+| `stats` | none | A few huge numbers with labels | Proof in numbers: two or three, each worth showing big. Never a 0; a "none" claim belongs in a sentence. `unit` is optional. |
 | `keys` | required | Keycaps and what they do. While it is on screen, pressing a shortcut it lists presses its caps and lights its row (nothing else happens). Modifier caps (⌘ ⇧ ⌥ ⌃) combine with the rest; other caps are alternatives, so `['j', 'k']` is j or k | Keyboard shortcuts |
 | `screens` | required | A sideways gallery, pinned to the scroll on desktop, a swipe row on touch | Many screenshots, each with a title and caption |
 | `film` | required | A poster with a play button, then the video | The product's film. The first one is the target of the hero's button. |

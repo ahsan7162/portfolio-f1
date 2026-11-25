@@ -13,8 +13,8 @@ import { SiteHeader, toAll } from './Header';
 const DESKTOP = '(min-width: 900px) and (prefers-reduced-motion: no-preference)';
 const FLOOD_AT = '72% 48%';
 
-function Slide({ product, index, active, tally, report }: {
-  product: Product; index: number; active: boolean; tally: number | undefined; report: (slug: string, value: number) => void;
+function Slide({ product, index, active, tally, start, report }: {
+  product: Product; index: number; active: boolean; tally: number | undefined; start: number | undefined; report: (slug: string, value: number) => void;
 }) {
   const el = useRef<HTMLElement>(null);
   const mounted = useRef(false);
@@ -64,7 +64,7 @@ function Slide({ product, index, active, tally, report }: {
         </div>
       </div>
       {label && (
-        <div className="ft-tally ft-fade pp-branded" aria-live="polite">
+        <div className="ft-tally ft-fade pp-branded" aria-live="polite" data-quiet={tally === 0 && start === 0 ? '' : undefined}>
           <span className="pp-mono">{label[0]}<br />{label[1]}</span>
           <b className="pp-display" key={tally}>{tally ?? ''}</b>
         </div>
@@ -81,8 +81,13 @@ export function Featured({ items, total }: { items: Product[]; total: number }) 
   const [current, setCurrent] = useState(0);
   const [pinned, setPinned] = useState(false);
   const [tally, setTally] = useState<Record<string, number>>({});
+  // each demo's first count: a counter that starts at 0 stays out of sight until it moves
+  const [start, setStart] = useState<Record<string, number>>({});
   const last = items.length - 1;
-  const report = useCallback((slug: string, value: number) => setTally(t => (t[slug] === value ? t : { ...t, [slug]: value })), []);
+  const report = useCallback((slug: string, value: number) => {
+    setTally(t => (t[slug] === value ? t : { ...t, [slug]: value }));
+    setStart(s => (slug in s ? s : { ...s, [slug]: value }));
+  }, []);
   const shown = items[current];
   const flooded = !!shown && shown.stage === 'pr-demo' && tally[shown.slug] === 0;
 
@@ -209,7 +214,7 @@ export function Featured({ items, total }: { items: Product[]; total: number }) 
     <section className="ft" ref={root} aria-label="Featured products" style={shown ? brandVars(shown.brand) : undefined} data-flooded={flooded ? '' : undefined}>
       <SiteHeader total={total} />
       {items.map((product, i) => (
-        <Slide key={product.slug} product={product} index={i} active={!pinned || i === current} tally={tally[product.slug]} report={report} />
+        <Slide key={product.slug} product={product} index={i} active={!pinned || i === current} tally={tally[product.slug]} start={start[product.slug]} report={report} />
       ))}
       <nav className="ft-strip pp-mono" aria-label="Jump to a featured product">
         {items.map((product, i) => (

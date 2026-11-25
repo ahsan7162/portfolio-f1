@@ -150,7 +150,6 @@ export const products: Product[] = [
         stats: [
           { value: '62', label: 'components to build with' },
           { value: '100', label: 'newest versions kept, to view or restore' },
-          { value: '0', label: 'model calls to view, filter or refresh' },
         ],
       },
       {
@@ -327,7 +326,6 @@ export const products: Product[] = [
         stats: [
           { value: '39', label: 'entries in the / menu' },
           { value: '800', unit: 'ms', label: 'from your last keystroke to saved' },
-          { value: '0', label: 'bytes rewritten in blocks you didn’t touch' },
         ],
       },
       {
@@ -497,7 +495,6 @@ export const products: Product[] = [
         stats: [
           { value: '1', label: 'request for the tab you open, with every tab’s count' },
           { value: '8', label: 'reasons a pull request is stuck, each named' },
-          { value: '0', label: 'writes to GitHub until you click' },
         ],
       },
       {
@@ -716,7 +713,6 @@ export const products: Product[] = [
       {
         type: 'stats',
         stats: [
-          { value: '0', label: 'things to configure' },
           { value: '4', label: 'ways to group your tickets' },
           { value: '8', label: 'keyboard shortcuts, one sheet' },
         ],
