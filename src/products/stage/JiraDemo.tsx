@@ -96,7 +96,9 @@ export function JiraDemo({ active, onTally, scene }: DemoProps) {
   useEffect(() => { onTally?.(count); }, [count, onTally]);
 
   // A scene change stops what was playing: the visitor took over, or another scene was picked.
-  useGSAP(() => { stop(); }, { dependencies: [scene], scope: root });
+  // A scene that ends with no other after it (the visitor took over, or the block left the screen) lands on its end
+  // first, so the demo is handed over whole, never half built.
+  useGSAP(() => { if (scene === undefined) tl.current?.progress(1); stop(); }, { dependencies: [scene], scope: root });
 
   // The scene plays once its start state is on screen.
   useGSAP(() => {
@@ -208,12 +210,14 @@ export function JiraDemo({ active, onTally, scene }: DemoProps) {
         case 'u': if (x.open) f = J.up; break;
         case 's': if (x.open || x.cursor) f = (y) => J.showMoves(y); break;
         case '?': f = (y) => J.setMenu(y, 'sheet'); break;
-        case '/': e.preventDefault(); said(); search.current?.focus({ preventScroll: true }); return;
+        case '/': e.preventDefault(); said(); if (!film) search.current?.focus({ preventScroll: true }); return;
         default: return;
       }
       if (!f) return;
       e.preventDefault();
       said();
+      // mid-scene, the first key only hands the demo over; acting on it too would cut the scene off half played
+      if (film) return;
       root.current?.dispatchEvent(new CustomEvent('scene-input', { bubbles: true }));
       act(f);
     };

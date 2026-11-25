@@ -1,6 +1,6 @@
 // The product's live demo playing itself through named scenes, a tab per scene; the reader can take it over at any point.
 // Each scene lands its headline and its cost tag; the demo says when the cost is spent (a bubbling `scene-cost` event).
-import { useEffect, useId, useRef, useState, type ReactNode, type RefObject, type SyntheticEvent } from 'react';
+import { useEffect, useId, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { gsap, reducedMotion, SplitText, useGSAP } from '../../motion';
 import { Stage, tallyWords } from '../../stage/Stage';
 import { Ask, HOLD_SCENE, PauseButton, RotRoot, RotTabs } from './Cases';
@@ -119,10 +119,11 @@ export function Scenes({ block, product, n }: BlockProps<'scenes'>) {
   const [visit, setVisit] = useState(0);
   const [wasOn, setWasOn] = useState(false);
   if (onTurn !== wasOn) { setWasOn(onTurn); if (onTurn) setVisit((v) => v + 1); }
-  // Using the demo itself is taking over: the scene stops being driven, the reader drives.
-  // A click, not a pointer down: a finger scrolling the page across the demo must not count; nor does a scene's own
-  // scripted click on the demo's buttons (untrusted).
-  const take = (e: SyntheticEvent) => { if (playing && e.nativeEvent.isTrusted) r.take(); };
+  // While the reel plays, the demo is only to watch: a click meant for one of its buttons would cut a scene off half
+  // built. A layer over it takes the click (or a tap, or Enter) and hands the demo over, whole, without passing it on;
+  // from then the reader drives, until Play again.
+  const demo = useRef<HTMLDivElement>(null);
+  const takeOver = () => { r.take(); requestAnimationFrame(() => demo.current?.focus({ preventScroll: true })); };
   // A demo that hears keys on the whole page says so with a bubbling `scene-take`, since those keys never pass through the stage.
   useEffect(() => {
     const el = root.current;
@@ -151,9 +152,12 @@ export function Scenes({ block, product, n }: BlockProps<'scenes'>) {
           {items((s, i) => (i === turnAt && block.turn ? <Turn key={visit} goals={block.turn.goals} live={onTurn} root={root} /> : s.ask && <Ask text={s.ask} i={i} />))}
         </div>
       </div>
-      <div className="bv-scenes-stage" role="tabpanel" id={`${id}-stage`} aria-labelledby={`${id}-t${r.index}`} onClickCapture={take} onKeyDownCapture={take}>
+      <div className="bv-scenes-stage" role="tabpanel" id={`${id}-stage`} aria-labelledby={`${id}-t${r.index}`}>
         <div className={`dt-stage dt-stage--${product.stage}`}>
-          <Stage product={product} active={r.inView} onTally={setTally} scene={scene} />
+          <div className="bv-scenes-demo" ref={demo} tabIndex={-1} inert={r.rotating}>
+            <Stage product={product} active={r.inView} onTally={setTally} scene={scene} />
+          </div>
+          {r.rotating && <button type="button" className="bv-scenes-try" data-cursor="Try it" aria-label={`Try ${product.name} yourself (stops the scenes)`} onClick={takeOver} />}
         </div>
       </div>
       {/* the controls sit right under the screen they drive; the words about it come after */}

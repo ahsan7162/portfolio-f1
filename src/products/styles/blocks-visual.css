@@ -218,6 +218,10 @@
 .bv-scenes .dt-hint { margin-top: 14px; }
 /* the tabs sit right under the screen (the stage's own bottom padding is the gap), its caption and hint below them */
 .bv-scenes-stage + .bv-rot-bar { margin-top: 0; }
+/* while the reel plays, a clear layer over the demo hands it over on a click; the demo under it takes no input */
+.bv-scenes-demo:focus { outline: none; }
+.bv-scenes-try { position: absolute; inset: 0; z-index: 2; border-radius: 12px; cursor: pointer; }
+.bv-scenes-try:focus-visible { outline: 2px solid var(--acc); outline-offset: 4px; }
 .bv-rot-bar + .bv-scenes-caps { margin-top: 18px; }
 
 /* tour: steps beside one screen */

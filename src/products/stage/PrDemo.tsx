@@ -55,7 +55,15 @@ export function PrDemo({ active, onTally, scene }: DemoProps) {
   useEffect(() => { onTally?.(count); }, [count, onTally]);
 
   // A scene change stops what was playing: the visitor took over, or another scene was picked.
-  useGSAP(() => { stop(); clearTimers(); }, { dependencies: [scene], scope: root });
+  // A scene that ends with no other after it (the visitor took over, or the block left the screen) lands on its end
+  // first, so the demo is handed over whole, never half built.
+  // The landing runs just after this commit: its changes flushSync, which React cannot do mid-commit.
+  useGSAP(() => {
+    clearTimers();
+    const t = scene === undefined ? tl.current : null;
+    if (t) { tl.current = null; t.pause(); queueMicrotask(() => { t.progress(1).kill(); stop(); }); return; }
+    stop();
+  }, { dependencies: [scene], scope: root });
   useGSAP(() => {
     const sc = scene === undefined ? undefined : PR_SCENES[scene];
     const [w, c, el] = [win.current, cam.current, root.current];

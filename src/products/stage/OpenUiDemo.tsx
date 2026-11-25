@@ -204,7 +204,9 @@ export default function OpenUiDemo({ active, onTally, scene }: DemoProps) {
       })();
     });
   });
-  useEffect(() => { if (scene === undefined) { prepFor.current = undefined; stop(); } }, [scene, stop]);
+  // A scene that ends with no other after it (the visitor took over, or the block left the screen) lands on its end
+  // first, so the demo is handed over whole, never half built.
+  useEffect(() => { if (scene === undefined) { prepFor.current = undefined; tl.current?.progress(1); stop(); } }, [scene, stop]);
 
   // A message a click sent rises from the button that sent it.
   const seen = useRef('');

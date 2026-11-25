@@ -128,7 +128,9 @@ export function MdDemo({ active, onTally, scene }: DemoProps) {
   });
 
   // A scene change stops what was playing: the visitor took over, or another scene was picked.
-  useGSAP(() => { stop(); prev.current = null; }, { dependencies: [scene], scope: root });
+  // A scene that ends with no other after it (the visitor took over, or the block left the screen) lands on its end
+  // first, so the demo is handed over whole, never half built.
+  useGSAP(() => { if (scene === undefined) tl.current?.progress(1); stop(); prev.current = null; }, { dependencies: [scene], scope: root });
 
   // The scene plays once its start state is on screen.
   useGSAP(() => {
