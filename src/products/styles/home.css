@@ -157,7 +157,10 @@
 .pv-phone { width: 24%; }
 .pv-browser { width: 82%; }
 
-.cat-wall { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); gap: 10px; margin-top: clamp(20px, 3vh, 30px); }
+/* set column counts, not "as many as fit": five across left the sixth product alone on a row */
+.cat-wall { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: clamp(20px, 3vh, 30px); }
+@media (max-width: 1099px) { .cat-wall { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 639px) { .cat-wall { grid-template-columns: minmax(0, 1fr); } }
 .cat-tile { display: flex; flex-direction: column; border-radius: 12px; overflow: hidden; background: var(--raise); box-shadow: inset 0 0 0 1px var(--line); transition: background-color 0.3s, color 0.3s, opacity 0.3s, transform 0.5s var(--ease); }
 .cat-tile-top { display: flex; justify-content: space-between; gap: 10px; padding: 14px 14px 0; color: var(--dim); transition: color 0.3s; }
 .cat-tile-pv { display: grid; place-items: center; aspect-ratio: 16 / 10; margin: 12px 14px 0; border-radius: 8px; overflow: hidden; background: var(--raise-2); }
