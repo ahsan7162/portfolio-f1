@@ -8,7 +8,7 @@ import { Tabs, TabsList, TabsTab } from '@ui-sdk/react/tabs';
 import { pad } from '../../format';
 import { gsap, reducedMotion } from '../../motion';
 import { LiveScreen } from '../../stage/live';
-import { Label, useBlockMotion, type BlockProps } from './shared';
+import { Label, SwapLabel, useBlockMotion, type BlockProps } from './shared';
 import '../../styles/blocks-visual.css';
 
 interface Box { x: number; y: number; w: number; h: number }
@@ -126,6 +126,12 @@ export function Anatomy({ block, n }: BlockProps<'anatomy'>) {
             {states.map((s, j) => (
               <Toggle key={s} className="pp-mono" pressed={j === state} onPressedChange={() => { setState(j); setHeld(true); }}>{s}</Toggle>
             ))}
+            {/* picking a state holds the cycle there; Play carries it on */}
+            {!reducedMotion() && (
+              <Toggle className="pp-mono bv-anat-play" pressed={held} aria-label="Pause the states" onPressedChange={() => setHeld(h => !h)}>
+                <SwapLabel on={held} off="Pause" onText="Play" />
+              </Toggle>
+            )}
           </div>
         )}
       </div>
