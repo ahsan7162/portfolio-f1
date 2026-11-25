@@ -1,7 +1,7 @@
 // Pieces every block uses: its numbered label, its motion setup, and small helpers.
-import { useEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { onReveal } from '../../arrive';
-import { gsap, useGSAP } from '../../motion';
+import { gsap, ScrollTrigger, useGSAP } from '../../motion';
 import type { Block, BlockOf, Product } from '../../types';
 
 export type BlockProps<K extends Block['type']> = {
@@ -27,6 +27,51 @@ export function Label({ n, id, children, aside }: { n?: string; id: string; chil
 }
 
 export const Out = () => <span aria-hidden="true">↗</span>;
+
+/**
+ * Keeps a showcase on one screen at any size: narrows its screen (`stage`, inside `root`) until everything from `top` to
+ * `end` (the headline or ask, the screen, the tabs) fits the small viewport height. The screens size from their own
+ * width, so a narrower one is a shorter one. It refits when the viewport changes, never when a demo's content does, so
+ * a demo never shrinks under the reader. A screen only shrinks if it then fits while still readable (half its width, and
+ * at least 320px): where it cannot (a phone held sideways), it stays whole and the page scrolls as it always did.
+ */
+export function useShowcaseFit(root: RefObject<HTMLElement | null>, { stage, top, end }: { stage: string; top: string; end: string }) {
+  useLayoutEffect(() => {
+    const box = root.current;
+    if (!box) return;
+    // the small viewport height (100svh): it holds still while a phone's address bar comes and goes
+    const probe = document.createElement('div');
+    probe.style.cssText = 'position: fixed; top: 0; width: 0; height: 100svh; visibility: hidden; pointer-events: none;';
+    document.body.append(probe);
+    let last = '';
+    const fit = (force = false) => {
+      const el = box.querySelector<HTMLElement>(stage), a = box.querySelector(top), b = box.querySelector(end);
+      const room = probe.offsetHeight - 32, key = `${innerWidth} ${room}`;
+      if (!el || !a || !b || (key === last && !force)) return;
+      last = key;
+      const before = el.style.maxWidth;
+      el.style.maxWidth = '';
+      const full = el.getBoundingClientRect().width;
+      const floor = Math.max(full / 2, Math.min(full, 320));
+      for (let i = 0; i < 4; i++) {
+        const over = b.getBoundingClientRect().bottom - a.getBoundingClientRect().top - room;
+        if (over < 1) break;
+        const { width, height } = el.getBoundingClientRect();
+        const next = (width * (height - over)) / height;
+        if (next < floor) { el.style.maxWidth = ''; break; }
+        if (next >= width - 1) break;
+        el.style.maxWidth = `${Math.floor(next)}px`;
+      }
+      if (el.style.maxWidth !== before) ScrollTrigger.refresh();
+    };
+    fit();
+    let live = true;
+    void document.fonts.ready.then(() => { if (live) fit(true); });
+    const onResize = () => fit();
+    addEventListener('resize', onResize);
+    return () => { live = false; removeEventListener('resize', onResize); probe.remove(); };
+  }, [root, stage, top, end]);
+}
 
 /** A caption with its `backticked` runs drawn as code, which keeps its own case inside an uppercase label. */
 export const Coded = ({ text }: { text: string }) => <>{text.split('`').map((t, i) => (i % 2 ? <code key={t}>{t}</code> : t))}</>;

@@ -1,9 +1,9 @@
 // One stage that rotates through cases: what was asked in a chat bubble, the screen that came of it, a tab per case.
-import { useId, useRef, type ComponentProps, type RefObject } from 'react';
+import { useEffect, useId, useRef, type ComponentProps, type RefObject } from 'react';
 import { Toggle } from '@ui-sdk/react/toggle';
 import { Tabs, TabsList, TabsTab } from '@ui-sdk/react/tabs';
-import { gsap, SplitText, useGSAP } from '../../motion';
-import { Coded, Label, SwapLabel, usePreload, type BlockProps } from './shared';
+import { gsap, reducedMotion, SplitText, useGSAP } from '../../motion';
+import { Coded, Label, SwapLabel, usePreload, useShowcaseFit, type BlockProps } from './shared';
 import { MediaView } from './MediaView';
 import { useRotate, type Rot } from './rotate';
 import '../../styles/blocks-visual.css';
@@ -35,6 +35,12 @@ export function RotRoot({ r, keep, root, ...props }: { r: Rot; keep?: boolean; r
 /** The tab pills: the active one fills as the clock runs. */
 /** `controls` names the one panel every tab drives, when they share a stage; otherwise each tab drives its own `<id>-p<i>`. */
 export function RotTabs({ tabs, r, id, keep, controls }: { tabs: string[]; r: Rot; id: string; keep?: boolean; controls?: string }) {
+  // On a phone the tabs are one row that scrolls sideways: the active one is brought into view, the page itself never moves.
+  useEffect(() => {
+    const tab = document.getElementById(`${id}-t${r.index}`), row = tab?.parentElement;
+    if (!tab || !row || row.scrollWidth <= row.clientWidth) return;
+    row.scrollTo({ left: tab.offsetLeft - (row.clientWidth - tab.offsetWidth) / 2, behavior: reducedMotion() ? 'auto' : 'smooth' });
+  }, [id, r.index]);
   return (
     <TabsList className="bv-rot-tabs">
       {tabs.map((t, i) => (
@@ -93,6 +99,7 @@ export function Cases({ block, product, n }: BlockProps<'cases'>) {
   const r = useRotate(root, { count: block.cases.length, hold: HOLD });
   usePreload(root);
   useCaseMotion(root, r);
+  useShowcaseFit(root, { stage: '.bv-cases-stage', top: '.bv-cases-stage', end: '.bv-rot-bar' });
 
   return (
     <RotRoot r={r} root={root} className="dt-block dt-sec pp-wrap bv-cases" aria-labelledby={id} data-rot-state={r.rotating ? 'run' : 'off'}>

@@ -215,8 +215,10 @@
 .bv-scenes .dsd-cam { padding-top: calc(var(--step) * 3em); }
 .bv-scenes-caps { margin-top: 0; }
 .bv-scenes-caps .bv-rot-cap { margin-top: 0; }
-.bv-scenes .dt-hint { margin-top: 20px; }
-.bv-scenes .dt-hint + .bv-rot-bar { margin-top: 20px; }
+.bv-scenes .dt-hint { margin-top: 14px; }
+/* the tabs sit right under the screen (the stage's own bottom padding is the gap), its caption and hint below them */
+.bv-scenes-stage + .bv-rot-bar { margin-top: 0; }
+.bv-rot-bar + .bv-scenes-caps { margin-top: 18px; }
 
 /* tour: steps beside one screen */
 .bv-tour-head { max-width: 22ch; font-size: clamp(28px, 3.2vw, 48px); text-wrap: balance; }
@@ -253,6 +255,12 @@
 }
 @media (max-width: 639px) {
   .bv-rot-tab { padding: 11px 14px; }
+  /* one row on a phone: Pause or Play holds the left, the tabs scroll beside it (the active one is kept in view) */
+  .bv-rot-bar { flex-wrap: nowrap; justify-content: flex-start; gap: 10px; }
+  .bv-rot-bar > :not(.bv-rot-tabs) { order: -1; flex: none; }
+  .bv-rot-tabs { position: relative; flex-wrap: nowrap; justify-content: flex-start; min-width: 0; overflow-x: auto; scrollbar-width: none; overscroll-behavior-x: contain; }
+  .bv-rot-tabs::-webkit-scrollbar { display: none; }
+  .bv-rot-tab { flex: none; }
   .bv-rot-ask { padding: 12px 16px; }
 }
 

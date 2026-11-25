@@ -216,6 +216,7 @@ Rules:
 - Vertical rhythm between blocks is `--dt-gap` (`clamp(96px, 12vw, 180px)`), applied as `padding-top` by `.dt-block`. A block that needs less sets `--dt-gap` on itself (see `.dt-sec--stats`). Do not add margins between blocks.
 - Easing for CSS transitions is `--ease`; a pressed control springing back uses `--spring`.
 - Text for screen readers only uses the class `pp-sr`.
+- A showcase (the `cases` and `scenes` blocks) fits one screen at any size. `useShowcaseFit` in `blocks/shared.tsx` narrows its screen until the headline or ask, the screen and the tabs fit the small viewport height. It refits on a viewport change, never on a content change, and it never shrinks a screen below half its width or 320px: there the page just scrolls. The tabs sit right under the screen, the caption and hint below them. On a phone the tabs are one row that scrolls sideways, with Pause or Play at its left.
 
 Breakpoints already in use. Reuse these, do not invent a new one without a reason:
 

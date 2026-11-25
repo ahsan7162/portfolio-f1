@@ -5,7 +5,7 @@ import { gsap, reducedMotion, SplitText, useGSAP } from '../../motion';
 import { Stage, tallyWords } from '../../stage/Stage';
 import { Ask, HOLD_SCENE, PauseButton, RotRoot, RotTabs } from './Cases';
 import { useRotate } from './rotate';
-import { Coded, Label, type BlockProps } from './shared';
+import { Coded, Label, useShowcaseFit, type BlockProps } from './shared';
 import '../../styles/blocks-visual.css';
 
 /** A cost as its number and the words after it: "1 model call" is 1 and " model call". */
@@ -109,6 +109,7 @@ export function Scenes({ block, product, n }: BlockProps<'scenes'>) {
   const turnAt = block.turn ? block.scenes.length : -1;
   const all = block.turn ? [...block.scenes, { tab: block.turn.tab, head: block.turn.head, caption: block.turn.caption, cost: undefined, ask: undefined }] : block.scenes;
   const r = useRotate(root, { count: all.length, hold: HOLD_SCENE });
+  useShowcaseFit(root, { stage: '.dt-stage', top: '.bv-scenes-top', end: '.bv-rot-bar' });
   const playing = !r.stopped;
   const onTurn = r.index === turnAt;
   const scene = playing && r.inView && !onTurn ? r.index : undefined;
@@ -155,14 +156,7 @@ export function Scenes({ block, product, n }: BlockProps<'scenes'>) {
           <Stage product={product} active={r.inView} onTally={setTally} scene={scene} />
         </div>
       </div>
-      <div className="bv-rot-stack bv-scenes-caps">
-        {items((s) => s.caption && <p className="bv-rot-cap pp-cap"><Coded text={s.caption} /></p>)}
-      </div>
-      <p className="dt-hint pp-cap">
-        <span className="dt-live" aria-hidden="true" />
-        {product.hint}
-        {tally !== null && tallyWords(product.stage, tally) && <span className="dt-tally" aria-live="polite">{tally} {tallyWords(product.stage, tally)?.join(' ')}</span>}
-      </p>
+      {/* the controls sit right under the screen they drive; the words about it come after */}
       <div className="bv-rot-bar">
         <RotTabs tabs={all.map(s => s.tab)} r={r} id={id} keep controls={`${id}-stage`} />
         {/* One slot for both, so the row never changes size when the reader takes over. */}
@@ -171,6 +165,14 @@ export function Scenes({ block, product, n }: BlockProps<'scenes'>) {
           <button type="button" className="bv-rot-btn pp-mono" onClick={r.restart} data-off={!r.stopped || undefined} disabled={!r.stopped}>Play again</button>
         </div>
       </div>
+      <div className="bv-rot-stack bv-scenes-caps">
+        {items((s) => s.caption && <p className="bv-rot-cap pp-cap"><Coded text={s.caption} /></p>)}
+      </div>
+      <p className="dt-hint pp-cap">
+        <span className="dt-live" aria-hidden="true" />
+        {product.hint}
+        {tally !== null && tallyWords(product.stage, tally) && <span className="dt-tally" aria-live="polite">{tally} {tallyWords(product.stage, tally)?.join(' ')}</span>}
+      </p>
     </RotRoot>
   );
 }
