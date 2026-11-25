@@ -26,6 +26,9 @@ export function Label({ n, id, children }: { n?: string; id: string; children: R
 
 export const Out = () => <span aria-hidden="true">↗</span>;
 
+/** A caption with its `backticked` runs drawn as code, which keeps its own case inside an uppercase label. */
+export const Coded = ({ text }: { text: string }) => <>{text.split('`').map((t, i) => (i % 2 ? <code key={t}>{t}</code> : t))}</>;
+
 export type Motion = {
   /** True on a wide screen with a fine pointer: galleries pin. */
   pin: boolean;

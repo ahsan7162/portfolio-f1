@@ -3,7 +3,7 @@
 import { useId, useRef } from 'react';
 import { gsap } from '../../motion';
 import { MediaView } from './MediaView';
-import { CopyStatus, Label, SwapLabel, useBlockMotion, useCopy, type BlockProps } from './shared';
+import { Coded, CopyStatus, Label, SwapLabel, useBlockMotion, useCopy, type BlockProps } from './shared';
 import '../../styles/blocks-content.css';
 
 export function Code({ block, product, n }: BlockProps<'code'>) {
@@ -31,7 +31,7 @@ export function Code({ block, product, n }: BlockProps<'code'>) {
         {block.result && (
           <figure className="bc-code-result">
             <MediaView media={block.result} product={product} />
-            {block.caption && <figcaption className="bc-code-cap pp-mono">{block.caption}</figcaption>}
+            {block.caption && <figcaption className="bc-code-cap pp-mono"><Coded text={block.caption} /></figcaption>}
           </figure>
         )}
       </div>

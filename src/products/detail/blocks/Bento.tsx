@@ -4,7 +4,7 @@ import { useId, useRef, type CSSProperties } from 'react';
 import { gsap } from '../../motion';
 import { layoutBento, type Place } from './bentoLayout';
 import { MediaView } from './MediaView';
-import { countUp, Label, useBlockMotion, type BlockProps } from './shared';
+import { Coded, countUp, Label, useBlockMotion, type BlockProps } from './shared';
 import '../../styles/blocks-visual.css';
 
 const area = (p: Place) => ({ col: `${p.col + 1} / span ${p.w}`, row: `${p.row + 1} / span ${p.h}` });
@@ -49,7 +49,7 @@ export function Bento({ block, product, n }: BlockProps<'bento'>) {
               )}
               {t.kind === 'media' && (
                 <>
-                  {t.caption && <span className="bv-tile-cap pp-mono">{t.caption}</span>}
+                  {t.caption && <span className="bv-tile-cap pp-mono"><Coded text={t.caption} /></span>}
                   <MediaView media={t.media} product={product} className="bv-tile-media" />
                 </>
               )}

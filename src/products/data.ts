@@ -276,7 +276,7 @@ export const products: Product[] = [
         label: 'Watch it work',
         note: 'Redrawn for this page, with invented content. Touch it to take over.',
         scenes: [
-          { tab: 'Tick it', head: 'Click, don’t type.', cost: '1 line changed', caption: 'A tick in the document is one line in the file: - [ ] becomes - [x], written 800 ms after the click.' },
+          { tab: 'Tick it', head: 'Click, don’t type.', cost: '1 line changed', caption: 'A tick in the document is one line in the file: `- [ ]` becomes `- [x]`, written 800 ms after the click.' },
           { tab: 'Insert it', head: 'Type / for anything.', cost: '3 lines added', caption: 'The / menu holds every block. A callout is written as GitHub writes one, > [!WARNING], and nothing else moves.' },
           { tab: 'Draw it', head: 'Draw with text.', cost: '8 lines added', caption: 'A Mermaid diagram is a plain fence in the file. Edit diagram shows its source, and the diagram follows as you type.' },
           { tab: 'Agents welcome', head: 'You choose.', cost: '0 silent overwrites', caption: 'An agent’s change appears in place. If you have unsaved edits, the write is stopped and you choose: Compare, Use theirs or Keep mine.' },

@@ -5,7 +5,7 @@
 import { useId, useRef, type CSSProperties } from 'react';
 import { gsap } from '../../motion';
 import { MediaView } from './MediaView';
-import { Label, useBlockMotion, type BlockProps } from './shared';
+import { Coded, Label, useBlockMotion, type BlockProps } from './shared';
 import '../../styles/blocks-visual.css';
 
 /** Each card's place in the fan: -1 left, 0 centre, 1 right (two cards sit at ±0.5). */
@@ -45,7 +45,7 @@ export function Showcase({ block, product, n }: BlockProps<'showcase'>) {
           );
         })}
       </div>
-      {block.caption && <p className="bv-show-cap pp-mono pp-dim">{block.caption}</p>}
+      {block.caption && <p className="bv-show-cap pp-mono pp-dim"><Coded text={block.caption} /></p>}
     </section>
   );
 }

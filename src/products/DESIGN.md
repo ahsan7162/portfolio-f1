@@ -592,6 +592,7 @@ export function Pricing({ block, n }: BlockProps<'pricing'>) {
 - **Samples are fictional and marked.** `sample: true` shows a "Sample" tag everywhere. Sample copy says it is a sample.
 - Plain, direct sentences. Say what the product does for the person using it.
 - Sentence case for everything a person reads. Uppercase comes from the type classes, not from the text.
+- In a caption, put code in backticks (`` `- [x]` ``): it is drawn as code and keeps its case, where the rest of the caption is set in capitals.
 - `line` is one sentence. `hook` is a short question or claim. `hint` is an instruction.
 - Feature titles are two to four words; feature bodies are one sentence.
 - Use the product's own words for its own things (tab names, button labels), spelled as the product spells them.

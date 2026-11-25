@@ -5,7 +5,7 @@ import { gsap, reducedMotion, SplitText, useGSAP } from '../../motion';
 import { Stage, tallyWords } from '../../stage/Stage';
 import { Ask, HOLD_SCENE, PauseButton, RotRoot, RotTabs } from './Cases';
 import { useRotate } from './rotate';
-import { Label, type BlockProps } from './shared';
+import { Coded, Label, type BlockProps } from './shared';
 import '../../styles/blocks-visual.css';
 
 /** A cost as its number and the words after it: "1 model call" is 1 and " model call". */
@@ -156,7 +156,7 @@ export function Scenes({ block, product, n }: BlockProps<'scenes'>) {
         </div>
       </div>
       <div className="bv-rot-stack bv-scenes-caps">
-        {items((s) => s.caption && <p className="bv-rot-cap pp-mono pp-dim">{s.caption}</p>)}
+        {items((s) => s.caption && <p className="bv-rot-cap pp-mono pp-dim"><Coded text={s.caption} /></p>)}
       </div>
       <p className="dt-hint pp-mono">
         <span className="dt-live" aria-hidden="true" />

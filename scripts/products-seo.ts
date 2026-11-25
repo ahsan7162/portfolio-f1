@@ -22,12 +22,12 @@ const NOT_COPY = new Set(['type', 'label', 'side', 'src', 'poster', 'hex', 'samp
     drawing's name and worked-out data, anatomy's and route's are copy; a replay setting's `line` is config, a specimen's
     is what it does; the ids of Your turn's goals and of anatomy's parts tie them to code, a replay setting's is its name. */
 const NOT_COPY_IN: Partial<Record<string, string[]>> = { scenes: ['id'], anatomy: ['id'], route: ['from', 'to'], compose: ['parts'], replay: ['runs', 'line'] };
-/** The words in a value, in order: a block's copy without knowing the block. `*accents*` lose their marks. */
+/** The words in a value, in order: a block's copy without knowing the block. `*accents*` and `` `code` `` lose their marks. */
 function words(value: unknown, skip = NOT_COPY): string {
   if (Array.isArray(value)) return value.map(v => words(v, skip)).filter(Boolean).join(' · ');
   if (value && typeof value === 'object') return Object.entries(value).filter(([k]) => !skip.has(k)).map(([, v]) => words(v, skip)).filter(Boolean).join(' · ');
   // a morph line's `{key}` ties it to a part of the screen; it is not copy
-  return typeof value === 'string' || typeof value === 'number' ? String(value).replace(/\*/g, '').replace(/^\{[\w-]+\}/, '') : '';
+  return typeof value === 'string' || typeof value === 'number' ? String(value).replace(/[*`]/g, '').replace(/^\{[\w-]+\}/, '') : '';
 }
 
 /** A block as a plain HTML section: its label as a heading, then each field as a paragraph or a list. Works for any block type. */

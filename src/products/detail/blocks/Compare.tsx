@@ -4,7 +4,7 @@
 import { useId, useRef, useState, type CSSProperties, type PointerEvent } from 'react';
 import { gsap } from '../../motion';
 import { MediaView } from './MediaView';
-import { Label, useBlockMotion, type BlockProps } from './shared';
+import { Coded, Label, useBlockMotion, type BlockProps } from './shared';
 import '../../styles/blocks-visual.css';
 
 export function Compare({ block, product, n }: BlockProps<'compare'>) {
@@ -71,7 +71,7 @@ export function Compare({ block, product, n }: BlockProps<'compare'>) {
         />
         <span className="bv-cmp-handle" aria-hidden="true"><span className="bv-cmp-knob" /></span>
       </div>
-      {block.caption && <p className="bv-cmp-cap pp-mono pp-dim">{block.caption}</p>}
+      {block.caption && <p className="bv-cmp-cap pp-mono pp-dim"><Coded text={block.caption} /></p>}
     </section>
   );
 }
