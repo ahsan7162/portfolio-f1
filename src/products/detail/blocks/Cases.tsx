@@ -41,7 +41,7 @@ export function RotTabs({ tabs, r, id, keep, controls }: { tabs: string[]; r: Ro
         <TabsTab
           key={t} value={String(i)} id={`${id}-t${i}`} aria-controls={controls ?? `${id}-p${i}`}
           className="bv-rot-tab pp-mono" data-rot={i} data-on={i === r.index || undefined}
-          // onValueChange skips the tab already selected, and choosing it still has to stop the clock
+          // onValueChange skips the tab already selected, and choosing it still has to pause the clock
           onClick={() => r.go(i, keep)}
         >
           <span className="bv-rot-fill" aria-hidden="true" />

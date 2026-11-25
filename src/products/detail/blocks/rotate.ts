@@ -17,8 +17,9 @@ export function stepIndex(index: number, count: number, move: Move): number {
  * fill bar (`[data-rot="<i>"] .bv-rot-fill`, scaleX 0 to 1 over `hold` seconds); finishing it steps to
  * the next item. It runs only while the block is on screen, keyboard focus is outside it and the
  * reader has not paused. Hover does not hold it: these blocks fill the screen, so the pointer is nearly
- * always over them and the clock would never run. Choosing an item (`go`) stops it for good, unless `keep` says the
- * choice should carry on from there. With reduced motion it never starts.
+ * always over them and the clock would never run. Choosing an item (`go`) pauses it there, so Play carries on from that
+ * item, unless `keep` says the choice should carry on at once. Taking over the demo itself (`take`) stops it for good.
+ * With reduced motion it never starts.
  */
 export function useRotate(
   root: RefObject<HTMLElement | null>,
@@ -96,8 +97,8 @@ export function useRotate(
 
   return {
     index, live, inView, stopped, paused, rotating,
-    /** Pick an item. Stops the clock for good; `keep` instead carries on from that item. */
-    go: (move: Move, keep = false) => { setIndex(i => stepIndex(i, count, move)); setStopped(!keep); },
+    /** Pick an item. Pauses the clock on it (Play carries on from there); `keep` carries on at once. */
+    go: (move: Move, keep = false) => { setIndex(i => stepIndex(i, count, move)); if (!keep) setPaused(true); },
     /** The reader took over something else (the demo itself): stop the clock for good. */
     take: () => setStopped(true),
     /** Back to the first item with the clock running. */
