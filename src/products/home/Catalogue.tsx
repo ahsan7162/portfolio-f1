@@ -25,6 +25,11 @@ export function Catalogue({ items }: { items: Product[] }) {
   const matches = (p: Product) =>
     (kind === 'all' || p.kind === kind) && (!q || [p.name, KINDS[p.kind].label, p.year, ...p.stack].join(' ').toLowerCase().includes(q));
   const shown = items.filter(matches).length;
+  // A column, a filter or a count that says the same thing for every product says nothing: each shows once it has two values.
+  const kindsUsed = kinds.filter(k => items.some(p => p.kind === k));
+  const oneKind = kindsUsed.length < 2;
+  const oneYear = new Set(items.map(p => p.year)).size < 2;
+  const narrowed = shown < items.length || !!q;
 
   /** Apply a filter change, and play the rows from where they were to where they land. */
   const refilter = (apply: () => void) => {
@@ -106,18 +111,18 @@ export function Catalogue({ items }: { items: Product[] }) {
         </div>
       </div>
 
-      <div className="cat-filters" role="group" aria-label="Filter by kind">
+      {!oneKind && <div className="cat-filters" role="group" aria-label="Filter by kind">
         <Toggle className="cat-f pp-mono" pressed={kind === 'all'} onPressedChange={() => pick('all')}>All <small>{items.length}</small></Toggle>
         {/* A kind with no products yet has no filter. */}
-        {kinds.filter(k => items.some(p => p.kind === k)).map(k => (
+        {kindsUsed.map(k => (
           <Toggle className="cat-f pp-mono" key={k} pressed={kind === k} onPressedChange={() => pick(k)}>
             {KINDS[k].plural} <small>{items.filter(p => p.kind === k).length}</small>
           </Toggle>
         ))}
-      </div>
+      </div>}
 
       {view === 'list' ? (
-        <ul className="cat-list" onPointerLeave={() => setPeek(null)}>
+        <ul className="cat-list" onPointerLeave={() => setPeek(null)} data-one-kind={oneKind ? '' : undefined} data-one-year={oneYear ? '' : undefined}>
           {items.map((p, i) => (
             <li key={p.slug}><Link className="cat-row" to={productPath(p.slug)} data-kind={p.kind} data-off={matches(p) ? undefined : ''} data-cursor="Open"
               onPointerEnter={() => setPeek(p)} onFocus={() => setPeek(null)}>
@@ -134,7 +139,7 @@ export function Catalogue({ items }: { items: Product[] }) {
           {items.map((p, i) => (
             <li key={p.slug}><Link className="cat-tile" to={productPath(p.slug)} data-kind={p.kind} data-off={matches(p) ? undefined : ''} data-cursor="Open"
               inert={!matches(p)}>
-              <span className="cat-tile-top pp-mono"><span>{pad(i + 1)}</span><span>{KINDS[p.kind].label} · {p.year}{p.sample ? ' · Sample' : ''}</span></span>
+              <span className="cat-tile-top pp-mono"><span>{pad(i + 1)}</span><span>{[!oneKind && KINDS[p.kind].label, !oneYear && p.year, p.sample && 'Sample'].filter(Boolean).join(' · ')}</span></span>
               <span className="cat-tile-pv pp-branded" style={brandVars(p.brand)}><Preview product={p} /></span>
               <b className="cat-tile-name pp-display">{p.name}</b>
             </Link></li>
@@ -142,7 +147,8 @@ export function Catalogue({ items }: { items: Product[] }) {
         </ul>
       )}
 
-      <p className="cat-count pp-mono" aria-live="polite">
+      {/* only while a search or filter narrows the list; it keeps its line, so the bottom edge does not move */}
+      <p className="cat-count pp-mono" aria-live="polite" data-quiet={narrowed ? undefined : ''}>
         {shown ? `Showing ${shown} of ${items.length}` : 'Nothing matches. Try another word, or clear the filter.'}
       </p>
 

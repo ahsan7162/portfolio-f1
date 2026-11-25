@@ -95,7 +95,8 @@
 .cat-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; }
 .cat-title { display: flex; gap: 0.16em; overflow: hidden; font-size: clamp(52px, 15vw, 250px); --wdth: 125; letter-spacing: -0.05em; line-height: 0.8; padding: 0.04em 0.08em 0 0; }
 .cat-title > * { display: block; }
-.cat-title em { font-style: normal; color: transparent; -webkit-text-stroke: max(2px, 0.012em) var(--ink); }
+/* the count beside the word: small, plain and quiet */
+.cat-title em { align-self: flex-end; font-style: normal; font-size: 0.3em; line-height: 1; letter-spacing: 0; color: var(--dim); }
 .cat-tools { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; padding-bottom: 8px; }
 .cat-search { display: flex; align-items: center; gap: 10px; width: min(420px, 78vw); border-radius: 999px; padding: 0 18px; box-shadow: inset 0 0 0 1.5px var(--line); transition: box-shadow 0.2s; }
 .cat-search:focus-within { box-shadow: inset 0 0 0 1.5px var(--acc); }
@@ -124,7 +125,7 @@
 .cat-list { position: relative; margin: clamp(20px, 3vh, 30px) calc(var(--pad) * -1) 0; border-bottom: 1px solid var(--line); }
 .cat-row {
   position: relative; isolation: isolate; overflow: hidden; display: grid; align-items: center;
-  grid-template-columns: clamp(40px, 6vw, 86px) minmax(0, 1fr) clamp(108px, 16vw, 250px) clamp(48px, 6vw, 90px) 40px;
+  grid-template-columns: clamp(40px, 6vw, 86px) minmax(0, 1fr) var(--cat-k-w, clamp(108px, 16vw, 250px)) var(--cat-y-w, clamp(48px, 6vw, 90px)) 40px;
   min-height: clamp(64px, 7.6vw, 116px); padding: 0 var(--pad); border-top: 1px solid var(--line); transition: color 0.2s;
 }
 .cat-row[data-off] { display: none; }
@@ -146,6 +147,13 @@
 .cat-go { font-size: 1.375rem; justify-self: end; transition: transform 0.45s var(--ease), color 0.2s; }
 .cat-row:is(:hover, :focus-visible) .cat-go { transform: translate(4px, -4px); }
 .cat-count { padding: 22px 0 0; color: var(--dim); }
+.cat-count[data-quiet] { visibility: hidden; }
+/* with no filters (one kind), the list keeps the gap the filters made */
+.cat-head + :is(.cat-list, .cat-wall) { margin-top: clamp(28px, 4.4vh, 46px); }
+/* every product the same kind, or the same year: that column folds to nothing (it stays in the grid, so the others keep their places) */
+.cat-list[data-one-kind] { --cat-k-w: 0px; }
+.cat-list[data-one-year] { --cat-y-w: 0px; }
+.cat-list[data-one-kind] .cat-k, .cat-list[data-one-year] .cat-y { visibility: hidden; overflow: hidden; }
 
 .cat-peek { position: fixed; left: 0; top: 0; z-index: 40; width: clamp(260px, 25vw, 400px); aspect-ratio: 16 / 10; margin: -11vw 0 0 34px; pointer-events: none; }
 .cat-peek-in {
