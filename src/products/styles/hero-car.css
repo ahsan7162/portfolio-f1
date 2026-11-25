@@ -161,11 +161,8 @@
 .hc-note { min-height: 3.2em; color: var(--dim); text-transform: none; letter-spacing: 0.02em; font-size: 0.8125rem; line-height: 1.6; margin-bottom: 14px; }
 .hc-note b { color: var(--ink); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-right: 6px; }
 .hc-cue { color: var(--dim); }
-.hc-facts { display: grid; grid-template-columns: repeat(4, auto); justify-content: space-between; gap: 14px 24px; padding-top: 16px; border-top: 1px solid var(--line); }
-.hc-facts dt { color: var(--dim); font-size: 0.6562rem; margin-bottom: 6px; }
-.hc-facts dd { font-size: 0.9062rem; color: var(--ink); }
+.hc-facts { padding-top: 16px; border-top: 1px solid var(--line); font-size: 0.9375rem; line-height: 1.5; color: var(--dim); text-wrap: balance; }
 
-@media (max-width: 1100px) { .hc-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 899px), (max-aspect-ratio: 4 / 5) {
   .hc-words { bottom: auto; top: -22cqw; font-size: 31cqw; }
   .hc-tags { position: static; height: auto; display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 2px; margin-top: 10px; }

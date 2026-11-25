@@ -128,9 +128,7 @@ export function HeroCar() {
           <p className="hc-note pp-mono" aria-live="polite">
             {layer ? <><b>{layer.name}.</b> {layer.note}</> : <span className="hc-cue">Every part is a layer of the work. Point at one.</span>}
           </p>
-          <dl className="hc-facts">
-            {FACTS.map(f => <div key={f.label}><dt className="pp-mono">{f.label}</dt><dd>{f.value}</dd></div>)}
-          </dl>
+          <p className="hc-facts">{FACTS}</p>
         </div>
       </div>
     </section>

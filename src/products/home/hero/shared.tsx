@@ -19,12 +19,8 @@ export const ME = {
   ],
 } as const;
 
-export const FACTS = [
-  { label: 'Role', value: ME.role },
-  { label: 'Based in', value: ME.place },
-  { label: 'Building since', value: ME.since },
-  { label: 'Works in', value: ME.stack.join(' · ') },
-] as const;
+/** The facts as one sentence: "Full-stack and AI developer in Karachi, building since 2022 with React, Go, Python and .NET." */
+export const FACTS = `${ME.role} in ${ME.place}, building since ${ME.since} with ${new Intl.ListFormat('en-GB').format(ME.stack)}.`;
 
 /** Scroll to whatever follows the hero. */
 export function toNext(hero: HTMLElement | null) {
