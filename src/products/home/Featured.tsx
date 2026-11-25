@@ -59,7 +59,7 @@ function Slide({ product, index, active, tally, start, report }: {
       <div className="ft-stage-wrap">
         <div className="ft-stage pp-branded" data-stage={product.stage}>
           <div className="ft-glow" />
-          <div className="ft-tilt"><Stage product={product} active={active} onTally={onTally} /></div>
+          <Stage product={product} active={active} onTally={onTally} />
           {product.stage === 'pr-demo' && <div className="ft-stamp pp-display" aria-hidden={!done}>Ready<br />to merge</div>}
         </div>
       </div>
@@ -181,23 +181,13 @@ export function Featured({ items, total }: { items: Product[]; total: number }) 
           .fromTo(q(slide, '.ft-stage'), { autoAlpha: 0, xPercent: -12, rotate: -5, scale: 0.9 }, { autoAlpha: 1, xPercent: 0, rotate: 0, scale: 1, duration: 0.56, ease: 'power3.out' }, at + 0.4);
       });
 
-      // The stage leans, and follows the pointer a little.
-      const tilts = gsap.utils.toArray<HTMLElement>('.ft-tilt');
-      gsap.set(tilts, { transformPerspective: 1500, rotateY: -9, rotateX: 3 });
-      const turn = tilts.map(t => [gsap.quickTo(t, 'rotateY', { duration: 0.5, ease: 'power3' }), gsap.quickTo(t, 'rotateX', { duration: 0.5, ease: 'power3' })] as const);
-      const onMove = (e: PointerEvent) => {
-        const x = e.clientX / window.innerWidth - 0.5, y = e.clientY / window.innerHeight - 0.5;
-        turn.forEach(([ry, rx]) => { ry(-9 + x * 8); rx(3 - y * 6); });
-      };
-      root.current?.addEventListener('pointermove', onMove);
-
       // The first product comes in as the section scrolls into view (it sits below the hero).
       const first = slides[0];
       gsap.timeline({ scrollTrigger: { trigger: root.current, start: 'top 72%', once: true } })
         .from(q(first, '.ft-copy'), { autoAlpha: 0, y: 44, duration: 0.7 }, 0)
         .from(q(first, '.ft-stage-wrap'), { autoAlpha: 0, x: 120, rotate: 5, duration: 0.9 }, 0.06);
 
-      return () => { settle.kill(); setWheelGate(null); stepTo.current = null; root.current?.removeEventListener('pointermove', onMove); trigger.current = null; setPinned(false); };
+      return () => { settle.kill(); setWheelGate(null); stepTo.current = null; trigger.current = null; setPinned(false); };
     });
 
     // Phones: the products simply follow one another down the page.
