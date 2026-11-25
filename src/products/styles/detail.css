@@ -145,7 +145,7 @@
 .dt-play:active { transform: scale(0.96); }
 .dt-play-icon { width: 0; height: 0; margin-left: 9%; border-left: 0.28em solid var(--on-acc); border-block: 0.17em solid transparent; font-size: clamp(84px, 10vw, 150px); }
 .dt-film-cap { display: flex; justify-content: space-between; gap: 16px; margin-top: 16px; }
-.dt-credit { margin-top: 8px; font-size: 0.8125rem; color: var(--faint); }
+.dt-credit { margin-top: 8px; font-size: 0.8125rem; color: var(--dim); }
 
 /* get it: a full-bleed accent band */
 .dt-get { margin-top: var(--dt-gap); background: var(--acc); color: var(--on-acc); padding-block: clamp(56px, 7vw, 96px); }

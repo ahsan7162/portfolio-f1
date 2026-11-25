@@ -157,7 +157,8 @@ All tokens are in `styles/base.css`.
 | `--ground` | `--black` | the page |
 | `--raise`, `--raise-2` | `#0E0E0D`, `#181817` | panels, cards, frames lifted off the ground |
 | `--ink` | `--bone` | text |
-| `--dim`, `--faint` | bone at 58%, 34% | secondary text, hints |
+| `--dim` | bone at 58% | secondary text and hints (about 5.9:1 on black) |
+| `--faint` | bone at 34% | lines, dots, rings and other drawing; never text (about 2.6:1 on black, under the 4.5:1 text needs) |
 | `--line` | bone at 14% | hairlines and borders |
 | `--acc`, `--on-acc` | bone, black | the highlight and the text on it |
 | `--paper`, `--paper-2`, `--paper-ink`, `--paper-dim`, `--paper-line` | light set | a light-themed product shown on the dark page |
@@ -610,7 +611,7 @@ export function Pricing({ block, n }: BlockProps<'pricing'>) {
 - Toggles use `aria-pressed`; the focused row in a demo uses `aria-current`.
 - Tabs, toggles, radio groups and checkboxes are ui-sdk components (`@ui-sdk/react/<name>`), which bring their keyboard handling, focus and ARIA. They render no styles: keep the classes and `data-on`, and style `aria-selected`, `aria-pressed` and `aria-checked` as before. Menus, popovers and the slash-command list in the demos stay hand-rolled: ui-sdk opens menus in the top layer, outside the film camera's transform.
 - Real images have `alt` that says what the screen shows. Posters and thumbs beside a text name use `alt=""`.
-- Text on a brand colour uses `--on-acc`, which `brandVars` picks for contrast. Keep `--dim` for secondary text and `--faint` for hints only.
+- Text on a brand colour uses `--on-acc`, which `brandVars` picks for contrast. Secondary text and hints use `--dim`; `--faint` is never text.
 - Touch: make targets comfortable to tap, and never make anything depend on hover. `touch-action: manipulation` is already set, so a tap acts at once.
 
 ---

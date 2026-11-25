@@ -148,7 +148,7 @@
 /* 05 hangs to the left of its leader, so it never runs into 06 on a narrow desktop.
    Part of the transform, not `translate`: the minifier folds `translate: none` into the phone rule's `transform` and drops it. */
 .hc-tag:nth-child(5) { --nudge: calc(-50% + 10px); }
-.hc-tag b { color: var(--faint); font-weight: 500; transition: color 0.15s; }
+.hc-tag b { color: var(--dim); font-weight: 500; transition: color 0.15s; }
 .hc-tag:hover { color: var(--ink); }
 .hc-tag[data-on] { color: var(--ground); background: var(--ink); }
 .hc-tag[data-on] b { color: var(--ground); }
@@ -160,9 +160,9 @@
 .hc-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: clamp(14px, 2.4svh, 24px); }
 .hc-note { min-height: 3.2em; color: var(--dim); text-transform: none; letter-spacing: 0.02em; font-size: 0.8125rem; line-height: 1.6; margin-bottom: 14px; }
 .hc-note b { color: var(--ink); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-right: 6px; }
-.hc-cue { color: var(--faint); }
+.hc-cue { color: var(--dim); }
 .hc-facts { display: grid; grid-template-columns: repeat(4, auto); justify-content: space-between; gap: 14px 24px; padding-top: 16px; border-top: 1px solid var(--line); }
-.hc-facts dt { color: var(--faint); font-size: 0.6562rem; margin-bottom: 6px; }
+.hc-facts dt { color: var(--dim); font-size: 0.6562rem; margin-bottom: 6px; }
 .hc-facts dd { font-size: 0.9062rem; color: var(--ink); }
 
 @media (max-width: 1100px) { .hc-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
