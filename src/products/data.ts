@@ -98,7 +98,7 @@ export const products: Product[] = [
       {
         type: 'statement',
         label: 'Why',
-        head: 'A chart in a reply *scrolls away*. A dashboard *stays*, and answers *without the model*.',
+        head: 'A chart in a reply scrolls away. A dashboard stays, and answers *without the model*.',
         body: 'Asking the agent the same question each day costs a model turn and the time to rebuild the answer. bb Dashboards is a bb plugin that saves what the agent builds, opens it in the side panel, and answers filters and drill-down at once.',
         points: [
           'Turns a prompt into a saved dashboard in its own side-panel tab',
@@ -284,7 +284,7 @@ export const products: Product[] = [
       {
         type: 'statement',
         label: 'Why',
-        head: 'Markdown is easy to read and *fiddly to write*. Markwright lets you *write it like a document*, and git sees *only the blocks you touched*.',
+        head: 'Markdown is easy to read and fiddly to write. Markwright lets you write it like a document, and git sees *only the blocks you touched*.',
         body: 'Markwright is a WYSIWYG Markdown editor and a bb plugin: any .md file opens in the side panel as a page you edit like Word or Notion, with a slash menu for every block. The file on disk stays plain Markdown, and an agent can work in it while you do.',
         points: [
           'Type / for 39 blocks and templates',
@@ -462,7 +462,7 @@ export const products: Product[] = [
       {
         type: 'statement',
         label: 'Why',
-        head: 'A pull request can sit open for *eight reasons*. PR Dashboard *names them*, and hands the fix to *any agent*.',
+        head: 'A pull request can sit open for eight reasons. PR Dashboard *names them*, and hands the fix to any agent.',
         body: 'Every pull request you are part of sits in one tab of bb, grouped by repository, each leading with what blocks it. Pick the failing jobs and review comments with Fix with agent, and Send to agent hands them to the AI agent already on that branch, as one prompt with the errors, the comments and the log links.',
         points: ['Draft', 'Stacked on another pull request', 'Merge conflicts', 'Failing CI', 'CI running', 'Changes requested', 'Unresolved comments', 'Waiting on a review'],
       },
@@ -683,7 +683,7 @@ export const products: Product[] = [
       {
         type: 'statement',
         label: 'Why',
-        head: 'Your tickets are spread across *boards, epics and tabs*. Here they are *one calm list* you work through *from the keyboard*.',
+        head: 'Your tickets are spread across boards, epics and tabs. Here they are *one calm list* you work through from the keyboard.',
         body: 'Jira Board puts every Jira ticket assigned to you in a My Tickets tab in bb’s rail. Filter it, group it four ways, open a ticket beside it, move it through your workflow and, new in 0.5, hand it to someone else, without opening Jira.',
         points: [
           'New in 0.5: assign or reassign in place',
@@ -1029,7 +1029,7 @@ export const products: Product[] = [
       {
         type: 'statement',
         label: 'Why',
-        head: 'An agent’s reply should be something you *use*, and your answer should be *one click*.',
+        head: 'An agent’s reply should be something you use, and your answer should be *one click*.',
         body: 'OpenUI Live Replies is a bb plugin that brings generative UI to agent replies. AI agents put OpenUI Lang programs in what they write, bb draws them inline as live UI, and a button, a pick or a form sends your answer back into the thread as your next message. No gateway, no API key.',
         points: ['Dashboards and reports', 'Plans you approve', 'Decisions you tune', 'Quizzes and flashcards', 'Forms', 'Maps and small apps'],
       },

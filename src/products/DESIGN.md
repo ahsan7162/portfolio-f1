@@ -436,7 +436,7 @@ The shapes are in `types.ts` (the `Block` union) with a comment on each. TypeScr
 | Type | Label | What it shows | Use it for |
 |---|---|---|---|
 | `stage` | none | The product itself: its live demo, or its screens in device frames, with the hint under it | Letting the visitor try or see the product |
-| `statement` | required | One big sentence, a paragraph beside it, optional short points | Why it exists. Wrap words to accent in `*asterisks*`. |
+| `statement` | required | One big sentence, a paragraph beside it, optional short points | Why it exists. Wrap the one phrase to remember in `*asterisks*`: one accent per sentence, never more. |
 | `text` | optional | Paragraphs under an optional heading | The parts of a story that need sentences in a row |
 | `features` | required | A grid of title plus one sentence | What it does. Six items sit best; keep each body to one sentence. |
 | `steps` | required | Connected steps, each with a tag, title and body | How a request travels, or how to set it up. Three or four. |
