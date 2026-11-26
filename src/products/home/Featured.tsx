@@ -41,9 +41,9 @@ function Slide({ product, index, active, tally, start, report }: {
     <article className="ft-slide" ref={el} style={brandVars(product.brand)} data-kind={product.kind} data-active={active ? '' : undefined} data-done={done ? '' : undefined}>
       <div className="ft-flood" />
       <div className="ft-copy">
-        <div className="ft-meta ft-fade pp-mono">
+        <div className="ft-meta ft-fade pp-mono pp-dots">
           <span className="pp-tag">{pad(index + 1)}</span>
-          <span>{[KINDS[product.kind].label, ...product.facts].join(' · ')}</span>
+          {[KINDS[product.kind].label, ...product.facts].map(f => <span className="pp-dot" key={f}>{f}</span>)}
           {product.sample && <span className="pp-sample">Sample</span>}
         </div>
         <h2 className="ft-name pp-display" style={{ '--fit': Math.max(...product.lines.map(l => l.length)) } as CSSProperties}>

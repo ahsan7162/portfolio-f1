@@ -53,7 +53,7 @@ export function Specimens({ block, product, n }: BlockProps<'specimens'>) {
           {block.also && (
             <div className="bv-spec-also">
               <p className="pp-mono pp-dim">{block.also.note}</p>
-              <p>{block.also.names.join(' · ')}</p>
+              <p>{block.also.names.join('\u00a0· ')}</p>
             </div>
           )}
         </div>

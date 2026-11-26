@@ -104,11 +104,11 @@ export function Detail({ product }: { product: Product }) {
 
       <main>
       <header className="dt-hero pp-wrap">
-        <p className="dt-meta pp-mono" data-in>
+        <p className="dt-meta pp-mono pp-dots" data-in>
           <span className="pp-tag">{at < 0 ? kind.tag : pad(at + 1)}</span>
-          <span className="dt-meta-item">{kind.label}</span>
-          {product.facts.map(f => <span className="dt-meta-item" key={f}>{f}</span>)}
-          <span className="dt-meta-item">{product.year}</span>
+          <span className="pp-dot">{kind.label}</span>
+          {product.facts.map(f => <span className="pp-dot" key={f}>{f}</span>)}
+          <span className="pp-dot">{product.year}</span>
           {product.sample && <span className="pp-sample">Sample</span>}
         </p>
         <h1 className="dt-name pp-display" ref={nameRef} aria-label={product.name}>
@@ -145,7 +145,7 @@ export function Detail({ product }: { product: Product }) {
           <dl className="dt-facts" data-in>
             <div><dt className="pp-mono">Kind</dt><dd>{kind.label}</dd></div>
             <div><dt className="pp-mono">Year</dt><dd>{product.year}</dd></div>
-            <div><dt className="pp-mono">Built with</dt><dd>{product.stack.join(' · ')}</dd></div>
+            <div><dt className="pp-mono">Built with</dt><dd>{product.stack.join('\u00a0· ')}</dd></div>
             {spec && <div><dt className="pp-mono">{kind.fact}</dt><dd>{spec}</dd></div>}
           </dl>
         </div>

@@ -98,6 +98,13 @@ img, video, svg { display: block; max-width: 100%; }
 .pp-branded { --acc: var(--brand); --on-acc: var(--on-brand); }
 .pp-tag { display: inline-flex; align-items: center; gap: 8px; padding: 5px 9px; background: var(--acc); color: var(--on-acc); font-weight: 700; }
 .pp-sample { display: inline-flex; padding: 4px 8px; border: 1px dashed var(--faint); border-radius: 4px; color: var(--dim); }
+/* A row of items with a dot between them (.pp-dot next to .pp-dot). Every item keeps a 28px strip on its left
+   for its dot, and the row's own first 28px are clipped away, so a line that wraps never starts with a dot. */
+.pp-dots { display: flex; flex-wrap: wrap; align-items: center; row-gap: 8px; margin-left: -28px; clip-path: inset(-8px -8px -8px 28px); }
+.pp-dots > * { margin-left: 14px; }
+.pp-dots > :first-child, .pp-dot + .pp-dot { margin-left: 28px; }
+.pp-dot + .pp-dot { position: relative; }
+.pp-dot + .pp-dot::before { content: '·'; position: absolute; right: 100%; width: 28px; text-align: center; color: var(--faint); }
 
 /* film grain over everything, very light */
 .pp-grain {

@@ -20,7 +20,7 @@
 .ft-slide[data-active] { pointer-events: auto; }
 .ft-flood { position: absolute; inset: 0; background: var(--brand); clip-path: circle(0% at 72% 48%); }
 .ft-copy { position: relative; z-index: 2; min-width: 0; }
-.ft-meta { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; color: var(--dim); margin-bottom: clamp(14px, 2.2vh, 24px); }
+.ft-meta { color: var(--dim); margin-bottom: clamp(14px, 2.2vh, 24px); }
 .ft-name { font-size: min(calc(45vw / (var(--fit) * 0.56)), 25svh); white-space: nowrap; }
 .ft-line { display: block; overflow: hidden; padding-top: 0.05em; margin-top: -0.05em; }
 .ft-line-in { display: block; }

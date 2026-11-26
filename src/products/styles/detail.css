@@ -19,8 +19,7 @@
 .dt-jump-item[aria-current] b, .dt-jump-item[aria-current] .dt-jump-name { color: inherit; }
 
 .dt-hero { padding-top: clamp(40px, 6vw, 64px); }
-.dt-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; color: var(--dim); }
-.dt-meta-item + .dt-meta-item::before { content: '·'; margin-right: 14px; color: var(--faint); }
+.dt-meta { color: var(--dim); }
 .dt-name {
   --wdth: 62;
   /* a fallback until fit.ts measures; it then sets the exact size inline */
