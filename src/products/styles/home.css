@@ -36,7 +36,6 @@
 .ft-stage[data-stage='md-demo'] { width: min(100%, 700px); }
 .ft-stage[data-stage='jira-demo'] { width: min(100%, 700px); }
 .ft-stage[data-stage='openui-demo'] { width: min(100%, 680px); }
-.ft-glow { position: absolute; inset: -22%; border-radius: 50%; z-index: -1; pointer-events: none; background: radial-gradient(closest-side, color-mix(in srgb, var(--acc) 17%, transparent), transparent 72%); }
 .ft-stamp {
   position: absolute; right: -5%; bottom: 6%; z-index: 3; visibility: hidden; pointer-events: none; --wdth: 125;
   /* two lines, "Ready / to merge": the plugin never merges, it says when a pull request is ready */

@@ -58,7 +58,6 @@ function Slide({ product, index, active, tally, start, report }: {
       </div>
       <div className="ft-stage-wrap">
         <div className="ft-stage pp-branded" data-stage={product.stage}>
-          <div className="ft-glow" />
           <Stage product={product} active={active} onTally={onTally} />
           {product.stage === 'pr-demo' && <div className="ft-stamp pp-display" aria-hidden={!done}>Ready<br />to merge</div>}
         </div>
