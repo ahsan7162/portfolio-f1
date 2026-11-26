@@ -186,13 +186,16 @@ export function Detail({ product }: { product: Product }) {
 
       {next && (
         <footer>
-          <Link to={productPath(next.slug)} className="dt-next">
+          {/* a cross-sell, in the next product's colour: its name, its hook and a picture of it */}
+          <Link to={productPath(next.slug)} className="dt-next pp-branded" style={brandVars(next.brand)}>
             <span className="dt-next-in pp-wrap">
               <span className="pp-mono">Next · {((at + 1) % total) + 1} / {total}</span>
               <span className="dt-next-name pp-display" ref={nextRef}>
                 <span className="dt-fit"><span className="dt-next-text">{next.name}</span> <span className="dt-arrow" aria-hidden="true">→</span></span>
               </span>
+              {next.hook && <span className="dt-next-hook pp-lede">{next.hook}</span>}
             </span>
+            {next.thumb && <img className="dt-next-thumb" src={next.thumb} alt="" loading="lazy" decoding="async" />}
           </Link>
         </footer>
       )}
