@@ -141,10 +141,10 @@
   position: absolute; left: 50%; top: 50%; width: clamp(84px, 10vw, 150px); aspect-ratio: 1; translate: -50% -50%;
   display: grid; place-items: center; border-radius: 50%; background: var(--acc);
   box-shadow: 0 24px 60px -16px color-mix(in srgb, var(--ground) 80%, transparent);
-  transition: transform 0.22s var(--ease);
+  transition: transform 0.16s var(--ease), background-color 0.18s;
 }
-.dt-play:hover { transform: scale(1.08); }
-.dt-play:active { transform: scale(0.96); }
+.dt-play:hover { background: color-mix(in srgb, var(--acc) 88%, var(--ink)); }
+.dt-play:active { transform: scale(0.97); }
 .dt-play-icon { width: 0; height: 0; margin-left: 9%; border-left: 0.28em solid var(--on-acc); border-block: 0.17em solid transparent; font-size: clamp(84px, 10vw, 150px); }
 .dt-film-cap { display: flex; justify-content: space-between; gap: 16px; margin-top: 16px; }
 .dt-credit { margin-top: 8px; font-size: 0.8125rem; color: var(--dim); }
