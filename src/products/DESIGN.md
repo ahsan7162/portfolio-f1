@@ -159,7 +159,7 @@ All tokens are in `styles/base.css`.
 | `--ink` | `--bone` | text |
 | `--dim` | bone at 58% | secondary text and hints (about 5.9:1 on black) |
 | `--faint` | bone at 34% | lines, dots, rings and other drawing; never text (about 2.6:1 on black, under the 4.5:1 text needs) |
-| `--line` | bone at 14% | hairlines and borders |
+| `--line` | bone at 10% | hairlines and borders |
 | `--acc`, `--on-acc` | bone, black | the highlight and the text on it |
 | `--paper`, `--paper-2`, `--paper-ink`, `--paper-dim`, `--paper-line` | light set | a light-themed product shown on the dark page |
 | `--bad`, `--warn` | `#FF5A4C`, `#F2C14E` | status inside a product's own interface only |

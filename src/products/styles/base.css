@@ -18,7 +18,7 @@
   --ink: var(--bone);
   --dim: color-mix(in srgb, var(--ink) 58%, transparent);
   --faint: color-mix(in srgb, var(--ink) 34%, transparent);
-  --line: color-mix(in srgb, var(--ink) 14%, transparent);
+  --line: color-mix(in srgb, var(--ink) 10%, transparent);
   /* The page has no colour of its own: its highlight is bone. A product's surfaces swap in the product's colour (.pp-branded). */
   --acc: var(--bone);
   --on-acc: var(--black);
