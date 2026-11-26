@@ -297,13 +297,6 @@ export const products: Product[] = [
         })),
       },
       {
-        type: 'stats',
-        stats: [
-          { value: '39', label: 'entries in the / menu' },
-          { value: '800', unit: 'ms', label: 'from your last keystroke to saved' },
-        ],
-      },
-      {
         type: 'tour',
         label: 'In the real thing',
         steps: [
@@ -369,28 +362,29 @@ export const products: Product[] = [
         caption: 'The same document in bb’s light and dark mode.',
       },
       {
-        type: 'faq',
-        label: 'Questions',
-        items: [
-          { q: 'Will it reformat my file?', a: 'No. A save rewrites only the blocks you changed, so git diffs stay small. Untouched blocks keep their exact bytes, including list markers, table padding, front matter, raw HTML and line endings, and opening a file never writes to it. A block you do edit is written out whole, in the editor’s own style.' },
-          { q: 'What if an agent edits the file while I’m in it?', a: 'Every write is compare-and-swap on the file’s SHA-256. With nothing unsaved, the agent’s change appears in place within about 3 seconds, without moving your cursor. With unsaved edits, autosave pauses and a banner offers Compare, Use theirs or Keep mine. Nothing is overwritten silently.' },
-          { q: 'Which files open read-only?', a: 'Files with footnotes, reference-style links, $$ math or MDX, files over 600 KB, and the rare block the editor can’t write back exactly. They open in bb’s normal preview with the reason and an Edit source button. Raw HTML is fine: it shows as source and is saved byte for byte.' },
-          { q: 'Can I still edit the Markdown itself?', a: 'Yes. The Rich | Source switch in the header shows the raw text, and the Markdown shortcuts still work in the rich view.' },
-          { q: 'Does anything leave my machine?', a: 'No. It reads and writes files through bb’s own file API, needs no account, API key or external service, and sends nothing off the machine.' },
-          { q: 'How do I make it the default for Markdown?', a: 'In Settings, under File openers, pick Markwright for md. For a single file, right-click its link and choose Open with, then Markwright.' },
-          { q: 'What does it tell my agent?', a: 'It ships a skill that tells the agent which Markdown stays editable (callouts, mermaid fences, pipe tables) and which turns rich editing off, and to make small, targeted edits to a file you have open.' },
-          { q: 'What if a save fails?', a: 'Your text is also kept in a local draft and offered back the next time you open the file.' },
-        ],
-      },
-      {
         type: 'specs',
-        label: 'Requirements',
+        label: 'Before you install',
         rows: [
           { name: 'bb', value: '0.49 or later', note: 'Plugin SDK 0.6.132 or later.' },
           { name: 'Opens', value: '.md and .markdown files', note: 'In a thread’s side panel.' },
           { name: 'Saving', value: 'Autosave after 800 ms', note: '⌘S saves at once; a pending save is flushed when the tab loses focus or closes.' },
           { name: 'Account', value: 'None', note: 'No API key or external service.' },
           { name: 'Licence', value: 'MIT' },
+        ],
+      },
+      {
+        // no label: the questions sit under the requirements, the first four shown
+        type: 'faq',
+        show: 4,
+        items: [
+          { q: 'Will it reformat my file?', a: 'No. A save rewrites only the blocks you changed, so git diffs stay small. Untouched blocks keep their exact bytes, including list markers, table padding, front matter, raw HTML and line endings, and opening a file never writes to it. A block you do edit is written out whole, in the editor’s own style.' },
+          { q: 'What if an agent edits the file while I’m in it?', a: 'Every write is compare-and-swap on the file’s SHA-256. With nothing unsaved, the agent’s change appears in place within about 3 seconds, without moving your cursor. With unsaved edits, autosave pauses and a banner offers Compare, Use theirs or Keep mine. Nothing is overwritten silently.' },
+          { q: 'Which files open read-only?', a: 'Files with footnotes, reference-style links, $$ math or MDX, files over 600 KB, and the rare block the editor can’t write back exactly. They open in bb’s normal preview with the reason and an Edit source button. Raw HTML is fine: it shows as source and is saved byte for byte.' },
+          { q: 'Does anything leave my machine?', a: 'No. It reads and writes files through bb’s own file API, needs no account, API key or external service, and sends nothing off the machine.' },
+          { q: 'Can I still edit the Markdown itself?', a: 'Yes. The Rich | Source switch in the header shows the raw text, and the Markdown shortcuts still work in the rich view.' },
+          { q: 'How do I make it the default for Markdown?', a: 'In Settings, under File openers, pick Markwright for md. For a single file, right-click its link and choose Open with, then Markwright.' },
+          { q: 'What does it tell my agent?', a: 'It ships a skill that tells the agent which Markdown stays editable (callouts, mermaid fences, pipe tables) and which turns rich editing off, and to make small, targeted edits to a file you have open.' },
+          { q: 'What if a save fails?', a: 'Your text is also kept in a local draft and offered back the next time you open the file.' },
         ],
       },
       {
