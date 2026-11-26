@@ -162,7 +162,7 @@
 [data-kind='app'] .cat-k i { border-radius: 50%; }
 [data-kind='site'] .cat-k i { transform: rotate(45deg); }
 .cat-go { font-size: 1.375rem; justify-self: end; transition: transform 0.45s var(--ease), color 0.2s; }
-.cat-row:is(:hover, :focus-visible) .cat-go { transform: translate(4px, -4px); }
+.cat-row:is(:hover, :focus-visible) .cat-go { transform: translateX(4px); }
 .cat-count { padding: 22px 0 0; color: var(--dim); }
 .cat-count[data-quiet] { visibility: hidden; }
 /* with no filters (one kind), the list keeps the gap the filters made */

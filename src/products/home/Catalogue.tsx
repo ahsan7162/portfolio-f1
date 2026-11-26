@@ -130,7 +130,7 @@ export function Catalogue({ items }: { items: Product[] }) {
               <span className="cat-name"><b className="pp-display">{p.name}</b>{p.sample && <span className="pp-sample pp-mono">Sample</span>}</span>
               <span className="cat-k pp-mono"><i />{KINDS[p.kind].label}</span>
               <span className="cat-y pp-mono">{p.year}</span>
-              <span className="cat-go" aria-hidden="true">↗</span>
+              <span className="cat-go" aria-hidden="true">→</span>
             </Link></li>
           ))}
         </ul>
