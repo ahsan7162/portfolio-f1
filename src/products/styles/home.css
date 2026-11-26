@@ -194,7 +194,7 @@
 /* the product's own colour as a thin band on its preview, so six dark screens read as six products */
 .cat-tile-pv { border-top: 3px solid var(--acc); }
 .cat-tile-name { padding: 16px 14px 14px; font-size: clamp(30px, 2.8vw, 46px); line-height: 0.92; }
-.cat-tile:is(:hover, :focus-visible) { background: var(--acc); color: var(--on-acc); transform: translateY(-5px); }
+.cat-tile:is(:hover, :focus-visible) { background: var(--acc); color: var(--on-acc); }
 .cat-tile:is(:hover, :focus-visible) .cat-tile-top { color: var(--on-acc); }
 .cat-tile[data-off] { opacity: 0.2; pointer-events: none; }
 
