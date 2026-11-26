@@ -516,7 +516,7 @@
 .bv-rules-count span { line-height: 1.6; color: var(--dim); padding-bottom: 6px; white-space: nowrap; }
 @keyframes bv-roll { from { transform: translateY(0.25em); opacity: 0; } }
 .bv-rules-ins { display: grid; grid-template-columns: repeat(3, minmax(0, 0.8fr)) repeat(3, minmax(0, 1.4fr)); gap: 10px; margin-top: clamp(32px, 4.4vw, 56px); }
-.bv-rules-in { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px 16px; border-radius: 4px; box-shadow: inset 0 0 0 1.5px var(--line); color: var(--ink); text-align: left; transition: background-color 0.18s, color 0.18s; }
+.bv-rules-in { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px 16px; border-radius: 8px; box-shadow: inset 0 0 0 1.5px var(--line); color: var(--ink); text-align: left; transition: background-color 0.18s, color 0.18s; }
 .bv-rules-in > .pp-mono { color: var(--dim); }
 .bv-rules-in b { font-family: var(--display); font-weight: 600; font-variation-settings: 'wdth' 108; font-size: 1.15rem; }
 button.bv-rules-in:hover { box-shadow: inset 0 0 0 1.5px var(--ink); }
@@ -542,7 +542,7 @@ button.bv-rules-in:hover { box-shadow: inset 0 0 0 1.5px var(--ink); }
 .bv-comp-part .prd-card:not([data-picked]) { opacity: 0.6; }
 .bv-comp-part[data-hot] .prd-card { box-shadow: inset 0 0 0 1.5px var(--ink); opacity: 1; }
 .bv-comp-modes { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
-.bv-comp-modes button { padding: 8px 14px; border-radius: 3px; box-shadow: inset 0 0 0 1.5px var(--line); color: var(--dim); font: 600 0.95rem var(--display); font-variation-settings: 'wdth' 108; }
+.bv-comp-modes button { padding: 8px 14px; border-radius: 8px; box-shadow: inset 0 0 0 1.5px var(--line); color: var(--dim); font: 600 0.95rem var(--display); font-variation-settings: 'wdth' 108; }
 .bv-comp-modes button:hover { color: var(--ink); }
 .bv-comp-modes button[aria-selected='true'] { background: var(--ink); color: var(--ground); box-shadow: none; }
 .bv-comp-text { height: clamp(380px, 46vw, 600px); overflow: auto; overscroll-behavior: contain; padding: 18px 20px; border-radius: 10px; background: var(--raise); box-shadow: inset 0 0 0 1px var(--line); scrollbar-width: thin; }
@@ -569,7 +569,7 @@ button.bv-rules-in:hover { box-shadow: inset 0 0 0 1.5px var(--ink); }
 .bv-rep-clock span { color: var(--dim); }
 .bv-rep-reach { font-size: 14px; min-width: 0; }
 .bv-rep-sets { display: flex; flex-wrap: wrap; gap: 8px; margin-top: clamp(32px, 4vw, 44px); align-items: center; }
-.bv-rep-set { display: inline-flex; align-items: center; gap: 10px; padding: 9px 14px; border-radius: 3px; box-shadow: inset 0 0 0 1.5px var(--line); font: 500 0.82rem var(--mono); color: var(--dim); }
+.bv-rep-set { display: inline-flex; align-items: center; gap: 10px; padding: 9px 14px; border-radius: 8px; box-shadow: inset 0 0 0 1.5px var(--line); font: 500 0.82rem var(--mono); color: var(--dim); }
 .bv-rep-set i { position: relative; width: 26px; height: 14px; border-radius: 9px; box-shadow: inset 0 0 0 1.5px var(--faint); }
 .bv-rep-set i::after { content: ''; position: absolute; top: 3px; left: 3px; width: 8px; height: 8px; border-radius: 50%; background: var(--faint); transition: left 0.2s var(--ease); }
 .bv-rep-set[aria-pressed='true'] { color: var(--ink); }
@@ -579,7 +579,7 @@ button.bv-rules-in:hover { box-shadow: inset 0 0 0 1.5px var(--ink); }
 .bv-rep-set--seg button[aria-checked='true'] { background: var(--ink); color: var(--ground); }
 .bv-rep-again { margin-left: auto; }
 .bv-rep-cmd { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin-top: 14px; color: var(--dim); }
-.bv-rep-cmd code { text-transform: none; letter-spacing: 0; font-size: 0.9rem; color: var(--ink); padding: 8px 12px; background: var(--raise); border-radius: 3px; overflow-wrap: anywhere; }
+.bv-rep-cmd code { text-transform: none; letter-spacing: 0; font-size: 0.9rem; color: var(--ink); padding: 8px 12px; background: var(--raise); border-radius: 4px; overflow-wrap: anywhere; }
 .bv-rep-cmd button { color: var(--dim); }
 .bv-rep-cmd button:hover { color: var(--ink); }
 @media (max-width: 1099px) { .bv-rep { grid-template-columns: minmax(0, 1fr) auto; } .bv-rep-reach { grid-column: 1 / -1; } }
