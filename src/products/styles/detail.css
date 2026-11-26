@@ -68,10 +68,10 @@
 
 /* blocks: one rhythm whatever the order. The first block sits closer to the hero; when the page
    does not end on the Get-it band, the last block keeps a gap above the Next band. */
-.dt-blocks { --dt-gap: clamp(96px, 12vw, 180px); padding-bottom: var(--dt-gap); }
+.dt-blocks { --dt-gap: clamp(80px, 9vw, 128px); padding-bottom: var(--dt-gap); }
 .dt-blocks:has(> .dt-get:last-child) { padding-bottom: 0; }
 .dt-block { padding-top: var(--dt-gap); }
-.dt-blocks > .dt-block:first-child { --dt-gap: clamp(64px, 8vw, 120px); }
+.dt-blocks > .dt-block:first-child { --dt-gap: clamp(56px, 6vw, 96px); }
 .dt-sec--stats { --dt-gap: clamp(56px, 7vw, 104px); }
 .dt-label { display: flex; align-items: center; gap: 16px; font-weight: 500; }
 .dt-label-line { flex: 1; height: 1px; background: var(--line); transform-origin: left center; }

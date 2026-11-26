@@ -219,7 +219,7 @@ Rules:
 ## 5. Layout and breakpoints
 
 - Side padding is `--pad` (`clamp(20px, 3.6vw, 56px)`), applied with `pp-wrap`. Full-bleed bands (the Get block, the Next band) put `pp-wrap` on an inner element.
-- Vertical rhythm between blocks is `--dt-gap` (`clamp(96px, 12vw, 180px)`), applied as `padding-top` by `.dt-block`. A block that needs less sets `--dt-gap` on itself (see `.dt-sec--stats`). Do not add margins between blocks.
+- Vertical rhythm between blocks is `--dt-gap` (`clamp(80px, 9vw, 128px)`), applied as `padding-top` by `.dt-block`. A block that needs less sets `--dt-gap` on itself (see `.dt-sec--stats`). Do not add margins between blocks.
 - Controls come in three heights, each a `min-height` so a label can wrap: 48px (buttons, search, the view switch), 40px (tabs, filters, picks, Previous and Next), 32px (tags such as the cost tag). The large install button is the one exception.
 - Easing for CSS transitions is `--ease`; a pressed control springing back uses `--spring`.
 - Text for screen readers only uses the class `pp-sr`.
