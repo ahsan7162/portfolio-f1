@@ -71,7 +71,7 @@ export function Catalogue({ items }: { items: Product[] }) {
     mm.add('(prefers-reduced-motion: no-preference)', () => {
       gsap.from('.cat-title > *', { yPercent: 105, duration: 1.1, stagger: 0.08, scrollTrigger: { trigger: '.cat-head', start: 'top 85%' } });
       gsap.from('.cat-tools, .cat-f', { autoAlpha: 0, y: 18, duration: 0.6, stagger: 0.04, scrollTrigger: { trigger: '.cat-filters', start: 'top 92%' } });
-      gsap.from('.cat-row', { autoAlpha: 0, yPercent: 40, duration: 0.7, stagger: 0.05, clearProps: 'all', scrollTrigger: { trigger: '.cat-list', start: 'top 88%' } });
+      gsap.from('.cat-row', { autoAlpha: 0, y: 12, duration: 0.4, stagger: 0.04, clearProps: 'all', scrollTrigger: { trigger: '.cat-list', start: 'top 88%' } });
     });
     mm.add('(hover: hover) and (pointer: fine)', () => {
       const x = gsap.quickTo(peekEl.current, 'x', { duration: 0.3, ease: 'power3' });

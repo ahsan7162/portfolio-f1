@@ -185,8 +185,8 @@ export function Featured({ items, total }: { items: Product[]; total: number }) 
       // The first product comes in as the section scrolls into view (it sits below the hero).
       const first = slides[0];
       gsap.timeline({ scrollTrigger: { trigger: root.current, start: 'top 72%', once: true } })
-        .from(q(first, '.ft-copy'), { autoAlpha: 0, y: 44, duration: 0.7 }, 0)
-        .from(q(first, '.ft-stage-wrap'), { autoAlpha: 0, x: 120, duration: 0.9 }, 0.06);
+        .from(q(first, '.ft-copy'), { autoAlpha: 0, y: 12, duration: 0.6 }, 0)
+        .from(q(first, '.ft-stage-wrap'), { autoAlpha: 0, y: 12, duration: 0.6 }, 0.06);
 
       return () => { settle.kill(); setWheelGate(null); stepTo.current = null; trigger.current = null; setPinned(false); };
     });
