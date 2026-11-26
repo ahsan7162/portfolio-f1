@@ -1,7 +1,10 @@
 // One big sentence that lights up word by word with the scroll, a paragraph beside it, and short points.
-import { useId, useRef } from 'react';
+import { useId, useRef, type CSSProperties } from 'react';
 import { gsap } from '../../motion';
 import { Label, useBlockMotion, type BlockProps } from './shared';
+
+/** Three or four columns, whichever leaves the fuller last row: six points sit 3 + 3, not 4 + 2. */
+const cols = (n: number) => { const full = (c: number) => (n % c || c) / c; return full(4) >= full(3) ? 4 : 3; };
 
 /** The sentence as words; `*starred*` runs (even mid-word, e.g. "*fast*,") are marked for the accent. */
 function words(head: string) {
@@ -29,8 +32,8 @@ export function Statement({ block }: BlockProps<'statement'>) {
     }
     const body = q('.dt-why-body');
     if (body) gsap.from(body, { y: 24, autoAlpha: 0, duration: 0.5, scrollTrigger: enter(body) });
-    const chips = qa('.dt-chip');
-    if (chips[0]) gsap.from(chips, { y: 14, autoAlpha: 0, duration: 0.4, stagger: 0.025, scrollTrigger: enter(chips[0], 'top 94%') });
+    const points = qa('.dt-point');
+    if (points[0]) gsap.from(points, { y: 14, autoAlpha: 0, duration: 0.4, stagger: 0.025, scrollTrigger: enter(points[0], 'top 94%') });
   });
 
   return (
@@ -47,7 +50,7 @@ export function Statement({ block }: BlockProps<'statement'>) {
         <p className="dt-why-body">{block.body}</p>
       </div>
       {block.points && block.points.length > 0 && (
-        <ul className="dt-chips">{block.points.map(p => <li className="dt-chip" key={p}>{p}</li>)}</ul>
+        <ul className="dt-points" style={{ '--cols': cols(block.points.length) } as CSSProperties}>{block.points.map(p => <li className="dt-point" key={p}>{p}</li>)}</ul>
       )}
     </section>
   );
