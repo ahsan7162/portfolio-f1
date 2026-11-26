@@ -43,7 +43,9 @@ function Slide({ product, index, active, tally, start, report }: {
       <div className="ft-copy">
         <div className="ft-meta ft-fade pp-mono pp-dots">
           <span className="pp-tag">{pad(index + 1)}</span>
-          {[KINDS[product.kind].label, ...product.facts].map(f => <span className="pp-dot" key={f}>{f}</span>)}
+          {/* what it is and which version; the licence and the rest are on the product's page */}
+          {[product.facts[0]?.startsWith('for ') ? `${KINDS[product.kind].label} ${product.facts[0]}` : KINDS[product.kind].label, product.facts.find(f => /^v\d/.test(f))]
+            .filter(Boolean).map(f => <span className="pp-dot" key={f}>{f}</span>)}
           {product.sample && <span className="pp-sample">Sample</span>}
         </div>
         <h2 className="ft-name pp-display" style={{ '--fit': Math.max(...product.lines.map(l => l.length)) } as CSSProperties}>
