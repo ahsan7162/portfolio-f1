@@ -10,7 +10,7 @@ export function Chips({ block }: BlockProps<'chips'>) {
 
   useBlockMotion(root, ({ q, qa, enter }) => {
     const list = q('.bc-chips');
-    if (list) gsap.from(qa('.bc-chip'), { scale: 0.8, autoAlpha: 0, duration: 0.4, ease: 'back.out(1.8)', stagger: 0.03, scrollTrigger: enter(list) });
+    if (list) gsap.from(qa('.bc-chip'), { y: 8, autoAlpha: 0, duration: 0.35, ease: 'power3.out', stagger: 0.03, scrollTrigger: enter(list) });
   });
 
   return (

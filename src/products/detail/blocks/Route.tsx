@@ -45,7 +45,7 @@ export function Route({ block }: BlockProps<'route'>) {
       tl.set(light, { ...box, transformOrigin: origin, scaleX: flat ? 0 : 1, scaleY: flat ? 1 : 0, '--deg': `${flat ? (back ? 270 : 90) : back ? 0 : 180}deg`, autoAlpha: 1 }, at)
         .to(light, { ...(flat ? { scaleX: 1 } : { scaleY: 1 }), duration: HOP * 0.6, ease: 'power3.inOut' }, at)
         .to(light, { autoAlpha: 0, duration: HOP * 0.35 }, at + HOP * 0.65)
-        .fromTo(line.querySelector(`[data-stop="${h.to}"] .bv-route-dot`), { scale: 1.9 }, { scale: 1, duration: 0.5, ease: 'back.out(2)' }, at + HOP * 0.55);
+        .fromTo(line.querySelector(`[data-stop="${h.to}"] .bv-route-dot`), { scale: 1.9 }, { scale: 1, duration: 0.5, ease: 'power3.out' }, at + HOP * 0.55);
       const hop = says[i];
       if (!hop) return;
       const text = hop.querySelector<HTMLElement>('.bv-route-says');

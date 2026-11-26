@@ -15,7 +15,7 @@ export function Timeline({ block }: BlockProps<'timeline'>) {
     if (!list) return;
     gsap.timeline({ scrollTrigger: enter(list, 'top 82%') })
       .from(q('.bc-tl-line'), { scale: 0, duration: 0.7, ease: 'expo.out' })
-      .from(qa('.bc-tl-dot'), { scale: 0, duration: 0.35, ease: 'back.out(2.4)', stagger: 0.06 }, 0.1)
+      .from(qa('.bc-tl-dot'), { y: 8, autoAlpha: 0, duration: 0.35, ease: 'power3.out', stagger: 0.06 }, 0.1)
       .from(qa('.bc-tl-body'), { y: 28, autoAlpha: 0, duration: 0.5, stagger: 0.06 }, 0.15);
   });
 

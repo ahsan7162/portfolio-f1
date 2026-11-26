@@ -54,10 +54,10 @@ function useSceneMotion(root: RefObject<HTMLElement | null>, scene: number | und
     const spend = contextSafe(() => {
       if (n > 0) {
         gsap.timeline()
-          .fromTo(tag, { autoAlpha: 0, scale: 0.8 }, { autoAlpha: 1, scale: 1, duration: 0.55, ease: 'back.out(2.2)' })
+          .fromTo(tag, { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.35, ease: 'power3.out' })
           .fromTo(tag.querySelector('.bv-odo-col'), { yPercent: (-100 * n) / (n + 1) }, { yPercent: 0, duration: 0.75, ease: 'power3.inOut' }, 0.05);
       } else {
-        gsap.fromTo(tag, { scale: 1.14 }, { scale: 1, duration: 0.8, ease: 'elastic.out(1, 0.45)' });
+        gsap.fromTo(tag, { scale: 1.08 }, { scale: 1, duration: 0.4, ease: 'power3.out' });
       }
       gsap.fromTo(tag, { '--flash': 1 }, { '--flash': 0, duration: 1.3, ease: 'power2.in' });
     });

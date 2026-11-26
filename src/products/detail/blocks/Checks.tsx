@@ -23,7 +23,7 @@ function run(root: HTMLElement, vars?: gsap.TimelineVars) {
     const steps = t.querySelectorAll('.bc-check-step');
     tl.fromTo(t, { '--scan': 0 }, { '--scan': 1, duration: per * 1.6, ease: 'none' }, at)
       .fromTo(steps, { autoAlpha: 0.25 }, { autoAlpha: 1, duration: 0.12, stagger: per * 0.4 }, at)
-      .fromTo(t.querySelector('.bc-check-stamp'), { autoAlpha: 0, scale: 1.5, rotate: -8 }, { autoAlpha: 1, scale: 1, rotate: 0, duration: 0.35, ease: 'back.out(2.4)' }, at + per * 1.2);
+      .fromTo(t.querySelector('.bc-check-stamp'), { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'power3.out' }, at + per * 1.2);
   });
   const total = root.querySelector<HTMLElement>('.bc-checks-total');
   const num = total?.querySelector<HTMLElement>('[data-count]');
