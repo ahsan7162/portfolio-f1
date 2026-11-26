@@ -5,6 +5,7 @@ import { useEffect, useId, useRef } from 'react';
 import { gsap, reducedMotion } from '../../motion';
 import { keysMatch } from './keyMatch';
 import { Label, useBlockMotion, type BlockProps } from './shared';
+import { bare } from '../../stop';
 
 export function Keys({ block }: BlockProps<'keys'>) {
   const root = useRef<HTMLElement>(null);
@@ -49,7 +50,7 @@ export function Keys({ block }: BlockProps<'keys'>) {
             <span className="dt-keys-caps">
               {k.keys.map(key => <kbd key={key} className="dt-key"><span className="dt-key-face">{key}</span></kbd>)}
             </span>
-            <span className="dt-keys-does">{k.does}</span>
+            <span className="dt-keys-does">{bare(k.does)}</span>
           </li>
         ))}
       </ul>

@@ -7,6 +7,7 @@ import { gsap } from '../../motion';
 import { RULES } from '../../stage/pieces';
 import { Label, useBlockMotion, type BlockProps } from './shared';
 import '../../styles/blocks-visual.css';
+import { bare } from '../../stop';
 
 /** `*starred*` words take the accent. */
 export const Accented = ({ text }: { text: string }) => <>{text.split('*').map((t, i) => (i % 2 ? <em key={t}>{t}</em> : t))}</>;
@@ -32,7 +33,7 @@ export function Rules({ block }: BlockProps<'rules'>) {
   return (
     <section className="dt-block dt-sec pp-wrap bv-rules" ref={root} aria-labelledby={id}>
       <Label id={id}>{block.label}</Label>
-      {block.head && <p className="bv-rules-head pp-lede"><Accented text={block.head} /></p>}
+      {block.head && <p className="bv-rules-head pp-lede"><Accented text={bare(block.head)} /></p>}
       <div className="bv-rules-stage">
         <div className="bv-rules-draw prd" aria-live="polite">{set.draw(v)}</div>
         <p className="bv-rules-count" data-zero={count === 0 || undefined}>

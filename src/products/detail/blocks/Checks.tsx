@@ -5,6 +5,7 @@ import { useId, useRef } from 'react';
 import { gsap, reducedMotion, useGSAP } from '../../motion';
 import { Label, useBlockMotion, type BlockProps } from './shared';
 import '../../styles/blocks-content.css';
+import { bare } from '../../stop';
 
 /** A tile's faint lines of "text": widths from its name, so each file looks like itself and never changes. */
 function sketch(name: string) {
@@ -53,7 +54,7 @@ export function Checks({ block }: BlockProps<'checks'>) {
   return (
     <section className="dt-block dt-sec pp-wrap" ref={root} aria-labelledby={id}>
       <Label id={id}>{block.label}</Label>
-      {block.head && <p className="bc-checks-head pp-lede">{block.head}</p>}
+      {block.head && <p className="bc-checks-head pp-lede">{bare(block.head)}</p>}
       {block.note && <p className="bc-note">{block.note}</p>}
       <ol className="bc-checks" aria-label={`${passed} of ${block.items.length} pass`}>
         {block.items.map((it) => (

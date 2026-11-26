@@ -7,6 +7,7 @@ import { changed, diffRows, type Row } from '../../lineDiff';
 import { gsap } from '../../motion';
 import { countUp, Label, useBlockMotion, type BlockProps } from './shared';
 import '../../styles/blocks-content.css';
+import { bare } from '../../stop';
 
 /** The rows to show: all of them, or the changes with one line either side and the rest folded. */
 function shown(rows: Row[], folded: boolean): (Row | { fold: number })[] {
@@ -56,7 +57,7 @@ export function Diff({ block }: BlockProps<'diff'>) {
   return (
     <section className="dt-block dt-sec pp-wrap bc-diff" ref={root} aria-labelledby={id}>
       <Label id={id}>{block.label}</Label>
-      {block.head && <p className="bc-diff-head pp-lede">{block.head}</p>}
+      {block.head && <p className="bc-diff-head pp-lede">{bare(block.head)}</p>}
       <p className="bc-diff-edit pp-cap"><code className="bc-diff-file">{block.file}</code><span className="bc-diff-edit-t">{block.edit}</span></p>
       <div className="bc-diff-bar">
         <div className="bc-diff-tabs" role="group" aria-label="Way of saving">

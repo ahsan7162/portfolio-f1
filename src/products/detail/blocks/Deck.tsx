@@ -9,6 +9,7 @@ import { gsap, reducedMotion, useGSAP } from '../../motion';
 import { holdScroll } from '../../scroll';
 import { Label, useBlockMotion, type BlockProps } from './shared';
 import '../../styles/blocks-visual.css';
+import { bare } from '../../stop';
 
 type Vars = CSSProperties & Record<`--${string}`, string | number>;
 
@@ -76,7 +77,7 @@ export function Deck({ block, product }: BlockProps<'deck'>) {
   return (
     <section className="dt-block dt-sec pp-wrap bv-deck" ref={root} aria-labelledby={id}>
       <Label id={id}>{block.label}</Label>
-      {block.head && <p className="bv-deck-head pp-lede">{block.head}</p>}
+      {block.head && <p className="bv-deck-head pp-lede">{bare(block.head)}</p>}
       {block.note && <p className="bv-rot-note">{block.note}</p>}
       <ul className="bv-deck-hand" style={{ '--n': count } as Vars}>
         {block.cards.map((c, i) => (

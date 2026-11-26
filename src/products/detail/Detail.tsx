@@ -12,6 +12,7 @@ import { Blocks, listed } from './blocks';
 import { CopyStatus, Out, StoreButtons, SwapLabel, useCopy } from './blocks/shared';
 import { useFit } from './fit';
 import '../styles/detail.css';
+import { Stop } from '../stop';
 
 /** The letters of each line, keyed by position (the text never reorders). */
 const letters = (line: string) => [...new Intl.Segmenter().segment(line)].map(({ segment: ch, index }) => ({ ch, id: `${index}` }));
@@ -193,7 +194,7 @@ export function Detail({ product }: { product: Product }) {
               <span className="dt-next-name pp-display" ref={nextRef}>
                 <span className="dt-fit"><span className="dt-next-text">{next.name}</span> <span className="dt-arrow" aria-hidden="true">→</span></span>
               </span>
-              {next.hook && <span className="dt-next-hook pp-lede">{next.hook}</span>}
+              {next.hook && <span className="dt-next-hook pp-lede"><Stop text={next.hook} /></span>}
             </span>
             {next.thumb && <img className="dt-next-thumb" src={next.thumb} alt="" loading="lazy" decoding="async" />}
           </Link>

@@ -10,6 +10,7 @@ import { gsap, reducedMotion } from '../../motion';
 import { LiveScreen } from '../../stage/live';
 import { Label, SwapLabel, useBlockMotion, type BlockProps } from './shared';
 import '../../styles/blocks-visual.css';
+import { bare } from '../../stop';
 
 interface Box { x: number; y: number; w: number; h: number }
 /** How long each state shows before the next, while a part is pinned and nobody has picked a state. */
@@ -91,7 +92,7 @@ export function Anatomy({ block }: BlockProps<'anatomy'>) {
   return (
     <Tabs value={String(pinned)} onValueChange={(v) => pin(Number(v))} render={<section ref={root} />} className="dt-block dt-sec pp-wrap bv-anat" aria-labelledby={id}>
       <Label id={id}>{block.label}</Label>
-      {block.head && <h3 className="bv-anat-head pp-lede">{block.head}</h3>}
+      {block.head && <h3 className="bv-anat-head pp-lede">{bare(block.head)}</h3>}
       {block.note && <p className="bv-rot-note">{block.note}</p>}
       <div className="bv-anat-art" ref={art} onPointerLeave={() => setHover(null)}>
         <div className="bv-anat-draw">

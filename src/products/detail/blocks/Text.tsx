@@ -2,6 +2,7 @@
 import { useId, useRef } from 'react';
 import { gsap, SplitText } from '../../motion';
 import { Label, useBlockMotion, type BlockProps } from './shared';
+import { bare } from '../../stop';
 
 export function Text({ block }: BlockProps<'text'>) {
   const root = useRef<HTMLElement>(null);
@@ -25,7 +26,7 @@ export function Text({ block }: BlockProps<'text'>) {
     <section className="dt-block dt-sec pp-wrap" ref={root} aria-labelledby={block.label || block.head ? id : undefined}>
       {block.label && <Label id={id}>{block.label}</Label>}
       <div className={`dt-text${block.label ? ' dt-text--labelled' : ''}`}>
-        {block.head && <Head className="dt-text-head pp-lede" id={block.label ? undefined : id}>{block.head}</Head>}
+        {block.head && <Head className="dt-text-head pp-lede" id={block.label ? undefined : id}>{bare(block.head)}</Head>}
         <div className="dt-text-body">{block.body.map(p => <p key={p}>{p}</p>)}</div>
       </div>
     </section>

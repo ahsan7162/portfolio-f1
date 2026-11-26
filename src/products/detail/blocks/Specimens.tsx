@@ -6,6 +6,7 @@ import { gsap } from '../../motion';
 import { Shot } from '../../stage/Frames';
 import { CopyStatus, Label, SwapLabel, useBlockMotion, useCopy, type BlockProps } from './shared';
 import '../../styles/blocks-visual.css';
+import { bare } from '../../stop';
 
 type Item = BlockProps<'specimens'>['block']['groups'][number]['items'][number];
 
@@ -33,7 +34,7 @@ export function Specimens({ block, product }: BlockProps<'specimens'>) {
   return (
     <section className="dt-block dt-sec pp-wrap bv-spec" ref={root} aria-labelledby={id}>
       <Label id={id}>{block.label}</Label>
-      {block.head && <p className="bv-spec-head pp-lede">{block.head}</p>}
+      {block.head && <p className="bv-spec-head pp-lede">{bare(block.head)}</p>}
       {block.note && <p className="bv-rot-note">{block.note}</p>}
       <div className="bv-spec-grid">
         <div className="bv-spec-wall" onPointerLeave={() => setHover(null)}>

@@ -6,6 +6,7 @@ import { reducedMotion, ScrollTrigger } from '../../motion';
 import { Shot } from '../../stage/Frames';
 import { Label, useBlockMotion, useShowcaseFit, type BlockProps } from './shared';
 import '../../styles/blocks-visual.css';
+import { bare } from '../../stop';
 
 const TYPE_MS = 24; // a letter of the ask
 const WORDS_PER_S = 95; // characters of the reply's words
@@ -64,7 +65,7 @@ export function Prompts({ block, product }: BlockProps<'prompts'>) {
   return (
     <section className="dt-block dt-sec pp-wrap bv-prompts" ref={root} aria-labelledby={id}>
       <Label id={id}>{block.label}</Label>
-      {block.head && <p className="bv-prompts-head pp-lede">{block.head}</p>}
+      {block.head && <p className="bv-prompts-head pp-lede">{bare(block.head)}</p>}
       <div className="bv-prompts-bar">
         <p className="bv-prompts-input" data-empty={!typed || undefined} aria-hidden="true">{typed || 'Ask your agent anything'}<i /></p>
         <span className="bv-prompts-send" aria-hidden="true">↑</span>

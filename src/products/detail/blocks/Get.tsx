@@ -6,6 +6,7 @@ import { gsap } from '../../motion';
 import { findBlock, type Product } from '../../types';
 import { useFit } from '../fit';
 import { CopyStatus, Label, Out, StoreButtons, SwapLabel, useBlockMotion, useCopy, type BlockProps } from './shared';
+import { Stop } from '../../stop';
 
 /** The line wraps before the last word (the URL), never inside it; on a phone the URL may also break after a slash. */
 function Command({ text }: { text: string }) {
@@ -48,7 +49,7 @@ export function Get({ block, product }: BlockProps<'get'>) {
         <Label id={id}>{block.label}</Label>
         {/* the name again, as a poster: the label above already names the section */}
         <p className="dt-poster pp-display" ref={name} aria-hidden="true"><span className="dt-fit">{product.name}</span></p>
-        {product.hook && <p className="dt-poster-hook pp-lede">{product.hook}</p>}
+        {product.hook && <p className="dt-poster-hook pp-lede"><Stop text={product.hook} /></p>}
         <div className="dt-get-main">
           {via.kind === 'command' && (
             <div className="dt-cmd">

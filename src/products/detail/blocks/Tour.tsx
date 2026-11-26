@@ -7,6 +7,7 @@ import { MediaView } from './MediaView';
 import { useRotate } from './rotate';
 import { Label, usePreload, type BlockProps } from './shared';
 import '../../styles/blocks-visual.css';
+import { bare } from '../../stop';
 
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 
@@ -61,7 +62,7 @@ export function Tour({ block, product }: BlockProps<'tour'>) {
   return (
     <section className="dt-block dt-sec pp-wrap bv-tour" ref={root} aria-labelledby={id} data-rot-state={r.rotating ? 'run' : 'off'}>
       <Label id={id}>{block.label}</Label>
-      {block.head && <h3 className="bv-tour-head pp-lede">{block.head}</h3>}
+      {block.head && <h3 className="bv-tour-head pp-lede">{bare(block.head)}</h3>}
       <div className="bv-tour-grid">
         <div className="bv-tour-side">
           <div className="bv-tour-reserve">

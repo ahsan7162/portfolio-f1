@@ -409,6 +409,8 @@ You design a page by choosing blocks and their order. Use any block, any number 
 
 **Labels and the outline.** Sections are not numbered. A block with a `label` gets a small label line above it and a bar on the rail at the right edge, which stands in for the scrollbar: the section you are in is the longer bar in the product's colour, a bar shows its label on hover or focus and scrolls to it. A block without a label is not on the rail.
 
+**The full stop.** A label, caption, key row or headline of one sentence has no full stop ("Only read-only tools", "Open the selected ticket"); `bare()` in `stop.tsx` drops it, so write the copy as a sentence. Two or more sentences keep their stops. The full stop is the house mark only on display lines, the scene headlines and the hooks (featured slide, poster, Next), where `<Stop>` sets it in the product's colour, as "I build." does on the portfolio. The Why statement and paragraphs are prose and keep theirs.
+
 ### How to arrange a page
 
 1. **Open on the strongest thing the product has.** Something to play with: `stage`. A sharp reason to exist: `statement`. A look worth seeing: `showcase` or `screens`. A story: `text`.

@@ -8,6 +8,7 @@ import { PauseButton, RotRoot, RotTabs } from './Cases';
 import { useRotate } from './rotate';
 import { Label, type BlockProps } from './shared';
 import '../../styles/blocks-visual.css';
+import { bare } from '../../stop';
 
 /** How long a run stays before the next: its hops take about a second each, then it holds to be read. */
 const HOLD_RUN = 7;
@@ -58,7 +59,7 @@ export function Route({ block }: BlockProps<'route'>) {
   return (
     <RotRoot r={r} keep root={root} className="dt-block dt-sec pp-wrap bv-route" aria-labelledby={id} data-rot-state={r.rotating ? 'run' : 'off'}>
       <Label id={id}>{block.label}</Label>
-      {block.head && <h3 className="bv-route-head pp-lede">{block.head}</h3>}
+      {block.head && <h3 className="bv-route-head pp-lede">{bare(block.head)}</h3>}
       {block.note && <p className="bv-rot-note">{block.note}</p>}
       <div className="bv-rot-bar bv-route-bar">
         <RotTabs tabs={block.runs.map((x) => x.name)} r={r} id={id} keep controls={`${id}-run`} />

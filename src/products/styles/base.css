@@ -100,6 +100,8 @@ img, video, svg { display: block; max-width: 100%; }
 .pp-btn--acc:hover { background: var(--on-acc); color: var(--acc); box-shadow: none; }
 /* a product's own surface: its colour becomes the accent here */
 .pp-branded { --acc: var(--brand); --on-acc: var(--on-brand); }
+/* the house mark: a display line's full stop in the product's colour (stop.tsx) */
+.pp-stop { color: var(--brand, var(--acc)); }
 .pp-tag { display: inline-flex; align-items: center; gap: 8px; padding: 4px 8px; background: var(--acc); color: var(--on-acc); font-weight: 700; }
 .pp-sample { display: inline-flex; padding: 4px 8px; border: 1px dashed var(--faint); border-radius: 4px; color: var(--dim); }
 /* A row of items with a dot between them (.pp-dot next to .pp-dot). Every item keeps a 28px strip on its left

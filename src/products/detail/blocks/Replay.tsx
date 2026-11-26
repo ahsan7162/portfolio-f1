@@ -9,6 +9,7 @@ import { SURFACES } from '../../stage/pieces';
 import { Accented } from './Rules';
 import { Label, useBlockMotion, useCopy, type BlockProps } from './shared';
 import '../../styles/blocks-visual.css';
+import { bare } from '../../stop';
 
 const minutes = (t: string) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3));
 const hhmm = (m: number) => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(Math.round(m) % 60).padStart(2, '0')}`;
@@ -49,7 +50,7 @@ export function Replay({ block }: BlockProps<'replay'>) {
   return (
     <section className="dt-block dt-sec pp-wrap bv-replay" ref={root} aria-labelledby={id}>
       <Label id={id}>{block.label}</Label>
-      {block.head && <p className="bv-rules-head pp-lede"><Accented text={block.head} /></p>}
+      {block.head && <p className="bv-rules-head pp-lede"><Accented text={bare(block.head)} /></p>}
       <div className="bv-rep">
         <ol className="bv-rep-feed" aria-label="What happens">
           <li className="bv-rep-ev" data-on=""><span className="pp-mono">{block.from}</span><span><b>First check:</b> where things stand is recorded, nothing alerts</span></li>

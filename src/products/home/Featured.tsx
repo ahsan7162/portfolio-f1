@@ -9,6 +9,7 @@ import { isJumping, setWheelGate, stepToY } from '../scroll';
 import { Stage, tallyWords } from '../stage/Stage';
 import { FILM_ID, findBlock, KINDS, type Product } from '../types';
 import { SiteHeader, toAll } from './Header';
+import { Stop } from '../stop';
 
 const DESKTOP = '(min-width: 900px) and (prefers-reduced-motion: no-preference)';
 const FLOOD_AT = '72% 48%';
@@ -51,7 +52,7 @@ function Slide({ product, index, active, tally, start, report }: {
         <h2 className="ft-name pp-display" style={{ '--fit': Math.max(...product.lines.map(l => l.length)) } as CSSProperties}>
           {product.lines.map(line => <span className="ft-line" key={line}><span className="ft-line-in">{line}</span></span>)}
         </h2>
-        <p className="ft-hook ft-fade pp-lede">{done ? 'Nothing left. Ship it.' : product.hook}</p>
+        <p className="ft-hook ft-fade pp-lede">{done ? 'Nothing left. Ship it.' : <Stop text={product.hook} />}</p>
         <p className="ft-hint ft-fade pp-branded"><i />{done ? 'You just used the product. Now see how it was built.' : product.hint}</p>
         <div className="ft-cta ft-fade">
           <Link className="pp-btn" to={productPath(product.slug)} data-cursor="Open">Open the case study →</Link>

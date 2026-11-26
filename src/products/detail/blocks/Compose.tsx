@@ -7,6 +7,7 @@ import { PARTS } from '../../stage/pieces';
 import { Accented } from './Rules';
 import { Label, useBlockMotion, type BlockProps } from './shared';
 import '../../styles/blocks-visual.css';
+import { bare } from '../../stop';
 
 /** The text cut at its `### ` headings: an opening, one section per picked part, and (with headings) its last paragraph as the closing. */
 export function cut(text: string) {
@@ -54,7 +55,7 @@ export function Compose({ block }: BlockProps<'compose'>) {
   return (
     <Tabs value={String(mode)} onValueChange={(v) => setMode(Number(v))} render={<section ref={root} />} className="dt-block dt-sec pp-wrap bv-compose" aria-labelledby={id}>
       <Label id={id}>{block.label}</Label>
-      {block.head && <p className="bv-rules-head pp-lede"><Accented text={block.head} /></p>}
+      {block.head && <p className="bv-rules-head pp-lede"><Accented text={bare(block.head)} /></p>}
       <div className="bv-comp">
         <div className="bv-comp-parts prd">
           {block.items.map(it => (

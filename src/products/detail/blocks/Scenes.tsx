@@ -7,6 +7,7 @@ import { Ask, HOLD_SCENE, PauseButton, RotRoot, RotTabs } from './Cases';
 import { useRotate } from './rotate';
 import { Coded, Label, useShowcaseFit, type BlockProps } from './shared';
 import '../../styles/blocks-visual.css';
+import { Stop } from '../../stop';
 
 /** A cost as its number and the words after it: "1 model call" is 1 and " model call". */
 function costOf(text: string) {
@@ -144,7 +145,7 @@ export function Scenes({ block, product }: BlockProps<'scenes'>) {
       <div className="bv-scenes-top">
         <div className="bv-rot-stack bv-scenes-heads">
           {items((s) => <>
-            {s.head && <h3 className="bv-scenes-head"><span className="pp-sr">{s.head}</span><span className="bv-scenes-head-t" aria-hidden="true">{s.head}</span></h3>}
+            {s.head && <h3 className="bv-scenes-head"><span className="pp-sr">{s.head}</span><span className="bv-scenes-head-t" aria-hidden="true"><Stop text={s.head} /></span></h3>}
             {s.cost && <Cost text={s.cost} />}
           </>)}
         </div>

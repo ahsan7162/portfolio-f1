@@ -3,6 +3,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type ReactNode, type RefO
 import { onReveal } from '../../arrive';
 import { gsap, ScrollTrigger, useGSAP } from '../../motion';
 import type { Block, BlockOf, Product } from '../../types';
+import { bare } from '../../stop';
 
 export type BlockProps<K extends Block['type']> = {
   block: BlockOf<K>;
@@ -71,8 +72,8 @@ export function useShowcaseFit(root: RefObject<HTMLElement | null>, { stage, top
   }, [root, stage, top, end]);
 }
 
-/** A caption with its `backticked` runs drawn as code, which keeps its own case inside an uppercase label. */
-export const Coded = ({ text }: { text: string }) => <>{text.split('`').map((t, i) => (i % 2 ? <code key={t}>{t}</code> : t))}</>;
+/** A caption with its `backticked` runs drawn as code, which keeps its own case inside an uppercase label; one sentence drops its full stop. */
+export const Coded = ({ text }: { text: string }) => <>{bare(text).split('`').map((t, i) => (i % 2 ? <code key={t}>{t}</code> : t))}</>;
 
 export type Motion = {
   /** True on a wide screen with a fine pointer: galleries pin. */

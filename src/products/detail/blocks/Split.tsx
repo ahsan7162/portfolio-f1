@@ -4,6 +4,7 @@ import { gsap } from '../../motion';
 import { MediaView } from './MediaView';
 import { Label, useBlockMotion, type BlockProps } from './shared';
 import '../../styles/blocks-visual.css';
+import { bare } from '../../stop';
 
 export function Split({ block, product }: BlockProps<'split'>) {
   const root = useRef<HTMLElement>(null);
@@ -25,7 +26,7 @@ export function Split({ block, product }: BlockProps<'split'>) {
       <div className="bv-split-grid">
         <div className="bv-split-media"><MediaView media={block.media} product={product} className="bv-split-frame" /></div>
         <div className="bv-split-words">
-          <Head className="bv-split-head pp-lede" id={block.label ? undefined : id}>{block.head}</Head>
+          <Head className="bv-split-head pp-lede" id={block.label ? undefined : id}>{bare(block.head)}</Head>
           <p className="bv-split-body">{block.body}</p>
           {block.points && block.points.length > 0 && <ul className="bv-points">{block.points.map(p => <li key={p}>{p}</li>)}</ul>}
         </div>

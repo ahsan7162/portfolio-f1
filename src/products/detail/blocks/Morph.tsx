@@ -6,6 +6,7 @@ import { gsap, reducedMotion, ScrollTrigger } from '../../motion';
 import { Shot } from '../../stage/Frames';
 import { Label, useBlockMotion, useShowcaseFit, type BlockProps } from './shared';
 import '../../styles/blocks-visual.css';
+import { bare } from '../../stop';
 
 const FLY = 0.85;
 
@@ -79,7 +80,7 @@ export function Morph({ block, product }: BlockProps<'morph'>) {
   return (
     <section className="dt-block dt-sec pp-wrap bv-morph" ref={root} aria-labelledby={id}>
       <Label id={id}>{block.label}</Label>
-      {block.head && <p className="bv-morph-head pp-lede">{block.head}</p>}
+      {block.head && <p className="bv-morph-head pp-lede">{bare(block.head)}</p>}
       <div className="bv-morph-bar" role="group" aria-label="Show the reply as">
         <Toggle className="pp-mono" pressed={!use} onPressedChange={() => flip(false)}>{block.from.name}</Toggle>
         <Toggle className="pp-mono" pressed={use} onPressedChange={() => flip(true)}>{block.to.name}</Toggle>
