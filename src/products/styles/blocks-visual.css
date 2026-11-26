@@ -139,7 +139,7 @@
 /* the chat bubble: what the person typed */
 .bv-rot-ask-row { display: flex; justify-content: center; align-items: flex-end; padding-bottom: clamp(16px, 2vw, 24px); }
 .bv-rot-ask {
-  position: relative; align-self: flex-end; max-width: min(62ch, 100%); padding: 14px 20px; border-radius: 20px 20px 20px 6px;
+  position: relative; align-self: flex-end; max-width: min(62ch, 100%); padding: 12px 20px; border-radius: 20px 20px 20px 6px;
   background: var(--raise-2); box-shadow: inset 0 0 0 1px var(--line); font-size: clamp(1rem, 1.25vw, 1.1875rem); line-height: 1.45; text-wrap: pretty;
 }
 .bv-rot-cap { margin-top: 18px; text-align: center; }
