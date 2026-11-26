@@ -100,7 +100,7 @@ export function Catalogue({ items }: { items: Product[] }) {
         <h2 className="cat-title pp-display" id="cat-title" aria-label={`All ${items.length} products`}><span>All</span><em>{items.length}</em></h2>
         <div className="cat-tools">
           <label className="cat-search pp-mono">
-            <input ref={search} className="pp-mono" type="search" value={query} placeholder="Search by name, kind or stack" aria-label="Search products"
+            <input ref={search} className="pp-mono" type="search" value={query} placeholder="Search" aria-label="Search products"
               onChange={e => { const value = e.target.value; refilter(() => setQuery(value)); }} />
             <kbd>/</kbd>
           </label>
