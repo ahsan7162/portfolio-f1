@@ -173,18 +173,18 @@ export function Featured({ items, total }: { items: Product[]; total: number }) 
         const prev = slides[i - 1], at = i - 1;
         tl.to(q(prev, '.ft-line-in'), { yPercent: -110, duration: 0.42, stagger: 0.04, ease: 'power2.in' }, at)
           .to(q(prev, '.ft-fade'), { autoAlpha: 0, y: -24, duration: 0.34, ease: 'power2.in' }, at)
-          .to(q(prev, '.ft-stage'), { autoAlpha: 0, xPercent: 16, rotate: 5, scale: 0.92, duration: 0.46, ease: 'power2.in' }, at)
+          .to(q(prev, '.ft-stage'), { autoAlpha: 0, xPercent: 16, scale: 0.92, duration: 0.46, ease: 'power2.in' }, at)
           .to(q(prev, '.ft-flood'), { autoAlpha: 0, duration: 0.4 }, at)
           .fromTo(q(slide, '.ft-line-in'), { yPercent: 110 }, { yPercent: 0, duration: 0.5, stagger: 0.05, ease: 'power3.out' }, at + 0.44)
           .fromTo(q(slide, '.ft-fade'), { autoAlpha: 0, y: 28 }, { autoAlpha: 1, y: 0, duration: 0.42, stagger: 0.04, ease: 'power2.out' }, at + 0.5)
-          .fromTo(q(slide, '.ft-stage'), { autoAlpha: 0, xPercent: -12, rotate: -5, scale: 0.9 }, { autoAlpha: 1, xPercent: 0, rotate: 0, scale: 1, duration: 0.56, ease: 'power3.out' }, at + 0.4);
+          .fromTo(q(slide, '.ft-stage'), { autoAlpha: 0, xPercent: -12, scale: 0.9 }, { autoAlpha: 1, xPercent: 0, scale: 1, duration: 0.56, ease: 'power3.out' }, at + 0.4);
       });
 
       // The first product comes in as the section scrolls into view (it sits below the hero).
       const first = slides[0];
       gsap.timeline({ scrollTrigger: { trigger: root.current, start: 'top 72%', once: true } })
         .from(q(first, '.ft-copy'), { autoAlpha: 0, y: 44, duration: 0.7 }, 0)
-        .from(q(first, '.ft-stage-wrap'), { autoAlpha: 0, x: 120, rotate: 5, duration: 0.9 }, 0.06);
+        .from(q(first, '.ft-stage-wrap'), { autoAlpha: 0, x: 120, duration: 0.9 }, 0.06);
 
       return () => { settle.kill(); setWheelGate(null); stepTo.current = null; trigger.current = null; setPinned(false); };
     });
