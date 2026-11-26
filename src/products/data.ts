@@ -1,6 +1,6 @@
 import { ROW_STATES } from './stage/jiraRowData';
 import { MW_CHECKS, MW_DIFF, MW_TESTS } from './stage/mwData.gen';
-import { OUI_DOCS_CHARS, OUI_GROUPS, OUI_OPENUI, OUI_PROMPT_CHARS } from './stage/oui/catalog.gen';
+import { OUI_GROUPS, OUI_OPENUI } from './stage/oui/catalog.gen';
 import { ASK_COPY, CI_TEXT } from './stage/oui/copy';
 import { DOCUMENT_TEMPLATES, fillTemplate } from './stage/mdTemplates';
 import { PR_MENU, PR_PROMPTS, PR_RUNS } from './stage/prData.gen';
@@ -993,14 +993,6 @@ export const products: Product[] = [
         note: 'Redrawn for this page with invented data. The tip splitter is the plugin’s own example page, running for real in a sandboxed frame; the ripples are its shader example, running on your graphics card.',
       },
       {
-        type: 'stats',
-        stats: [
-          { value: String(OUI_GROUPS.reduce((n, g) => n + g.items.length, 0)), label: 'components of its own, on top of OpenUI’s library' },
-          { value: '3,000', label: 'tokens of instructions, only in threads a person reads' },
-          { value: String(Math.floor(OUI_DOCS_CHARS / OUI_PROMPT_CHARS)), unit: '×', label: 'as much again, loaded only when the agent asks' },
-        ],
-      },
-      {
         type: 'specimens',
         label: 'Every component',
         head: 'Point at a name. Pick one to keep it.',
@@ -1045,16 +1037,6 @@ export const products: Product[] = [
         ],
       },
       {
-        type: 'steps',
-        label: 'How it works',
-        steps: [
-          { tag: 'Teach', title: 'A short prompt', body: 'Each thread a person reads gets about 3,000 tokens of instructions. Worker threads get none.' },
-          { tag: 'Write', title: 'The agent writes a block', body: 'Where part of an answer is better seen or used than read, it writes an openui-lang block, and can fetch a component’s signature or check the block first.' },
-          { tag: 'Draw', title: 'bb draws it inline', body: 'The block is drawn in the reply as it streams, in bb’s own fonts and colours. Charts draw once it stops.' },
-          { tag: 'Answer', title: 'Your click goes back', body: 'A button, a pick or a form sends your answer into the thread as your next message.' },
-        ],
-      },
-      {
         type: 'compare',
         label: 'Light and dark',
         before: { src: `${openui}/reply-light.jpg`, alt: 'A release check-in reply in bb’s light mode: workstream status rows over a roadmap', width: 1920, height: 2006 },
@@ -1072,28 +1054,29 @@ export const products: Product[] = [
         title: 'The 20-second launch film, made of the plugin’s own renders',
       },
       {
-        type: 'faq',
-        label: 'Questions',
-        items: [
-          { q: 'Which agents can use it?', a: 'Any agent provider in bb. The plugin gives each one the same instructions and tools, and nothing in it depends on one model.' },
-          { q: 'What does it cost in tokens?', a: 'About 3,000 tokens of instructions in each session a person reads; worker threads get none. Signatures for most components load only when the agent asks for them.' },
-          { q: 'Do I need an OpenUI account or an API key?', a: 'No. There is no OpenUI Gateway and no key. Gateway’s automatic error correction is not used, so a block with no renderable root shows as its code.' },
-          { q: 'What does my click send?', a: 'Words the agent reads, as your next message. Go with sends “Go with Redis queue (weights: Throughput 5, Ops cost 1, Delivery 4, Local dev 2)”; a plan sends “Approve the plan”; a quiz sends your score and what you missed; a form sends one line per field.' },
-          { q: 'Does anything leave my machine?', a: 'Web lookups are on by default: Map asks Photon and OpenStreetMap, and Map and ImageSearch ask Wikipedia and Wikimedia Commons, which see your IP address and the request. Turn off the plugin’s Web lookups setting and nothing is fetched. Blocks also load the image URLs the agent writes, and source lists load site icons from Google’s favicon service.' },
-          { q: 'Is what I type in a form kept?', a: 'No. It resets when the reply scrolls out of view or the thread reloads, and it is sent only when you click.' },
-          { q: 'Can a block run code?', a: 'Only two. App runs a small page in a sandboxed frame with no network, and it can send a message only right after your click. Shader runs a GLSL fragment shader on your graphics card.' },
-          { q: 'Can I run it with genui?', a: 'Turn one off. Together they give agents two UI languages and both prompts.' },
-        ],
-      },
-      {
         type: 'specs',
-        label: 'Requirements and costs',
+        label: 'Before you install',
         rows: [
           { name: 'bb', value: '0.49 or later', note: 'It uses the experimental code-fence renderer slot. Plugin SDK 0.6.132 or later.' },
           { name: 'Agent', value: 'Any agent provider in bb' },
           { name: 'Prompt', value: 'About 3,000 tokens', note: 'In each session a person reads. Worker threads get none.' },
           { name: 'Keys', value: 'None', note: 'No OpenUI Gateway and no API key.' },
           { name: 'Licence', value: 'MIT' },
+        ],
+      },
+      {
+        // no label: the questions sit under the requirements, the first four shown
+        type: 'faq',
+        show: 4,
+        items: [
+          { q: 'Does anything leave my machine?', a: 'Web lookups are on by default: Map asks Photon and OpenStreetMap, and Map and ImageSearch ask Wikipedia and Wikimedia Commons, which see your IP address and the request. Turn off the plugin’s Web lookups setting and nothing is fetched. Blocks also load the image URLs the agent writes, and source lists load site icons from Google’s favicon service.' },
+          { q: 'Can a block run code?', a: 'Only two. App runs a small page in a sandboxed frame with no network, and it can send a message only right after your click. Shader runs a GLSL fragment shader on your graphics card.' },
+          { q: 'Can I run it with genui?', a: 'Turn one off. Together they give agents two UI languages and both prompts.' },
+          { q: 'What does my click send?', a: 'Words the agent reads, as your next message. Go with sends “Go with Redis queue (weights: Throughput 5, Ops cost 1, Delivery 4, Local dev 2)”; a plan sends “Approve the plan”; a quiz sends your score and what you missed; a form sends one line per field.' },
+          { q: 'What does it cost in tokens?', a: 'About 3,000 tokens of instructions in each session a person reads; worker threads get none. Signatures for most components load only when the agent asks for them.' },
+          { q: 'Do I need an OpenUI account or an API key?', a: 'No. There is no OpenUI Gateway and no key. Gateway’s automatic error correction is not used, so a block with no renderable root shows as its code.' },
+          { q: 'Which agents can use it?', a: 'Any agent provider in bb. The plugin gives each one the same instructions and tools, and nothing in it depends on one model.' },
+          { q: 'Is what I type in a form kept?', a: 'No. It resets when the reply scrolls out of view or the thread reloads, and it is sent only when you click.' },
         ],
       },
       {
