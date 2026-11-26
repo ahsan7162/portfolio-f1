@@ -11,7 +11,7 @@
 /* Without the Popover API the list would sit open over the page; Prev and Next still work there. */
 @supports not selector(:popover-open) { .dt-jump { display: none; } }
 .dt-jump ol { list-style: none; margin: 0; padding: 0; }
-.dt-jump-item { display: grid; grid-template-columns: 28px 1fr auto; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 8px; color: var(--dim); transition: background-color 0.15s, color 0.15s; }
+.dt-jump-item { display: grid; grid-template-columns: 28px 1fr auto; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 6px; color: var(--dim); transition: background-color 0.15s, color 0.15s; }
 .dt-jump-item b { color: var(--brand); }
 .dt-jump-name { font-family: var(--display); font-weight: 600; font-variation-settings: 'wdth' 108; font-size: 1rem; color: var(--ink); }
 .dt-jump-item:hover, .dt-jump-item:focus-visible { background: var(--raise-2); }
