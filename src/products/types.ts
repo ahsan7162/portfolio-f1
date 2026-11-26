@@ -82,7 +82,9 @@ export type Block =
   /** Releases or milestones in order. */
   | { type: 'timeline'; label: string; events: { when: string; title: string; body?: string }[] }
   /** Questions that open and close. */
-  | { type: 'faq'; label: string; items: { q: string; a: string }[] }
+  /** With no `label` it sits under the block before it (the requirements) as that block's questions. `show`: how many are
+   *  listed before a "More questions" opens the rest (all are on the page either way). */
+  | { type: 'faq'; label?: string; show?: number; items: { q: string; a: string }[] }
   /** One large pull quote. */
   | { type: 'quote'; text: string; by?: string; role?: string }
   /** The product's own colours and typefaces. */

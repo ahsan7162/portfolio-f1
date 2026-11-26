@@ -42,6 +42,14 @@
 .bc-faq-item[data-state='open'] .bc-faq-icon::before, .bc-faq-item[data-state='open'] .bc-faq-icon::after { background: var(--on-acc); }
 .bc-faq-item[open]:not([data-state]) .bc-faq-icon::after, .bc-faq-item[data-state='open'] .bc-faq-icon::after { transform: rotate(0deg); }
 .bc-faq-a { overflow: hidden; }
+/* questions with no label of their own: under the block before it */
+.dt-sec--tuck { --dt-gap: clamp(48px, 5vw, 72px); }
+.bc-faq-head { color: var(--dim); }
+.dt-sec--tuck .bc-faq { margin-top: 16px; }
+.bc-faq-more > summary { display: flex; padding-block: 20px; border-top: 1px solid var(--line); color: var(--dim); list-style: none; cursor: pointer; transition: color 0.15s; }
+.bc-faq-more > summary::-webkit-details-marker { display: none; }
+.bc-faq-more > summary:hover { color: var(--ink); }
+.bc-faq-more[open] .bc-faq-more-open, .bc-faq-more:not([open]) .bc-faq-more-close { display: none; }
 .bc-faq-a p { max-width: 62ch; padding-bottom: clamp(24px, 2.8vw, 40px); color: var(--dim); font-size: clamp(1.0625rem, 1.45vw, 1.3125rem); line-height: 1.6; }
 
 /* quote: a huge mark, the words very large */

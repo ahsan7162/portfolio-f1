@@ -70,7 +70,7 @@ const productBody = (p: Product) => body(p.name, p.brand, [
 ].join(''));
 
 /** Questions keep their shape, a heading each with its answer under it, so the FAQPage data (productData) matches the page word for word. */
-const faqHtml = (b: BlockOf<'faq'>) => `<section><h2>${esc(b.label)}</h2>${b.items.map(i => `<h3>${esc(i.q)}</h3><p>${esc(i.a)}</p>`).join('')}</section>`;
+const faqHtml = (b: BlockOf<'faq'>) => `<section><h2>${esc(b.label ?? 'Questions')}</h2>${b.items.map(i => `<h3>${esc(i.q)}</h3><p>${esc(i.a)}</p>`).join('')}</section>`;
 
 function homeData(site: string, url: string, builtAt: string) {
   return [

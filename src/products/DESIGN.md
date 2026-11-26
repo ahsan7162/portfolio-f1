@@ -460,7 +460,7 @@ The shapes are in `types.ts` (the `Block` union) with a comment on each. TypeScr
 | `marquee` | none | A band of big moving words | A break on a long page |
 | `scores` | required | Rings filled to a value out of a maximum | Performance and accessibility scores, a rating |
 | `timeline` | required | Releases or milestones in order | Version history, how it got here |
-| `faq` | required | Questions that open and close | The questions a README answers |
+| `faq` | optional | Questions that open and close. With no `label` it sits right under the block before it as that block's questions (put it after `specs`: together they are "Before you install"). `show` lists that many, the rest open from "More questions"; all stay on the page, so the FAQ data matches | The questions a README answers: the four most useful first |
 | `quote` | none | One large pull quote with a name and role | Something a real user said. Never invent one for a real product. |
 | `palette` | required | The product's own colours and typefaces | A site or app whose identity is part of the work |
 | `code` | required | A panel of code with Copy; optionally the screen it produces beside it | A config snippet, or what the user writes and what they get. Plain text, not highlighted. |
