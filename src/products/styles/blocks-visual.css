@@ -289,7 +289,7 @@
 .bv-deck-card:is(:hover, :focus-visible) .bv-deck-face { border-color: var(--acc); box-shadow: 0 30px 60px -20px var(--shadow-deep), 0 0 0 1px var(--acc); }
 .bv-deck-tag {
   position: absolute; left: 8px; right: 8px; bottom: 8px; z-index: 1; padding: 7px 9px; border-radius: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  background: color-mix(in srgb, var(--raise-2) 94%, transparent); box-shadow: 0 0 0 1px var(--line); color: var(--ink); font-size: 0.625rem; letter-spacing: 0.06em;
+  background: color-mix(in srgb, var(--raise-2) 94%, transparent); box-shadow: 0 0 0 1px var(--line); color: var(--ink); font-size: 0.6875rem; letter-spacing: 0.06em;
 }
 .bv-deck-title { display: block; margin-top: 12px; font-weight: 600; font-size: 0.9375rem; line-height: 1.25; }
 .bv-deck-body { display: block; margin-top: 4px; font-size: 0.8125rem; line-height: 1.4; }

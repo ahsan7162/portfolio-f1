@@ -180,7 +180,7 @@
 .bc-check-sketch { display: grid; align-content: start; gap: 7px; }
 .bc-check-sketch i { height: 4px; border-radius: 2px; background: var(--raise-2); }
 .bc-check-sketch i:nth-child(n + 4) { display: none; }
-.bc-check-steps { display: flex; flex-wrap: wrap; gap: 4px 10px; color: var(--dim); font-size: 0.625rem; }
+.bc-check-steps { display: flex; flex-wrap: wrap; gap: 4px 10px; color: var(--dim); font-size: 0.6875rem; }
 .bc-check-step::before { content: '✓ '; }
 .bc-check-stamp { display: grid; gap: 3px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); font-size: 0.875rem; line-height: 1.35; color: var(--dim); }
 .bc-check-stamp b { color: var(--ink); }
