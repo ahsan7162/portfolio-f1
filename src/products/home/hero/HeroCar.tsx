@@ -131,6 +131,8 @@ export function HeroCar() {
           <p className="hc-facts">{FACTS}</p>
         </div>
       </div>
+      {/* film grain, on the hero only: the rest of the section stays clean black for the screenshots */}
+      <div className="pp-grain" aria-hidden="true" />
     </section>
   );
 }

@@ -97,7 +97,6 @@ export function App() {
       {product ? <Detail key={product.slug} product={product} /> : <Home />}
       <div className="pp-curtain" ref={curtain} aria-hidden="true" data-branded={first.brand ? '' : undefined} style={first.brand ? brandVars(first.brand) : undefined}><span className="pp-display" ref={label}>{first.name}</span></div>
       <Cursor />
-      <div className="pp-grain" aria-hidden="true" />
       <Vitals />
     </>
   );

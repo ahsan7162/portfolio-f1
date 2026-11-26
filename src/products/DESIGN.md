@@ -259,7 +259,7 @@ It takes the GSAP setup both pages share, from `src/motion/gsap.ts`: the plugins
 6. **Keep it brisk.** Entrances run 0.45 to 0.75 s with staggers of 0.04 to 0.08 s. The page change is 0.45 s down and 0.55 s up. A reader should see content within about 0.8 s of the reveal.
 7. **Nothing trails the hand.** Smooth scrolling is Lenis at `lerp: 0.13`. Scrubbed animations use `scrub: true`, not a number, so they do not add a second layer of lag.
 8. **Scroll through the scroller.** Any programmatic scroll calls `scrollToY()` from `scroll.ts`. `window.scrollTo` fights Lenis.
-9. **No blend modes or filters on full-screen layers.** They are recomposited on every scroll frame. The grain is plain opacity for this reason.
+9. **No blend modes or filters on full-screen layers.** They are recomposited on every scroll frame. The grain (on the car hero only, so the product screenshots sit on clean black) is plain opacity for this reason.
 10. **Decode images before they move.** A block with images that pin or slide calls `usePreload(root)`.
 11. **Layout changes use Flip.** Capture state, change the DOM with `flushSync`, then `Flip.from`. See `Catalogue.tsx` and `JiraDemo.tsx`.
 12. **Controls respond at once.** A press is immediate (about 0.07 s) and the release springs back (`.pp-btn`). Label swaps slide, they do not jump (`SwapLabel`).
