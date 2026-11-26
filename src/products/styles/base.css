@@ -6,6 +6,7 @@
 @import 'lenis/dist/lenis.css';
 
 :root {
+  --pp-head: clamp(1.75rem, 3.4vw, 3.25rem);
   /* The raw colours. Every other token, here and in the other stylesheets, is made from these. */
   --black: #000000;
   --bone: #ECE9DF;
@@ -59,13 +60,14 @@ img, video, svg { display: block; max-width: 100%; }
 :focus-visible { outline: 2px solid var(--acc); outline-offset: 3px; border-radius: 4px; }
 
 /* type */
-.pp-display { font-family: var(--display); font-weight: 900; text-transform: uppercase; letter-spacing: -0.02em; line-height: 0.84; font-variation-settings: 'wdth' var(--wdth, 68); }
+.pp-display { font-family: var(--display); font-weight: 900; text-transform: uppercase; letter-spacing: -0.02em; line-height: 0.84; font-variation-settings: 'wdth' var(--wdth, 64); }
 .pp-mono { font-family: var(--mono); font-size: 0.75rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; line-height: 1.4; }
 /* a sentence under a demo, a picture or a film: body text, never mono capitals */
 .pp-cap { font-size: 0.9375rem; line-height: 1.5; color: var(--dim); text-wrap: pretty; }
 .pp-cap code { font-family: var(--mono); font-size: 0.9em; }
 /* code in a label keeps its case: `- [x]` must not read as `- [X]` */
 .pp-mono code { font: inherit; text-transform: none; }
+/* every sentence headline; --pp-head is the one size a section headline takes */
 .pp-lede { font-family: var(--display); font-weight: 600; font-variation-settings: 'wdth' 108; letter-spacing: -0.025em; line-height: 1.06; }
 .pp-dim { color: var(--dim); }
 /* for screen readers only */
@@ -82,7 +84,7 @@ img, video, svg { display: block; max-width: 100%; }
 /* controls */
 .pp-btn {
   display: inline-flex; align-items: center; gap: 10px; white-space: nowrap;
-  font-family: var(--display); font-variation-settings: 'wdth' 108; font-weight: 700; font-size: 0.9375rem;
+  font-family: var(--display); font-variation-settings: 'wdth' 108; font-weight: 600; font-size: 0.9375rem;
   padding: 15px 24px; border-radius: 999px; background: var(--ink); color: var(--ground);
   user-select: none;
   /* releasing springs back; pressing (below) is immediate */
@@ -121,4 +123,4 @@ img, video, svg { display: block; max-width: 100%; }
 }
 
 /* The display width axis as a real number, so it can be tweened and transitioned. */
-@property --wdth { syntax: '<number>'; inherits: true; initial-value: 68; }
+@property --wdth { syntax: '<number>'; inherits: true; initial-value: 64; }

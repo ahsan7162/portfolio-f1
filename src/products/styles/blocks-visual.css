@@ -18,7 +18,7 @@
 .bv-split-words { grid-area: words; min-width: 0; }
 .bv-split-frame { width: 100%; }
 .bv-media--app.bv-split-frame { width: min(340px, 72%); margin-inline: auto; }
-.bv-split-head { font-size: clamp(30px, 3.6vw, 56px); text-wrap: balance; }
+.bv-split-head { font-size: var(--pp-head); text-wrap: balance; }
 .bv-split-body { margin-top: clamp(16px, 1.8vw, 24px); max-width: 46ch; color: var(--dim); font-size: clamp(1.0625rem, 1.35vw, 1.25rem); line-height: 1.55; }
 .bv-points { list-style: none; margin-top: clamp(22px, 2.4vw, 32px); max-width: 46ch; border-bottom: 1px solid var(--line); }
 .bv-points li { display: flex; gap: 14px; align-items: baseline; padding: 12px 0; border-top: 1px solid var(--line); font-weight: 500; }
@@ -90,7 +90,7 @@
   grid-column: var(--c3); grid-row: var(--r3);
   padding: clamp(22px, 2.4vw, 34px); border-radius: 20px; background: var(--raise); box-shadow: inset 0 0 0 1px var(--line);
 }
-.bv-tile-num { --wdth: 70; font-size: clamp(88px, 9vw, 168px); line-height: 0.8; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.bv-tile-num { --wdth: 64; font-size: clamp(88px, 9vw, 168px); line-height: 0.8; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .bv-tile-num [data-count] { display: inline-block; }
 .bv-tile-num small { font-size: 0.4em; color: var(--acc); margin-left: 0.06em; }
 .bv-tile-label { max-width: 28ch; }
@@ -225,7 +225,7 @@
 .bv-rot-bar + .bv-scenes-caps { margin-top: 18px; }
 
 /* tour: steps beside one screen */
-.bv-tour-head { max-width: 22ch; font-size: clamp(28px, 3.2vw, 48px); text-wrap: balance; }
+.bv-tour-head { max-width: 22ch; font-size: var(--pp-head); text-wrap: balance; }
 .bv-tour-head + .bv-tour-grid { margin-top: clamp(28px, 3.4vw, 44px); }
 .bv-tour-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(32px, 6vw, 104px); align-items: center; }
 .bv-tour-side { min-width: 0; }
@@ -270,7 +270,7 @@
 
 /* deck: a hand of cards. Wide, the hand fans: --k is a card's place from the middle (-5 to 5 for eleven);
    narrow, the cards sit in a row you swipe */
-.bv-deck-head { margin-top: 18px; max-width: 24ch; font-size: clamp(1.75rem, 3.4vw, 3.25rem); text-wrap: balance; }
+.bv-deck-head { margin-top: 18px; max-width: 24ch; font-size: var(--pp-head); text-wrap: balance; }
 .bv-deck-hand { --w: clamp(150px, 14.5vw, 230px); list-style: none; position: relative; margin: clamp(36px, 4.6vw, 64px) 0 0; padding: 0; height: calc(var(--w) * 1.62 + 9vw); }
 .bv-deck-slot { position: absolute; left: 50%; top: 0; width: var(--w); --spread: calc(min(78vw, 1180px) / (var(--n) + 1)); }
 .bv-deck-card {
@@ -357,7 +357,7 @@
 }
 
 /* anatomy: one thing drawn large, its parts numbered above it */
-.bv-anat-head { margin-top: clamp(28px, 3.4vw, 44px); max-width: 16ch; font-family: var(--display); font-weight: 760; font-variation-settings: 'wdth' 125; font-size: clamp(2.2rem, 4.6vw, 4.4rem); line-height: 0.98; letter-spacing: -0.03em; text-wrap: balance; }
+.bv-anat-head { margin-top: clamp(28px, 3.4vw, 44px); max-width: 24ch; font-size: var(--pp-head); text-wrap: balance; }
 .bv-anat-art { position: relative; margin-top: clamp(36px, 4.4vw, 64px); padding-top: 64px; }
 .bv-anat-draw { position: relative; aspect-ratio: 9 / 1; min-height: 96px; }
 .bv-anat-draw > img { width: 100%; height: auto; }
@@ -373,7 +373,7 @@
 .bv-anat-part[data-on] b, .bv-anat-part:hover b { color: var(--ink); }
 .bv-anat-part[aria-selected='true']::before { content: ''; position: absolute; inset: auto 30% -6px; height: 2px; border-radius: 2px; background: var(--acc-lit); }
 .bv-anat-info { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 18px clamp(24px, 5vw, 80px); align-items: start; margin-top: clamp(40px, 5vw, 64px); min-height: 7.5em; }
-.bv-anat-info h3 { font-family: var(--display); font-size: clamp(1.6rem, 2.4vw, 2.2rem); font-weight: 700; font-variation-settings: 'wdth' 112; line-height: 1.05; }
+.bv-anat-info h3 { font-family: var(--display); font-size: clamp(1.6rem, 2.4vw, 2.2rem); font-weight: 600; font-variation-settings: 'wdth' 108; line-height: 1.05; }
 .bv-anat-info h3 span { color: var(--acc-lit); font-size: 0.45em; vertical-align: 0.6em; margin-right: 0.7em; font-weight: 500; }
 .bv-anat-info p { margin-top: 12px; color: var(--dim); max-width: 46ch; font-size: 1.05rem; line-height: 1.5; }
 .bv-anat-states { display: flex; flex-wrap: wrap; gap: 8px; align-content: start; }
@@ -399,14 +399,14 @@
 }
 
 /* route: where requests go, set as type along one line */
-.bv-route-head { margin-top: clamp(28px, 3.4vw, 44px); max-width: 18ch; font-family: var(--display); font-weight: 760; font-variation-settings: 'wdth' 125; font-size: clamp(2.2rem, 4.6vw, 4.4rem); line-height: 0.98; letter-spacing: -0.03em; text-wrap: balance; }
+.bv-route-head { margin-top: clamp(28px, 3.4vw, 44px); max-width: 18ch; font-size: var(--pp-head); text-wrap: balance; }
 .bv-route-bar { justify-content: flex-start; margin-top: clamp(28px, 3.4vw, 44px); }
 .bv-route-stops { position: relative; display: grid; grid-template-columns: repeat(var(--stops), minmax(0, 1fr)); gap: 0 18px; margin-top: clamp(40px, 5vw, 64px); }
 .bv-route-stops::before { content: ''; position: absolute; left: 6px; right: calc(100% / var(--stops) - 6px); top: 6px; height: 1px; background: var(--line); }
 .bv-route-stop { position: relative; min-width: 0; }
 .bv-route-dot { position: relative; z-index: 1; display: block; width: 13px; height: 13px; border-radius: 50%; background: var(--ground); box-shadow: inset 0 0 0 1.5px var(--faint); transition: background-color 0.3s var(--ease), box-shadow 0.3s var(--ease); }
 .bv-route-stop[data-lit] .bv-route-dot { background: var(--acc-lit); box-shadow: 0 0 16px var(--acc-lit); }
-.bv-route-stop h4 { margin-top: 28px; font-family: var(--display); font-weight: 760; font-variation-settings: 'wdth' 125; font-size: clamp(1.7rem, 2.8vw, 2.7rem); line-height: 1; letter-spacing: -0.022em; color: var(--dim); transition: color 0.35s var(--ease); }
+.bv-route-stop h4 { margin-top: 28px; font-family: var(--display); font-weight: 600; font-variation-settings: 'wdth' 108; font-size: clamp(1.7rem, 2.8vw, 2.7rem); line-height: 1; letter-spacing: -0.022em; color: var(--dim); transition: color 0.35s var(--ease); }
 .bv-route-stop[data-lit] h4 { color: var(--ink); }
 .bv-route-stop[data-never] h4 s { text-decoration-thickness: 0.07em; }
 .bv-route-where { margin-top: 12px; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--dim); }
@@ -427,7 +427,7 @@
 }
 @media (prefers-reduced-motion: reduce) { .bv-route-light { display: none; } }
 /* morph: the same content as plain text, then as the product's own interface */
-.bv-morph-head { margin-top: 18px; max-width: 24ch; font-size: clamp(1.75rem, 3.4vw, 3.25rem); text-wrap: balance; }
+.bv-morph-head { margin-top: 18px; max-width: 24ch; font-size: var(--pp-head); text-wrap: balance; }
 .bv-morph-bar { display: flex; width: fit-content; margin: clamp(22px, 2.6vw, 34px) auto 0; padding: 4px; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--line); }
 .bv-morph-bar button { padding: 9px 16px; border-radius: 999px; color: var(--dim); transition: background-color 0.25s, color 0.25s; }
 .bv-morph-bar button[aria-pressed='true'] { background: var(--acc); color: var(--on-acc); }
@@ -447,7 +447,7 @@
 .bv-morph-line { will-change: transform; }
 
 /* prompts: a prompt bar, its asks, and the reply streaming in */
-.bv-prompts-head { margin-top: 18px; max-width: 24ch; font-size: clamp(1.75rem, 3.4vw, 3.25rem); text-wrap: balance; }
+.bv-prompts-head { margin-top: 18px; max-width: 24ch; font-size: var(--pp-head); text-wrap: balance; }
 .bv-prompts-bar {
   display: flex; align-items: center; gap: 14px; margin: clamp(22px, 2.8vw, 36px) auto 0; max-width: 880px; padding: 10px 10px 10px 26px;
   border-radius: 999px; background: var(--raise); box-shadow: inset 0 0 0 1px var(--line), 0 30px 70px -40px color-mix(in srgb, var(--acc) 50%, transparent);
@@ -471,7 +471,7 @@
 .bv-prompts-wait { display: grid; place-items: center; }
 
 /* specimens: a wall of names beside an inspector */
-.bv-spec-head { margin-top: 18px; max-width: 22ch; font-size: clamp(1.75rem, 3.4vw, 3.25rem); text-wrap: balance; }
+.bv-spec-head { margin-top: 18px; max-width: 22ch; font-size: var(--pp-head); text-wrap: balance; }
 .bv-spec-grid { display: grid; gap: clamp(24px, 3vw, 48px); margin-top: clamp(26px, 3.4vw, 44px); }
 @media (min-width: 900px) { .bv-spec-grid { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); align-items: start; } }
 .bv-spec-wall { display: grid; gap: clamp(18px, 2.2vw, 28px); }
@@ -505,7 +505,7 @@
 .bv-spec-code pre { margin: 10px 0; max-height: 240px; overflow: auto; padding: 12px 14px; border-radius: 12px; background: var(--ground); font: 0.75rem/1.6 var(--mono); white-space: pre-wrap; overflow-wrap: anywhere; box-shadow: inset 0 0 0 1px var(--line); }
 /* rules: a product's own rules, live. The controls are the page's (bone on black, selected inverted, never the
    product's colour, which may mean something in its drawing); the result is drawn as the product. */
-.bv-rules-head { font-size: clamp(1.75rem, 3.4vw, 3.4rem); max-width: 22em; margin-top: clamp(22px, 3vw, 36px); text-wrap: balance; }
+.bv-rules-head { font-size: var(--pp-head); max-width: 22em; margin-top: clamp(22px, 3vw, 36px); text-wrap: balance; }
 .bv-rules-head em { font-style: normal; color: var(--acc); }
 .bv-rules-note { margin-top: 22px; }
 .bv-rules-stage { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: clamp(28px, 5vw, 96px); margin-top: clamp(32px, 4.4vw, 56px); }
@@ -518,12 +518,12 @@
 .bv-rules-ins { display: grid; grid-template-columns: repeat(3, minmax(0, 0.8fr)) repeat(3, minmax(0, 1.4fr)); gap: 10px; margin-top: clamp(32px, 4.4vw, 56px); }
 .bv-rules-in { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px 16px; border-radius: 4px; box-shadow: inset 0 0 0 1.5px var(--line); color: var(--ink); text-align: left; transition: background-color 0.18s, color 0.18s; }
 .bv-rules-in > .pp-mono { color: var(--dim); }
-.bv-rules-in b { font-family: var(--display); font-weight: 700; font-variation-settings: 'wdth' 108; font-size: 1.15rem; }
+.bv-rules-in b { font-family: var(--display); font-weight: 600; font-variation-settings: 'wdth' 108; font-size: 1.15rem; }
 button.bv-rules-in:hover { box-shadow: inset 0 0 0 1.5px var(--ink); }
 .bv-rules-in[aria-pressed='true'] { background: var(--ink); color: var(--ground); box-shadow: none; }
 .bv-rules-in[aria-pressed='true'] > .pp-mono { color: color-mix(in srgb, var(--ground) 60%, transparent); }
 .bv-rules-in--seg > span:last-child { display: flex; gap: 4px; }
-.bv-rules-in--seg button { flex: 1; padding: 6px 4px; border-radius: 3px; color: var(--dim); font: 700 0.95rem var(--display); font-variation-settings: 'wdth' 108; }
+.bv-rules-in--seg button { flex: 1; padding: 6px 4px; border-radius: 3px; color: var(--dim); font: 600 0.95rem var(--display); font-variation-settings: 'wdth' 108; }
 .bv-rules-in--seg button:hover { color: var(--ink); }
 .bv-rules-in--seg button[aria-checked='true'] { background: var(--ink); color: var(--ground); }
 :is(.bv-rules-in, .bv-rules-in button, .bv-comp-modes button, .bv-rep-set, .bv-rep-set button, .bv-rep-cmd button):focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
@@ -565,7 +565,7 @@ button.bv-rules-in:hover { box-shadow: inset 0 0 0 1.5px var(--ink); }
 .bv-rep-ev em { display: inline-block; margin-left: 8px; font-style: normal; color: var(--dim); }
 .bv-rep-ev[data-skip] > span:last-child { color: var(--dim); }
 .bv-rep-clock { display: flex; flex-direction: column; align-items: center; gap: 10px; padding-top: 30px; }
-.bv-rep-clock b { font-size: clamp(72px, 7.4vw, 120px); line-height: 0.8; --wdth: 110; font-variant-numeric: tabular-nums; }
+.bv-rep-clock b { font-size: clamp(72px, 7.4vw, 120px); line-height: 0.8; --wdth: 125; font-variant-numeric: tabular-nums; }
 .bv-rep-clock span { color: var(--dim); }
 .bv-rep-reach { font-size: 14px; min-width: 0; }
 .bv-rep-sets { display: flex; flex-wrap: wrap; gap: 8px; margin-top: clamp(32px, 4vw, 44px); align-items: center; }

@@ -5,7 +5,7 @@
 }
 /* opening onto a product: a deep shade of its colour */
 .pp-curtain[data-branded] { background: color-mix(in oklch, var(--brand) 46%, var(--black)); }
-.pp-curtain span { --wdth: 62; font-size: clamp(64px, 17vw, 300px); white-space: nowrap; }
+.pp-curtain span { --wdth: 64; font-size: clamp(64px, 17vw, 300px); white-space: nowrap; }
 
 .pp-cursor {
   position: fixed; left: 0; top: 0; z-index: 95; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%;

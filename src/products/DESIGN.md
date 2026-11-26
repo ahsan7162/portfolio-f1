@@ -195,8 +195,8 @@ Two families, both self-hosted through fontsource and loaded in `base.css`:
 
 | Class | What it is | Use |
 |---|---|---|
-| `pp-display` | weight 900, uppercase, narrow (`wdth` 68), line-height 0.84 | product names, section titles, huge numbers |
-| `pp-lede` | weight 600, wide (`wdth` 108), tight tracking | pitches, block headlines, feature titles |
+| `pp-display` | weight 900, uppercase, narrow (`wdth` 64), line-height 0.84 | product names and huge numbers |
+| `pp-lede` | weight 600, wide (`wdth` 108), tight tracking | pitches, every sentence headline, feature titles |
 | `pp-mono` | 12px, uppercase, tracked | labels, metadata, counts, keys, code: a name of a few words, or the short phrase under a stat or a route stop |
 | `pp-cap` | 15px body text in `--dim`; its `code` in mono, in its own case | captions and hints: any sentence under a demo, a picture or a film |
 | body | 17px Archivo at `wdth` 100, line-height 1.5 | paragraphs |
@@ -207,6 +207,11 @@ Rules:
 - A name that must fill its line uses `useFit(ref, maxVh)` from `detail/fit.ts`. Do not hand-tune a font size per product.
 - Mono text is always uppercase and small, so it is for labels only: a name, metadata, the short phrase under a stat or a route stop. A sentence is never mono: a caption or hint uses `pp-cap`. The one exception is the car's hint, a mono sentence kept in its own case.
 - Size type with `clamp()`, never a fixed pixel size above 20px.
+- Headlines come in three levels, each with one width and one weight:
+  1. **Names and big figures**: `pp-display`, condensed (`wdth` 64), weight 900. The only very large type.
+  2. **A short demo title** ("Ask for it."): extended (`wdth` 125), weight 800, one size, only above a demo. The live counters (tallies, the rules count, the replay clock) share this width.
+  3. **Every sentence headline**: `pp-lede` at `--pp-head`, the one section size. The Why statement is the one step up, `clamp(36px, 5vw, 80px)`. Sub-heads (a step, a part, a stop) are `pp-lede` weight and width at their own smaller size.
+  A new head takes one of these; it never sets its own weight, width or tracking. Buttons are weight 600; a pressed toggle keeps its weight, so its label doesn't widen.
 
 ---
 

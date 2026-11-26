@@ -37,7 +37,7 @@ export function Statement({ block, n }: BlockProps<'statement'>) {
     <section className="dt-block dt-sec pp-wrap" ref={root} aria-labelledby={id}>
       <Label n={n} id={id}>{block.label}</Label>
       <div className="dt-why">
-        <p className="dt-why-head">
+        <p className="dt-why-head pp-lede">
           {words(block.head).map(w => (
             <span key={w.id}>
               <span className="dt-w">{w.parts.map(p => (p.acc ? <em key={p.id}>{p.text}</em> : <span key={p.id}>{p.text}</span>))}</span>{' '}

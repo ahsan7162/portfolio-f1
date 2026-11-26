@@ -25,7 +25,7 @@ export function Text({ block, n }: BlockProps<'text'>) {
     <section className="dt-block dt-sec pp-wrap" ref={root} aria-labelledby={block.label || block.head ? id : undefined}>
       {block.label && <Label n={n} id={id}>{block.label}</Label>}
       <div className={`dt-text${block.label ? ' dt-text--labelled' : ''}`}>
-        {block.head && <Head className="dt-text-head" id={block.label ? undefined : id}>{block.head}</Head>}
+        {block.head && <Head className="dt-text-head pp-lede" id={block.label ? undefined : id}>{block.head}</Head>}
         <div className="dt-text-body">{block.body.map(p => <p key={p}>{p}</p>)}</div>
       </div>
     </section>

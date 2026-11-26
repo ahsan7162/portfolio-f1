@@ -91,7 +91,7 @@ export function Anatomy({ block, n }: BlockProps<'anatomy'>) {
   return (
     <Tabs value={String(pinned)} onValueChange={(v) => pin(Number(v))} render={<section ref={root} />} className="dt-block dt-sec pp-wrap bv-anat" aria-labelledby={id}>
       <Label n={n} id={id}>{block.label}</Label>
-      {block.head && <h3 className="bv-anat-head">{block.head}</h3>}
+      {block.head && <h3 className="bv-anat-head pp-lede">{block.head}</h3>}
       {block.note && <p className="bv-rot-note">{block.note}</p>}
       <div className="bv-anat-art" ref={art} onPointerLeave={() => setHover(null)}>
         <div className="bv-anat-draw">
