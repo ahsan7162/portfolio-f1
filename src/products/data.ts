@@ -671,13 +671,6 @@ export const products: Product[] = [
         ],
       },
       {
-        type: 'stats',
-        stats: [
-          { value: '4', label: 'ways to group your tickets' },
-          { value: '8', label: 'keyboard shortcuts, one sheet' },
-        ],
-      },
-      {
         type: 'route',
         label: 'Where it goes',
         head: 'From bb to Atlassian, and nowhere else.',
@@ -786,28 +779,29 @@ export const products: Product[] = [
         caption: 'It follows bb’s theme, light or dark. Colour only where it means something: the type, the status, the priority.',
       },
       {
-        type: 'faq',
-        label: 'Questions',
-        items: [
-          { q: 'Can I assign tickets?', a: 'Yes, from 0.5. In an open ticket, click the assignee to search the people Jira lets you assign that ticket to, or unassign it. It assigns by account, not by name, since names repeat on a site. A ticket you hand to someone else leaves your list.' },
-          { q: 'What do I have to set up?', a: 'Nothing. Click Connect Jira and sign in with Atlassian in the browser. Each install registers itself, so there is no app to create and no secret in the code. Your organization must allow Atlassian’s Rovo MCP server; it does if Claude or other AI tools can already reach your Jira.' },
-          { q: 'Whose tickets does it show?', a: 'Only yours: everything assigned to you, open or done. Open a key from search, or a parent or child from a ticket, to see others.' },
-          { q: 'Can I create tickets or comment?', a: 'Create ticket opens your Jira boards in the browser. A ticket’s comments show in the ticket, and you reply in Jira.' },
-          { q: 'Where is my token kept?', a: 'The refresh token is kept in a secret plugin setting on the machine running bb, and the access token only in memory. Requests go from bb to Atlassian and nowhere else. Disconnect removes the token.' },
-          { q: 'Does it work with Jira Data Center or Server?', a: 'No. It works with Jira Cloud only.' },
-          { q: 'Can I use more than one Jira site?', a: 'Yes. If your account grants several, the site name becomes a menu to switch.' },
-          { q: 'Are there limits?', a: 'It shows 50 tickets a page, and counts, filters and groups cover the page you are on. A ticket shows its first 50 comments and first 100 children. Grouping by board checks up to 100 boards per project.' },
-        ],
-      },
-      {
         type: 'specs',
-        label: 'Requirements',
+        label: 'Before you install',
         rows: [
           { name: 'Jira', value: 'Jira Cloud', note: 'Data Center and Server are not supported.' },
           { name: 'Your organization', value: 'Allows Atlassian’s Rovo MCP server', note: 'It does if Claude or other AI tools can already reach your Jira.' },
           { name: 'bb', value: '0.48 or later', note: 'Plugin SDK 0.6.94 or later.' },
           { name: 'Account', value: 'Your Atlassian sign-in', note: 'Nothing to configure, no app to create.' },
           { name: 'Licence', value: 'MIT' },
+        ],
+      },
+      {
+        // no label: the questions sit under the requirements, the first four shown
+        type: 'faq',
+        show: 4,
+        items: [
+          { q: 'What do I have to set up?', a: 'Nothing. Click Connect Jira and sign in with Atlassian in the browser. Each install registers itself, so there is no app to create and no secret in the code. Your organization must allow Atlassian’s Rovo MCP server; it does if Claude or other AI tools can already reach your Jira.' },
+          { q: 'Whose tickets does it show?', a: 'Only yours: everything assigned to you, open or done. Open a key from search, or a parent or child from a ticket, to see others.' },
+          { q: 'Where is my token kept?', a: 'The refresh token is kept in a secret plugin setting on the machine running bb, and the access token only in memory. Requests go from bb to Atlassian and nowhere else. Disconnect removes the token.' },
+          { q: 'Can I assign tickets?', a: 'Yes, from 0.5. In an open ticket, click the assignee to search the people Jira lets you assign that ticket to, or unassign it. It assigns by account, not by name, since names repeat on a site. A ticket you hand to someone else leaves your list.' },
+          { q: 'Can I create tickets or comment?', a: 'Create ticket opens your Jira boards in the browser. A ticket’s comments show in the ticket, and you reply in Jira.' },
+          { q: 'Does it work with Jira Data Center or Server?', a: 'No. It works with Jira Cloud only.' },
+          { q: 'Can I use more than one Jira site?', a: 'Yes. If your account grants several, the site name becomes a menu to switch.' },
+          { q: 'Are there limits?', a: 'It shows 50 tickets a page, and counts, filters and groups cover the page you are on. A ticket shows its first 50 comments and first 100 children. Grouping by board checks up to 100 boards per project.' },
         ],
       },
       {
