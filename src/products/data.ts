@@ -899,15 +899,6 @@ export const products: Product[] = [
         title: 'Adding providers to the page, with demo data',
       },
       {
-        type: 'steps',
-        label: 'How it works',
-        steps: [
-          { tag: 'Usage', title: 'Reads your local logs', body: 'ccusage, pinned to one release and run offline, reads the logs your agent CLIs already write.' },
-          { tag: 'Limits', title: 'Asks for your plan limits', body: 'They come from Anthropic’s usage endpoint, using the sign-in Claude Code already stored on your machine.' },
-          { tag: 'Page', title: 'Shows it for a minute', body: 'Everything is cached for a minute, and the page reads again when you press refresh.' },
-        ],
-      },
-      {
         type: 'specs',
         label: 'Requirements',
         rows: [
