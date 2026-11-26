@@ -221,7 +221,7 @@ Rules:
 - Side padding is `--pad` (`clamp(20px, 3.6vw, 56px)`), applied with `pp-wrap`. Full-bleed bands (the Get block, the Next band) put `pp-wrap` on an inner element.
 - Vertical rhythm between blocks is `--dt-gap` (`clamp(80px, 9vw, 128px)`), applied as `padding-top` by `.dt-block`. A block that needs less sets `--dt-gap` on itself (see `.dt-sec--stats`). Do not add margins between blocks.
 - Controls come in three heights, each a `min-height` so a label can wrap: 48px (buttons, search, the view switch), 40px (tabs, filters, picks, Previous and Next), 32px (tags such as the cost tag). The large install button is the one exception.
-- Easing for CSS transitions is `--ease`; a pressed control springing back uses `--spring`.
+- Easing for CSS transitions is `--ease`; a pressed control dips to 97% and eases back over 0.16s. `--spring` is only for a goal ticking off.
 - Text for screen readers only uses the class `pp-sr`.
 - A showcase (the `cases` and `scenes` blocks) fits one screen at any size. `useShowcaseFit` in `blocks/shared.tsx` narrows its screen until the headline or ask, the screen and the tabs fit the small viewport height. It refits on a viewport change, never on a content change, and it never shrinks a screen below half its width or 320px: there the page just scrolls. The tabs sit right under the screen, the caption and hint below them. On a phone the tabs are one row that scrolls sideways, with Pause or Play at its left.
 
