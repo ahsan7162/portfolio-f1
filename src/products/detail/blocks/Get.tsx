@@ -17,7 +17,7 @@ function Command({ text }: { text: string }) {
   );
 }
 
-export function Get({ block, n }: BlockProps<'get'>) {
+export function Get({ block }: BlockProps<'get'>) {
   const root = useRef<HTMLElement>(null);
   const id = useId();
   const [copied, copy] = useCopy();
@@ -31,7 +31,7 @@ export function Get({ block, n }: BlockProps<'get'>) {
   return (
     <section className="dt-block dt-get" ref={root} aria-labelledby={id}>
       <div className="pp-wrap">
-        <Label n={n} id={id}>{block.label}</Label>
+        <Label id={id}>{block.label}</Label>
         <div className="dt-get-main">
           {via.kind === 'command' && (
             <div className="dt-cmd">

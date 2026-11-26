@@ -6,7 +6,7 @@ import { gsap } from '../../motion';
 import { Label, SwapLabel, useBlockMotion, useCopy, type BlockProps } from './shared';
 import '../../styles/blocks-content.css';
 
-export function Palette({ block, n }: BlockProps<'palette'>) {
+export function Palette({ block }: BlockProps<'palette'>) {
   const root = useRef<HTMLElement>(null);
   const id = useId();
   const [copied, copy] = useCopy();
@@ -26,7 +26,7 @@ export function Palette({ block, n }: BlockProps<'palette'>) {
 
   return (
     <section className="dt-block dt-sec pp-wrap" ref={root} aria-labelledby={id}>
-      <Label n={n} id={id}>{block.label}</Label>
+      <Label id={id}>{block.label}</Label>
       <ul className="bc-swatches">
         {block.colours.map(c => {
           const done = copied && which === c.hex;

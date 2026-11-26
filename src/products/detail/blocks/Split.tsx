@@ -5,7 +5,7 @@ import { MediaView } from './MediaView';
 import { Label, useBlockMotion, type BlockProps } from './shared';
 import '../../styles/blocks-visual.css';
 
-export function Split({ block, product, n }: BlockProps<'split'>) {
+export function Split({ block, product }: BlockProps<'split'>) {
   const root = useRef<HTMLElement>(null);
   const id = useId();
   const dir = block.side === 'left' ? -1 : 1;
@@ -21,7 +21,7 @@ export function Split({ block, product, n }: BlockProps<'split'>) {
   const Head = block.label ? 'h3' : 'h2';
   return (
     <section className={`dt-block dt-sec pp-wrap bv-split bv-split--${block.side}${block.label ? '' : ' bv-split--cont'}`} ref={root} aria-labelledby={id}>
-      {block.label && <Label n={n} id={id}>{block.label}</Label>}
+      {block.label && <Label id={id}>{block.label}</Label>}
       <div className="bv-split-grid">
         <div className="bv-split-media"><MediaView media={block.media} product={product} className="bv-split-frame" /></div>
         <div className="bv-split-words">

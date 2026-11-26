@@ -74,7 +74,6 @@
 .dt-blocks > .dt-block:first-child { --dt-gap: clamp(64px, 8vw, 120px); }
 .dt-sec--stats { --dt-gap: clamp(56px, 7vw, 104px); }
 .dt-label { display: flex; align-items: center; gap: 16px; font-weight: 500; }
-.dt-label-n { color: var(--acc); }
 .dt-label-line { flex: 1; height: 1px; background: var(--line); transform-origin: left center; }
 .dt-label-aside { color: var(--dim); }
 /* on a phone the tag drops under the rule */
@@ -152,7 +151,6 @@
 
 /* get it: a full-bleed accent band */
 .dt-get { margin-top: var(--dt-gap); background: var(--acc); color: var(--on-acc); padding-block: clamp(56px, 7vw, 96px); }
-.dt-get .dt-label-n { color: var(--on-acc); }
 .dt-get .dt-label-line { background: color-mix(in srgb, var(--on-acc) 28%, transparent); }
 .dt-get-main { margin-top: clamp(24px, 3vw, 36px); }
 .dt-cmd { display: flex; justify-content: space-between; align-items: center; gap: clamp(18px, 3vw, 40px); }
@@ -245,15 +243,21 @@
   .dt-facts dd { font-size: 1rem; }
 }
 
-/* The page's outline, under the hero: every block in this page's order. */
-.dt-toc { display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px 22px; margin-top: clamp(28px, 4vw, 52px); padding-top: 18px; border-top: 1px solid var(--line); }
-.dt-toc-head { flex: none; color: var(--dim); }
-.dt-toc-list { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; }
-.dt-toc-item { display: inline-flex; gap: 9px; padding: 8px 13px; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--line); transition: background-color 0.15s, color 0.15s, box-shadow 0.15s, transform 0.15s var(--ease); }
-.dt-toc-item:active { transform: scale(0.95); transition-duration: 0.06s; }
-.dt-toc-item b { color: var(--acc); font-weight: 700; }
-.dt-toc-item:hover { background: var(--ink); color: var(--ground); box-shadow: none; }
-.dt-toc-item:hover b { color: inherit; }
+/* The outline as a bar per section at the right edge, in place of the scrollbar (from 1024px): the section you are in is a
+   longer bar in the product's colour; a bar's section name shows beside it on hover or focus, and a click scrolls there. */
+.dt-rail { position: fixed; z-index: 40; right: max(8px, calc(var(--pad) / 2 - 12px)); top: 50%; translate: 0 -50%; display: none; }
+.dt-rail ol { display: grid; justify-items: end; list-style: none; }
+.dt-rail-item { position: relative; display: block; width: 28px; height: 12px; }
+.dt-rail-item::before { content: ''; position: absolute; right: 0; top: 5px; width: 24px; height: 2px; border-radius: 1px; background: var(--faint); transform: scaleX(0.5); transform-origin: right center; transition: transform 0.25s var(--ease), background-color 0.2s; }
+.dt-rail-item:is(:hover, :focus-visible)::before { background: var(--dim); }
+.dt-rail-item[aria-current]::before { background: var(--acc); transform: none; }
+.dt-rail-label { position: absolute; right: calc(100% + 12px); top: 50%; translate: 0 -50%; padding: 4px 8px; border-radius: 6px; background: var(--ground); box-shadow: inset 0 0 0 1px var(--line); color: var(--ink); font-size: 0.6875rem; letter-spacing: 0.04em; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.15s; }
+.dt-rail-item:is(:hover, :focus-visible) .dt-rail-label { opacity: 1; }
+@media (min-width: 1024px) {
+  .dt-rail { display: block; }
+  html.dt-bars { scrollbar-width: none; }
+  html.dt-bars::-webkit-scrollbar { display: none; }
+}
 
 /* a label that slides to its other text (SwapLabel): one grid cell, so the button keeps its width */
 .dt-swap { display: inline-grid; overflow: hidden; vertical-align: top; }

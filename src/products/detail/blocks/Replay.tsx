@@ -15,7 +15,7 @@ const hhmm = (m: number) => `${String(Math.floor(m / 60)).padStart(2, '0')}:${St
 /** How long the whole stretch takes to play. */
 const PLAY = 9;
 
-export function Replay({ block, n }: BlockProps<'replay'>) {
+export function Replay({ block }: BlockProps<'replay'>) {
   const root = useRef<HTMLElement>(null);
   const id = useId();
   const [from, to] = [minutes(block.from), minutes(block.to)];
@@ -48,7 +48,7 @@ export function Replay({ block, n }: BlockProps<'replay'>) {
 
   return (
     <section className="dt-block dt-sec pp-wrap bv-replay" ref={root} aria-labelledby={id}>
-      <Label n={n} id={id}>{block.label}</Label>
+      <Label id={id}>{block.label}</Label>
       {block.head && <p className="bv-rules-head pp-lede"><Accented text={block.head} /></p>}
       <div className="bv-rep">
         <ol className="bv-rep-feed" aria-label="What happens">

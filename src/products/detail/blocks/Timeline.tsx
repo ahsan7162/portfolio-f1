@@ -6,7 +6,7 @@ import { gsap } from '../../motion';
 import { Label, useBlockMotion, type BlockProps } from './shared';
 import '../../styles/blocks-content.css';
 
-export function Timeline({ block, n }: BlockProps<'timeline'>) {
+export function Timeline({ block }: BlockProps<'timeline'>) {
   const root = useRef<HTMLElement>(null);
   const id = useId();
 
@@ -21,7 +21,7 @@ export function Timeline({ block, n }: BlockProps<'timeline'>) {
 
   return (
     <section className="dt-block dt-sec pp-wrap" ref={root} aria-labelledby={id}>
-      <Label n={n} id={id}>{block.label}</Label>
+      <Label id={id}>{block.label}</Label>
       <div className="bc-tl-wrap">
         <span className="bc-tl-line" aria-hidden="true" />
         <ol className="bc-tl" style={{ '--n': block.events.length } as CSSProperties}>

@@ -11,7 +11,7 @@ import '../../styles/blocks-visual.css';
 /** `*starred*` words take the accent. */
 export const Accented = ({ text }: { text: string }) => <>{text.split('*').map((t, i) => (i % 2 ? <em key={t}>{t}</em> : t))}</>;
 
-export function Rules({ block, n }: BlockProps<'rules'>) {
+export function Rules({ block }: BlockProps<'rules'>) {
   const root = useRef<HTMLElement>(null);
   const id = useId();
   const set = RULES[block.set];
@@ -31,7 +31,7 @@ export function Rules({ block, n }: BlockProps<'rules'>) {
 
   return (
     <section className="dt-block dt-sec pp-wrap bv-rules" ref={root} aria-labelledby={id}>
-      <Label n={n} id={id}>{block.label}</Label>
+      <Label id={id}>{block.label}</Label>
       {block.head && <p className="bv-rules-head pp-lede"><Accented text={block.head} /></p>}
       <div className="bv-rules-stage">
         <div className="bv-rules-draw prd" aria-live="polite">{set.draw(v)}</div>

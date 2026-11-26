@@ -6,7 +6,7 @@ import { MediaView } from './MediaView';
 import { Coded, CopyStatus, Label, SwapLabel, useBlockMotion, useCopy, type BlockProps } from './shared';
 import '../../styles/blocks-content.css';
 
-export function Code({ block, product, n }: BlockProps<'code'>) {
+export function Code({ block, product }: BlockProps<'code'>) {
   const root = useRef<HTMLElement>(null);
   const id = useId();
   const [copied, copy] = useCopy();
@@ -18,7 +18,7 @@ export function Code({ block, product, n }: BlockProps<'code'>) {
 
   return (
     <section className="dt-block dt-sec pp-wrap" ref={root} aria-labelledby={id}>
-      <Label n={n} id={id}>{block.label}</Label>
+      <Label id={id}>{block.label}</Label>
       {block.note && <p className="bc-note">{block.note}</p>}
       <div className="bc-code" data-pair={block.result ? '' : undefined}>
         <figure className="bc-code-panel">

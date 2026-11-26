@@ -22,7 +22,7 @@ function shown(rows: Row[], folded: boolean): (Row | { fold: number })[] {
   return out;
 }
 
-export function Diff({ block, n }: BlockProps<'diff'>) {
+export function Diff({ block }: BlockProps<'diff'>) {
   const root = useRef<HTMLElement>(null);
   const id = useId();
   const [folded, setFolded] = useState(false);
@@ -55,7 +55,7 @@ export function Diff({ block, n }: BlockProps<'diff'>) {
 
   return (
     <section className="dt-block dt-sec pp-wrap bc-diff" ref={root} aria-labelledby={id}>
-      <Label n={n} id={id}>{block.label}</Label>
+      <Label id={id}>{block.label}</Label>
       {block.head && <p className="bc-diff-head pp-lede">{block.head}</p>}
       <p className="bc-diff-edit pp-cap"><code className="bc-diff-file">{block.file}</code><span className="bc-diff-edit-t">{block.edit}</span></p>
       <div className="bc-diff-bar">

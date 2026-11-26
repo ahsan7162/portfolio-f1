@@ -61,7 +61,7 @@ src/products/
   types.ts                       Product, Kind, StageKind, Media, and the Block union
   brand.ts                       brandVars(): a product's colour as CSS variables
   motion.ts                      the one GSAP import: plugins registered, defaults set
-  format.ts                      pad(): 1 -> "01", for an index (a product's number, a section's, a row's); a count stays a plain number
+  format.ts                      pad(): 1 -> "01", for an index (a product's number, a row's); a count stays a plain number
   arrive.ts                      onReveal(): run when the curtain lifts
   scroll.ts                      scrollToY(), scrollToEl(), stepToY(), the wheel gate
   Cursor.tsx                     the pointer label ("Open") on links with data-cursor
@@ -114,7 +114,7 @@ src/products/
   detail/                        a product's own page
     Detail.tsx                   top bar, hero, outline, the blocks, the Next band
     fit.ts                       useFit(): sizes a name to fill its width
-    blocks/index.tsx             the registry: block type -> component; numbered(), the blocks with their numbers
+    blocks/index.tsx             the registry: block type -> component; listed(), the blocks with their labels
     blocks/shared.tsx            BlockProps, Label, useBlockMotion, countUp, useCopy, usePreload
     blocks/<Name>.tsx            one file per block type
     blocks/rotate.ts             the timer and index logic the cases, tour and scenes blocks share
@@ -398,14 +398,15 @@ A detail page is fixed furniture around a free middle:
 
 ```
 top bar          All products · position (opens a list of every product to jump to) · Prev · Next
-hero             meta row · the name, fitted to the width · pitch · buttons · facts · "On this page"
+hero             meta row · the name, fitted to the width · pitch · buttons · facts
+rail             "On this page": a bar per section at the right edge, in place of the scrollbar, from 1024px wide
 blocks           product.blocks, in the order the product gives        <- you design this
 Next band        the next product's name, full width
 ```
 
 You design a page by choosing blocks and their order. Use any block, any number of times, in any order.
 
-**Numbering and the outline.** Blocks with a `label` are numbered 01, 02, … down the page. The hero's "On this page" lists every block in order and scrolls to it. A block without a label shows there under a default name (The product, In numbers, Notes, Feature, Showcase, Marquee, Quote).
+**Labels and the outline.** Sections are not numbered. A block with a `label` gets a small label line above it and a bar on the rail at the right edge, which stands in for the scrollbar: the section you are in is the longer bar in the product's colour, a bar shows its label on hover or focus and scrolls to it. A block without a label is not on the rail.
 
 ### How to arrange a page
 

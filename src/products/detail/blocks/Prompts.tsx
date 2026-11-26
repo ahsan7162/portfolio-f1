@@ -27,7 +27,7 @@ function useArriving(text: string, go: boolean, perSecond: number) {
   return reducedMotion() ? text : text.slice(0, t.text === text ? t.n : 0);
 }
 
-export function Prompts({ block, product, n }: BlockProps<'prompts'>) {
+export function Prompts({ block, product }: BlockProps<'prompts'>) {
   const root = useRef<HTMLElement>(null);
   useShowcaseFit(root, { stage: '.bv-prompts-thread', top: '.bv-prompts-bar', end: '.bv-prompts-thread' });
   const id = useId();
@@ -63,7 +63,7 @@ export function Prompts({ block, product, n }: BlockProps<'prompts'>) {
 
   return (
     <section className="dt-block dt-sec pp-wrap bv-prompts" ref={root} aria-labelledby={id}>
-      <Label n={n} id={id}>{block.label}</Label>
+      <Label id={id}>{block.label}</Label>
       {block.head && <p className="bv-prompts-head pp-lede">{block.head}</p>}
       <div className="bv-prompts-bar">
         <p className="bv-prompts-input" data-empty={!typed || undefined} aria-hidden="true">{typed || 'Ask your agent anything'}<i /></p>

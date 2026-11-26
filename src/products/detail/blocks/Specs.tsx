@@ -4,7 +4,7 @@ import { gsap } from '../../motion';
 import { Label, useBlockMotion, type BlockProps } from './shared';
 import '../../styles/blocks-content.css';
 
-export function Specs({ block, n }: BlockProps<'specs'>) {
+export function Specs({ block }: BlockProps<'specs'>) {
   const root = useRef<HTMLElement>(null);
   const id = useId();
 
@@ -15,7 +15,7 @@ export function Specs({ block, n }: BlockProps<'specs'>) {
 
   return (
     <section className="dt-block dt-sec pp-wrap" ref={root} aria-labelledby={id}>
-      <Label n={n} id={id}>{block.label}</Label>
+      <Label id={id}>{block.label}</Label>
       <dl className="bc-specs">
         {block.rows.map(r => (
           <div key={r.name} className="bc-spec">

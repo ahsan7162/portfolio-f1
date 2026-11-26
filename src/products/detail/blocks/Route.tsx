@@ -13,7 +13,7 @@ import '../../styles/blocks-visual.css';
 const HOLD_RUN = 7;
 const HOP = 0.9;
 
-export function Route({ block, n }: BlockProps<'route'>) {
+export function Route({ block }: BlockProps<'route'>) {
   const root = useRef<HTMLElement>(null);
   const id = useId();
   const r = useRotate(root, { count: block.runs.length, hold: HOLD_RUN });
@@ -57,7 +57,7 @@ export function Route({ block, n }: BlockProps<'route'>) {
 
   return (
     <RotRoot r={r} keep root={root} className="dt-block dt-sec pp-wrap bv-route" aria-labelledby={id} data-rot-state={r.rotating ? 'run' : 'off'}>
-      <Label n={n} id={id}>{block.label}</Label>
+      <Label id={id}>{block.label}</Label>
       {block.head && <h3 className="bv-route-head pp-lede">{block.head}</h3>}
       {block.note && <p className="bv-rot-note">{block.note}</p>}
       <div className="bv-rot-bar bv-route-bar">

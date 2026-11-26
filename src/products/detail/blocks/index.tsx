@@ -1,6 +1,5 @@
 // The detail page's blocks: every block type and the component that draws it. Adding one is in DESIGN.md.
 import { memo, type ComponentType } from 'react';
-import { pad } from '../../format';
 import type { Block, BlockOf, Product } from '../../types';
 import { Features } from './Features';
 import { Split } from './Split';
@@ -83,24 +82,20 @@ const registry: { [K in Block['type']]: ComponentType<BlockProps<K>> } = {
   specimens: Specimens,
 };
 
-function One<K extends Block['type']>({ block, product, n }: { block: BlockOf<K>; product: Product; n?: string }) {
+function One<K extends Block['type']>({ block, product }: { block: BlockOf<K>; product: Product }) {
   const C: ComponentType<BlockProps<K>> = registry[block.type];
-  return <C block={block} product={product} n={n} />;
+  return <C block={block} product={product} />;
 }
 
-/** A page's blocks in order, each with a key, its label if it has one, and that label's number down the page (01, 02, …). */
-export function numbered(blocks: Block[]) {
-  let count = 0;
-  return blocks.map((block, i) => {
-    const label = 'label' in block && block.label ? block.label : undefined;
-    return { block, key: `${i}-${block.type}`, label, n: label ? pad(++count) : undefined };
-  });
+/** A page's blocks in order, each with a key and its label if it has one. */
+export function listed(blocks: Block[]) {
+  return blocks.map((block, i) => ({ block, key: `${i}-${block.type}`, label: 'label' in block && block.label ? block.label : undefined }));
 }
 
 export const Blocks = memo(function Blocks({ product }: { product: Product }) {
   return (
     <div className="dt-blocks">
-      {numbered(product.blocks).map(it => <One key={it.key} block={it.block} product={product} n={it.n} />)}
+      {listed(product.blocks).map(it => <One key={it.key} block={it.block} product={product} />)}
     </div>
   );
 });

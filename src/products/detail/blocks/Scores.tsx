@@ -9,7 +9,7 @@ const part = (value: number, max: number) => (max > 0 ? Math.min(1, Math.max(0, 
 // Real circumference, not pathLength: Chrome does not scale CSS dash values by pathLength.
 const C = 2 * Math.PI * 46;
 
-export function Scores({ block, n }: BlockProps<'scores'>) {
+export function Scores({ block }: BlockProps<'scores'>) {
   const root = useRef<HTMLElement>(null);
   const id = useId();
 
@@ -24,7 +24,7 @@ export function Scores({ block, n }: BlockProps<'scores'>) {
 
   return (
     <section className="dt-block dt-sec pp-wrap" ref={root} aria-labelledby={id}>
-      <Label n={n} id={id}>{block.label}</Label>
+      <Label id={id}>{block.label}</Label>
       {block.note && <p className="bc-note">{block.note}</p>}
       <ul className="bc-scores">
         {block.scores.map(s => (

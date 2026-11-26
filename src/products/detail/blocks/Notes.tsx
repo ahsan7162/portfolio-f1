@@ -4,7 +4,7 @@ import { gsap } from '../../motion';
 import { Label, useBlockMotion, type BlockProps } from './shared';
 import '../../styles/blocks-content.css';
 
-export function Notes({ block, n }: BlockProps<'notes'>) {
+export function Notes({ block }: BlockProps<'notes'>) {
   const root = useRef<HTMLElement>(null);
   const id = useId();
 
@@ -15,7 +15,7 @@ export function Notes({ block, n }: BlockProps<'notes'>) {
 
   return (
     <section className="dt-block dt-sec pp-wrap" ref={root} aria-labelledby={id}>
-      <Label n={n} id={id}>{block.label}</Label>
+      <Label id={id}>{block.label}</Label>
       <ul className="bc-notes">
         {block.items.map(it => (
           <li key={it.title} className="bc-note-item" data-warn={it.warn ? '' : undefined}>

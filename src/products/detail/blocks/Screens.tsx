@@ -6,7 +6,7 @@ import { srcSet } from '../../paths';
 import { KindFrame, SampleScreen } from '../../stage/Frames';
 import { Label, useBlockMotion, usePreload, type BlockProps } from './shared';
 
-export function Screens({ block, product, n }: BlockProps<'screens'>) {
+export function Screens({ block, product }: BlockProps<'screens'>) {
   const root = useRef<HTMLElement>(null);
   const id = useId();
   // A second gallery of sample screens on the same page starts further on, in the dark theme, so the two differ.
@@ -43,7 +43,7 @@ export function Screens({ block, product, n }: BlockProps<'screens'>) {
 
   return (
     <section className="dt-block dt-sec dt-screens pp-wrap" ref={root} aria-labelledby={id}>
-      <Label n={n} id={id}>{block.label}</Label>
+      <Label id={id}>{block.label}</Label>
       <div className="dt-gal">
         <ul className="dt-track">
           {shots.map((s, i) => (

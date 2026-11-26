@@ -9,7 +9,7 @@ import '../../styles/blocks-visual.css';
 
 type Item = BlockProps<'specimens'>['block']['groups'][number]['items'][number];
 
-export function Specimens({ block, product, n }: BlockProps<'specimens'>) {
+export function Specimens({ block, product }: BlockProps<'specimens'>) {
   const root = useRef<HTMLElement>(null);
   const id = useId();
   const all = block.groups.flatMap((g) => g.items.map((it) => ({ ...it, group: g.name })));
@@ -32,7 +32,7 @@ export function Specimens({ block, product, n }: BlockProps<'specimens'>) {
 
   return (
     <section className="dt-block dt-sec pp-wrap bv-spec" ref={root} aria-labelledby={id}>
-      <Label n={n} id={id}>{block.label}</Label>
+      <Label id={id}>{block.label}</Label>
       {block.head && <p className="bv-spec-head pp-lede">{block.head}</p>}
       {block.note && <p className="bv-rot-note">{block.note}</p>}
       <div className="bv-spec-grid">

@@ -15,7 +15,7 @@ interface Box { x: number; y: number; w: number; h: number }
 /** How long each state shows before the next, while a part is pinned and nobody has picked a state. */
 const STATE_MS = 1700;
 
-export function Anatomy({ block, n }: BlockProps<'anatomy'>) {
+export function Anatomy({ block }: BlockProps<'anatomy'>) {
   const root = useRef<HTMLElement>(null);
   const art = useRef<HTMLDivElement>(null);
   const id = useId();
@@ -90,7 +90,7 @@ export function Anatomy({ block, n }: BlockProps<'anatomy'>) {
 
   return (
     <Tabs value={String(pinned)} onValueChange={(v) => pin(Number(v))} render={<section ref={root} />} className="dt-block dt-sec pp-wrap bv-anat" aria-labelledby={id}>
-      <Label n={n} id={id}>{block.label}</Label>
+      <Label id={id}>{block.label}</Label>
       {block.head && <h3 className="bv-anat-head pp-lede">{block.head}</h3>}
       {block.note && <p className="bv-rot-note">{block.note}</p>}
       <div className="bv-anat-art" ref={art} onPointerLeave={() => setHover(null)}>

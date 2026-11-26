@@ -6,7 +6,7 @@ import { gsap, ScrollTrigger } from '../../motion';
 import { Label, useBlockMotion, type BlockProps } from './shared';
 import '../../styles/blocks-content.css';
 
-export function Faq({ block, n }: BlockProps<'faq'>) {
+export function Faq({ block }: BlockProps<'faq'>) {
   const root = useRef<HTMLElement>(null);
   const id = useId();
 
@@ -47,7 +47,7 @@ export function Faq({ block, n }: BlockProps<'faq'>) {
 
   return (
     <section className="dt-block dt-sec pp-wrap" ref={root} aria-labelledby={id}>
-      <Label n={n} id={id}>{block.label}</Label>
+      <Label id={id}>{block.label}</Label>
       <div className="bc-faq">
         {block.items.map(it => (
           <details key={it.q} className="bc-faq-item">

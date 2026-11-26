@@ -11,7 +11,7 @@ import '../../styles/blocks-visual.css';
 /** Each card's place in the fan: -1 left, 0 centre, 1 right (two cards sit at ±0.5). */
 const slots = (count: number) => (count >= 3 ? [-1, 0, 1] : count === 2 ? [-0.5, 0.5] : [0]);
 
-export function Showcase({ block, product, n }: BlockProps<'showcase'>) {
+export function Showcase({ block, product }: BlockProps<'showcase'>) {
   const root = useRef<HTMLElement>(null);
   const id = useId();
   const media = block.media.slice(0, 3);
@@ -33,7 +33,7 @@ export function Showcase({ block, product, n }: BlockProps<'showcase'>) {
 
   return (
     <section className="dt-block dt-sec pp-wrap bv-show" ref={root} aria-labelledby={block.label ? id : undefined} aria-label={block.label ? undefined : 'Showcase'}>
-      {block.label && <Label n={n} id={id}>{block.label}</Label>}
+      {block.label && <Label id={id}>{block.label}</Label>}
       <div className={`bv-show-stage bv-show-stage--${product.kind}`}>
         <span className="bv-show-light" aria-hidden="true" />
         {media.map((m, i) => {

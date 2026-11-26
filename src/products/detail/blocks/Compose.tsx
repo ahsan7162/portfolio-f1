@@ -17,7 +17,7 @@ export function cut(text: string) {
   return out;
 }
 
-export function Compose({ block, n }: BlockProps<'compose'>) {
+export function Compose({ block }: BlockProps<'compose'>) {
   const root = useRef<HTMLElement>(null);
   const box = useRef<HTMLDivElement>(null);
   const id = useId();
@@ -53,7 +53,7 @@ export function Compose({ block, n }: BlockProps<'compose'>) {
 
   return (
     <Tabs value={String(mode)} onValueChange={(v) => setMode(Number(v))} render={<section ref={root} />} className="dt-block dt-sec pp-wrap bv-compose" aria-labelledby={id}>
-      <Label n={n} id={id}>{block.label}</Label>
+      <Label id={id}>{block.label}</Label>
       {block.head && <p className="bv-rules-head pp-lede"><Accented text={block.head} /></p>}
       <div className="bv-comp">
         <div className="bv-comp-parts prd">

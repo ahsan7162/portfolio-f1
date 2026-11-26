@@ -1,5 +1,5 @@
 // A product's own page: the furniture (top bar, hero, next product) around the blocks the product lists.
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { onReveal } from '../arrive';
 import { brandVars } from '../brand';
 import { products } from '../data';
@@ -8,7 +8,7 @@ import { gsap, reducedMotion, ScrollTrigger, useGSAP } from '../motion';
 import { HOME, Link, productPath } from '../router';
 import { scrollToEl } from '../scroll';
 import { FILM_ID, findBlock, KINDS, type Product } from '../types';
-import { Blocks, numbered } from './blocks';
+import { Blocks, listed } from './blocks';
 import { CopyStatus, Out, StoreButtons, SwapLabel, useCopy } from './blocks/shared';
 import { useFit } from './fit';
 import '../styles/detail.css';
@@ -67,11 +67,26 @@ export function Detail({ product }: { product: Product }) {
   const via = findBlock(product, 'get')?.via;
   const film = findBlock(product, 'film');
 
-  // The page's own outline: its labelled blocks in order, numbered as their sections are, so the arrangement is visible (and reachable) from the top.
+  // The page's own outline: its labelled blocks in order, so the arrangement is visible (and reachable) from anywhere on the page.
   // A block with no label has no number on the page either, so it is left out; `place` is where it sits among all the blocks.
-  const outline = numbered(product.blocks).map((it, place) => ({ key: it.key, n: it.n, label: it.label, place })).filter(it => it.label);
+  const outline = listed(product.blocks).map((it, place) => ({ key: it.key, label: it.label, place })).filter(it => it.label);
   const toBlock = (i: number) => scrollToEl(root.current?.querySelectorAll('.dt-block')[i], 24, reducedMotion());
   const toFilm = () => scrollToEl(document.getElementById(FILM_ID), 24, reducedMotion());
+
+  // The rail marks the last labelled block whose top has passed the middle of the screen (none above the first).
+  // Worked out from the scroll position each time, so a jump (Home, a rail click) lands on the right one.
+  const [here, setHere] = useState(-1);
+  // The bars stand in for the scrollbar while a detail page is open.
+  useEffect(() => {
+    document.documentElement.classList.add('dt-bars');
+    return () => document.documentElement.classList.remove('dt-bars');
+  }, []);
+  useGSAP(() => {
+    const labelled = new Set(outline.map(o => o.place));
+    const tops = [...(root.current?.querySelectorAll('.dt-blocks > .dt-block') ?? [])].map(el => ScrollTrigger.create({ trigger: el, start: 'top 50%' }));
+    const mark = (y: number) => setHere(tops.reduce((h, st, place) => (labelled.has(place) && st.start <= y ? place : h), -1));
+    ScrollTrigger.create({ start: 0, end: 'max', onUpdate: self => mark(self.scroll()), onRefresh: self => mark(self.scroll()) });
+  }, { scope: root, dependencies: [product.slug] });
 
   return (
     <div className="dt pp-branded" ref={root} style={brandVars(product.brand)}>
@@ -149,20 +164,25 @@ export function Detail({ product }: { product: Product }) {
             {spec && <div><dt className="pp-mono">{kind.fact}</dt><dd>{spec}</dd></div>}
           </dl>
         </div>
-        <nav className="dt-toc pp-mono" aria-label="On this page" data-in>
-          <span className="dt-toc-head">On this page</span>
-          <ol className="dt-toc-list">
-            {outline.map(o => (
-              <li key={o.key}>
-                <button type="button" className="dt-toc-item pp-mono" onClick={() => toBlock(o.place)}><b>{o.n}</b>{o.label}</button>
-              </li>
-            ))}
-          </ol>
-        </nav>
       </header>
 
       <Blocks product={product} />
       </main>
+
+      {/* The outline as a bar per section at the right edge, standing in for the scrollbar on wide screens (see detail.css). */}
+      {outline.length > 1 && (
+        <nav className="dt-rail pp-mono" aria-label="On this page">
+          <ol>
+            {outline.map(o => (
+              <li key={o.key}>
+                <button type="button" className="dt-rail-item" aria-current={o.place === here ? 'true' : undefined} onClick={() => toBlock(o.place)}>
+                  <span className="dt-rail-label">{o.label}</span>
+                </button>
+              </li>
+            ))}
+          </ol>
+        </nav>
+      )}
 
       {next && (
         <footer>

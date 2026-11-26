@@ -9,7 +9,7 @@ import '../../styles/blocks-visual.css';
 
 const area = (p: Place) => ({ col: `${p.col + 1} / span ${p.w}`, row: `${p.row + 1} / span ${p.h}` });
 
-export function Bento({ block, product, n }: BlockProps<'bento'>) {
+export function Bento({ block, product }: BlockProps<'bento'>) {
   const root = useRef<HTMLElement>(null);
   const id = useId();
   const kinds = block.tiles.map(t => t.kind);
@@ -26,7 +26,7 @@ export function Bento({ block, product, n }: BlockProps<'bento'>) {
 
   return (
     <section className="dt-block dt-sec pp-wrap" ref={root} aria-labelledby={id}>
-      <Label n={n} id={id}>{block.label}</Label>
+      <Label id={id}>{block.label}</Label>
       <ul className="bv-bento">
         {block.tiles.map((t, i) => {
           const a3 = area(three[i]);

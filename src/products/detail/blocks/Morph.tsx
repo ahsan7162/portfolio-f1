@@ -9,7 +9,7 @@ import '../../styles/blocks-visual.css';
 
 const FLY = 0.85;
 
-export function Morph({ block, product, n }: BlockProps<'morph'>) {
+export function Morph({ block, product }: BlockProps<'morph'>) {
   const root = useRef<HTMLElement>(null);
   useShowcaseFit(root, { stage: '.bv-morph-stage', top: '.bv-morph-bar', end: '.bv-morph-stage' });
   const id = useId();
@@ -78,7 +78,7 @@ export function Morph({ block, product, n }: BlockProps<'morph'>) {
 
   return (
     <section className="dt-block dt-sec pp-wrap bv-morph" ref={root} aria-labelledby={id}>
-      <Label n={n} id={id}>{block.label}</Label>
+      <Label id={id}>{block.label}</Label>
       {block.head && <p className="bv-morph-head pp-lede">{block.head}</p>}
       <div className="bv-morph-bar" role="group" aria-label="Show the reply as">
         <Toggle className="pp-mono" pressed={!use} onPressedChange={() => flip(false)}>{block.from.name}</Toggle>

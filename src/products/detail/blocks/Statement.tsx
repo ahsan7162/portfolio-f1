@@ -15,7 +15,7 @@ function words(head: string) {
   }));
 }
 
-export function Statement({ block, n }: BlockProps<'statement'>) {
+export function Statement({ block }: BlockProps<'statement'>) {
   const root = useRef<HTMLElement>(null);
   const id = useId();
 
@@ -35,7 +35,7 @@ export function Statement({ block, n }: BlockProps<'statement'>) {
 
   return (
     <section className="dt-block dt-sec pp-wrap" ref={root} aria-labelledby={id}>
-      <Label n={n} id={id}>{block.label}</Label>
+      <Label id={id}>{block.label}</Label>
       <div className="dt-why">
         <p className="dt-why-head pp-lede">
           {words(block.head).map(w => (

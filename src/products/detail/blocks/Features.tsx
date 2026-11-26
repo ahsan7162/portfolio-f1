@@ -4,7 +4,7 @@ import { pad } from '../../format';
 import { gsap } from '../../motion';
 import { Label, useBlockMotion, type BlockProps } from './shared';
 
-export function Features({ block, n }: BlockProps<'features'>) {
+export function Features({ block }: BlockProps<'features'>) {
   const root = useRef<HTMLElement>(null);
   const id = useId();
 
@@ -18,7 +18,7 @@ export function Features({ block, n }: BlockProps<'features'>) {
 
   return (
     <section className="dt-block dt-sec pp-wrap" ref={root} aria-labelledby={id}>
-      <Label n={n} id={id}>{block.label}</Label>
+      <Label id={id}>{block.label}</Label>
       <ul className="dt-feats">
         {block.items.map((f, i) => (
           <li key={f.title} className="dt-feat">

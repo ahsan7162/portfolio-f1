@@ -4,7 +4,7 @@ import { gsap } from '../../motion';
 import { Label, useBlockMotion, type BlockProps } from './shared';
 import '../../styles/blocks-content.css';
 
-export function Chips({ block, n }: BlockProps<'chips'>) {
+export function Chips({ block }: BlockProps<'chips'>) {
   const root = useRef<HTMLElement>(null);
   const id = useId();
 
@@ -15,7 +15,7 @@ export function Chips({ block, n }: BlockProps<'chips'>) {
 
   return (
     <section className="dt-block dt-sec pp-wrap" ref={root} aria-labelledby={id}>
-      <Label n={n} id={id}>{block.label}</Label>
+      <Label id={id}>{block.label}</Label>
       {block.note && <p className="bc-note">{block.note}</p>}
       <ul className="bc-chips">
         {block.items.map(item => <li key={item} className="bc-chip pp-lede">{item}</li>)}

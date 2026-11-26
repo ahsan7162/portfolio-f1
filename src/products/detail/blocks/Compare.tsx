@@ -7,7 +7,7 @@ import { MediaView } from './MediaView';
 import { Coded, Label, useBlockMotion, type BlockProps } from './shared';
 import '../../styles/blocks-visual.css';
 
-export function Compare({ block, product, n }: BlockProps<'compare'>) {
+export function Compare({ block, product }: BlockProps<'compare'>) {
   const root = useRef<HTMLElement>(null);
   const frame = useRef<HTMLDivElement>(null);
   const sweep = useRef<gsap.core.Tween | null>(null);
@@ -42,7 +42,7 @@ export function Compare({ block, product, n }: BlockProps<'compare'>) {
 
   return (
     <section className="dt-block dt-sec pp-wrap" ref={root} aria-labelledby={id}>
-      <Label n={n} id={id}>{block.label}</Label>
+      <Label id={id}>{block.label}</Label>
       <div
         className={`bv-cmp bv-cmp--${product.kind}`}
         ref={frame}

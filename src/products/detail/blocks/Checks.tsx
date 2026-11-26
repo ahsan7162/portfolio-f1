@@ -37,7 +37,7 @@ function run(root: HTMLElement, vars?: gsap.TimelineVars) {
   return tl;
 }
 
-export function Checks({ block, n }: BlockProps<'checks'>) {
+export function Checks({ block }: BlockProps<'checks'>) {
   const root = useRef<HTMLElement>(null);
   const id = useId();
   const passed = block.items.filter((i) => i.pass).length;
@@ -52,7 +52,7 @@ export function Checks({ block, n }: BlockProps<'checks'>) {
 
   return (
     <section className="dt-block dt-sec pp-wrap" ref={root} aria-labelledby={id}>
-      <Label n={n} id={id}>{block.label}</Label>
+      <Label id={id}>{block.label}</Label>
       {block.head && <p className="bc-checks-head pp-lede">{block.head}</p>}
       {block.note && <p className="bc-note">{block.note}</p>}
       <ol className="bc-checks" aria-label={`${passed} of ${block.items.length} pass`}>

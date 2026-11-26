@@ -93,7 +93,7 @@ export function useCaseMotion(root: RefObject<HTMLElement | null>, r: Rot) {
   }, { scope: root, dependencies: [r.index, r.live], revertOnUpdate: true });
 }
 
-export function Cases({ block, product, n }: BlockProps<'cases'>) {
+export function Cases({ block, product }: BlockProps<'cases'>) {
   const root = useRef<HTMLElement>(null);
   const id = useId();
   const r = useRotate(root, { count: block.cases.length, hold: HOLD });
@@ -103,7 +103,7 @@ export function Cases({ block, product, n }: BlockProps<'cases'>) {
 
   return (
     <RotRoot r={r} root={root} className="dt-block dt-sec pp-wrap bv-cases" aria-labelledby={id} data-rot-state={r.rotating ? 'run' : 'off'}>
-      <Label n={n} id={id} aside="Redrawn · sample data">{block.label}</Label>
+      <Label id={id} aside="Redrawn · sample data">{block.label}</Label>
       {block.note && <p className="bv-rot-note">{block.note}</p>}
       <div className="bv-rot-stack bv-cases-stage">
         {block.cases.map((c, i) => {

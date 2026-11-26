@@ -6,7 +6,7 @@ import { gsap, reducedMotion } from '../../motion';
 import { keysMatch } from './keyMatch';
 import { Label, useBlockMotion, type BlockProps } from './shared';
 
-export function Keys({ block, n }: BlockProps<'keys'>) {
+export function Keys({ block }: BlockProps<'keys'>) {
   const root = useRef<HTMLElement>(null);
   const id = useId();
 
@@ -41,7 +41,7 @@ export function Keys({ block, n }: BlockProps<'keys'>) {
 
   return (
     <section className="dt-block dt-sec pp-wrap" ref={root} aria-labelledby={id}>
-      <Label n={n} id={id}>{block.label}</Label>
+      <Label id={id}>{block.label}</Label>
       {block.note && <p className="dt-keys-note">{block.note}</p>}
       <ul className="dt-keys">
         {block.keys.map(k => (

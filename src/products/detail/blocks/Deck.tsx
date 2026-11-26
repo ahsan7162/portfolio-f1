@@ -22,7 +22,7 @@ function fly(panel: HTMLElement, card: HTMLElement, back: boolean) {
     : gsap.fromTo(panel, { ...from, transformOrigin: '0 0' }, { ...to, duration: 0.6, ease: 'expo.out', clearProps: 'transform,borderRadius' });
 }
 
-export function Deck({ block, product, n }: BlockProps<'deck'>) {
+export function Deck({ block, product }: BlockProps<'deck'>) {
   const root = useRef<HTMLElement>(null);
   const dialog = useRef<HTMLDialogElement>(null);
   const panel = useRef<HTMLDivElement>(null);
@@ -75,7 +75,7 @@ export function Deck({ block, product, n }: BlockProps<'deck'>) {
 
   return (
     <section className="dt-block dt-sec pp-wrap bv-deck" ref={root} aria-labelledby={id}>
-      <Label n={n} id={id}>{block.label}</Label>
+      <Label id={id}>{block.label}</Label>
       {block.head && <p className="bv-deck-head pp-lede">{block.head}</p>}
       {block.note && <p className="bv-rot-note">{block.note}</p>}
       <ul className="bv-deck-hand" style={{ '--n': count } as Vars}>

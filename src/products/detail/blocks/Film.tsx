@@ -7,7 +7,7 @@ import { Label, useBlockMotion, usePreload, type BlockProps } from './shared';
 /** Stable, so re-renders do not re-run it and pull focus back to the video. */
 const focus = (el: HTMLElement | null) => el?.focus();
 
-export function Film({ block, product, n }: BlockProps<'film'>) {
+export function Film({ block, product }: BlockProps<'film'>) {
   const root = useRef<HTMLElement>(null);
   const id = useId();
   const [playing, setPlaying] = useState(false);
@@ -24,7 +24,7 @@ export function Film({ block, product, n }: BlockProps<'film'>) {
 
   return (
     <section className="dt-block dt-sec pp-wrap" ref={root} id={findBlock(product, 'film') === block ? FILM_ID : undefined} aria-labelledby={id}>
-      <Label n={n} id={id}>{block.label}</Label>
+      <Label id={id}>{block.label}</Label>
       <div className="dt-film">
         {/* The poster stays under the video, so the swap is a quick fade over it, never a blank frame. */}
         <img className="dt-film-media" src={block.poster} alt="" loading="lazy" decoding="async" />

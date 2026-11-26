@@ -3,7 +3,7 @@ import { useId, useRef, type CSSProperties } from 'react';
 import { gsap } from '../../motion';
 import { Label, useBlockMotion, type BlockProps } from './shared';
 
-export function Steps({ block, n }: BlockProps<'steps'>) {
+export function Steps({ block }: BlockProps<'steps'>) {
   const root = useRef<HTMLElement>(null);
   const id = useId();
   // The middle node is the highlighted one (with three steps, the product's own part).
@@ -22,7 +22,7 @@ export function Steps({ block, n }: BlockProps<'steps'>) {
 
   return (
     <section className="dt-block dt-sec pp-wrap" ref={root} aria-labelledby={id}>
-      <Label n={n} id={id}>{block.label}</Label>
+      <Label id={id}>{block.label}</Label>
       <ol className="dt-how" style={{ '--steps': block.steps.length } as CSSProperties}>
         {block.steps.map((s, i) => (
           <li key={s.title} className="dt-how-item">

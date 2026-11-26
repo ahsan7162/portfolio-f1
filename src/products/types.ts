@@ -43,7 +43,7 @@ export interface LiveProps {
  * A detail page is a list of blocks, shown in the order given. Each product arranges its own page:
  * use any blocks, in any order, any number of times. To add a new kind of block, add its shape here
  * and its component to the registry in detail/blocks.
- * Blocks with a `label` are numbered down the page (01 Why, 02 How, …).
+ * A block with a `label` gets a label line above it and a place on the page's rail.
  */
 export type Block =
   /** The product itself: its live demo, or its screens in the frame its kind calls for, with the hint under it. */
