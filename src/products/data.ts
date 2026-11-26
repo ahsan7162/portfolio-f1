@@ -481,13 +481,6 @@ export const products: Product[] = [
         footer: `→ The bb thread on ${PR.headRefName}, queued if it’s busy`,
       },
       {
-        type: 'stats',
-        stats: [
-          { value: '1', label: 'request for the tab you open, with every tab’s count' },
-          { value: '8', label: 'reasons a pull request is stuck, each named' },
-        ],
-      },
-      {
         type: 'replay',
         label: 'It taps you',
         head: 'Every five minutes it looks. You hear only *what changed*.',
@@ -578,21 +571,8 @@ export const products: Product[] = [
         caption: 'The plugin follows bb’s theme in light and dark mode.',
       },
       {
-        type: 'faq',
-        label: 'Questions',
-        items: [
-          { q: 'Which agent gets the fix?', a: 'The bb thread already working on the pull request’s branch, whichever agent runs it: Claude, Codex, Qwen, DeepSeek or an open model. It is queued if the thread is busy. With no such thread, bb’s New thread screen opens in the pull request’s project with the prompt filled in, so you choose where it runs.' },
-          { q: 'What does the agent see?', a: 'One prompt with the pull request’s link, repository and branch, then each finding you picked in the pull request’s order: a review comment with its file, line and every reply, or a failed job with its errors and its log link. It is asked to say why if a comment is wrong, instead of changing the code.' },
-          { q: 'Will pull request alerts flood me when I install it?', a: 'No. The first check only records where things stand, so alerts start with the next change. Bots and your own comments never alert, and you can add names to ignore.' },
-          { q: 'Does anything reach my phone?', a: 'Only through bb’s Push notifications plugin: each check sends one notification with the alert’s headline and the pull request’s title, and it forwards them to registered phones through its push relay (Expo by default). Turn showDesktop off to keep them on your bb server.' },
-          { q: 'How does it sign in?', a: 'By default it uses the GitHub CLI login on the machine running bb, so each person sees their own pull requests. With several gh accounts, a picker on My PRs chooses one. A personal access token works too.' },
-          { q: 'Does it work with GitHub Enterprise Server?', a: 'Not yet. It needs a GitHub account on github.com.' },
-          { q: 'Does hiding a repository mute its alerts?', a: 'No. Hiding a repository in the list does not mute its alerts.' },
-        ],
-      },
-      {
         type: 'specs',
-        label: 'Requirements and what it sends',
+        label: 'Before you install',
         rows: [
           { name: 'bb', value: '0.48 or later', note: 'Plugin SDK 0.6.94 or later.' },
           { name: 'GitHub', value: 'An account on github.com', note: 'GitHub Enterprise Server is not supported yet.' },
@@ -603,6 +583,20 @@ export const products: Product[] = [
           { name: 'Phone', value: 'Through Push notifications', note: 'Each check’s headline and pull request title. showDesktop off keeps them on the server.' },
           { name: 'Page weight', value: '32 KB of script, gzipped', note: '105 KB before, and 10 KB of CSS.' },
           { name: 'Licence', value: 'MIT' },
+        ],
+      },
+      {
+        // no label: the questions sit under the requirements, the first four shown
+        type: 'faq',
+        show: 4,
+        items: [
+          { q: 'How does it sign in?', a: 'By default it uses the GitHub CLI login on the machine running bb, so each person sees their own pull requests. With several gh accounts, a picker on My PRs chooses one. A personal access token works too.' },
+          { q: 'Will pull request alerts flood me when I install it?', a: 'No. The first check only records where things stand, so alerts start with the next change. Bots and your own comments never alert, and you can add names to ignore.' },
+          { q: 'Which agent gets the fix?', a: 'The bb thread already working on the pull request’s branch, whichever agent runs it: Claude, Codex, Qwen, DeepSeek or an open model. It is queued if the thread is busy. With no such thread, bb’s New thread screen opens in the pull request’s project with the prompt filled in, so you choose where it runs.' },
+          { q: 'What does the agent see?', a: 'One prompt with the pull request’s link, repository and branch, then each finding you picked in the pull request’s order: a review comment with its file, line and every reply, or a failed job with its errors and its log link. It is asked to say why if a comment is wrong, instead of changing the code.' },
+          { q: 'Does anything reach my phone?', a: 'Only through bb’s Push notifications plugin: each check sends one notification with the alert’s headline and the pull request’s title, and it forwards them to registered phones through its push relay (Expo by default). Turn showDesktop off to keep them on your bb server.' },
+          { q: 'Does it work with GitHub Enterprise Server?', a: 'Not yet. It needs a GitHub account on github.com.' },
+          { q: 'Does hiding a repository mute its alerts?', a: 'No. Hiding a repository in the list does not mute its alerts.' },
         ],
       },
       {
