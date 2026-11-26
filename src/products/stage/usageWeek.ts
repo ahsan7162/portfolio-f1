@@ -1,6 +1,7 @@
 // Usage Explorer's sample week for the demo: invented work hours, Monday to Sunday, run minute by minute the way Claude's
 // windows fill. A five-hour session starts at the first work after the last one ended; work stops while it is full; all
 // of it also counts toward the weekly windows. What it gives at any minute is read by the plugin's own rules (usageRules.ts).
+import { pad } from '../format';
 import { FIVE_HOURS, ONE_WEEK, type Window } from './usageRules';
 
 const MIN = 60_000;
@@ -80,8 +81,7 @@ export function momentAt(minute: number): Moment {
 export function clockAt(minute: number) {
   const m = Math.max(0, Math.min(WEEK_MIN - 1, Math.round(minute)));
   const day = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][Math.floor(m / 1440)];
-  const hh = String(Math.floor((m % 1440) / 60)).padStart(2, '0'), mm = String(m % 60).padStart(2, '0');
-  return `${day}, ${hh}:${mm}`;
+  return `${day}, ${pad(Math.floor((m % 1440) / 60))}:${pad(m % 60)}`;
 }
 
 export const nowAt = (minute: number) => WEEK_START + Math.round(minute) * MIN;
