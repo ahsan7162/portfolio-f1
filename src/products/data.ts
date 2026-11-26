@@ -138,23 +138,6 @@ export const products: Product[] = [
         ],
       },
       {
-        type: 'stats',
-        stats: [
-          { value: '62', label: 'components to build with' },
-          { value: '100', label: 'newest versions kept, to view or restore' },
-        ],
-      },
-      {
-        type: 'steps',
-        label: 'How it works',
-        steps: [
-          { tag: 'Ask', title: 'Ask in a thread', body: 'In any bb thread, ask for something you want to keep: a dashboard, a report, a tracker or a small tool.' },
-          { tag: 'Save', title: 'Checked, then saved', body: 'The plugin checks the whole program, and if anything is wrong nothing is stored and the agent gets the list of problems to fix.' },
-          { tag: 'Card', title: 'A card in the reply', body: 'The reply shows a card with the dashboard’s title and Open in side panel.' },
-          { tag: 'Side panel', title: 'Opens beside the thread', body: 'The dashboard opens in its own tab in the thread’s side panel, drawn with OpenUI’s renderer in bb’s colours.' },
-        ],
-      },
-      {
         type: 'compare',
         label: 'Light and dark',
         before: { src: `${dash}/theme-light.jpg`, alt: 'The Harbor Coffee weekly sales dashboard in bb’s light mode', width: 1920, height: 1200 },
@@ -206,7 +189,7 @@ export const products: Product[] = [
       },
       {
         type: 'specs',
-        label: 'Requirements and costs',
+        label: 'Before you install',
         rows: [
           { name: 'bb', value: '0.49 or later', note: 'Plugin SDK 0.6.132 or later.' },
           { name: 'Agent', value: 'Any agent provider in bb', note: 'Tried so far with the Claude Code provider.' },
@@ -216,17 +199,18 @@ export const products: Product[] = [
         ],
       },
       {
+        // no label: the questions sit under the requirements, the first four shown
         type: 'faq',
-        label: 'Questions',
+        show: 4,
         items: [
-          { q: 'What costs a model call?', a: 'Building or changing a dashboard is an agent turn. Filters, tabs, search, drill-down, colours, old versions and refreshing a declared source cost none. Data only the agent can reach is refreshed by asking the agent, one turn per refresh.' },
           { q: 'Can a dashboard change my data?', a: 'No. A dashboard has no way to write, and only MCP tools the server marks read-only can be called. That mark is the server’s own claim, so read-only credentials are the real guarantee.' },
           { q: 'Is an approved script sandboxed?', a: 'No. A script runs only after you read and approve its exact text, but approval is not a sandbox: the script can do anything your user account can. An agent allowed to run shell commands could also approve one without the dialog.' },
+          { q: 'Where has it been tested?', a: 'On macOS. Windows, Linux and installing from git are untested, and script sources are not supported on Windows.' },
+          { q: 'What costs a model call?', a: 'Building or changing a dashboard is an agent turn. Filters, tabs, search, drill-down, colours, old versions and refreshing a declared source cost none. Data only the agent can reach is refreshed by asking the agent, one turn per refresh.' },
           { q: 'Does anything leave my machine?', a: 'Nothing the plugin keeps leaves your machine, and it has no telemetry of its own. Secrets are stored only in the operating system’s secure store.' },
+          { q: 'Which agents can build one?', a: 'Any agent provider in bb: the plugin gives each one the same skill and tools, whether the model is Claude, Codex, Qwen, DeepSeek or another open model. So far it has been run for real with the Claude Code provider only.' },
           { q: 'How many versions are kept?', a: 'The newest 100, to view or restore in the panel. A save past that deletes the oldest for good.' },
           { q: 'Can I export or share a dashboard?', a: 'No. A dashboard cannot be exported as a web page or shared with other people.' },
-          { q: 'Which agents can build one?', a: 'Any agent provider in bb: the plugin gives each one the same skill and tools, whether the model is Claude, Codex, Qwen, DeepSeek or another open model. So far it has been run for real with the Claude Code provider only.' },
-          { q: 'Where has it been tested?', a: 'On macOS. Windows, Linux and installing from git are untested, and script sources are not supported on Windows.' },
         ],
       },
       {
