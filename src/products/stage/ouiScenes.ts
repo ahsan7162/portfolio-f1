@@ -29,7 +29,8 @@ export const OUI_SCENES: OuiScene[] = [
     // the render line sweeping across as the program arrives. The camera leans in on the block. About 5.5 s.
     start: [],
     prep: [],
-    endPrep: [],
+    // the question chip asks it and the answer lands whole
+    endPrep: ['.oud-chip'],
     play: (api) => {
       const tl = gsap.timeline();
       const cam = camera(tl, api);
