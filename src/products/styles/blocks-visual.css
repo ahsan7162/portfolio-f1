@@ -149,7 +149,7 @@
 .bv-rot-bar { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 12px 16px; margin-top: clamp(24px, 3vw, 36px); }
 .bv-rot-tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
 .bv-rot-tab {
-  position: relative; overflow: hidden; padding: 12px 18px; border-radius: 999px; color: var(--dim);
+  position: relative; overflow: hidden; display: inline-flex; align-items: center; min-height: 40px; padding: 0 16px; border-radius: 999px; color: var(--dim);
   box-shadow: inset 0 0 0 1.5px var(--line);
   transition: color 0.18s, box-shadow 0.18s, transform 0.5s var(--spring);
 }
@@ -161,7 +161,7 @@
 /* nothing running (taken over, or reduced motion): the active one just shows full */
 [data-rot-state='off'] [data-on] > .bv-rot-fill, [data-rot-state='off'] [data-on] .bv-tour-line > .bv-rot-fill { transform: scaleX(1); }
 .bv-rot-btn {
-  padding: 11px 16px; border-radius: 999px; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--line);
+  display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 0 16px; border-radius: 999px; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--line);
   transition: background-color 0.18s, color 0.18s, box-shadow 0.18s, transform 0.5s var(--spring);
 }
 .bv-rot-btn:hover { background: var(--ink); color: var(--ground); box-shadow: none; }
@@ -197,7 +197,7 @@
 .bv-scenes-head-t { display: inline-block; overflow: clip; padding: 0.05em 0.08em 0.16em 0; margin: -0.05em -0.08em -0.16em 0; }
 .bv-scenes-cost {
   --flash: 0;
-  display: inline-flex; align-items: center; padding: 9px 15px 9px 13px; border-radius: 999px; white-space: nowrap; color: var(--ink);
+  display: inline-flex; align-items: center; gap: 8px; min-height: 32px; padding: 0 12px; border-radius: 999px; white-space: nowrap; color: var(--ink);
   background: color-mix(in srgb, var(--acc) calc(10% + var(--flash) * 30%), transparent);
   box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--acc) calc(50% + var(--flash) * 50%), transparent), 0 0 calc(var(--flash) * 32px) color-mix(in srgb, var(--acc) 55%, transparent);
 }
@@ -258,7 +258,7 @@
   .bv-tour-shots { order: -1; }
 }
 @media (max-width: 639px) {
-  .bv-rot-tab { padding: 11px 14px; }
+  .bv-rot-tab { padding-inline: 14px; }
   /* one row on a phone: Pause or Play holds the left, the tabs scroll beside it (the active one is kept in view) */
   .bv-rot-bar { flex-wrap: nowrap; justify-content: flex-start; gap: 10px; }
   .bv-rot-bar > :not(.bv-rot-tabs) { order: -1; flex: none; }
@@ -377,7 +377,7 @@
 .bv-anat-info h3 span { color: var(--acc-lit); font-size: 0.45em; vertical-align: 0.6em; margin-right: 0.7em; font-weight: 500; }
 .bv-anat-info p { margin-top: 12px; color: var(--dim); max-width: 46ch; font-size: 1.05rem; line-height: 1.5; }
 .bv-anat-states { display: flex; flex-wrap: wrap; gap: 8px; align-content: start; }
-.bv-anat-states button { padding: 9px 14px; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--line); font-size: 0.76rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--dim);
+.bv-anat-states button { display: inline-flex; align-items: center; min-height: 40px; padding: 0 16px; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--line); font-size: 0.76rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--dim);
   transition: color 0.2s var(--ease), box-shadow 0.2s var(--ease), background-color 0.2s var(--ease); }
 .bv-anat-states button:hover { color: var(--ink); }
 /* Pause / Play sits apart from the states, and pressed it is not a picked state */
@@ -429,7 +429,7 @@
 /* morph: the same content as plain text, then as the product's own interface */
 .bv-morph-head { margin-top: 18px; max-width: 24ch; font-size: var(--pp-head); text-wrap: balance; }
 .bv-morph-bar { display: flex; width: fit-content; margin: clamp(22px, 2.6vw, 34px) auto 0; padding: 4px; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--line); }
-.bv-morph-bar button { padding: 9px 16px; border-radius: 999px; color: var(--dim); transition: background-color 0.25s, color 0.25s; }
+.bv-morph-bar button { display: inline-flex; align-items: center; min-height: 40px; padding: 0 16px; border-radius: 999px; color: var(--dim); transition: background-color 0.25s, color 0.25s; }
 .bv-morph-bar button[aria-pressed='true'] { background: var(--acc); color: var(--on-acc); }
 .bv-morph-stage {
   position: relative; display: grid; grid-template: minmax(0, 1fr) / minmax(0, 1fr); max-width: 1040px; margin: 18px auto 0; overflow: hidden; border-radius: 18px; background: var(--black);
@@ -459,7 +459,7 @@
 @keyframes bv-blink { 50% { opacity: 0; } }
 .bv-prompts-send { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: var(--acc); color: var(--on-acc); font-weight: 700; font-size: 1.2rem; flex: none; }
 .bv-prompts-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; max-width: 880px; margin: 16px auto 0; }
-.bv-prompts-chip { padding: 10px 16px; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--line); color: var(--dim); font-size: 0.9375rem; transition: box-shadow 0.25s, color 0.25s, background-color 0.25s; }
+.bv-prompts-chip { display: inline-flex; align-items: center; min-height: 40px; padding: 0 16px; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--line); color: var(--dim); font-size: 0.9375rem; transition: box-shadow 0.25s, color 0.25s, background-color 0.25s; }
 @media (hover: hover) { .bv-prompts-chip:hover { color: var(--ink); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--acc) 60%, transparent); } }
 .bv-prompts-chip[aria-pressed='true'] { background: var(--acc); color: var(--on-acc); box-shadow: none; }
 .bv-prompts-chip:focus-visible, .bv-morph-bar button:focus-visible, .bv-spec-name:focus-visible { outline: 2px solid var(--acc); outline-offset: 3px; }
