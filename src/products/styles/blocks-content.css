@@ -106,7 +106,7 @@
 /* specs: a name and its value per row, split by hairlines */
 .bc-specs { margin-top: clamp(28px, 3.6vw, 44px); border-bottom: 1px solid var(--line); }
 .bc-spec { display: grid; grid-template-columns: minmax(180px, 1fr) minmax(0, 3fr); gap: 8px 24px; align-items: baseline; padding-block: clamp(16px, 1.8vw, 24px); border-top: 1px solid var(--line); }
-.bc-spec-name { color: var(--acc); }
+.bc-spec-name { color: var(--dim); }
 .bc-spec-value { display: grid; gap: 8px; margin: 0; }
 .bc-spec-value .pp-lede { font-size: clamp(1.25rem, 2vw, 1.875rem); }
 .bc-spec-note { color: var(--dim); font-size: 1rem; line-height: 1.55; max-width: 62ch; }
