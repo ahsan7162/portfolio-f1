@@ -1,0 +1,63 @@
+/* Usage Explorer, drawn in code: the plugin's limits screen in bb's dark theme with the plugin's own tokens (its
+   tokens.css: the tile, the tight and out washes, the 28px tile corner). Sizes are in em off the window's width, so the
+   drawing scales with its box; the window has a fixed shape, so the placeholder in Stage.tsx is exactly its size.
+   The week under it is the site's control, in the site's tokens. */
+.ued {
+  --u-ground: #0b0b0b; --u-ink: #f2f1ee; --u-dim: #8d8c87; --u-soft: #a9a8a3; --u-hair: #1d1d1c; --u-border: #262624;
+  --u-tile: color-mix(in oklab, var(--u-ink) 5%, transparent);
+  --u-tight-wash: color-mix(in oklab, #f2b33d 22%, transparent); --u-out-wash: color-mix(in oklab, #f0524f 22%, transparent);
+  container: ued / inline-size; width: 100%; font-family: var(--text); font-variation-settings: 'wdth' 100;
+}
+.ued-win {
+  position: relative; overflow: hidden; aspect-ratio: 2.06; border-radius: 0.9em; background: var(--u-ground); color: var(--u-ink);
+  font-size: clamp(8.5px, 1.45cqw, 15px); line-height: 1.35;
+  box-shadow: 0 0 0 1px var(--u-border), 0 3.5em 7em -2em var(--shadow-deep);
+}
+.ued-bar { display: flex; align-items: center; gap: 0.7em; height: 2.8em; padding: 0 1.1em; border-bottom: 1px solid var(--u-hair); font-size: 0.9em; color: #cfcfcb; }
+.ued-bar i { width: 0.85em; height: 0.85em; border-radius: 50%; box-shadow: inset 0 0 0 1.5px #777; }
+.ued-pg { padding: 1.6em 2.6em 1.8em; }
+.ued-top { display: flex; justify-content: space-between; gap: 1em; font-size: 0.93em; color: #cfcfcb; }
+.ued-seg { color: var(--u-dim); font-size: 0.86em; }
+.ued-seg b { color: var(--u-ink); font-weight: 600; }
+/* two lines of room, so a short verdict and a long one leave the tiles where they are */
+.ued-head { max-width: 18ch; min-height: 2.1em; margin: 0.55em 0 0.1em; font-size: 3em; font-weight: 700; letter-spacing: -0.03em; line-height: 1.05; text-wrap: balance; }
+.ued-plan { margin: 0 0 1.3em; font-size: 0.87em; color: var(--u-dim); }
+.ued-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.8em; }
+.ued-tile { min-height: 11.6em; padding: 1.3em 1.35em 1.2em; border-radius: 1.85em; background: var(--u-tile); transition: background-color 0.3s ease-out; }
+.ued-tile[data-state='tight'] { background: var(--u-tight-wash); }
+.ued-tile[data-state='out'] { background: var(--u-out-wash); }
+.ued-lb { font-size: 0.8em; color: var(--u-dim); }
+.ued-n { margin-top: 0.1em; font-size: 2.4em; font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.ued-v { margin-top: 0.5em; font-size: 0.9em; }
+.ued-p { margin-top: 0.25em; font-size: 0.8em; color: var(--u-soft); font-variant-numeric: tabular-nums; }
+.ued-r { margin-top: 0.8em; font-size: 0.8em; color: var(--u-dim); font-variant-numeric: tabular-nums; }
+.ued-chips { display: flex; flex-wrap: wrap; gap: 0.55em; margin-top: 1.1em; list-style: none; padding: 0; }
+.ued-chips li { padding: 0.45em 0.95em; border-radius: 99em; background: var(--u-tile); font-size: 0.87em; font-variant-numeric: tabular-nums; }
+@media (prefers-reduced-motion: no-preference) {
+  /* the plugin's own: the status sentence fades in when it changes, a window's wash comes in with one 2px nudge */
+  .ued-head { animation: ued-fade 0.3s ease-out both; }
+  .ued-tile:is([data-state='tight'], [data-state='out']) { animation: ued-wash 0.3s ease-out both; }
+}
+@keyframes ued-fade { from { opacity: 0; } }
+@keyframes ued-wash { 0% { opacity: 0.4; translate: 0; } 40% { translate: 2px; } 100% { opacity: 1; translate: 0; } }
+
+/* The week: the site's control under the screen. A fixed height, so the placeholder matches. */
+.ued-week { height: 116px; margin-top: 18px; }
+.ued-when { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.ued-clock { font-weight: 600; font-variant-numeric: tabular-nums; }
+.ued-range { display: block; width: 100%; height: 24px; margin: 10px 0 2px; accent-color: var(--acc); cursor: pointer; }
+/* each day's name where that day starts on the track */
+.ued-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); font-family: var(--mono); font-size: 0.75rem; color: var(--dim); }
+
+/* A narrow window: the tiles become rows (label and figure, then the verdict), the projection and reset lines go. */
+@container ued (max-width: 600px) {
+  .ued-win { aspect-ratio: 10 / 9.4; font-size: clamp(9px, 2.75cqw, 15px); }
+  .ued-pg { padding: 1.2em 1.3em 1.4em; }
+  .ued-seg { display: none; }
+  .ued-head { font-size: 2.3em; }
+  .ued-tiles { grid-template-columns: minmax(0, 1fr); gap: 0.5em; }
+  .ued-tile { display: grid; grid-template-columns: 6.2em minmax(0, 1fr); align-items: center; column-gap: 1em; min-height: 0; padding: 0.8em 1.1em; border-radius: 1.2em; }
+  .ued-n { grid-column: 1; font-size: 1.9em; }
+  .ued-v { grid-column: 2; grid-row: 1 / 3; margin: 0; }
+  .ued-p, .ued-r { display: none; }
+}

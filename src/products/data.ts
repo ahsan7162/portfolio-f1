@@ -831,9 +831,9 @@ export const products: Product[] = [
     facts: ['for bb', 'v0.1', 'MIT'],
     line: 'What your AI coding costs by session, day and model, with your Claude plan limits and the pace you are spending them at.',
     hook: 'Is there room for a big task?',
-    hint: 'The limits page, shown with demo data.',
+    hint: 'Play the week or drag it: every verdict is the plugin’s own rule, on sample data.',
     stack: ['TypeScript', 'React', 'ccusage'],
-    stage: 'window',
+    stage: 'usage-demo',
     seo: {
       title: 'Usage Explorer: Claude Code Usage & Cost Tracker for bb',
       description: 'Track AI coding cost by session, day and model across Claude Code, Codex and Gemini CLI, with your Claude plan limits. A free bb plugin built on ccusage.',

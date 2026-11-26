@@ -98,6 +98,8 @@ src/products/
     md.ts, mdState.ts            Markwright's document model (blocks that keep their source; an edit rewrites only its block) and every change the demo makes
     mdScenes.ts, mdFilm.ts       its four scenes (Tick it, Insert it, Draw it, Agents welcome) and their film layer: the Mermaid source typing in as its diagram grows
     mdRender.tsx, mdDiagrams.tsx a block drawn as the plugin shows it; the eight Mermaid starters drawn by hand
+    UsageDemo.tsx                the Usage Explorer demo: the plugin's limits screen over a sample week you play or drag
+    usageRules.ts, usageWeek.ts  the plugin's own limits rules, copied (MIT); the sample week, run minute by minute, and the four moments it plays to
     mdCatalog.ts, mdTemplates.ts the plugin's 39 / menu entries and its eleven templates, copied from it (MIT)
     MdPage.tsx                   a template drawn as a page: the md:tpl-* live screens
     mwData.gen.ts                generated from the plugin's own code by motion-lab/products-directions/markwright/mwdata.sh: the demo's real saves, the diff block's two files, the corpus checks
@@ -142,6 +144,7 @@ CSS class prefixes, one per area. Keep to them so nothing collides:
 | `jbd-`, `jbf-` | `jira-demo.css` | the Jira Board demo (`jbd-`), its film layer (`jbf-`), and its row screen (`.jbd-live`) |
 | `dsd-` | `dash-demo.css`, `dash-film.css` | the bb Dashboards demo and its dashboard kit; the demo's film layer, camera and versions deck |
 | `mwd-` | `md-demo.css` | the Markwright demo, its film layer, and its template pages (`.mwd-live`) |
+| `ued-` | `usage-demo.css` | the Usage Explorer demo: the limits screen and its week |
 | `oud-` | `openui-demo.css` (its box in `stage.css`) | the OpenUI Live Replies demo: the thread, the render line, Edit, the film layer |
 | `oui-`, `oul-` | `oui.css` | the OpenUI drawing kit (every component a reply can hold) and its live screens |
 
@@ -342,7 +345,7 @@ Append an object to `products` in `data.ts`. Its position in the array is its nu
 | `hook` | yes | a short question or claim under the name on the featured stage |
 | `hint` | yes | how to use the stage: "Click a blocker to clear it." |
 | `stack` | yes | what it is built with. Searchable in the catalogue. |
-| `stage` | yes | `'pr-demo'`, `'jira-demo'`, `'openui-demo'`, `'dash-demo'`, `'md-demo'`, `'window'`, `'phone'` or `'browser'`. The last three show `shots` in frames; use `'window'` for a plugin or desktop tool with no live demo. |
+| `stage` | yes | `'pr-demo'`, `'jira-demo'`, `'openui-demo'`, `'dash-demo'`, `'md-demo'`, `'usage-demo'`, `'window'`, `'phone'` or `'browser'`. The last three show `shots` in frames; use `'window'` for a plugin or desktop tool with no live demo. |
 | `links` | yes | `{ label, href }` buttons in the hero. May be empty. |
 | `blocks` | yes | the detail page. See the next section. |
 | `featured` | no | `true` gives it a full screen at the top of the main page |
@@ -585,7 +588,7 @@ export function Pricing({ block, n }: BlockProps<'pricing'>) {
 
 - Its props are `DemoProps`: `active`, `onTally`, and an optional `scene`, the scene to play by itself (undefined means the visitor drives).
 - A filmed demo builds its camera and pointer from `stage/film.ts` (`camera`, `pointer`), so every product's film moves the same way. Mark the pointer's glow and click ring `data-glow` and `data-click`.
-- A demo of a real product's behaviour should be checked against the product's own code where it can be: Markwright's `md.test.ts` asserts the demo writes the same bytes the plugin writes for the same edits (`mwData.gen.ts`); PR Dashboard's `pr.test.ts` pins its blocker rule to the plugin's output (`prRules.gen.ts`), and its prompts and alerts are the plugin's own (`prData.gen.ts`). Jira Board's demo groups, filters and dates its tickets with the plugin's own rules (`jiraRules.ts`), and `jiraScenes.test.ts` counts each scene's inputs against its cost tag.
+- A demo of a real product's behaviour should be checked against the product's own code where it can be: Markwright's `md.test.ts` asserts the demo writes the same bytes the plugin writes for the same edits (`mwData.gen.ts`); PR Dashboard's `pr.test.ts` pins its blocker rule to the plugin's output (`prRules.gen.ts`), and its prompts and alerts are the plugin's own (`prData.gen.ts`). Jira Board's demo groups, filters and dates its tickets with the plugin's own rules (`jiraRules.ts`), and `jiraScenes.test.ts` counts each scene's inputs against its cost tag. Usage Explorer's `usageRules.test.ts` reproduces every line of the plugin's own limits screenshot through the copied rules.
 - While a `scenes` reel plays, its demo is only to watch: it is `inert`, under a clear "Try it" layer that hands it over on a click, a tap or Enter, without passing that click on (a click meant for a button would cut a scene off half built). From then the visitor drives, until Play again.
 - A scene that ends with no scene after it (taken over, or scrolled away) lands on its end before it stops: `tl.progress(1)`, then `stop()`. So a demo is handed over whole, never half built. Where the landing's changes `flushSync`, it runs in a microtask just after the commit (`DashDemo`, `PrDemo`).
 - A demo that listens to keys on the whole page (Jira Board's) dispatches a bubbling `scene-take` when one of them takes over, since those keys never pass through the stage. Mid-scene, that first key only hands the demo over; it does not act too. For Your turn it dispatches `scene-goal` (the goal's id) and `scene-input` (each key it answers).

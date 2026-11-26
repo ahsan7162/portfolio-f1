@@ -8,6 +8,7 @@ import '../styles/jira-demo.css';
 // Loaded eagerly so a lazy demo's placeholder (its own empty window) already has the demo's exact size.
 import '../styles/md-demo.css';
 import '../styles/pr-demo.css';
+import '../styles/usage-demo.css';
 
 // The Jira Board demo and its invented site load on their own, on idle, so the other pages don't carry them.
 const loadJira = () => import('./JiraDemo');
@@ -27,6 +28,8 @@ const MdDemo = lazy(() => import('./MdDemo').then(m => ({ default: m.MdDemo })))
 const MD_HOLD = <div className="mwd"><div className="mwd-cam"><div className="mwd-win" /></div></div>;
 const PrDemo = lazy(() => import('./PrDemo').then(m => ({ default: m.PrDemo })));
 const PR_HOLD = <div className="prd"><div className="prd-cam"><div className="prd-win" /></div></div>;
+const UsageDemo = lazy(() => import('./UsageDemo').then(m => ({ default: m.UsageDemo })));
+const USAGE_HOLD = <div className="ued"><div className="ued-win" /><div className="ued-week" /></div>;
 
 /** What a live demo's number counts, as two short lines. A demo without an entry shows no number. */
 export const TALLY: Partial<Record<StageKind, [string, string]>> = { 'pr-demo': ['blockers', 'left'], 'dash-demo': ['model calls', 'so far'], 'md-demo': ['lines changed', 'in the file'], 'jira-demo': ['tickets', 'open'], 'openui-demo': ['words sent', 'without typing'] };
@@ -47,6 +50,7 @@ export function Stage({ product, active, onTally, scene }: { product: Product } 
     case 'openui-demo': return <Suspense fallback={OUI_HOLD}><OpenUiDemo active={active} onTally={onTally} scene={scene} /></Suspense>;
     case 'dash-demo': return <DashDemo active={active} onTally={onTally} scene={scene} />;
     case 'md-demo': return <Suspense fallback={MD_HOLD}><MdDemo active={active} onTally={onTally} scene={scene} /></Suspense>;
+    case 'usage-demo': return <Suspense fallback={USAGE_HOLD}><UsageDemo active={active} /></Suspense>;
     case 'window':
       return <WindowFrame className="stg-window" title={product.name}>{shot(0, { sample: v })}</WindowFrame>;
     case 'phone':
