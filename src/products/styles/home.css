@@ -14,17 +14,17 @@
 /* Featured */
 .ft { position: relative; height: 100svh; min-height: 660px; overflow: hidden; }
 .ft-slide {
-  position: absolute; inset: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr); align-items: center;
+  position: absolute; inset: 0; display: grid; grid-template-columns: minmax(0, 0.66fr) minmax(0, 1fr); align-items: center;
   gap: clamp(24px, 4vw, 72px); padding: 92px var(--pad) 120px; pointer-events: none;
 }
 .ft-slide[data-active] { pointer-events: auto; }
 .ft-flood { position: absolute; inset: 0; background: var(--brand); clip-path: circle(0% at 72% 48%); }
 .ft-copy { position: relative; z-index: 2; min-width: 0; }
 .ft-meta { color: var(--dim); margin-bottom: clamp(14px, 2.2vh, 24px); }
-.ft-name { font-size: min(calc(45vw / (var(--fit) * 0.56)), 25svh); white-space: nowrap; }
+.ft-name { font-size: min(calc(30vw / (var(--fit) * 0.56)), 19svh); white-space: nowrap; }
 .ft-line { display: block; overflow: hidden; padding-top: 0.05em; margin-top: -0.05em; }
 .ft-line-in { display: block; }
-.ft-hook { font-size: clamp(1.375rem, 2.5vw, 2.5rem); color: var(--ink); margin-top: clamp(18px, 3vh, 34px); }
+.ft-hook { font-size: clamp(1.25rem, 2vw, 2rem); color: var(--ink); margin-top: clamp(18px, 3vh, 34px); }
 .ft-hint { display: flex; gap: 12px; margin-top: 14px; color: var(--dim); max-width: 34em; font-size: clamp(0.9375rem, 1.15vw, 1.1875rem); }
 .ft-hint i { flex: none; width: 9px; height: 9px; border-radius: 50%; background: var(--acc); margin-top: 0.55em; box-shadow: 0 0 0 6px color-mix(in srgb, var(--acc) 22%, transparent); }
 .ft-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: clamp(20px, 3.4vh, 34px); }
@@ -80,6 +80,25 @@
   .ft-tally { position: static; justify-content: flex-end; }
   .ft-stamp { right: 0; }
 }
+
+/* Wide screens: the product takes 60%. Each demo grows to fill it but stays just under the width where it
+   changes layout, and short enough to fit under the header and above the strip (--ft-r is its width over its
+   height at that size). The counter gets a row of its own under the copy, clear of the bigger demo. */
+@media (min-width: 900px) {
+  .ft-slide { grid-template-rows: minmax(0, 1fr) auto; }
+  .ft-copy { grid-area: 1 / 1; }
+  .ft-stage-wrap { grid-area: 1 / 2 / 3 / 3; }
+  .ft-stage[data-stage$='-demo'] { width: min(100%, var(--ft-w), calc((100svh - 240px) * var(--ft-r))); }
+  .ft-stage[data-stage='dash-demo'] { --ft-w: 780px; --ft-r: 1.44; }
+  .ft-stage[data-stage='md-demo'] { --ft-w: 759px; --ft-r: 1.58; }
+  .ft-stage[data-stage='pr-demo'] { --ft-w: 759px; --ft-r: 1.22; }
+  .ft-stage[data-stage='jira-demo'] { --ft-w: 780px; --ft-r: 1.16; }
+  .ft-stage[data-stage='openui-demo'] { --ft-w: 759px; --ft-r: 1.22; }
+  .ft-tally { position: static; grid-area: 2 / 1; flex-direction: row-reverse; justify-content: flex-end; }
+  .ft-tally span { text-align: left; }
+}
+/* under 560px (a narrow screen, or a short one capping its height) Jira's board drops to its narrow layout, which is taller for its width */
+@media (min-width: 900px) and (max-width: 1059px), (min-width: 900px) and (max-height: 722px) { .ft-stage[data-stage='jira-demo'] { --ft-r: 0.8; } }
 
 /* Reduced motion on a wide screen: nothing pins, so the products follow one another, a screen each. */
 @media (min-width: 900px) and (prefers-reduced-motion: reduce) {
