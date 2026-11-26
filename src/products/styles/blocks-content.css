@@ -29,12 +29,12 @@
 .bc-faq-item { border-top: 1px solid var(--line); }
 .bc-faq-q {
   display: flex; align-items: center; justify-content: space-between; gap: 24px; list-style: none; cursor: pointer;
-  padding-block: clamp(22px, 2.4vw, 34px); font-size: clamp(1.375rem, 2.6vw, 2.5rem); text-wrap: balance;
+  padding-block: 20px; font-size: clamp(1.25rem, 1.8vw, 1.75rem); text-wrap: balance;
 }
 .bc-faq-q::-webkit-details-marker { display: none; }
 .bc-faq-q:hover .bc-faq-icon { box-shadow: inset 0 0 0 1.5px var(--acc); }
-.bc-faq-icon { position: relative; flex: none; width: clamp(40px, 3.6vw, 52px); aspect-ratio: 1; border-radius: 50%; box-shadow: inset 0 0 0 1.5px var(--line); transition: box-shadow 0.15s, background-color 0.18s; }
-.bc-faq-icon::before, .bc-faq-icon::after { content: ''; position: absolute; left: 30%; right: 30%; top: calc(50% - 1px); height: 2px; background: var(--ink); transition: transform 0.22s var(--ease), background-color 0.18s; }
+.bc-faq-icon { position: relative; flex: none; width: 40px; aspect-ratio: 1; border-radius: 50%; box-shadow: inset 0 0 0 1.5px var(--line); transition: box-shadow 0.15s, background-color 0.18s; }
+.bc-faq-icon::before, .bc-faq-icon::after { content: ''; position: absolute; left: 30%; right: 30%; top: calc(50% - 0.75px); height: 1.5px; background: var(--ink); transition: transform 0.22s var(--ease), background-color 0.18s; }
 .bc-faq-icon::after { transform: rotate(90deg); }
 /* open: native [open] with reduced motion, the click-time state with motion */
 .bc-faq-item[open]:not([data-state]) .bc-faq-icon, .bc-faq-item[data-state='open'] .bc-faq-icon { background: var(--acc); }
@@ -50,7 +50,7 @@
 .bc-faq-more > summary::-webkit-details-marker { display: none; }
 .bc-faq-more > summary:hover { color: var(--ink); }
 .bc-faq-more[open] .bc-faq-more-open, .bc-faq-more:not([open]) .bc-faq-more-close { display: none; }
-.bc-faq-a p { max-width: 62ch; padding-bottom: clamp(24px, 2.8vw, 40px); color: var(--dim); font-size: clamp(1.0625rem, 1.45vw, 1.3125rem); line-height: 1.6; }
+.bc-faq-a p { max-width: 62ch; padding-bottom: 24px; color: var(--dim); font-size: clamp(1.0625rem, 1.45vw, 1.3125rem); line-height: 1.6; }
 
 /* quote: a huge mark, the words very large */
 .bc-quote { position: relative; max-width: 1400px; }
