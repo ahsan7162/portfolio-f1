@@ -218,7 +218,7 @@ Rules:
 
 ## 5. Layout and breakpoints
 
-- Side padding is `--pad` (`clamp(20px, 3.6vw, 56px)`), applied with `pp-wrap`. Full-bleed bands (the Get block, the Next band) put `pp-wrap` on an inner element.
+- Side padding is `--pad` (`clamp(20px, 3.6vw, 56px)`), applied with `pp-wrap`. A block that spans the full width (the Next band, a showcase) puts `pp-wrap` on an inner element.
 - Vertical rhythm between blocks is `--dt-gap` (`clamp(80px, 9vw, 128px)`), applied as `padding-top` by `.dt-block`. A block that needs less sets `--dt-gap` on itself (see `.dt-sec--stats`). Do not add margins between blocks.
 - Controls come in three heights, each a `min-height` so a label can wrap: 48px (buttons, search, the view switch), 40px (tabs, filters, picks, Previous and Next), 32px (tags such as the cost tag). The large install button is the one exception.
 - Easing for CSS transitions is `--ease`; a pressed control dips to 97% and eases back over 0.16s. `--spring` is only for a goal ticking off.
@@ -416,7 +416,7 @@ You design a page by choosing blocks and their order. Use any block, any number 
 3. **Alternate dense and open.** Follow a wall of words (`features`, `faq`, `text`) with something visual (`split`, `showcase`, `stats`, `marquee`).
 4. **Match length to substance.** A small product is three blocks. Do not pad a page to look important.
 5. **Let numbers and proof come after the claim.** `stats`, `scores` and `quote` support a `statement`; they do not open a page.
-6. **End on `get`.** It is a full-bleed band in the product's colour and closes the page. A `film`, if there is one, sits just before it.
+6. **End on `get`.** It closes the page as the last frame of a trailer, on the black page: the product's name fitted to the width in its colour, the hook, the install as one wide ticket with a coloured Copy, and a credits line read from the product's facts (licence, the bb it needs, who built it). A `film`, if there is one, sits just before it. After it the Next band sells the next product: its name, its hook and a picture of it, in its colour. Never end on a flat band of colour.
 7. **Use `split` in runs.** Alternate `side` left and right. Give the first a `label` and leave the rest without one: they read as one section.
 8. **One `marquee` at most**, and only on a long page, as a breath between halves.
 9. **At most one `cases`, one `tour` and one `scenes` per page.** `scenes` takes the place of `stage`, never sits beside it.
@@ -483,7 +483,7 @@ The shapes are in `types.ts` (the `Block` union) with a comment on each. TypeScr
 | `deck` | required | A hand of cards: fanned on a wide screen (it deals as it enters, a card lifts under the pointer or focus), a swipe row on a phone. Picking one flies it into a dialog at full size; a card with `source` gets a second view (`views`, e.g. Rich and Source) | Templates, themes, presets, sample projects |
 | `anatomy` | required | One screen drawn large and taken apart: its parts numbered above it, placed over where the drawing marks them. Hover previews a part, a click pins it (separate, like the hero car's parts), and the pinned part plays its `states` in the drawing; arrow keys walk the parts. On a phone the labels are chips under the drawing | A row, a card, a screen whose every piece means something |
 | `route` | required | Where requests go: the `stops` set large along one line (a column on a phone), and `runs` as rotating tabs that send a light along their hops while each hop's payload types in. `never` is a last stop, struck through | Privacy and data flow: what is sent where, and what never leaves |
-| `get` | required | An install command with Copy, store buttons, or a link, on a band in the product's colour | How to get it. Always last. |
+| `get` | required | The product's name as a poster in its colour, its hook, then an install command with Copy (a ticket), store buttons, or a link, and a credits line | How to get it. Always last. |
 
 **Media.** `split`, `showcase`, `compare` and `bento` take a `Media` value:
 
