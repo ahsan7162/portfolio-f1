@@ -149,28 +149,35 @@
 .dt-film-cap { display: flex; justify-content: space-between; gap: 16px; margin-top: 16px; }
 .dt-credit { margin-top: 8px; font-size: 0.8125rem; color: var(--dim); }
 
-/* get it: a full-bleed accent band */
-.dt-get { margin-top: var(--dt-gap); background: var(--acc); color: var(--on-acc); padding-block: clamp(56px, 7vw, 96px); }
-.dt-get .dt-label-line { background: color-mix(in srgb, var(--on-acc) 28%, transparent); }
-.dt-get-main { margin-top: clamp(24px, 3vw, 36px); }
-.dt-cmd { display: flex; justify-content: space-between; align-items: center; gap: clamp(18px, 3vw, 40px); }
-/* sized so the longest install URL (66 characters) fits one line beside the button on a desktop */
-.dt-cmd-text { font-family: var(--mono); font-weight: 700; font-size: clamp(0.9375rem, 1.9vw, 1.875rem); letter-spacing: -0.03em; line-height: 1.3; min-width: 0; max-width: 100%; overflow-x: auto; }
+/* get it: the last frame of a trailer, on the black page. The name as a poster in the product's colour (fitted to the
+   width, capped at a third of the screen's height), the hook, the install as one wide ticket, and a credits line. */
+.dt-get { margin-top: var(--dt-gap); padding-block: clamp(56px, 8vw, 128px); }
+.dt-poster { margin: clamp(24px, 3vw, 40px) 0 0 -0.03em; color: var(--acc); line-height: 0.84; }
+.dt-poster-hook { font-size: var(--pp-head); margin-top: clamp(16px, 2vw, 28px); }
+.dt-get-main { margin-top: clamp(32px, 4vw, 56px); }
+.dt-cmd {
+  display: flex; justify-content: space-between; align-items: center; gap: clamp(18px, 3vw, 40px);
+  padding: clamp(12px, 1.4vw, 16px) clamp(12px, 1.4vw, 16px) clamp(12px, 1.4vw, 16px) clamp(24px, 3vw, 40px);
+  border-radius: 999px; background: var(--raise); box-shadow: inset 0 0 0 1px var(--line);
+}
+/* sized so the longest install URL (66 characters) fits one line in the ticket on a desktop */
+.dt-cmd-text { font-family: var(--mono); font-weight: 700; font-size: clamp(0.9375rem, 1.5vw, 1.5rem); letter-spacing: -0.03em; line-height: 1.3; min-width: 0; max-width: 100%; overflow-x: auto; }
 /* the URL's parts are inline blocks: unbreakable themselves (not even at a hyphen), and the URL breaks between them only on phones (below) */
 .dt-cmd-arg { white-space: nowrap; }
 .dt-cmd-arg > span { display: inline-block; }
 .dt-get-row { display: flex; flex-wrap: wrap; gap: 14px; }
 .dt-get-btn {
   flex: none; display: inline-flex; align-items: center; gap: 10px; white-space: nowrap;
-  min-height: 48px; padding: 0 24px; border-radius: 999px; background: var(--on-acc); color: var(--acc);
+  min-height: 48px; padding: 0 24px; border-radius: 999px; background: var(--acc); color: var(--on-acc);
   font-family: var(--display); font-variation-settings: 'wdth' 108; font-weight: 600; font-size: 1rem;
   transition: transform 0.2s var(--ease);
 }
 .dt-get-btn:not(:disabled):hover { transform: translateY(-2px); }
 .dt-get-btn:not(:disabled):active { transform: scale(0.97); }
 .dt-get-btn--lg { padding: clamp(18px, 2vw, 26px) clamp(28px, 3vw, 44px); font-size: clamp(1.125rem, 2vw, 1.625rem); }
-.dt-get :focus-visible { outline-color: var(--on-acc); }
-.dt-get-note { margin-top: clamp(24px, 3vw, 34px); max-width: 60ch; color: color-mix(in srgb, var(--on-acc) 68%, transparent); }
+.dt-credits { margin-top: 20px; color: var(--dim); }
+.dt-get-note { margin-top: clamp(16px, 2vw, 24px); max-width: 60ch; color: var(--dim); }
+@media (max-width: 720px) { .dt-cmd { border-radius: 16px; } }
 
 /* text: a heading, then paragraphs in a readable measure in the right-hand column */
 .dt-text { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: clamp(28px, 6vw, 96px); align-items: start; }

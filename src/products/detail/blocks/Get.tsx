@@ -1,6 +1,10 @@
-// How to get the product, on a full-bleed band in the product's colour.
+// How to get the product, as the last frame of a trailer: its name as a poster in its colour, the hook, the install as one
+// wide ticket, and a credits line, on the black page.
 import { useId, useRef } from 'react';
+import { ME } from '../../home/hero/shared';
 import { gsap } from '../../motion';
+import { findBlock, type Product } from '../../types';
+import { useFit } from '../fit';
 import { CopyStatus, Label, Out, StoreButtons, SwapLabel, useBlockMotion, useCopy, type BlockProps } from './shared';
 
 /** The line wraps before the last word (the URL), never inside it; on a phone the URL may also break after a slash. */
@@ -17,21 +21,34 @@ function Command({ text }: { text: string }) {
   );
 }
 
-export function Get({ block }: BlockProps<'get'>) {
+/** The credits under the ticket, from the product's own facts: its licence, the bb it needs, and who built it. */
+function credits(product: Product) {
+  const rows = findBlock(product, 'specs')?.rows ?? [];
+  const licence = rows.find(r => r.name === 'Licence')?.value ?? product.facts.find(f => /^(MIT|Apache|BSD|ISC|MPL|GPL)/.test(f));
+  const bb = rows.find(r => r.name === 'bb')?.value;
+  return [licence && 'Free and open source', licence, bb && `for bb ${bb}`, `built by ${ME.name}`].filter(Boolean);
+}
+
+export function Get({ block, product }: BlockProps<'get'>) {
   const root = useRef<HTMLElement>(null);
+  const name = useRef<HTMLParagraphElement>(null);
   const id = useId();
   const [copied, copy] = useCopy();
   const { via } = block;
+  useFit(name, 34);
 
-  useBlockMotion(root, ({ q, enter }) => {
-    const main = q('.dt-get-main');
-    if (main) gsap.from(main, { y: 36, autoAlpha: 0, duration: 0.55, scrollTrigger: enter(main, 'top 94%') });
+  useBlockMotion(root, ({ qa, enter }) => {
+    const parts = qa('.dt-poster, .dt-poster-hook, .dt-get-main, .dt-credits');
+    if (parts.length) gsap.from(parts, { y: 28, autoAlpha: 0, duration: 0.55, stagger: 0.06, scrollTrigger: enter(parts[0], 'top 90%') });
   });
 
   return (
     <section className="dt-block dt-get" ref={root} aria-labelledby={id}>
       <div className="pp-wrap">
         <Label id={id}>{block.label}</Label>
+        {/* the name again, as a poster: the label above already names the section */}
+        <p className="dt-poster pp-display" ref={name} aria-hidden="true"><span className="dt-fit">{product.name}</span></p>
+        {product.hook && <p className="dt-poster-hook pp-lede">{product.hook}</p>}
         <div className="dt-get-main">
           {via.kind === 'command' && (
             <div className="dt-cmd">
@@ -42,6 +59,7 @@ export function Get({ block }: BlockProps<'get'>) {
           {via.kind === 'stores' && <div className="dt-get-row"><StoreButtons className="dt-get-btn dt-get-btn--lg" /></div>}
           {via.kind === 'link' && <a className="dt-get-btn dt-get-btn--lg" href={via.href} target="_blank" rel="noopener noreferrer">{via.label} <Out /></a>}
         </div>
+        <p className="dt-credits pp-meta pp-dots">{credits(product).map(c => <span className="pp-dot" key={c}>{c}</span>)}</p>
         <p className="dt-get-note">{block.note}</p>
         <CopyStatus copied={copied} />
       </div>
