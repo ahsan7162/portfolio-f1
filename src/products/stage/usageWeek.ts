@@ -77,11 +77,12 @@ export function momentAt(minute: number): Moment {
   };
 }
 
+export const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
 /** The clock at a minute of the week: "Thursday, 22:00". */
 export function clockAt(minute: number) {
   const m = Math.max(0, Math.min(WEEK_MIN - 1, Math.round(minute)));
-  const day = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][Math.floor(m / 1440)];
-  return `${day}, ${pad(Math.floor((m % 1440) / 60))}:${pad(m % 60)}`;
+  return `${DAYS[Math.floor(m / 1440)]}, ${pad(Math.floor((m % 1440) / 60))}:${pad(m % 60)}`;
 }
 
 export const nowAt = (minute: number) => WEEK_START + Math.round(minute) * MIN;

@@ -7,13 +7,12 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { gsap, reducedMotion } from '../motion';
 import type { DemoProps } from '../types';
 import { fmtDuration, leadOf, projectionOf, readWindow, verdictOf, type WindowRead } from './usageRules';
-import { BEATS, clockAt, momentAt, nowAt, REST, WEEK_MINUTES } from './usageWeek';
+import { BEATS, clockAt, DAYS, momentAt, nowAt, REST, WEEK_MINUTES } from './usageWeek';
 import '../styles/usage-demo.css';
 
 // The plugin's money formats (app.tsx).
 const usd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const fmtCost = (v: number) => (v > 0 && v < 0.01 ? '<$0.01' : usd.format(v));
-const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 /** Where a play from the start begins: Monday, before the first work. */
 const START = 7 * 60;
 
@@ -99,7 +98,7 @@ export function UsageDemo({ active }: DemoProps) {
           aria-label="Time in the sample week" aria-valuetext={clockAt(minute)}
           onPointerDown={stop} onKeyDown={stop} onChange={e => { stop(); go(Number(e.target.value)); }}
         />
-        <div className="ued-days" aria-hidden="true">{DAYS.map(d => <span key={d}>{d}</span>)}</div>
+        <div className="ued-days" aria-hidden="true">{DAYS.map(d => <span key={d}>{d.slice(0, 3)}</span>)}</div>
       </div>
     </div>
   );
