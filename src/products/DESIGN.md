@@ -419,6 +419,7 @@ You design a page by choosing blocks and their order. Use any block, any number 
 7. **Use `split` in runs.** Alternate `side` left and right. Give the first a `label` and leave the rest without one: they read as one section.
 8. **One `marquee` at most**, and only on a long page, as a breath between halves.
 9. **At most one `cases`, one `tour` and one `scenes` per page.** `scenes` takes the place of `stage`, never sits beside it.
+10. **Cut what the demo already shows.** A `steps` "How it works" that a `stage` or `scenes` plays through, or a `stats` band of feature counts (39 menu entries, 8 shortcuts), does not earn a block. Keep `steps` for a product with no live demo.
 
 ### Starting points by kind
 
@@ -426,7 +427,7 @@ These are starting points, not templates. Reorder them.
 
 | Kind | A full page | A short page |
 |---|---|---|
-| Plugin | `stage`, `statement`, `features`, `split` x2, `steps`, `stats`, `screens`, `keys`, `faq`, `film`, `get` | `statement`, `screens`, `get` |
+| Plugin | `stage`, `statement`, the product's own blocks, `split` x2, `tour`, `keys`, `specs` + `faq`, `film`, `get` | `statement`, `screens`, `get` |
 | Mobile app | `stage`, `statement`, `showcase`, `features`, `split` x2, `stats`, `timeline`, `faq`, `get` | `screens`, `statement`, `get` |
 | Website | `text`, `stage`, `compare`, `palette`, `scores`, `statement`, `get` | `text`, `stage`, `get` |
 
