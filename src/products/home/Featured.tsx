@@ -8,7 +8,7 @@ import { Link, productPath } from '../router';
 import { isJumping, setWheelGate, stepToY } from '../scroll';
 import { Stage, tallyWords } from '../stage/Stage';
 import { FILM_ID, findBlock, KINDS, type Product } from '../types';
-import { SiteHeader, toAll } from './Header';
+import { toAll } from './Header';
 import { Stop } from '../stop';
 
 const DESKTOP = '(min-width: 900px) and (prefers-reduced-motion: no-preference)';
@@ -204,7 +204,6 @@ export function Featured({ items, total }: { items: Product[]; total: number }) 
 
   return (
     <section className="ft" ref={root} aria-label="Featured products" style={shown ? brandVars(shown.brand) : undefined} data-flooded={flooded ? '' : undefined}>
-      <SiteHeader total={total} />
       {items.map((product, i) => (
         <Slide key={product.slug} product={product} index={i} active={!pinned || i === current} tally={tally[product.slug]} start={start[product.slug]} report={report} />
       ))}

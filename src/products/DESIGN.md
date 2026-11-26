@@ -45,6 +45,7 @@ Each of these came from a decision the owner made after seeing the alternative. 
 | Nothing trails the scroll, and no layout jumps. | Small jumps and delays get noticed. See [Motion](#6-motion). |
 | The hero car faces right, and its labels read 01 Design to 06 Launch, left to right. | Both were corrected by the owner. |
 | Design choices are shown as rendered images, side by side. | Words and ASCII sketches are not enough to choose from. |
+| Frosted glass only on the sticky top bars (the main page's `.hd`, the detail page's `.dt-top`, no border on either), the detail page's jump list and the back-to-top button (`.pp-up`), each behind `@supports (backdrop-filter)`. | Chosen from renders on 2026-11-27. Over the flat black ground glass shows nothing; on the compare labels and deck tags it was tried and turned down. |
 
 ---
 
@@ -65,9 +66,10 @@ src/products/
   arrive.ts                      onReveal(): run when the curtain lifts
   scroll.ts                      scrollToY(), scrollToEl(), stepToY(), the wheel gate
   Cursor.tsx                     the pointer label ("Open") on links with data-cursor
+  BackToTop.tsx                  the round frosted back-to-top button, on both pages
   home/                          the main page
     Home.tsx                     hero, featured, catalogue, footer
-    Header.tsx                   SiteHeader, the top bar used by the hero and the featured section
+    Header.tsx                   SiteHeader, the page's one top bar: sticky and frosted, overlaying the hero and featured tops; no count, since it sits over the hero
     hero/                        the introduction (see section 7)
     Featured.tsx                 featured products, one full screen each
     Catalogue.tsx                every product: filters, search, list and wall
@@ -401,7 +403,8 @@ Run the checks in [section 15](#15-check-your-work). `products.test.ts` fails if
 A detail page is fixed furniture around a free middle:
 
 ```
-top bar          All products · position (opens a list of every product to jump to) · Prev · Next
+top bar          All products · position (opens a list of every product to jump to) · Prev · Next; sticky, frosted
+back to top      a round icon button, bottom right, once the blocks reach mid-screen (on the main page, the catalogue)
 hero             meta row · the name, fitted to the width · pitch · buttons · facts
 rail             "On this page": a bar per section at the right edge, in place of the scrollbar, from 1024px wide
 blocks           product.blocks, in the order the product gives        <- you design this

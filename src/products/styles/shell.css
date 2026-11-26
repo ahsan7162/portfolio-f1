@@ -1,3 +1,22 @@
+/* Back to top (BackToTop.tsx toggles .pp-up--on): a round frosted icon button, bottom right, on both pages.
+   Hidden with visibility, so it is out of the tab order until it shows. Below the phone sheets (z-index 40). */
+.pp-up {
+  position: fixed; right: var(--pad); bottom: max(var(--pad), env(safe-area-inset-bottom)); z-index: 30;
+  display: grid; place-items: center; width: 52px; aspect-ratio: 1; border-radius: 50%;
+  background: var(--raise); color: var(--ink); border: 1px solid var(--line);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--ink) 14%, transparent), 0 16px 40px var(--shadow);
+  visibility: hidden; opacity: 0; translate: 0 12px;
+  transition: opacity 0.25s, translate 0.45s var(--ease), visibility 0s 0.25s, scale 0.5s var(--spring), border-color 0.2s;
+}
+.pp-up--on { visibility: visible; opacity: 1; translate: none; transition-delay: 0s; }
+.pp-up:hover { border-color: color-mix(in srgb, var(--ink) 40%, transparent); }
+.pp-up:active { scale: 0.92; transition-duration: 0.25s, 0.45s, 0s, 0.07s, 0.2s; }
+.pp-up svg { width: 20px; height: 20px; }
+@supports (backdrop-filter: blur(1px)) {
+  .pp-up { background: color-mix(in srgb, var(--raise) 64%, transparent); backdrop-filter: blur(24px) saturate(140%); border-color: color-mix(in srgb, var(--ink) 16%, transparent); }
+  .pp-up:hover { border-color: color-mix(in srgb, var(--ink) 40%, transparent); }
+}
+
 /* Curtain between pages, and the pointer dot. */
 .pp-curtain {
   position: fixed; inset: 0; z-index: 80; background: var(--raise-2); color: var(--ink);

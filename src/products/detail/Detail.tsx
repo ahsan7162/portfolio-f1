@@ -1,6 +1,7 @@
 // A product's own page: the furniture (top bar, hero, next product) around the blocks the product lists.
 import { useEffect, useRef, useState } from 'react';
 import { onReveal } from '../arrive';
+import { BackToTop } from '../BackToTop';
 import { brandVars } from '../brand';
 import { products } from '../data';
 import { pad } from '../format';
@@ -91,7 +92,7 @@ export function Detail({ product }: { product: Product }) {
 
   return (
     <div className="dt pp-branded" ref={root} style={brandVars(product.brand)}>
-      <nav className="dt-top pp-wrap pp-mono" aria-label="Products">
+      <nav className="dt-top pp-wrap pp-mono" aria-label="Products" data-sticky>
         <Link to={HOME} className="dt-top-link"><span aria-hidden="true">←</span> All products</Link>
         {prev && next && (
           <span className="dt-top-right">
@@ -200,6 +201,8 @@ export function Detail({ product }: { product: Product }) {
           </Link>
         </footer>
       )}
+
+      <BackToTop from=".dt-blocks" />
     </div>
   );
 }

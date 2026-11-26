@@ -1,16 +1,16 @@
 // The main page's top bar: the section's name on the left, the two ways out on the right.
+// One bar for the whole page, sticky and frosted (home.css .hd). It shows no count: it sits over the hero too.
 import { HOME, Link } from '../router';
 import { scrollToEl } from '../scroll';
 
 export const toAll = () => scrollToEl(document.getElementById('all'));
 
-/** `total` is shown beside "All products" where the bar sits among the products; the hero leaves it out. */
-export function SiteHeader({ total }: { total?: number }) {
+export function SiteHeader() {
   return (
-    <header className="hd pp-mono">
+    <header className="hd pp-mono" data-sticky>
       <Link to={HOME} className="hd-brand"><i /><span><b>Ahsan</b> / Products</span></Link>
-      <nav aria-label={total === undefined ? 'Site' : 'Site, beside the products'}>
-        <button type="button" className="pp-mono" onClick={toAll}>All products{total === undefined ? '' : ` (${total})`}</button>
+      <nav aria-label="Site">
+        <button type="button" className="pp-mono" onClick={toAll}>All products</button>
         <a href="/">Portfolio ↗</a>
       </nav>
     </header>

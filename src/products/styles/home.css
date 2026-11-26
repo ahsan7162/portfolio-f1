@@ -1,8 +1,17 @@
 /* Hero: its frame (the car itself is styled in hero-car.css). */
 .hero { position: relative; min-height: max(100svh, 640px); overflow: hidden; }
 
-/* Header: it lives inside the featured screen, so it scrolls away with it. */
-.hd { position: absolute; left: 0; right: 0; top: 0; z-index: 6; display: flex; justify-content: space-between; align-items: center; padding: 24px var(--pad); color: var(--ink); }
+/* Header: one bar for the whole page, sticky and frosted, no border. Its negative margin lets it overlay the top of
+   the hero and the featured screen as the old per-section bars did, so nothing under it moves. Solid without blur. */
+.hd {
+  --hd-h: clamp(56px, 5vw, 72px);
+  position: sticky; top: 0; z-index: 50; height: var(--hd-h); margin-bottom: calc(-1 * var(--hd-h));
+  display: flex; justify-content: space-between; align-items: center; padding: 0 var(--pad); color: var(--ink); background: var(--ground);
+}
+@supports (backdrop-filter: blur(1px)) {
+  /* tinted with the ground, so over the black hero it is the page's own black */
+  .hd { background: color-mix(in srgb, var(--ground) 64%, transparent); backdrop-filter: blur(16px) saturate(140%); }
+}
 .hd-brand { display: flex; gap: 12px; align-items: center; }
 .hd-brand i { width: 13px; height: 13px; background: var(--acc); }
 .hd nav { display: flex; gap: clamp(16px, 2.4vw, 34px); align-items: center; }
@@ -51,7 +60,7 @@
 
 /* Every blocker cleared: the product's colour floods the screen, and the copy and page furniture read on it. */
 .ft-slide[data-done] :is(.ft-copy, .ft-tally),
-.ft[data-flooded] :is(.hd, .ft-strip) {
+.ft[data-flooded] .ft-strip {
   --ink: var(--on-brand); --dim: color-mix(in srgb, var(--on-brand) 68%, transparent); --line: color-mix(in srgb, var(--on-brand) 28%, transparent);
   --acc: var(--on-brand); --on-acc: var(--brand); --ground: var(--brand); color: var(--ink);
 }

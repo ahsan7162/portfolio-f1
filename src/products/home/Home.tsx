@@ -1,8 +1,10 @@
 // The main page: the introduction, the featured products, then the whole catalogue.
 import { lazy, startTransition, Suspense, useEffect, useRef, useState } from 'react';
+import { BackToTop } from '../BackToTop';
 import { products } from '../data';
 import { Catalogue } from './Catalogue';
 import { Featured } from './Featured';
+import { SiteHeader } from './Header';
 import { HeroCar } from './hero/HeroCar';
 import '../styles/home.css';
 
@@ -12,6 +14,7 @@ const Room = lazy(() => import('./room/Room'));
 export function Home() {
   return (
     <>
+      <SiteHeader />
       <main className="home">
         <HeroCar />
         <Featured items={products.filter(p => p.featured)} total={products.length} />
@@ -24,6 +27,8 @@ export function Home() {
           <span><a href="/">Portfolio ↗</a></span>
         </div>
       </footer>
+      {/* from the catalogue on: over the featured screen it would sit on the tally and the strip */}
+      <BackToTop from="#all" />
     </>
   );
 }

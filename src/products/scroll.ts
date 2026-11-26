@@ -14,12 +14,14 @@ let jumping = false;
 /** True while the page is being scrolled somewhere on purpose (a button, a link), not by the visitor. */
 export const isJumping = () => jumping;
 
-export function scrollToY(y: number, immediate = false) {
+/** `done` runs once the scroll has landed (a part hidden while off screen can take focus then). */
+export function scrollToY(y: number, immediate = false, done?: () => void) {
   if (lenis) {
     jumping = true;
-    lenis.scrollTo(y, { immediate, force: true, onComplete: () => { jumping = false; } });
+    lenis.scrollTo(y, { immediate, force: true, onComplete: () => { jumping = false; done?.(); } });
   } else {
     window.scrollTo({ top: y, behavior: immediate ? 'instant' : 'smooth' });
+    done?.();
   }
 }
 
@@ -30,10 +32,11 @@ export function focusOn(el: Element | null | undefined) {
   el.focus({ preventScroll: true });
 }
 
-/** Scroll until `el` sits `gap` px below the top of the screen, and take keyboard focus there. */
+/** Scroll until `el` sits `gap` px below the top of the screen (below a sticky bar marked data-sticky), and take keyboard focus there. */
 export function scrollToEl(el: Element | null | undefined, gap = 0, immediate = false) {
   if (!el) return;
-  scrollToY(el.getBoundingClientRect().top + window.scrollY - gap, immediate);
+  const bar = document.querySelector<HTMLElement>('[data-sticky]')?.offsetHeight ?? 0;
+  scrollToY(el.getBoundingClientRect().top + window.scrollY - gap - bar, immediate);
   focusOn(el);
 }
 

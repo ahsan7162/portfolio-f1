@@ -7,7 +7,6 @@ import { onReveal } from '../../arrive';
 import { pad } from '../../format';
 import { gsap, useGSAP } from '../../motion';
 import { AXLE, Car, PARTS, VIEW, type PartId } from './Car';
-import { SiteHeader } from '../Header';
 import { FACTS, ME, toNext } from './shared';
 import '../../styles/hero-car.css';
 
@@ -96,7 +95,6 @@ export function HeroCar() {
 
   return (
     <section className="hero hc" aria-label="Introduction" ref={root} data-picked={picked ?? undefined}>
-      <SiteHeader />
       <div className="hc-stage">
         {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- pointer shortcut only: every part has a real button in the label row below */}
         <div className="hc-fit" onPointerOver={overCar} onPointerLeave={() => point(null)} onClick={e => pin(zone(e))}>
