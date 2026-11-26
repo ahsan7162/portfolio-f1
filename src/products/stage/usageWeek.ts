@@ -22,6 +22,9 @@ const WORK: [number, number, number][][] = [
 /** How a session percent counts toward the weekly windows and what it costs (invented, at API list prices' scale). */
 const WEEKLY_PER = 0.1, FABLE_PER = 0.011, USD_PER = 0.5;
 
+/** A minute inside the week, whole. */
+const minuteOf = (minute: number) => Math.max(0, Math.min(WEEK_MIN - 1, Math.round(minute)));
+
 const rateAt = (minute: number) => {
   const day = Math.floor(minute / 1440), hour = (minute % 1440) / 60;
   return WORK[day]?.find(([from, to]) => hour >= from && hour < to)?.[2] ?? 0;
@@ -59,7 +62,7 @@ const TICKS: Tick[] = (() => {
 
 /** The windows and the spend at a minute of the week, in the shapes the plugin reads. */
 export function momentAt(minute: number): Moment {
-  const m = Math.max(0, Math.min(WEEK_MIN - 1, Math.round(minute)));
+  const m = minuteOf(minute);
   const t = TICKS[m];
   const iso = (min: number) => new Date(WEEK_START + min * MIN).toISOString();
   const weekly = (label: string, used: number): Window => ({ kind: 'weekly', label, usedPercent: used, resetsAt: iso(WEEK_MIN), windowMs: ONE_WEEK });
@@ -81,7 +84,7 @@ export const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Sa
 
 /** The clock at a minute of the week: "Thursday, 22:00". */
 export function clockAt(minute: number) {
-  const m = Math.max(0, Math.min(WEEK_MIN - 1, Math.round(minute)));
+  const m = minuteOf(minute);
   return `${DAYS[Math.floor(m / 1440)]}, ${pad(Math.floor((m % 1440) / 60))}:${pad(m % 60)}`;
 }
 
