@@ -37,7 +37,7 @@ export function Scores({ block, n }: BlockProps<'scores'>) {
               </svg>
               <b className="bc-score-num pp-display">{s.value}</b>
             </span>
-            <span className="bc-score-label pp-mono pp-dim" aria-hidden="true">{s.label}</span>
+            <span className="bc-score-label pp-meta pp-dim" aria-hidden="true">{s.label}</span>
           </li>
         ))}
       </ul>

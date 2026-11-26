@@ -65,7 +65,7 @@ function Slide({ product, index, active, tally, start, report }: {
       </div>
       {label && (
         <div className="ft-tally ft-fade pp-branded" aria-live="polite" data-quiet={tally === 0 && start === 0 ? '' : undefined}>
-          <span className="pp-mono">{label[0]}<br />{label[1]}</span>
+          <span className="pp-meta">{label[0]}<br />{label[1]}</span>
           <b className="pp-display" key={tally}>{tally ?? ''}</b>
         </div>
       )}

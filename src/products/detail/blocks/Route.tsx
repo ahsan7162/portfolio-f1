@@ -69,7 +69,7 @@ export function Route({ block, n }: BlockProps<'route'>) {
           <div key={s.name} className="bv-route-stop" data-stop={i} data-lit={lit.has(i) || undefined}>
             <span className="bv-route-dot" aria-hidden="true" />
             <h4>{s.name}</h4>
-            <p className="bv-route-where pp-mono">{s.where}</p>
+            <p className="bv-route-where pp-meta">{s.where}</p>
             {s.holds && <ul className="bv-route-holds">{s.holds.map((h) => <li key={h}>{h}</li>)}</ul>}
           </div>
         ))}
@@ -77,7 +77,7 @@ export function Route({ block, n }: BlockProps<'route'>) {
           <div className="bv-route-stop" data-never="">
             <span className="bv-route-dot" aria-hidden="true" />
             <h4><s>{block.never}</s></h4>
-            <p className="bv-route-where pp-mono">Never</p>
+            <p className="bv-route-where pp-meta">Never</p>
           </div>
         )}
         <span className="bv-route-light" aria-hidden="true" />

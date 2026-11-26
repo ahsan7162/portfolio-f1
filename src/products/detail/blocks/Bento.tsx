@@ -38,7 +38,7 @@ export function Bento({ block, product, n }: BlockProps<'bento'>) {
               {t.kind === 'number' && (
                 <>
                   <b className="bv-tile-num pp-display"><span data-count>{t.value}</span>{t.unit && <small>{t.unit}</small>}</b>
-                  <span className="bv-tile-label pp-mono pp-dim">{t.label}</span>
+                  <span className="bv-tile-label pp-meta pp-dim">{t.label}</span>
                 </>
               )}
               {t.kind === 'text' && (

@@ -409,7 +409,7 @@
 .bv-route-stop h4 { margin-top: 28px; font-family: var(--display); font-weight: 600; font-variation-settings: 'wdth' 108; font-size: clamp(1.7rem, 2.8vw, 2.7rem); line-height: 1; letter-spacing: -0.022em; color: var(--dim); transition: color 0.35s var(--ease); }
 .bv-route-stop[data-lit] h4 { color: var(--ink); }
 .bv-route-stop[data-never] h4 s { text-decoration-thickness: 0.07em; }
-.bv-route-where { margin-top: 12px; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--dim); }
+.bv-route-where { margin-top: 12px; color: var(--dim); }
 .bv-route-holds { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 4px; font-size: 0.95rem; color: var(--dim); }
 .bv-route-light { position: absolute; z-index: 2; left: 0; top: 0; visibility: hidden; border-radius: 3px; pointer-events: none;
   background: linear-gradient(var(--deg, 90deg), transparent, var(--acc-lit) 70%, #fff); box-shadow: 0 0 16px var(--acc-lit); }

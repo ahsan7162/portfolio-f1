@@ -22,7 +22,7 @@ export function Stats({ block }: BlockProps<'stats'>) {
         {block.stats.map(s => (
           <li key={s.label}>
             <b className="dt-stat-num pp-display"><span data-count>{s.value}</span>{s.unit && <small>{s.unit}</small>}</b>
-            <span className="dt-stat-label pp-mono pp-dim">{s.label}</span>
+            <span className="dt-stat-label pp-meta pp-dim">{s.label}</span>
           </li>
         ))}
       </ul>

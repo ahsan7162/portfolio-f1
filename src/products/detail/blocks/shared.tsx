@@ -21,7 +21,7 @@ export function Label({ n, id, children, aside }: { n?: string; id: string; chil
       {n && <span className="dt-label-n">{n}</span>}
       <span>{children}</span>
       <span className="dt-label-line" aria-hidden="true" />
-      {aside && <span className="dt-label-aside">{aside}</span>}
+      {aside && <span className="dt-label-aside pp-meta">{aside}</span>}
     </h2>
   );
 }

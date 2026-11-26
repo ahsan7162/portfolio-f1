@@ -52,7 +52,7 @@ export function Specimens({ block, product, n }: BlockProps<'specimens'>) {
           ))}
           {block.also && (
             <div className="bv-spec-also">
-              <p className="pp-mono pp-dim">{block.also.note}</p>
+              <p className="pp-meta pp-dim">{block.also.note}</p>
               <p>{block.also.names.join('\u00a0· ')}</p>
             </div>
           )}
@@ -93,12 +93,12 @@ function Inspector({ item, group, product, sheet, onClose }: { item: Item; group
         <p className="bv-spec-line">{item.line}</p>
         <div className="bv-spec-shot" data-empty={!item.media || undefined}>
           {item.media ? <Shot key={item.name} media={item.media} kind={product.kind} active />
-            : <span className="pp-mono pp-dim">Not drawn on this page. Its signature is the plugin’s own.</span>}
+            : <span className="pp-meta pp-dim">Not drawn on this page. Its signature is the plugin’s own.</span>}
         </div>
         {item.sig && <code className="bv-spec-sig">{item.sig}</code>}
         {item.code && (
           <details className="bv-spec-code">
-            <summary className="pp-mono">The plugin’s own example</summary>
+            <summary className="pp-meta">The plugin’s own example</summary>
             <pre><code>{item.code}</code></pre>
             <button type="button" className="bv-rot-btn pp-mono" onClick={() => copy(item.code!)}><SwapLabel on={copied} off="Copy" onText="Copied" /></button>
             <CopyStatus copied={copied} text="Example copied" />

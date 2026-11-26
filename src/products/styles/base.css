@@ -67,6 +67,8 @@ img, video, svg { display: block; max-width: 100%; }
 .pp-cap code { font-family: var(--mono); font-size: 0.9em; }
 /* code in a label keeps its case: `- [x]` must not read as `- [X]` */
 .pp-mono code { font: inherit; text-transform: none; }
+/* mono in its own case: a label longer than three words, or the phrase under a big figure */
+.pp-meta { font-family: var(--mono); font-size: 0.8125rem; font-weight: 400; letter-spacing: 0.01em; line-height: 1.5; text-transform: none; }
 /* every sentence headline; --pp-head is the one size a section headline takes */
 .pp-lede { font-family: var(--display); font-weight: 600; font-variation-settings: 'wdth' 108; letter-spacing: -0.025em; line-height: 1.06; }
 .pp-dim { color: var(--dim); }

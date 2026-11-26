@@ -67,7 +67,7 @@ export function Replay({ block, n }: BlockProps<'replay'>) {
         </ol>
         <div className="bv-rep-clock" aria-hidden="true">
           <b className="pp-display">{hhmm(now)}</b>
-          <span className="pp-mono">{checksSoFar} {checksSoFar === 1 ? 'check' : 'checks'} · {fired.reduce((k, c) => k + c.alerts.length, 0)} alerts</span>
+          <span className="pp-meta">{checksSoFar} {checksSoFar === 1 ? 'check' : 'checks'} · {fired.reduce((k, c) => k + c.alerts.length, 0)} alerts</span>
         </div>
         <div className="bv-rep-reach">{SURFACES[block.surfaces]({ fired, on, clock: hhmm(now) })}</div>
       </div>

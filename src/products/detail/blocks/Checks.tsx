@@ -71,7 +71,7 @@ export function Checks({ block, n }: BlockProps<'checks'>) {
         ))}
       </ol>
       <div className="bc-checks-foot">
-        {block.total && <p className="bc-checks-total"><b className="pp-display" data-count={block.total.value}>{block.total.value}</b><span className="pp-mono pp-dim">{block.total.label}</span></p>}
+        {block.total && <p className="bc-checks-total"><b className="pp-display" data-count={block.total.value}>{block.total.value}</b><span className="pp-meta pp-dim">{block.total.label}</span></p>}
         <button type="button" className="bc-checks-again pp-mono" onClick={again}>Run again</button>
       </div>
     </section>

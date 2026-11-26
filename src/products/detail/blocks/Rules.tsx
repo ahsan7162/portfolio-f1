@@ -36,7 +36,7 @@ export function Rules({ block, n }: BlockProps<'rules'>) {
       <div className="bv-rules-stage">
         <div className="bv-rules-draw prd" aria-live="polite">{set.draw(v)}</div>
         <p className="bv-rules-count" data-zero={count === 0 || undefined}>
-          <b className="pp-display" key={count}>{count}</b><span className="pp-mono">{w1}<br />{w2}</span>
+          <b className="pp-display" key={count}>{count}</b><span className="pp-meta">{w1}<br />{w2}</span>
         </p>
       </div>
       <div className="bv-rules-ins">

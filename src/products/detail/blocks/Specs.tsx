@@ -19,7 +19,7 @@ export function Specs({ block, n }: BlockProps<'specs'>) {
       <dl className="bc-specs">
         {block.rows.map(r => (
           <div key={r.name} className="bc-spec">
-            <dt className="bc-spec-name pp-mono">{r.name}</dt>
+            <dt className="bc-spec-name pp-meta">{r.name}</dt>
             <dd className="bc-spec-value">
               <span className="pp-lede">{r.value}</span>
               {r.note && <span className="bc-spec-note">{r.note}</span>}

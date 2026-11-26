@@ -72,7 +72,7 @@ export function Diff({ block, n }: BlockProps<'diff'>) {
             <figcaption className="bc-diff-cap">
               <span className="pp-mono">{w.name}</span>
               <b className="bc-diff-n pp-display"><span data-count>{w.count}</span></b>
-              <span className="pp-mono pp-dim">{w.count === 1 ? 'line' : 'lines'} changed</span>
+              <span className="pp-meta pp-dim">{w.count === 1 ? 'line' : 'lines'} changed</span>
             </figcaption>
             <div className="bc-diff-file-view" aria-label={`${w.name}: ${w.count} ${w.count === 1 ? 'line' : 'lines'} changed`}>
               {shown(w.rows, folded).map((r, k) => ('fold' in r
