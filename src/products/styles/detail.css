@@ -240,6 +240,7 @@
 @media (max-width: 520px) {
   .dt-cmd { flex-direction: column; align-items: flex-start; }
   .dt-cmd-arg { white-space: normal; }
+  .dt-cmd-text { letter-spacing: 0; }
   .dt-facts dd { font-size: 1rem; }
 }
 
