@@ -511,7 +511,7 @@
 .bv-rules-stage { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: clamp(28px, 5vw, 96px); margin-top: clamp(32px, 4.4vw, 56px); }
 .bv-rules-draw { font-size: clamp(13px, 1.75vw, 25px); }
 .bv-rules-count { display: flex; align-items: flex-end; gap: 18px; }
-.bv-rules-count b { font-size: clamp(120px, 17vw, 260px); line-height: 0.74; --wdth: 125; letter-spacing: -0.04em; min-width: 0.62em; text-align: right; animation: bv-roll 0.45s var(--ease); }
+.bv-rules-count b { font-size: clamp(120px, 17vw, 260px); line-height: 0.74; --wdth: 125; letter-spacing: -0.04em; min-width: 0.62em; text-align: right; @media (prefers-reduced-motion: no-preference) { animation: bv-roll 0.45s var(--ease); } }
 .bv-rules-count[data-zero] b { color: var(--acc); }
 .bv-rules-count span { line-height: 1.6; color: var(--dim); padding-bottom: 6px; white-space: nowrap; }
 @keyframes bv-roll { from { transform: translateY(0.25em); opacity: 0; } }
