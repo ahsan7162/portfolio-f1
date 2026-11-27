@@ -26,9 +26,14 @@ void test('every spelling of the canvas and the editor gets their headers', () =
 void test('every page but the canvas still refuses to be framed', () => {
   const global = vercel.headers[0];
   const re = new RegExp(`^${global.source}$`);
-  for (const path of ['/', '/products', '/products/playground', '/products/playground/', '/products/pr-dashboard', '/products/playground/frame.js']) assert.ok(re.test(path), path);
-  assert.ok(!re.test('/products/playground/frame.html'));
+  for (const path of ['/', '/products', '/products/playground', '/products/playground/', '/products/pr-dashboard', '/products/playground/frame.js', '/products/systems']) assert.ok(re.test(path), path);
+  for (const path of ['/products/playground/frame.html', '/products/system', '/products/system/']) assert.ok(!re.test(path), path);
   assert.equal(rule(global.source)['X-Frame-Options'], 'DENY');
+  // the system page frames itself (its block frame), and only itself
+  const system = rule('/products/system(/)?');
+  assert.equal(system['Content-Security-Policy'], "frame-ancestors 'self'");
+  assert.equal(system['X-Frame-Options'], 'SAMEORIGIN');
+  assert.deepEqual(Object.keys(system).sort(), Object.keys(rule(global.source)).sort());
 });
 
 const TOKEN = 'f'.repeat(64);
