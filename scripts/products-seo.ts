@@ -5,7 +5,8 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { products } from '../src/products/data';
 import { HOME, productPath } from '../src/products/paths';
-import { homeMeta, productMeta, type PageMeta } from '../src/products/seo';
+import { homeMeta, productMeta, systemMeta, type PageMeta } from '../src/products/seo';
+import { CATALOG } from '../src/products/playground/catalog';
 import { KINDS, findBlock, type BlockOf, type Product } from '../src/products/types';
 
 const ME = 'Muhammad Ahsan';
@@ -58,6 +59,14 @@ const homeBody = () => body('Products', undefined, [
   `<h1>Products by ${ME}</h1>`,
   `<p>${esc(homeMeta.description)}</p>`,
   `<section><h2>All products</h2><ul>${real.map(p => `<li><a href="${productPath(p.slug)}">${esc(p.name)}</a>: ${esc(KINDS[p.kind].label)}, ${p.year}. ${esc(p.line)}</li>`).join('')}</ul></section>`,
+].join(''));
+
+const systemBody = () => body('The system', undefined, [
+  '<h1>The products design system</h1>',
+  `<p>${esc(systemMeta.description)}</p>`,
+  '<p>Colour, type, space, corners, lines, depth, layers and motion, each a named scale in one tokens file; the components the pages are made of; and every block a detail page can be built from.</p>',
+  `<section><h2>Blocks</h2><ul>${CATALOG.map(e => `<li>${esc(e.name)}: ${esc(e.use)}.</li>`).join('')}</ul></section>`,
+  `<p><a href="${HOME}/playground">Build a page with them in the playground</a></p>`,
 ].join(''));
 
 const productBody = (p: Product) => body(p.name, p.brand, [
@@ -149,5 +158,10 @@ export function writeProductPages(dist: string, site: string, builtAt: string) {
     mkdirSync(resolve(dist, 'products', p.slug), { recursive: true });
     writeFileSync(resolve(dist, 'products', p.slug, 'index.html'), page(shell, m, site, productData(p, m, site, site + m.path, builtAt), productBody(p)));
   }
-  return [homeMeta, ...real.map(productMeta)].map(m => m.path);
+  // the design system's page, and the playground (its own entry, a folder deeper: its assets from the root too)
+  mkdirSync(resolve(dist, 'products/system'), { recursive: true });
+  writeFileSync(resolve(dist, 'products/system/index.html'), page(shell, systemMeta, site, [], systemBody()));
+  const playground = resolve(dist, 'products/playground/index.html');
+  writeFileSync(playground, readFileSync(playground, 'utf8').replaceAll('"../', '"/'));
+  return [homeMeta, systemMeta, ...real.map(productMeta)].map(m => m.path);
 }

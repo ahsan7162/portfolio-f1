@@ -5,10 +5,11 @@
 import { useEffect, useMemo, useReducer, useRef, useState, type PointerEvent as RPointerEvent } from 'react';
 import { products } from '../../data';
 import { KINDS, type Block, type Kind, type Product, type StageKind } from '../../types';
-import { CATALOG, entry, fits, GROUPS, remix, sample, STARTERS, type BlockType, type Rect, type Template } from '../catalog';
+import { CATALOG, entry, fits, GROUPS, remix, sample, STARTERS, type BlockType, type Template } from '../catalog';
 import { act, recall, remember, spliced, start, swapped, type State } from '../doc';
 import { LiteralError, parse, print, type Literal } from '../literal';
 import { NAME } from '../protocol';
+import { Glyph } from '../Glyph';
 import { Canvas, type CanvasApi } from './Canvas';
 import { CodeEditor } from './CodeEditor';
 import { BlockFields, Field } from './Fields';
@@ -76,7 +77,8 @@ export function Playground() {
   const [built, setBuilt] = useState<Record<string, string | null>>({});
   /** Why a block could not draw, by the block's key. */
   const [faults, setFaults] = useState<Record<string, string>>({});
-  const [width, setWidth] = useState<number>(1440);
+  // a phone starts the canvas at a phone's width, where the page can be read without zooming
+  const [width, setWidth] = useState<number>(() => (matchMedia('(max-width: 899px)').matches ? 390 : 1440));
   const [tab, setTab] = useState<'block' | 'page' | 'write'>('block');
   const [pane, setPane] = useState<'blocks' | 'canvas' | 'edit'>('canvas');
   const [notice, setNotice] = useState<string | null>(null);
@@ -201,8 +203,6 @@ export function Playground() {
   const setKind = (kind: Kind) => dispatch({ do: 'meta', meta: { kind, ...(doc.meta.sample ? { stage: STAGE_FOR[kind] } : {}) } });
 
   const found = (q: string) => CATALOG.filter(e => !q || `${e.name} ${e.use} ${e.type}`.toLowerCase().includes(q.toLowerCase()));
-  let counted = 0;
-  const numbered = doc.blocks.map(b => ('label' in b && b.label ? String(++counted).padStart(2, '0') : ''));
   const nameOf = (b: Block) => ('label' in b && b.label) || (b.type === 'custom' ? b.name : entry(b.type)?.name ?? b.type);
 
   return (
@@ -256,8 +256,8 @@ export function Playground() {
                   aria-describedby="pg-layer-keys"
                 >
                   <span className="pg-grip" aria-hidden="true">⋮⋮</span>
-                  <span className="pg-layer-n pp-mono">{numbered[i] || '—'}</span>
                   <span className="pg-layer-name">{nameOf(b)}</span>
+                  <span className="pg-layer-n pp-mono">{b.type === 'custom' ? 'yours' : b.type}</span>
                   {faults[doc.keys[i]] !== undefined && <span className="pg-layer-bad" title={faults[doc.keys[i]]}>!</span>}
                 </button>
               </li>
@@ -343,7 +343,7 @@ export function Playground() {
               <>
                 <div className="pg-block-head">
                   <div>
-                    <p className="pp-mono pg-dim">{numbered[selected] ? `${numbered[selected]} · ` : ''}{current.type === 'custom' ? `written · ${current.name}` : entry(current.type)?.name}</p>
+                    <p className="pp-mono pg-dim">{current.type === 'custom' ? `written here · ${current.name}` : entry(current.type)?.name}</p>
                     <h2 className="pg-title">{nameOf(current)}</h2>
                   </div>
                   <div className="pg-acts">
@@ -470,13 +470,6 @@ function Strip({ blocks }: { blocks: Block[] }) {
   );
 }
 
-export function Glyph({ rects }: { rects: Rect[] }) {
-  return (
-    <svg className="pg-glyph" viewBox="0 0 40 28" aria-hidden="true">
-      {rects.map(([x, y, w, h, k]) => <rect key={`${x},${y},${w},${h}`} x={x} y={y} width={w} height={h} rx={k === 2 ? 2 : 1} data-k={k} />)}
-    </svg>
-  );
-}
 
 function Write({ written, setWritten, built, armed, onRun, onAdd, onSave }: {
   written: WrittenBlock[]; setWritten: (f: (w: WrittenBlock[]) => WrittenBlock[]) => void; built: Record<string, string | null>; armed: boolean;

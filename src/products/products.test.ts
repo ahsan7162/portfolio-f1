@@ -2,13 +2,15 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { brandVars } from './brand';
 import { products } from './data';
-import { parseRoute } from './router';
+import { parseRoute, RESERVED } from './router';
 
 void test('routes: /products is the main page, /products/<slug> a product', () => {
   assert.deepEqual(parseRoute('/products'), { page: 'home' });
   assert.deepEqual(parseRoute('/products/'), { page: 'home' });
   assert.deepEqual(parseRoute('/products/pr-dashboard'), { page: 'detail', slug: 'pr-dashboard' });
   assert.deepEqual(parseRoute('/products/pr-dashboard/'), { page: 'detail', slug: 'pr-dashboard' });
+  assert.deepEqual(parseRoute('/products/system'), { page: 'system' });
+  for (const p of products) assert.ok(!RESERVED.includes(p.slug), `${p.slug} is a page of its own`);
 });
 
 void test('every product can be listed, routed to and shown', () => {

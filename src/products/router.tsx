@@ -5,10 +5,14 @@ import { HOME } from './paths';
 
 export { HOME, productPath } from './paths';
 
-export type Route = { page: 'home' } | { page: 'detail'; slug: string };
+export type Route = { page: 'home' } | { page: 'system' } | { page: 'detail'; slug: string };
+
+/** Paths under /products that are pages of their own, never a product's slug. The playground is its own HTML entry. */
+export const RESERVED = ['system', 'playground'];
 
 export function parseRoute(pathname: string): Route {
   const slug = pathname.replace(/\/+$/, '').slice(HOME.length).replace(/^\/+/, '');
+  if (slug === 'system') return { page: 'system' };
   return slug ? { page: 'detail', slug } : { page: 'home' };
 }
 

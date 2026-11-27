@@ -1,12 +1,12 @@
 // The shell: picks the page from the URL, runs smooth scrolling, and wipes a curtain between pages.
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Vitals } from '@/components/Vitals';
 import { startLenis } from '@/motion/lenis';
 import { markCovered, markRevealed } from './arrive';
 import { brandVars } from './brand';
 import { Cursor } from './Cursor';
 import { products } from './data';
-import { homeMeta, productMeta } from './seo';
+import { homeMeta, productMeta, systemMeta } from './seo';
 import { Detail } from './detail/Detail';
 import { Home } from './home/Home';
 import { gsap, reducedMotion, ScrollTrigger } from './motion';
@@ -20,6 +20,9 @@ function tint(curtain: HTMLElement | null, brand?: string) {
   curtain.toggleAttribute('data-branded', !!brand);
   if (brand) curtain.style.setProperty('--brand', brand);
 }
+
+/** The design system's reference page: its own chunk, so the main page and the product pages don't carry it. */
+const System = lazy(() => import('./system/System').then(m => ({ default: m.System })));
 
 /** Where each page was scrolled to when it was left, so Back returns there. */
 const scrollAt = new Map<string, number>();
@@ -62,7 +65,7 @@ export function App() {
 
   // Arriving: a link lands at the top and the curtain lifts; Back and Forward return to where you were.
   useLayoutEffect(() => {
-    document.title = (product ? productMeta(product) : homeMeta).title;
+    document.title = (product ? productMeta(product) : route.page === 'system' ? systemMeta : homeMeta).title;
     scrollToY(covered.current ? 0 : scrollAt.get(path) ?? 0, true);
     const refresh = requestAnimationFrame(() => ScrollTrigger.refresh());
     if (!covered.current) { markRevealed(); return () => cancelAnimationFrame(refresh); }
@@ -89,12 +92,12 @@ export function App() {
       lift = gsap.to(curtain.current, { yPercent: -100, duration: reducedMotion() ? 0 : 0.55, ease: 'power3.inOut' });
     });
     return () => { cancelled = true; cancelAnimationFrame(refresh); lift?.kill(); };
-  }, [path, product]);
+  }, [path, product, route.page]);
 
   return (
     <>
       <a className="pp-skip pp-mono" href="#content" onClick={e => { e.preventDefault(); scrollToEl(document.querySelector('h1'), 24, true); }}>Skip to content</a>
-      {product ? <Detail key={product.slug} product={product} /> : <Home />}
+      {product ? <Detail key={product.slug} product={product} /> : route.page === 'system' ? <Suspense fallback={null}><System /></Suspense> : <Home />}
       <div className="pp-curtain" ref={curtain} aria-hidden="true" data-branded={first.brand ? '' : undefined} style={first.brand ? brandVars(first.brand) : undefined}><span className="pp-display" ref={label}>{first.name}</span></div>
       <Cursor />
       <Vitals />

@@ -9,9 +9,9 @@ export interface WrittenBlock extends Source {
 export function starter(name: string): WrittenBlock {
   return {
     name,
-    code: `// ${name}: a block written in the playground. It is given \`block\` (its data is block.props), \`n\` (its number,
-// when it has a label) and \`product\`. It can import react, the motion and format helpers, the block helpers in
-// ../shared and ../MediaView, and its own CSS. Saved, it becomes src/products/detail/blocks/saved/${name}.tsx.
+    code: `// ${name}: a block written in the playground. It is given \`block\` (its data is block.props) and \`product\`.
+// It can import react, the motion and format helpers, the block helpers in ../shared and ../MediaView, and its
+// own CSS. Saved, it becomes src/products/detail/blocks/saved/${name}.tsx.
 import { useId, useRef } from 'react';
 import { gsap, MOTION } from '../../../motion';
 import { Label, useBlockMotion, type BlockProps } from '../shared';
@@ -19,7 +19,7 @@ import './${name}.css';
 
 type Plan = { name: string; price: string; points: string[]; pick?: boolean };
 
-export function ${name}({ block, n }: BlockProps<'custom'>) {
+export function ${name}({ block }: BlockProps<'custom'>) {
   const root = useRef<HTMLElement>(null);
   const id = useId();
   const plans = (block.props.plans ?? []) as Plan[];
@@ -32,7 +32,7 @@ export function ${name}({ block, n }: BlockProps<'custom'>) {
 
   return (
     <section className="dt-block dt-sec pp-wrap" ref={root} aria-labelledby={id}>
-      <Label n={n} id={id}>{block.label}</Label>
+      <Label id={id}>{block.label}</Label>
       <ul className="cx-plans">
         {plans.map(p => (
           <li key={p.name} className="cx-plan" data-pick={p.pick ? '' : undefined}>

@@ -35,5 +35,12 @@ export function productMeta(product: Product): PageMeta {
   };
 }
 
+export const systemMeta: PageMeta = {
+  path: `${HOME}/system`,
+  title: `Products Design System: Tokens, Type & Blocks | ${ME}`,
+  description: `The design system behind ${ME}'s products pages: colour, type, space, corners, motion, components and every block, drawn live from its tokens.`,
+  noindex: false,
+};
+
 /** Every products page, the main one first. */
 export const allMeta = (products: Product[]): PageMeta[] => [homeMeta, ...products.map(productMeta)];
