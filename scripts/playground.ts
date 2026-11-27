@@ -148,7 +148,6 @@ const TYPES: Record<string, string> = { html: 'text/html; charset=utf-8', js: 't
 
 export function playground(root: string): Plugin {
   const token = randomBytes(32).toString('hex');
-  const devOut = resolve(root, 'node_modules/.playground-frame');
   const page = resolve(root, 'public/products/playground/frame.html');
 
   /** The canvas's headers, wherever it is served from; and, in a build, the editor's (dev injects inline scripts it would refuse). */
@@ -164,10 +163,29 @@ export function playground(root: string): Plugin {
   return {
     name: 'playground',
     configurePreviewServer(server) { server.middlewares.use(headers(true)); },
-    async configureServer(server: ViteDevServer) {
+    configureServer(server: ViteDevServer) {
+      // in this server's own cache folder: worktrees that share node_modules each build their own canvas
+      const devOut = join(server.config.cacheDir, 'playground-frame');
+      // The canvas, built as the production one is, and again on every change; open playgrounds reload it. Started by
+      // the first request for the playground, so dev work elsewhere never pays for rebuilding it.
+      let watching: Promise<unknown> | null = null;
+      const watch = () => {
+        watching ??= import('vite').then(async ({ build }) => {
+          const watcher = await build({ configFile: resolve(root, 'vite.frame.config.ts'), mode: 'development', logLevel: 'warn', build: { outDir: devOut, watch: {} } });
+          if (!('on' in watcher)) return;
+          watcher.on('event', e => {
+            if (e.code === 'BUNDLE_END') { void e.result.close(); server.ws.send({ type: 'custom', event: 'playground:canvas' }); }
+            if (e.code === 'ERROR') { server.config.logger.error(`playground canvas: ${e.error.message}`); void e.result?.close(); }
+          });
+          server.httpServer?.on('close', () => void watcher.close());
+        });
+        return watching;
+      };
+
       server.middlewares.use(headers(false));
       server.middlewares.use((req, res, next) => {
         const path = req.url?.split('?')[0] ?? '';
+        if (path.startsWith(FRAME) || path === '/products/playground') void watch();
         const m = /^\/products\/playground\/frame\.(html|js|css)$/.exec(path);
         if (!m) return next();
         frameFile(res, m[1] === 'html' ? page : join(devOut, `frame.${m[1]}`), TYPES[m[1]]);
@@ -190,16 +208,6 @@ export function playground(root: string): Plugin {
           .catch((e: unknown) => reply(400, { error: e instanceof SaveError ? e.message : e instanceof SyntaxError ? 'Not JSON' : 'Save failed' }));
       });
 
-      // The canvas, built as the production one is, and again on every change; open playgrounds reload it.
-      const { build } = await import('vite');
-      const watcher = await build({ configFile: resolve(root, 'vite.frame.config.ts'), mode: 'development', logLevel: 'warn', build: { outDir: devOut, watch: {} } });
-      if ('on' in watcher) {
-        watcher.on('event', e => {
-          if (e.code === 'BUNDLE_END') { void e.result.close(); server.ws.send({ type: 'custom', event: 'playground:canvas' }); }
-          if (e.code === 'ERROR') { server.config.logger.error(`playground canvas: ${e.error.message}`); void e.result?.close(); }
-        });
-        server.httpServer?.on('close', () => void watcher.close());
-      }
     },
     // The token goes only into the editor's own page, and only from the dev server: a build never has it.
     transformIndexHtml: {
