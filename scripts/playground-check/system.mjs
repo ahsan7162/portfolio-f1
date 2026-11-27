@@ -18,6 +18,13 @@ try {
   const waitDrawn = async () => { for (let i = 0; i < 40; i++) { const [, s] = await state(); if (s !== 'drawing') return s; await sleep(150); } return 'timeout'; };
   check('the frame draws the first block', (await waitDrawn()) === 'drawn', (await state()).join(' '));
 
+  // the cursor dot follows the pointer onto the frame (its moves land in the block page), not stopping at the edge
+  const mid = await t.evaluate(`(() => { const r = ${stage}.getBoundingClientRect(); return { x: Math.round(r.x + r.width * 0.6), y: Math.round(r.y + r.height * 0.6) }; })()`);
+  for (const [dx, dy] of [[-300, -300], [-150, -150], [0, 0]]) { await t.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: mid.x + dx, y: mid.y + dy }); await sleep(60); }
+  await sleep(500);
+  const dot = await t.evaluate(`(() => { const c = document.querySelector('.pp-cursor'); if (!c) return null; const r = c.getBoundingClientRect(); return { x: Math.round(r.x + r.width / 2), y: Math.round(r.y + r.height / 2), on: 'on' in c.dataset }; })()`);
+  check('the cursor dot follows the pointer onto the frame', !!dot && dot.on && Math.abs(dot.x - mid.x) <= 3 && Math.abs(dot.y - mid.y) <= 3, dot ? `dot at ${dot.x},${dot.y}, pointer at ${mid.x},${mid.y}` : 'no dot');
+
   // the block list scrolls on its own under the wheel, down and back to its top, and the page stays
   const ol = `document.querySelector('.sy-bf-list > ol')`;
   const lp = await t.evaluate(`(() => { const r = ${ol}.getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2 }; })()`);

@@ -128,6 +128,13 @@ export function BlockFrame({ brand, brands }: { brand: string; brands: { name: s
     const win = frame.current?.contentWindow;
     win?.addEventListener('wheel', onWheel, { passive: false });
     win?.addEventListener('keydown', onKey);
+    // so does the pointer: the page's cursor dot (Cursor.tsx) follows it in, instead of stopping at the frame's edge
+    win?.addEventListener('pointermove', e => {
+      const f = frame.current;
+      if (!f) return;
+      const r = f.getBoundingClientRect(), k = r.width / Math.max(1, f.offsetWidth); // the frame's scale
+      window.dispatchEvent(new PointerEvent('pointermove', { clientX: r.left + e.clientX * k, clientY: r.top + e.clientY * k, pointerType: e.pointerType }));
+    }, { passive: true });
   };
   useEffect(() => {
     const el = stage.current;
