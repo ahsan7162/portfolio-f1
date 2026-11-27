@@ -3,19 +3,30 @@
 // Flip, and the curtain between pages. Each uses the same tokens and calls the blocks use.
 import { useRef, useState, type CSSProperties } from 'react';
 import { flushSync } from 'react-dom';
-import { countUp, SwapLabel } from '../detail/blocks/shared';
+import { countUp, Label, SwapLabel } from '../detail/blocks/shared';
 import { Flip, gsap, MOTION, reducedMotion, useGSAP } from '../motion';
 
 const CARDS = ['Ask', 'Draft', 'Check', 'Ship'];
 const CHIPS = ['Markdown', 'Git', 'bb', 'VS Code', 'Any agent', 'Jira'];
 
-export function MotionLive({ brand }: { brand: string }) {
+/** The letters of a name, keyed by position, as the detail page's hero splits it. */
+const letters = (word: string) => [...new Intl.Segmenter().segment(word)].map(({ segment: ch, index }) => ({ ch, id: `${index}` }));
+
+export function MotionLive({ brand, tokens, blocks }: { brand: string; tokens: number; blocks: number }) {
   const root = useRef<HTMLDivElement>(null);
   const [swapped, setSwapped] = useState(false);
   const [chips, setChips] = useState(CHIPS);
   const still = reducedMotion();
   const { contextSafe } = useGSAP({ scope: root });
 
+  // the detail page's hero (Detail.tsx): each letter rises out of its line as the curtain lifts
+  const rise = contextSafe(() => {
+    gsap.fromTo('.sy-m-hero .dt-ch', { yPercent: 118 }, { yPercent: 0, duration: 0.55, ease: 'expo.out', stagger: { amount: 0.2 }, overwrite: true });
+  });
+  // every block's label (useBlockMotion): its rule draws in from the left
+  const rule = contextSafe(() => {
+    gsap.fromTo('.sy-m-label .dt-label-line', { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: 'expo.out', overwrite: true });
+  });
   const enter = contextSafe(() => {
     gsap.fromTo('.sy-m-card', { y: 28, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: MOTION.enter, stagger: MOTION.stagger, ease: MOTION.ease, overwrite: true });
   });
@@ -41,6 +52,14 @@ export function MotionLive({ brand }: { brand: string }) {
   return (
     <div className="sy-motion-live" ref={root}>
       {still && <p className="pp-cap">Your system asks for less motion, so every piece here shows its final state, as the pages do.</p>}
+      <Demo name="A name arrives" spec="each letter rises out of its line · yPercent 118 → 0, 0.55s, expo.out, over 0.2s · the hero of every product page, as the curtain lifts" onPlay={rise} still={still}>
+        <h4 className="pp-display sy-m-hero" aria-label="Acme Notes">
+          <span className="dt-name-line" aria-hidden="true">{letters('ACME NOTES').map(l => <span className="dt-ch" key={l.id}>{l.ch}</span>)}</span>
+        </h4>
+      </Demo>
+      <Demo name="A block arrives" spec="its label's rule draws in from the left · scaleX 0 → 1, 0.7s, expo.out · every block, as it comes into view" onPlay={rule} still={still}>
+        <div className="sy-m-label"><Label id="sy-m-label-demo" aside="sample">How it works</Label></div>
+      </Demo>
       <Demo name="Entrance" spec={`y 28 → 0, fade in · ${MOTION.enter}s, ${MOTION.ease}, ${MOTION.stagger}s apart`} onPlay={enter} still={still}>
         <ul className="sy-m-cards">{CARDS.map(c => <li key={c} className="sy-m-card"><span className="pp-mono">{c}</span><i /><i /></li>)}</ul>
       </Demo>
@@ -52,8 +71,8 @@ export function MotionLive({ brand }: { brand: string }) {
       </Demo>
       <Demo name="Count up" spec="from 0 to the number written · 0.9s, power3.out" onPlay={count} still={still}>
         <div className="sy-m-nums">
-          <p className="sy-m-num"><b className="pp-display">142</b><span className="pp-meta">tokens</span></p>
-          <p className="sy-m-num"><b className="pp-display">38</b><span className="pp-meta">blocks</span></p>
+          <p className="sy-m-num"><b className="pp-display">{tokens}</b><span className="pp-meta">tokens</span></p>
+          <p className="sy-m-num"><b className="pp-display">{blocks}</b><span className="pp-meta">blocks</span></p>
         </div>
       </Demo>
       <Demo name="Width" spec="--wdth 64 → 125 → 64, a registered number, so it tweens · expo.inOut" onPlay={stretch} still={still}>

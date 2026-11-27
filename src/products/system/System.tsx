@@ -5,7 +5,7 @@ import { useEffect, useId, useLayoutEffect, useState, type CSSProperties, type R
 import { brandVars } from '../brand';
 import { products } from '../data';
 import { Label } from '../detail/blocks/shared';
-import { MOTION } from '../motion';
+import { MOTION, ScrollTrigger } from '../motion';
 import { HOME, Link } from '../router';
 import { scrollToEl } from '../scroll';
 import { BrowserFrame, PhoneFrame, Shot, WindowFrame } from '../stage/Frames';
@@ -18,7 +18,7 @@ import { parseTokens, type Token } from '../styles/tokenList';
 import '../styles/detail.css';
 import '../styles/frames.css';
 import '../styles/system.css';
-import { LiveBlocks } from './LiveBlocks';
+import { LIVE_ORDER, LiveBlocks } from './LiveBlocks';
 import { MotionLive } from './MotionLive';
 
 const TOKENS = parseTokens(tokensCss);
@@ -33,17 +33,6 @@ const SECTIONS = [
   ['layers', 'Layers'], ['motion', 'Motion'], ['layout', 'Layout'], ['components', 'Components'], ['blocks', 'Blocks'], ['off', 'Off the scale'], ['writing', 'Writing and access'],
   ['live', 'Every block, live'],
 ] as const;
-
-/**
- * Scroll to a section or a live block. Live blocks mount as they near the screen and change the page's height on the
- * way down, so the jump looks again where its target is, twice, once those above it have drawn.
- */
-function jump(id: string) {
-  const go = () => scrollToEl(document.getElementById(id), 24);
-  go();
-  setTimeout(go, 700);
-  setTimeout(go, 1500);
-}
 
 /** The colours to try, as round swatches. */
 function BrandPick({ brand, setBrand }: { brand: string; setBrand: (hex: string) => void }) {
@@ -147,6 +136,33 @@ export function System() {
   const [brand, setBrand] = useState(BRANDS[0].hex);
   const [here, setHere] = useState<string>('rules');
   const [wdth, setWdth] = useState(64);
+  /** Live blocks drawn now up to this one, so a jump lands once, where its target really is. */
+  const [upTo, setUpTo] = useState(-1);
+
+  // A jump to a live block first draws every block above it, lets them measure, then scrolls once. A demo that loads
+  // its own drawing a moment later can still move it: then, and only for those, one more look.
+  const jump = (id: string) => {
+    const at = LIVE_ORDER.findIndex(e => `block-${e.type}` === id);
+    if (at < 0) { scrollToEl(document.getElementById(id), 24); return; }
+    setUpTo(n => Math.max(n, at));
+    // after the newly drawn blocks have measured their pins (LiveBlocks remeasures 250 ms after a block mounts)
+    setTimeout(() => {
+      ScrollTrigger.refresh();
+      const el = document.getElementById(id);
+      // clear the live section's own sticky bar as well as the page's
+      const gap = 16 + (document.querySelector('.sy-live-bar')?.getBoundingClientRect().height ?? 0);
+      const want = gap + (document.querySelector<HTMLElement>('[data-sticky]')?.offsetHeight ?? 0);
+      scrollToEl(el, gap);
+      // Once there, hold it there while the blocks above finish loading (a demo's drawing, a font): when they change
+      // height, the scroll makes up the difference at once, so the target stays put. Smooth scrolling turns off the
+      // browser's own scroll anchoring, which would do this.
+      const lives = document.querySelector('.sy-lives');
+      if (!el || !lives) return;
+      const hold = new ResizeObserver(() => { if (Math.abs(el.getBoundingClientRect().top - want) > 2) scrollToEl(el, gap, true); });
+      setTimeout(() => { if (Math.abs(el.getBoundingClientRect().top - want) > 40) scrollToEl(el, gap, true); hold.observe(lives); }, 1100);
+      setTimeout(() => hold.disconnect(), 4000);
+    }, 320);
+  };
 
   // the index marks the section in view
   useEffect(() => {
@@ -291,7 +307,7 @@ export function System() {
 
             <Section id="motion" aside={`${inSection('Motion').length} tokens`} title="Motion" head="Brisk out, quick in. Nothing trails the hand.">
               <Motion />
-              <MotionLive brand={brand} />
+              <MotionLive brand={brand} tokens={TOKENS.length} blocks={CATALOG.length} />
               <Table tokens={prefixed('--ease').concat(prefixed('--spring'))} />
               <Table tokens={prefixed('--t-')} sample="duration" />
               <div className="sy-table" role="table" aria-label="GSAP motion">
@@ -377,7 +393,7 @@ export function System() {
             </div>
             <BrandPick brand={brand} setBrand={setBrand} />
           </div>
-          <LiveBlocks brand={brand} />
+          <LiveBlocks brand={brand} upTo={upTo} />
         </section>
       </main>
     </div>

@@ -171,6 +171,8 @@
 .sy-m-nums { display: flex; gap: var(--sp-40); }
 .sy-m-num { display: grid; gap: var(--sp-4); }
 .sy-m-num b { font-size: clamp(56px, 7vw, 104px); font-variant-numeric: tabular-nums; }
+.sy-m-hero { font-size: clamp(48px, 6vw, 96px); width: 100%; }
+.sy-m-label { width: 100%; }
 .sy-m-word { font-size: clamp(36px, 4.4vw, 72px); white-space: nowrap; }
 .sy-m-chips { list-style: none; display: flex; flex-wrap: wrap; gap: var(--sp-8); justify-content: center; }
 .sy-m-stage { position: relative; width: 100%; height: 160px; display: grid; place-items: center; border-radius: var(--r-12); background: var(--raise); overflow: hidden; }
@@ -184,6 +186,8 @@
 .sy-live-bar .sy-brand-pick { grid-template-columns: repeat(9, 28px); }
 .sy-live-bar .sy-brand-pick button { width: 28px; height: 28px; }
 .sy-lives-title { padding-top: var(--sp-64); color: var(--dim); }
+/* room after the last block, so a jump to it can bring it to the top like any other */
+.sy-lives { padding-bottom: 50svh; }
 .sy-live { scroll-margin-top: 140px; border-bottom: var(--stroke) solid var(--line); }
 .sy-live-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: var(--sp-16); align-items: center; padding-top: var(--sp-40); }
 .sy-live-name b { font-family: var(--display); font-variation-settings: 'wdth' var(--wd-108); font-weight: var(--w-semibold); font-size: var(--fs-18); }

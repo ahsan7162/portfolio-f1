@@ -14,22 +14,27 @@ let refresh = 0;
 /** Blocks that mount late move everything under them: measure the scroll triggers again, once things settle. */
 const remeasure = () => { clearTimeout(refresh); refresh = window.setTimeout(() => ScrollTrigger.refresh(), 250); };
 
-export function LiveBlocks({ brand }: { brand: string }) {
+/** The live blocks in page order. */
+export const LIVE_ORDER = GROUPS.flatMap(g => CATALOG.filter(e => e.group === g));
+
+/** `upTo`: every block up to this one in page order is drawn now, whether near the screen or not (a jump to it). */
+export function LiveBlocks({ brand, upTo }: { brand: string; upTo: number }) {
   return (
     <div className="sy-lives">
       {GROUPS.map(g => (
         <div key={g} className="sy-lives-group">
           <h3 className="sy-lives-title pp-wrap pp-mono">{g}</h3>
-          {CATALOG.filter(e => e.group === g).map(e => <LiveBlock key={e.type} entry={e} brand={brand} />)}
+          {CATALOG.filter(e => e.group === g).map(e => <LiveBlock key={e.type} entry={e} brand={brand} now={LIVE_ORDER.indexOf(e) <= upTo} />)}
         </div>
       ))}
     </div>
   );
 }
 
-function LiveBlock({ entry, brand }: { entry: Entry; brand: string }) {
+function LiveBlock({ entry, brand, now }: { entry: Entry; brand: string; now: boolean }) {
   const box = useRef<HTMLElement>(null);
-  const [near, setNear] = useState(false);
+  const [seen, setSeen] = useState(false);
+  const near = seen || now;
   const { block, from } = sampleSource(entry.type);
   // a sample is about Acme Notes, in the picked colour; a real product's block stays on that product, in its own
   const product: Product = from ?? { ...ACME, brand, blocks: [block] };
@@ -37,7 +42,7 @@ function LiveBlock({ entry, brand }: { entry: Entry; brand: string }) {
   useEffect(() => {
     const el = box.current;
     if (!el || near) return;
-    const io = new IntersectionObserver(([e]) => { if (e?.isIntersecting) setNear(true); }, { rootMargin: '120% 0px' });
+    const io = new IntersectionObserver(([e]) => { if (e?.isIntersecting) setSeen(true); }, { rootMargin: '120% 0px' });
     io.observe(el);
     return () => io.disconnect();
   }, [near]);
