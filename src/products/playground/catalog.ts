@@ -1,8 +1,8 @@
 // What the playground offers: every block type with a group, a one-line use, a glyph and content to start
 // from, and the templates a page can start from. Sample content is about a made-up product and says so.
 import { products } from '../data';
-import { SCENES } from '../stage/names';
-import type { Block, Product } from '../types';
+import { SCENES, type AcmeView } from '../stage/names';
+import type { Block, Media, Product } from '../types';
 
 export type BlockType = Block['type'];
 /** A rectangle in a 40 x 28 glyph: x, y, w, h, and how it is drawn (0 a line, 1 a filled area, 2 a ring). */
@@ -69,9 +69,9 @@ export const CATALOG: Entry[] = [
 
 export const entry = (type: string) => CATALOG.find(e => e.type === type);
 
-/** Screens of Acme Notes, a product that does not exist: drawn and rendered for these samples (public/products-media/acme-notes). */
-const A = (name: string, alt: string) => ({ src: `/products-media/acme-notes/${name}.jpg`, alt, width: 1920, height: 1200 });
-const PHONE = (name: string, alt: string) => ({ src: `/products-media/acme-notes/${name}.jpg`, alt, width: 600, height: 1240 });
+/** Screens of Acme Notes, a product that does not exist, drawn in code (stage/AcmeScreen.tsx): they take its colour, whichever is picked. */
+const A = (view: AcmeView, alt: string): Media => ({ live: `acme:${view}`, alt });
+const PHONE = A;
 const SHOT = {
   panel: A('panel', 'The Notes panel beside the code: this branch’s notes on the left, a review note open with its checklist'),
   search: A('search', 'Searching every note for “rounding”: four notes across three branches, the matches marked'),
@@ -89,11 +89,11 @@ const SAMPLES: Partial<Record<BlockType, Block>> = {
   text: { type: 'text', label: 'The story', head: 'It started with a lost review', body: ['A pull request sat for a week because the review notes lived in a chat thread nobody could find. The fix was two lines; finding out what the two lines were took a morning.', 'Acme Notes began as a file in the repository, one per branch, opened with a shortcut. Linked lines came next, so a note could point at code without going stale when the code moved.', 'It stays small on purpose: a note is a Markdown file you can read, diff and commit like anything else.'] },
   showcase: { type: 'showcase', label: 'The look', media: [SHOT.panel, SHOT.links, SHOT.history], caption: 'The panel, a linked line opened as a card, and a note’s history.' },
   screens: { type: 'screens', label: 'Screens', screens: [
-    { src: SHOT.panel.src, title: 'The panel', caption: 'This branch’s notes on the left, the open one on the right, with its checklist and code.' },
-    { src: SHOT.search.src, title: 'Search', caption: 'Every note on every branch, with the matches marked.' },
-    { src: SHOT.links.src, title: 'Linked lines', caption: 'A link to a line opens as a card, and follows the line as you edit.' },
-    { src: SHOT.branches.src, title: 'Branches', caption: 'Each branch with its notes; merged branches keep theirs.' },
-    { src: SHOT.history.src, title: 'History', caption: 'Every save is a version, diffed like the code.' },
+    { live: 'acme:panel', title: 'The panel', caption: 'This branch’s notes on the left, the open one on the right, with its checklist and code.' },
+    { live: 'acme:search', title: 'Search', caption: 'Every note on every branch, with the matches marked.' },
+    { live: 'acme:links', title: 'Linked lines', caption: 'A link to a line opens as a card, and follows the line as you edit.' },
+    { live: 'acme:branches', title: 'Branches', caption: 'Each branch with its notes; merged branches keep theirs.' },
+    { live: 'acme:history', title: 'History', caption: 'Every save is a version, diffed like the code.' },
   ] },
   features: { type: 'features', label: 'What it does', items: [
     { title: 'A note per branch', body: 'Switching branch switches the note, so the right one is always open.' },

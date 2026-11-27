@@ -5,16 +5,18 @@ import { DASHES } from './dash';
 import { DashView } from './DashView';
 import { JiraRow } from './JiraRow';
 import { MdPage } from './MdPage';
-import type { DashName, LiveName, OuiName } from './names';
+import type { AcmeName, DashName, LiveName, OuiName } from './names';
 
 // The OpenUI kit is the heaviest drawing on the site: it loads only when one of its screens is about to show.
 const OuiLive = lazy(() => import('./oui/OuiLive'));
+// Acme Notes is only ever shown on the system page and in the playground: no product page pays for it.
+const AcmeScreen = lazy(() => import('./AcmeScreen'));
 
 const dash = (name: DashName) => (p: LiveProps) => <DashView dash={DASHES[name]} {...p} />;
 const page = (template: string) => (p: LiveProps) => <MdPage template={template} {...p} />;
 
 /** Name to component. Typed by LiveName, so a name with no component does not compile. */
-const LIVE: Record<Exclude<LiveName, OuiName>, ComponentType<LiveProps>> = {
+const LIVE: Record<Exclude<LiveName, OuiName | AcmeName>, ComponentType<LiveProps>> = {
   'dash:branch': dash('dash:branch'),
   'dash:bench': dash('dash:bench'),
   'dash:orders': dash('dash:orders'),
@@ -37,6 +39,9 @@ export function LiveScreen({ name, ...props }: LiveProps & { name: LiveName }) {
   if (name.startsWith('oui:')) {
     return <Suspense fallback={<div className="oul" aria-label={props.alt} role="img" />}><OuiLive name={name as OuiName} {...props} /></Suspense>;
   }
-  const C = LIVE[name as Exclude<LiveName, OuiName>];
+  if (name.startsWith('acme:')) {
+    return <Suspense fallback={<div style={{ width: '100%', aspectRatio: '16 / 10' }} aria-label={props.alt} role="img" />}><AcmeScreen name={name as AcmeName} {...props} /></Suspense>;
+  }
+  const C = LIVE[name as Exclude<LiveName, OuiName | AcmeName>];
   return <C {...props} />;
 }

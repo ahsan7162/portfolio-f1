@@ -11,8 +11,16 @@ export const LIVE_NAMES = [
   // OpenUI Live Replies: the CI reply, and the replies the prompts block streams in
   'oui:ci', 'oui:waterfall', 'oui:release', 'oui:quiz', 'oui:trip', 'oui:estimate', 'oui:pr', 'oui:app', 'oui:shader',
 ] as const;
+/**
+ * Acme Notes, the made-up product the system page and the playground show, drawn in code (stage/AcmeScreen.tsx) so
+ * every screen takes the colour picked for it. Desktop views are 16:10; the phone and site-phone views are 300:620.
+ */
+export const ACME_VIEWS = ['panel', 'search', 'links', 'branches', 'history', 'panel-light', 'site', 'phone-list', 'phone-note', 'site-phone'] as const;
+export type AcmeView = (typeof ACME_VIEWS)[number];
+export type AcmeName = `acme:${AcmeView}`;
+export const ACME_NAMES = ACME_VIEWS.map((v): AcmeName => `acme:${v}`);
 /** A live screen by name; `oui:spec-<Component>` draws that OpenUI Live Replies component's own example program. */
-export type LiveName = (typeof LIVE_NAMES)[number] | `oui:spec-${string}`;
+export type LiveName = (typeof LIVE_NAMES)[number] | `oui:spec-${string}` | AcmeName;
 export type OuiName = Extract<LiveName, `oui:${string}`>;
 /** The live screens that are bb Dashboards dashboards. */
 export type DashName = Extract<(typeof LIVE_NAMES)[number], `dash:${string}`>;

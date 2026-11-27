@@ -3,7 +3,7 @@ import { useId, useRef } from 'react';
 import { pad } from '../../format';
 import { gsap } from '../../motion';
 import { srcSet } from '../../paths';
-import { KindFrame, SampleScreen } from '../../stage/Frames';
+import { KindFrame, SampleScreen, Shot } from '../../stage/Frames';
 import { Label, useBlockMotion, usePreload, type BlockProps } from './shared';
 
 export function Screens({ block, product }: BlockProps<'screens'>) {
@@ -13,7 +13,9 @@ export function Screens({ block, product }: BlockProps<'screens'>) {
   const nth = product.blocks.filter(b => b.type === 'screens').indexOf(block);
   const v = (product.variant ?? 0) + nth;
   const shots = block.screens.length
-    ? block.screens.map(s => ({ id: s.src, title: s.title, caption: s.caption, body: <img className="dt-shot-img" src={s.src} srcSet={srcSet(s.src)} sizes="(min-width: 900px) 60vw, 84vw" alt={s.title} loading="lazy" decoding="async" /> }))
+    ? block.screens.map(s => 'live' in s
+      ? { id: s.live, title: s.title, caption: s.caption, body: <div className="dt-shot-img"><Shot media={{ live: s.live, alt: s.title }} kind={product.kind} /></div> }
+      : { id: s.src, title: s.title, caption: s.caption, body: <img className="dt-shot-img" src={s.src} srcSet={srcSet(s.src)} sizes="(min-width: 900px) 60vw, 84vw" alt={s.title} loading="lazy" decoding="async" /> })
     : [0, 1, 2].map(i => ({ id: `sample-${i}`, title: 'Sample screen', caption: '', body: <SampleScreen kind={product.kind} variant={(v + i) % 3} dark={nth % 2 === 1} /> }));
 
   // Decode the screenshots before the pin moves them: decoding mid-scroll is what drops frames.

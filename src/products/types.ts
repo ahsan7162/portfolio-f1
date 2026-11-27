@@ -13,7 +13,8 @@ export const KINDS: Record<Kind, { label: string; plural: string; tag: string; f
 /** What sits on the product's stage: a live demo of the product, or a frame showing its screens. */
 export type StageKind = 'pr-demo' | 'jira-demo' | 'openui-demo' | 'dash-demo' | 'md-demo' | 'usage-demo' | 'window' | 'phone' | 'browser';
 
-export interface Screen { src: string; title: string; caption: string }
+/** One screen of a `screens` gallery: a screenshot, or a live screen drawn in code. */
+export type Screen = { title: string; caption: string } & ({ src: string } | { live: LiveName });
 
 /**
  * A picture for a block: a real image, (for a dummy product) one of the sample screens in the kind's

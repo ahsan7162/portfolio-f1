@@ -3,7 +3,7 @@
 // every real page and sample of that type, so nothing has to be described twice.
 import { useId, useState } from 'react';
 import { products } from '../../data';
-import { LIVE_NAMES, PARTS_NAMES, RULE_SET_NAMES, SURFACES_NAMES } from '../../stage/names';
+import { ACME_NAMES, LIVE_NAMES, PARTS_NAMES, RULE_SET_NAMES, SURFACES_NAMES } from '../../stage/names';
 import { CATALOG, sample } from '../catalog';
 import { spliced, swapped } from '../doc';
 
@@ -14,7 +14,7 @@ const isObj = (v: V): v is Obj => typeof v === 'object' && v !== null && !Array.
 /** Values a field can only take one of, by its name. */
 const CHOICES: Record<string, readonly string[]> = {
   side: ['left', 'right'],
-  live: LIVE_NAMES,
+  live: [...LIVE_NAMES, ...ACME_NAMES],
   set: RULE_SET_NAMES,
   parts: PARTS_NAMES,
   surfaces: SURFACES_NAMES,
@@ -179,7 +179,7 @@ function MediaField({ id, media, onChange }: { id: string; media: Obj; onChange:
       )}
       {kind === 'live' && (
         <select id={id} className="pg-input" value={text(media.live)} onChange={e => onChange({ ...media, live: e.target.value })}>
-          {[...new Set([text(media.live), ...LIVE_NAMES])].filter(Boolean).map(n => <option key={n} value={n}>{n}</option>)}
+          {[...new Set([text(media.live), ...LIVE_NAMES, ...ACME_NAMES])].filter(Boolean).map(n => <option key={n} value={n}>{n}</option>)}
         </select>
       )}
       {kind !== 'sample' && <input className="pg-input" aria-label="What the picture shows" value={typeof media.alt === 'string' ? media.alt : ''} placeholder="What the screen shows" onChange={e => onChange({ ...media, alt: e.target.value })} />}
