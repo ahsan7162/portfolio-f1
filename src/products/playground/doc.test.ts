@@ -76,3 +76,9 @@ void test('only something the editor can show passes as a block', () => {
   }
 });
 
+void test('a sample route only points at stops it has (they are numbered from 0)', () => {
+  const r = sample('route');
+  assert.ok(r.type === 'route');
+  for (const run of r.runs) for (const h of run.hops) assert.ok(r.stops[h.from] && r.stops[h.to], `${run.name}: ${h.from} → ${h.to}`);
+});
+
