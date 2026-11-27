@@ -26,6 +26,7 @@ export function BlockFrame({ brand, brands }: { brand: string; brands: { name: s
   const [ready, setReady] = useState(0);
   const frame = useRef<HTMLIFrameElement>(null);
   const stage = useRef<HTMLDivElement>(null);
+  const view = useRef<HTMLDivElement>(null);
   const list = useRef<HTMLOListElement>(null);
   const atRef = useRef(at);
   useLayoutEffect(() => { atRef.current = at; }, [at]);
@@ -48,7 +49,7 @@ export function BlockFrame({ brand, brands }: { brand: string; brands: { name: s
 
   // the frame's size, for the scale
   useEffect(() => {
-    const el = stage.current;
+    const el = view.current;
     if (!el) return;
     const ro = new ResizeObserver(([e]) => setBox({ w: e.contentRect.width, h: e.contentRect.height }));
     ro.observe(el);
@@ -178,11 +179,6 @@ export function BlockFrame({ brand, brands }: { brand: string; brands: { name: s
             <p className="sy-bf-use">{entry.use}. <span className="sy-dim">{from ? `Shown on ${from.name}, with its own data and colour: this block draws that product.` : 'Demo content, on Acme Notes, a product that does not exist.'}</span></p>
           </div>
           <div className="sy-bf-acts">
-            {!from && (
-              <div className="sy-brand-pick sy-bf-tints" role="radiogroup" aria-label="The demo product's colour">
-                {brands.map(b => <button key={b.hex} type="button" role="radio" aria-checked={tint === b.hex} aria-label={`${b.name}, ${b.hex}`} title={b.name} onClick={() => setTint(b.hex)} style={{ background: b.hex }} />)}
-              </div>
-            )}
             <button type="button" className="pp-btn pp-btn--ghost" onClick={() => go(at - 1)} disabled={at === 0} aria-label="Previous block">↑</button>
             <button type="button" className="pp-btn pp-btn--ghost" onClick={() => go(at + 1)} disabled={at === ORDER.length - 1} aria-label="Next block">↓</button>
             <button type="button" className="pp-btn pp-btn--ghost" onClick={() => setN(x => x + 1)}>Replay</button>
@@ -190,14 +186,26 @@ export function BlockFrame({ brand, brands }: { brand: string; brands: { name: s
           </div>
         </header>
         {/* data-lenis-prevent-wheel: the wheel over the frame is the frame's (see onWheel), not the smooth scroller's */}
-        <div className="sy-bf-stage" ref={stage} data-type={entry.type} data-status={status} data-lenis-prevent-wheel style={{ aspectRatio: `${page.w} / ${page.h}` }}>
-          <div className="sy-bf-page" style={{ width: page.w * scale, height: page.h * scale }}>
-            {/* oxlint-disable-next-line react/iframe-missing-sandbox -- the site's own page, trusted, same origin on purpose: the frame listens for the wheel inside it */}
-            <iframe
-              ref={frame} title={`${entry.name}, drawn live. Scroll over it, or use the arrow keys inside it, for the next block.`}
-              src={`${HOME}/system?view=block`} onLoad={attach}
-              style={{ width: page.w, height: page.h, transform: `scale(${scale})` }} data-status={status}
-            />
+        <div className="sy-bf-stage" ref={stage} data-type={entry.type} data-status={status} data-lenis-prevent-wheel>
+          {/* the frame's own bar: the demo product's colour, picked on the frame it colours */}
+          <div className="sy-bf-bar">
+            {from ? (
+              <p className="pp-meta sy-dim" title="This block draws a real product, in its own colour"><span className="sy-bf-own" style={{ background: from.brand }} aria-hidden="true" />{from.name}</p>
+            ) : (
+              <div className="sy-brand-pick sy-bf-tints" role="radiogroup" aria-label="The demo product's colour">
+                {brands.map(b => <button key={b.hex} type="button" role="radio" aria-checked={tint === b.hex} aria-label={`${b.name}, ${b.hex}`} title={b.name} onClick={() => setTint(b.hex)} style={{ background: b.hex }} />)}
+              </div>
+            )}
+          </div>
+          <div className="sy-bf-view" ref={view} style={{ aspectRatio: `${page.w} / ${page.h}` }}>
+            <div className="sy-bf-page" style={{ width: page.w * scale, height: page.h * scale }}>
+              {/* oxlint-disable-next-line react/iframe-missing-sandbox -- the site's own page, trusted, same origin on purpose: the frame listens for the wheel inside it */}
+              <iframe
+                ref={frame} title={`${entry.name}, drawn live. Scroll over it, or use the arrow keys inside it, for the next block.`}
+                src={`${HOME}/system?view=block`} onLoad={attach}
+                style={{ width: page.w, height: page.h, transform: `scale(${scale})` }} data-status={status}
+              />
+            </div>
           </div>
         </div>
       </div>

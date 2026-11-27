@@ -10,7 +10,7 @@ import { HOME, Link } from '../router';
 import { scrollToEl } from '../scroll';
 import { BrowserFrame, PhoneFrame, Shot, WindowFrame } from '../stage/Frames';
 import { Stop } from '../stop';
-import { CATALOG } from '../playground/catalog';
+import { ACME, CATALOG } from '../playground/catalog';
 import { OFF_SCALE } from '../styles/offScale';
 import tokensCss from '../styles/tokens.css?raw';
 import { parseTokens, type Token } from '../styles/tokenList';
@@ -344,7 +344,8 @@ export function System() {
             <h2 id="sy-blocks-h" className="pp-lede">Every block, live<span className="pp-stop">.</span></h2>
             <p className="pp-cap">{CATALOG.length} blocks, each drawn by its real component as on a product's page, with its own motion. Scroll over the frame for the next one, or pick one in the list.</p>
           </div>
-          <BlockFrame brand="#FF6B3D" brands={BRANDS} />
+          {/* the demo product's own colour first, so a visitor can pick it again */}
+          <BlockFrame brand={ACME.brand} brands={[{ name: ACME.name, hex: ACME.brand }, ...BRANDS]} />
         </section>
       </main>
     </div>
