@@ -69,67 +69,165 @@ export const CATALOG: Entry[] = [
 
 export const entry = (type: string) => CATALOG.find(e => e.type === type);
 
-/** Sample media: the drawn sample screens, in the product's own frame. */
-const S = (n: number, dark = false) => ({ sample: n, dark });
+/** Screens of Acme Notes, a product that does not exist: drawn and rendered for these samples (public/products-media/acme-notes). */
+const A = (name: string, alt: string) => ({ src: `/products-media/acme-notes/${name}.jpg`, alt, width: 1920, height: 1200 });
+const PHONE = (name: string, alt: string) => ({ src: `/products-media/acme-notes/${name}.jpg`, alt, width: 600, height: 1240 });
+const SHOT = {
+  panel: A('panel', 'The Notes panel beside the code: this branch’s notes on the left, a review note open with its checklist'),
+  search: A('search', 'Searching every note for “rounding”: four notes across three branches, the matches marked'),
+  links: A('links', 'A note’s linked line, opened as a card: src/cart/total.ts at line 42, followed through three edits'),
+  branches: A('branches', 'Every branch with its notes: the current one marked, merged ones kept'),
+  history: A('history', 'A note’s history: five versions, the picked one diffed against now'),
+  light: A('panel-light', 'The Notes panel in the light theme'),
+  site: A('site', 'The Acme Notes website: the headline, Install for bb, and the panel beside it'),
+};
 
-/** Content to start a block from, about Acme Notes, a product that does not exist. */
+/** Content to start a block from, about Acme Notes, a product that does not exist: full enough to show the block at its best. */
 const SAMPLES: Partial<Record<BlockType, Block>> = {
   stage: { type: 'stage' },
-  statement: { type: 'statement', label: 'Why', head: 'Notes pile up. *Acme Notes* puts them where the work is.', body: 'Sample copy for a made-up product. Say the problem in the headline, then what the product does about it, in one paragraph, for the person using it.', points: ['Opens beside the file you are in', 'Keeps one note per branch', 'Writes plain Markdown'] },
-  text: { type: 'text', label: 'The story', head: 'Where it started', body: ['A sample paragraph. Use text for the part of a story that needs sentences in a row.', 'Keep each paragraph short, and let the next block carry the picture.'] },
-  showcase: { type: 'showcase', label: 'The look', media: [S(0), S(1, true), S(2)], caption: 'Sample screens, in the frame the product’s kind calls for.' },
-  screens: { type: 'screens', label: 'Screens', screens: [] },
+  statement: { type: 'statement', label: 'Why', head: 'Notes pile up in chat and get lost. *Acme Notes* keeps them beside the code they are about.', body: 'A review, a bug hunt, a hand-off: the notes for a piece of work end up in a chat thread, a doc and three sticky notes. Acme Notes keeps one note per branch, in plain Markdown, linked to the lines it talks about, and opens it beside the file you are in.', points: ['One note per branch, switched with the branch', 'Linked lines that follow your edits', 'Plain Markdown files, readable without the plugin', 'Search across every branch at once'] },
+  text: { type: 'text', label: 'The story', head: 'It started with a lost review', body: ['A pull request sat for a week because the review notes lived in a chat thread nobody could find. The fix was two lines; finding out what the two lines were took a morning.', 'Acme Notes began as a file in the repository, one per branch, opened with a shortcut. Linked lines came next, so a note could point at code without going stale when the code moved.', 'It stays small on purpose: a note is a Markdown file you can read, diff and commit like anything else.'] },
+  showcase: { type: 'showcase', label: 'The look', media: [SHOT.panel, SHOT.links, SHOT.history], caption: 'The panel, a linked line opened as a card, and a note’s history.' },
+  screens: { type: 'screens', label: 'Screens', screens: [
+    { src: SHOT.panel.src, title: 'The panel', caption: 'This branch’s notes on the left, the open one on the right, with its checklist and code.' },
+    { src: SHOT.search.src, title: 'Search', caption: 'Every note on every branch, with the matches marked.' },
+    { src: SHOT.links.src, title: 'Linked lines', caption: 'A link to a line opens as a card, and follows the line as you edit.' },
+    { src: SHOT.branches.src, title: 'Branches', caption: 'Each branch with its notes; merged branches keep theirs.' },
+    { src: SHOT.history.src, title: 'History', caption: 'Every save is a version, diffed like the code.' },
+  ] },
   features: { type: 'features', label: 'What it does', items: [
-    { title: 'A note per branch', body: 'Switching branch switches the note.' },
-    { title: 'Beside the code', body: 'It opens in the side panel, never over the file.' },
-    { title: 'Plain Markdown', body: 'Notes are files you can read without the plugin.' },
-    { title: 'Links that last', body: 'A link to a line follows the line when it moves.' },
-    { title: 'Search everything', body: 'One search across every note in the repository.' },
-    { title: 'Nothing leaves', body: 'Notes stay on your machine unless you commit them.' },
+    { title: 'A note per branch', body: 'Switching branch switches the note, so the right one is always open.' },
+    { title: 'Beside the code', body: 'It opens in the side panel with ⌘J, never over the file you are in.' },
+    { title: 'Plain Markdown', body: 'Notes are files in notes/, readable and diffable without the plugin.' },
+    { title: 'Links that last', body: 'A link to a line follows the line through edits, moves and renames.' },
+    { title: 'Search everything', body: 'One search across every note on every branch, with the matches marked.' },
+    { title: 'Nothing leaves', body: 'Notes stay on your machine unless you commit them with your code.' },
   ] },
   steps: { type: 'steps', label: 'How it works', steps: [
-    { tag: 'Open', title: 'Open a file', body: 'The note for this branch opens beside it.' },
-    { tag: 'Write', title: 'Write as you go', body: 'Every change saves on its own, as Markdown.' },
-    { tag: 'Ship', title: 'Ship it with the branch', body: 'Commit the note, or keep it to yourself.' },
+    { tag: 'Open', title: 'Open a file', body: 'Press ⌘J: the note for this branch opens beside it, or a new one starts.' },
+    { tag: 'Write', title: 'Write as you go', body: 'Checklists, code, links to lines. It saves on its own, as Markdown.' },
+    { tag: 'Link', title: 'Point at the code', body: 'Drop a line into the note; the link follows that line from then on.' },
+    { tag: 'Ship', title: 'Ship it, or keep it', body: 'Commit the note with the branch, or keep notes/ out of git.' },
   ] },
-  split: { type: 'split', label: 'Up close', side: 'left', media: S(1), head: 'One note, one branch.', body: 'A split puts one screen beside the words about it. Use a few in a row and alternate the side.', points: ['A sample point', 'Another'] },
-  tour: { type: 'tour', label: 'A tour', steps: [
-    { title: 'The note', body: 'Each step points at one part of the screen.', media: S(0), focus: { x: 0.3, y: 0.3, zoom: 1.3 } },
-    { title: 'The search', body: 'The screen eases in on what the step is about.', media: S(0), focus: { x: 0.7, y: 0.25, zoom: 1.4 } },
-    { title: 'The links', body: 'And it steps on by itself.', media: S(0), focus: { x: 0.5, y: 0.7, zoom: 1.3 } },
+  split: { type: 'split', label: 'Up close', side: 'left', media: SHOT.links, head: 'A link to a line that never goes stale.', body: 'Drop a line from the editor into a note and it becomes a link. Edit above it, move it, rename the file: the link follows, and says how many edits it has followed.', points: ['Opens as a card with the code around it', 'Follows edits, moves and renames', 'Says when the line is gone'] },
+  tour: { type: 'tour', label: 'A tour', head: 'One panel, four things to know.', steps: [
+    { title: 'This branch’s notes', body: 'The list shows the notes for the branch you are on, newest first, with how much of each checklist is done.', media: SHOT.panel, focus: { x: 0.16, y: 0.35, zoom: 1.4 } },
+    { title: 'A checklist that saves itself', body: 'Tick a box and the Markdown changes with it: - [ ] becomes - [x], and nothing else in the file moves.', media: SHOT.panel, focus: { x: 0.52, y: 0.5, zoom: 1.45 } },
+    { title: 'Code in the note', body: 'A fenced block keeps its highlighting, and a link to a line shows the file and the number.', media: SHOT.panel, focus: { x: 0.62, y: 0.72, zoom: 1.4 } },
+    { title: 'Saved, as a file', body: 'The footer says where the note lives and that it is plain Markdown, 41 lines of it.', media: SHOT.panel, focus: { x: 0.5, y: 0.94, zoom: 1.3 } },
   ] },
-  cases: { type: 'cases', label: 'Use cases', cases: [
-    { tab: 'Review', ask: 'Keep notes while I review this pull request.', media: S(0), caption: 'A sample case: what was asked, and the screen that came of it.' },
-    { tab: 'Debug', ask: 'Track what I tried on this bug.', media: S(1, true), caption: 'Another case, on its own tab.' },
-    { tab: 'Hand off', ask: 'Leave notes for whoever picks this up.', media: S(2), caption: 'A third.' },
+  cases: { type: 'cases', label: 'Use cases', note: 'Three ways teams use it.', cases: [
+    { tab: 'Review', ask: 'Keep my review notes while I go through this pull request.', media: SHOT.panel, caption: 'A checklist per review, ticked as it goes, with the lines it is about linked in.' },
+    { tab: 'Debug', ask: 'Where did I see that rounding problem before?', media: SHOT.search, caption: 'Search across every branch finds the earlier note, and the fix it led to.' },
+    { tab: 'Hand-off', ask: 'Leave Sam enough to pick this up tomorrow.', media: SHOT.history, caption: 'The note’s history shows what changed since Sam last looked.' },
   ] },
-  keys: { type: 'keys', label: 'Keyboard', note: 'Press one while this block is on screen.', keys: [{ keys: ['⌘', 'J'], does: 'Open the note.' }, { keys: ['⌘', '⇧', 'F'], does: 'Search every note.' }, { keys: ['j', 'k'], does: 'Next and previous note.' }] },
+  keys: { type: 'keys', label: 'Keyboard', note: 'Press one while this block is on screen.', keys: [
+    { keys: ['⌘', 'J'], does: 'Open this branch’s note beside the code.' },
+    { keys: ['⌘', '⇧', 'F'], does: 'Search every note on every branch.' },
+    { keys: ['⌘', 'L'], does: 'Link the line under the cursor into the note.' },
+    { keys: ['⌘', 'Enter'], does: 'Tick or untick the checklist item.' },
+    { keys: ['j', 'k'], does: 'Next and previous note in the list.' },
+    { keys: ['⌘', 'Z'], does: 'Undo, as in any file: a note is one.' },
+  ] },
   timeline: { type: 'timeline', label: 'How it got here', events: [
-    { when: 'Jan', title: 'First note', body: 'A sample milestone.' },
-    { when: 'Mar', title: 'Notes per branch' },
-    { when: 'Jun', title: 'Version 1.0', body: 'Another sample milestone.' },
+    { when: 'Jan', title: 'One file per branch', body: 'notes/<branch>.md, opened with a shortcut.' },
+    { when: 'Mar', title: 'Linked lines', body: 'Links that follow the code through edits.' },
+    { when: 'Apr', title: 'Search', body: 'Every note on every branch, at once.' },
+    { when: 'Jun', title: 'Version 1.0', body: 'History, the light theme, and the hand-off view.' },
+    { when: 'Sep', title: 'Phone app', body: 'Read and tick your notes away from the desk.' },
   ] },
-  stats: { type: 'stats', stats: [{ value: '3', unit: 's', label: 'to the note you need' }, { value: '0', label: 'servers it talks to' }, { value: '100', unit: '%', label: 'plain Markdown' }] },
-  scores: { type: 'scores', label: 'Scores', note: 'Sample scores.', scores: [{ value: 100, max: 100, label: 'Accessibility' }, { value: 98, max: 100, label: 'Performance' }, { value: 4.8, max: 5, label: 'Rating' }] },
-  checks: { type: 'checks', label: 'Checked', head: 'Every sample file, opened and saved.', steps: ['open', 'save'], items: [
-    { name: 'README.md', pass: true, detail: 'Saved unedited: identical' },
-    { name: 'notes.md', pass: true, detail: 'Saved unedited: identical' },
-    { name: 'huge.md', pass: false, detail: 'Refused by design: over 5 MB' },
-  ], total: { value: '2 of 3', label: 'identical, one refused' } },
-  compare: { type: 'compare', label: 'Before and after', before: S(0), after: S(0, true), beforeLabel: 'Light', afterLabel: 'Dark', caption: 'Drag the handle.' },
-  diff: { type: 'diff', label: 'What git sees', head: 'One line added. Saved two ways.', file: 'notes.md', edit: 'A line added under the first heading.', before: '# Notes\n\nFirst line.\n', ways: [{ name: 'Acme Notes', after: '# Notes\n\nFirst line.\nA new line.\n', pick: true }, { name: 'The whole file rewritten', after: '# Notes\n\n\nFirst line.\nA new line.\n\n' }] },
-  quote: { type: 'quote', text: 'A pull quote sits here. Use only what a real person said, for a real product.', by: 'A sample name', role: 'Sample role' },
-  bento: { type: 'bento', label: 'At a glance', tiles: [{ kind: 'number', value: '12', label: 'notes this week' }, { kind: 'text', title: 'Plain files', body: 'Readable without the plugin.' }, { kind: 'media', media: S(1), caption: 'A sample screen' }, { kind: 'number', value: '0', label: 'servers' }] },
-  marquee: { type: 'marquee', words: ['Write', 'Find', 'Link', 'Ship'] },
-  palette: { type: 'palette', label: 'Its colours', colours: [{ name: 'Ink', hex: '#14161A' }, { name: 'Paper', hex: '#F4F1EA' }, { name: 'Signal', hex: '#FF6B3D' }], faces: [{ name: 'Archivo', sample: 'Notes that stay put' }] },
-  deck: { type: 'deck', label: 'Templates', head: 'Three ways to start a note.', cards: [{ title: 'Review', body: 'What changed, what to check', media: S(0) }, { title: 'Bug', body: 'Seen, tried, fixed', media: S(1, true) }, { title: 'Hand-off', body: 'Where it stands', media: S(2) }] },
-  chips: { type: 'chips', label: 'Works with', items: ['Markdown', 'Git', 'bb', 'VS Code', 'Any agent'] },
-  // stops are numbered from 0
-  route: { type: 'route', label: 'Where it goes', head: 'From your editor to your disk, and only where you push.', stops: [{ name: 'The editor', where: 'Your machine', holds: ['The open note'] }, { name: 'The repository', where: 'Your machine', holds: ['Every note, as a file'] }, { name: 'Your remote', where: 'Where you push', holds: ['Notes you commit'] }], never: 'Any server of ours', runs: [{ name: 'Save', hops: [{ from: 0, to: 1, says: 'notes/main.md, as Markdown' }] }, { name: 'Push', hops: [{ from: 1, to: 2, says: 'Only the notes you commit, with your code' }] }] },
-  code: { type: 'code', label: 'Set it up', note: 'One line in the config.', title: 'bb.config.json', code: '{\n  "notes": { "folder": "notes" }\n}' },
-  specs: { type: 'specs', label: 'Before you install', rows: [{ name: 'bb', value: '0.49 or later' }, { name: 'Disk', value: 'A few KB per note', note: 'Notes are plain files.' }] },
-  notes: { type: 'notes', label: 'Good to know', items: [{ title: 'It is a sample', body: 'Acme Notes does not exist. Replace this copy with the real product’s.' }, { title: 'Big files', body: 'Files over 5 MB open read-only.', warn: true }] },
-  faq: { type: 'faq', label: 'Questions', items: [{ q: 'Where are my notes kept?', a: 'In a notes folder in the repository, as Markdown.' }, { q: 'Can I turn it off for a repository?', a: 'Yes, in the plugin’s settings.' }] },
+  stats: { type: 'stats', stats: [{ value: '3', unit: 's', label: 'to the note you need, by search' }, { value: '0', label: 'servers it talks to' }, { value: '41', label: 'lines in a typical review note' }] },
+  scores: { type: 'scores', label: 'Scores', note: 'The website’s Lighthouse scores on a phone, as a sample.', scores: [{ value: 100, max: 100, label: 'Accessibility' }, { value: 98, max: 100, label: 'Performance' }, { value: 100, max: 100, label: 'Best practices' }, { value: 4.8, max: 5, label: 'Rating in bb' }] },
+  checks: { type: 'checks', label: 'Checked', head: 'Every note in the test corpus, opened and saved untouched.', note: 'Saving a note without editing it must leave every byte as it was.', steps: ['open', 'save unedited', 'compare'], items: [
+    { name: 'review-checklist.md', pass: true, detail: 'Saved unedited: identical', proof: 'a41f2c0 = a41f2c0' },
+    { name: 'linked-lines.md', pass: true, detail: 'Saved unedited: identical', proof: '9be0d71 = 9be0d71' },
+    { name: 'tables.md', pass: true, detail: 'Saved unedited: identical', proof: '3c58a19 = 3c58a19' },
+    { name: 'front-matter.md', pass: true, detail: 'Saved unedited: identical', proof: '77d0e4b = 77d0e4b' },
+    { name: 'crlf-endings.md', pass: true, detail: 'Saved unedited: identical', proof: 'e5a1f90 = e5a1f90' },
+    { name: 'emoji-and-rtl.md', pass: true, detail: 'Saved unedited: identical', proof: '1d2b6ce = 1d2b6ce' },
+    { name: 'huge-log.md', pass: false, detail: 'Refused by design: over 5 MB opens read-only' },
+    { name: 'binary.png', pass: false, detail: 'Refused by design: not a text file' },
+  ], total: { value: '6 of 8', label: 'identical; 2 refused, as designed' } },
+  compare: { type: 'compare', label: 'Light and dark', before: SHOT.light, after: SHOT.panel, beforeLabel: 'Light', afterLabel: 'Dark', caption: 'It follows the editor’s theme. Drag the handle.' },
+  diff: { type: 'diff', label: 'What git sees', head: 'One box ticked. Saved two ways.', note: 'A note is a file you commit; a save should change only what you changed.', file: 'notes/feat-checkout-v2.md', edit: 'The fourth checklist item ticked.', before: '# Review: totals that round twice\n\n## Before it merges\n\n- [x] Reproduce with the 8-item fixture\n- [x] Find where the second rounding happens\n- [x] Round once, at the total\n- [ ] Add a test for 7, 8 and 50 items\n- [ ] Ask Sam to check the receipts view\n', ways: [
+    { name: 'Acme Notes', after: '# Review: totals that round twice\n\n## Before it merges\n\n- [x] Reproduce with the 8-item fixture\n- [x] Find where the second rounding happens\n- [x] Round once, at the total\n- [x] Add a test for 7, 8 and 50 items\n- [ ] Ask Sam to check the receipts view\n', pick: true },
+    { name: 'A whole-file rewrite', after: 'Review: totals that round twice\n================================\n\nBefore it merges\n----------------\n\n* [x] Reproduce with the 8-item fixture\n* [x] Find where the second rounding happens\n* [x] Round once, at the total\n* [x] Add a test for 7, 8 and 50 items\n* [ ] Ask Sam to check the receipts view\n' },
+  ] },
+  quote: { type: 'quote', text: 'The review notes used to live in a chat thread nobody could find. Now they open with the branch.', by: 'A sample name', role: 'Staff engineer, a sample team' },
+  bento: { type: 'bento', label: 'At a glance', tiles: [
+    { kind: 'media', media: SHOT.panel, caption: 'The panel, beside the code' },
+    { kind: 'number', value: '1', label: 'note per branch' },
+    { kind: 'text', title: 'Plain files', body: 'Markdown in notes/, readable without the plugin.' },
+    { kind: 'number', value: '0', label: 'servers' },
+    { kind: 'media', media: SHOT.search, caption: 'Search across branches' },
+    { kind: 'text', title: 'Links that last', body: 'They follow the line through edits.' },
+  ] },
+  marquee: { type: 'marquee', words: ['Write it down', 'Link the line', 'Switch branch', 'Find it again', 'Hand it off', 'Ship it'] },
+  palette: { type: 'palette', label: 'Its colours and type', colours: [{ name: 'Ink', hex: '#0B0B0C' }, { name: 'Panel', hex: '#111113' }, { name: 'Line', hex: '#26262B' }, { name: 'Text', hex: '#ECECEE' }, { name: 'Signal', hex: '#FF6B3D' }, { name: 'Done', hex: '#3ECF8E' }], faces: [{ name: 'SF Pro Text', sample: 'Notes that live beside your code' }, { name: 'SF Mono', sample: 'src/cart/total.ts:42' }] },
+  deck: { type: 'deck', label: 'Templates', head: 'Six ways to start a note.', note: 'An empty note offers all six.', cards: [
+    { title: 'Review', body: 'What changed, what to check, what to ask', media: SHOT.panel },
+    { title: 'Bug hunt', body: 'Seen, tried, ruled out, fixed', media: SHOT.links },
+    { title: 'Hand-off', body: 'Where it stands and what is next', media: SHOT.history },
+    { title: 'Release', body: 'The checklist before you tag', media: SHOT.branches },
+    { title: 'Spike', body: 'What we tried and what broke', media: SHOT.search },
+    { title: 'Decision', body: 'The options, the pick, and why', media: SHOT.light },
+  ] },
+  chips: { type: 'chips', label: 'Works with', note: 'Anything that reads Markdown can read a note.', items: ['bb', 'Git', 'Markdown', 'VS Code', 'JetBrains', 'GitHub', 'GitLab', 'Any agent', 'macOS', 'Windows', 'Linux', 'iOS', 'Android'] },
+  prompts: { type: 'prompts', label: 'Ask it', head: 'Ask for a note, get the screen.', note: 'Sample asks and replies.', prompts: [
+    { chip: 'Find it', ask: 'Where did I write about rounding?', reply: 'Four notes on three branches. The newest is your review of totals that round twice.', media: SHOT.search },
+    { chip: 'Where is it', ask: 'Show me the line my review points at.', reply: 'src/cart/total.ts, line 42: the return that rounds the sum. It has moved three times since you linked it.', media: SHOT.links },
+    { chip: 'What changed', ask: 'What changed in this note since Sam looked?', reply: 'Three boxes ticked and a paragraph added, 40 minutes ago.', media: SHOT.history },
+    { chip: 'Which branch', ask: 'Which branches have notes?', reply: 'Five of six. feat/checkout-v2 has the most: three.', media: SHOT.branches },
+  ] },
+  specimens: { type: 'specimens', label: 'Every command', head: 'Point at a command. Pick one to keep it.', note: 'Every command Acme Notes adds, in its three groups.', groups: [
+    { name: 'Notes', items: [
+      { name: 'Open note', line: 'Opens this branch’s note beside the code, or starts one.', sig: '⌘J', code: 'acme.notes.open', media: SHOT.panel },
+      { name: 'New note', line: 'Starts a note from one of six templates.', sig: '⌘⇧N', code: 'acme.notes.new' },
+      { name: 'History', line: 'Every save of this note, diffed against now.', sig: '⌘Y', code: 'acme.notes.history', media: SHOT.history },
+    ] },
+    { name: 'Links', items: [
+      { name: 'Link line', line: 'Links the line under the cursor into the note.', sig: '⌘L', code: 'acme.links.add', media: SHOT.links },
+      { name: 'Open link', line: 'Jumps to the linked line, wherever it went.', sig: '⌘⇧L', code: 'acme.links.open' },
+    ] },
+    { name: 'Find', items: [
+      { name: 'Search notes', line: 'Every note on every branch, with the matches marked.', sig: '⌘⇧F', code: 'acme.find.search', media: SHOT.search },
+      { name: 'Branches', line: 'Each branch with its notes.', sig: '⌘⇧B', code: 'acme.find.branches', media: SHOT.branches },
+    ] },
+  ], also: { note: 'Builds on', names: ['bb’s side panel', 'Git', 'Markdown'] } },
+  route: { type: 'route', label: 'Where it goes', head: 'From your editor to your disk, and only where you push.', note: 'Nothing goes to a server of ours: there is none.', stops: [
+    { name: 'The editor', where: 'Your machine', holds: ['The open note', 'The line you linked'] },
+    { name: 'The repository', where: 'Your machine', holds: ['Every note, as a Markdown file'] },
+    { name: 'Your remote', where: 'Where you push', holds: ['Only the notes you commit'] },
+    { name: 'The phone app', where: 'Your phone', holds: ['Notes it reads from your remote'] },
+  ], never: 'Any server of ours', runs: [
+    { name: 'Save', hops: [{ from: 0, to: 1, says: 'notes/feat-checkout-v2.md, as plain Markdown' }] },
+    { name: 'Push', hops: [{ from: 1, to: 2, says: 'With your code, when you commit the note' }] },
+    { name: 'Read on the go', hops: [{ from: 2, to: 3, says: 'Read-only, through your own Git host' }] },
+  ] },
+  code: { type: 'code', label: 'Set it up', note: 'One block in bb’s config, all optional.', title: 'bb.config.json', code: '{\n  "acme.notes": {\n    "folder": "notes",\n    "commit": false,\n    "templates": ["review", "bug-hunt", "hand-off"],\n    "linkedLines": true\n  }\n}', result: SHOT.panel, caption: 'What it opens' },
+  specs: { type: 'specs', label: 'Before you install', rows: [
+    { name: 'bb', value: '0.49 or later', note: 'Plugin SDK 0.6 or later.' },
+    { name: 'Git', value: 'Any version', note: 'Notes follow the branch Git reports.' },
+    { name: 'Disk', value: 'A few KB per note', note: 'Notes are plain Markdown files.' },
+    { name: 'Network', value: 'None', note: 'It never makes a request.' },
+    { name: 'Phone app', value: 'iOS 17, Android 12', note: 'Reads notes through your Git host.' },
+    { name: 'Licence', value: 'MIT' },
+  ] },
+  notes: { type: 'notes', label: 'Good to know', items: [
+    { title: 'It is a sample', body: 'Acme Notes does not exist. These screens and words show what each block looks like when it is full.' },
+    { title: 'Big files open read-only', body: 'A note over 5 MB opens for reading, so the editor stays quick.', warn: true },
+    { title: 'Notes are not committed by default', body: 'notes/ is in .gitignore until you take it out.' },
+    { title: 'Linked lines need Git', body: 'Outside a repository, links point at a file and a number, and do not follow edits.' },
+  ] },
+  faq: { type: 'faq', label: 'Questions', show: 4, items: [
+    { q: 'Where are my notes kept?', a: 'In a notes folder at the root of the repository, one Markdown file per branch.' },
+    { q: 'Do my notes leave my machine?', a: 'Only if you commit and push them. The plugin itself makes no requests.' },
+    { q: 'What happens to a note when a branch is merged?', a: 'It stays, under the branch’s name, and shows as merged in the branches list.' },
+    { q: 'Can two people write in one note?', a: 'Yes, through Git: commit the note and it merges like any text file.' },
+    { q: 'Does a linked line survive a rename?', a: 'Yes. It follows the file through renames Git can see.' },
+    { q: 'Can I turn it off for one repository?', a: 'Yes, in the plugin’s settings, or with "acme.notes": false in bb.config.json.' },
+  ] },
+  film: { type: 'film', label: 'Film', src: '/products-media/acme-notes/film.mp4', poster: '/products-media/acme-notes/poster.jpg', duration: '0:13', title: 'A 13-second tour with sample data' },
   get: { type: 'get', label: 'Get it', note: 'A sample command: the product does not exist.', via: { kind: 'command', command: 'bb plugin install acme-notes' } },
 };
 
@@ -160,6 +258,7 @@ export const ACME: Meta = {
   facts: ['for bb', 'v1.0', 'MIT'], line: 'Notes that live beside your code, one per branch. A made-up product, to arrange a page around.',
   hook: 'Where did that note go?', hint: 'Sample screens: this product does not exist.', stack: ['TypeScript', 'React'],
   stage: 'window', links: [], sample: true,
+  shots: [SHOT.panel], thumb: '/products-media/acme-notes/thumb.jpg',
 };
 
 export interface Template { id: string; name: string; use: string; meta: Meta; blocks: Block[] }
@@ -172,11 +271,11 @@ const t = (id: string, name: string, use: string, types: BlockType[], meta: Part
 export const STARTERS: Template[] = [
   t('plugin-full', 'Plugin launch', 'Stage first, then why, what, how and proof; ends on Get it', ['stage', 'statement', 'features', 'split', 'split', 'steps', 'stats', 'screens', 'keys', 'faq', 'get']),
   t('plugin-short', 'Small plugin', 'Three blocks: a small product needs no more', ['statement', 'screens', 'get']),
-  t('app', 'Mobile app', 'Phone frames, the look, a timeline of releases', ['stage', 'statement', 'showcase', 'features', 'split', 'stats', 'timeline', 'faq', 'get'], { kind: 'app', stage: 'phone', facts: ['iOS + Android', 'v1.0', 'iOS and Android'], brand: '#7C5CFF' }),
-  t('site', 'Website case study', 'A story, the site, before and after, its colours and scores', ['text', 'stage', 'compare', 'palette', 'scores', 'statement', 'get'], { kind: 'site', stage: 'browser', facts: ['Next.js', '2026', 'Any browser'], brand: '#1FB6A6' }),
+  t('app', 'Mobile app', 'Phone frames, the look, a timeline of releases', ['stage', 'statement', 'showcase', 'features', 'split', 'stats', 'timeline', 'faq', 'get'], { kind: 'app', stage: 'phone', facts: ['iOS + Android', 'v1.0', 'iOS and Android'], shots: [PHONE('phone-list', 'The phone app’s notes list, grouped by branch'), PHONE('phone-note', 'A note open on the phone, with its checklist')] }),
+  t('site', 'Website case study', 'A story, the site, before and after, its colours and scores', ['text', 'stage', 'compare', 'palette', 'scores', 'statement', 'get'], { kind: 'site', stage: 'browser', facts: ['Next.js', '2026', 'Any browser'], shots: [SHOT.site, PHONE('site-phone', 'The Acme Notes website on a phone')] }),
   t('dev-tool', 'Developer tool', 'Code, keys, requirements and the small print', ['statement', 'code', 'diff', 'keys', 'specs', 'chips', 'notes', 'faq', 'get']),
-  t('story', 'Story-led', 'Words first, then the proof, with a breath in the middle', ['text', 'quote', 'timeline', 'marquee', 'showcase', 'stats', 'get'], { brand: '#E7C547' }),
-  t('privacy', 'Trust and privacy', 'Where the data goes, what is checked, what to know', ['statement', 'route', 'checks', 'bento', 'notes', 'faq', 'get'], { brand: '#4C9AFF' }),
+  t('story', 'Story-led', 'Words first, then the proof, with a breath in the middle', ['text', 'quote', 'timeline', 'marquee', 'showcase', 'stats', 'get']),
+  t('privacy', 'Trust and privacy', 'Where the data goes, what is checked, what to know', ['statement', 'route', 'checks', 'bento', 'notes', 'faq', 'get']),
   t('blank', 'Blank', 'An empty page in the sample product’s colour', []),
 ];
 
