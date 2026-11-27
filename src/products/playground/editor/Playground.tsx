@@ -9,7 +9,7 @@ import { CATALOG, entry, fits, GROUPS, remix, sample, STARTERS, type BlockType, 
 import { act, recall, remember, spliced, start, swapped, type State } from '../doc';
 import { LiteralError, parse, print, type Literal } from '../literal';
 import { NAME } from '../protocol';
-import { saved as savedBlocks } from '../../detail/blocks/saved';
+import { savedNames } from '../../detail/blocks/saved/names';
 import { Glyph } from '../Glyph';
 import { Canvas, type CanvasApi } from './Canvas';
 import { CodeEditor } from './CodeEditor';
@@ -185,7 +185,7 @@ export function Playground() {
   const savePage = () => {
     if (!real) return;
     // blocks this page uses that exist only here: not yet in detail/blocks/saved
-    const unsaved = [...new Set(doc.blocks.filter((b): b is Extract<Block, { type: 'custom' }> => b.type === 'custom').map(b => b.name))].filter(n => !Object.hasOwn(savedBlocks, n));
+    const unsaved = [...new Set(doc.blocks.filter((b): b is Extract<Block, { type: 'custom' }> => b.type === 'custom').map(b => b.name))].filter(n => !savedNames.includes(n));
     setConfirm({
       what: `Save ${real.name}’s page`, files: [`src/products/pages/${real.slug}.ts`, 'src/products/pages/index.ts'],
       warn: `This page replaces the blocks data.ts lists for ${real.name}.${unsaved.length ? ` It uses ${unsaved.join(', ')}, written here: save ${unsaved.length > 1 ? 'those' : 'that'} too, or the page shows nothing in ${unsaved.length > 1 ? 'their places' : 'its place'}.` : ''}`,
@@ -193,8 +193,8 @@ export function Playground() {
     });
   };
   const saveBlock = (w: WrittenBlock) => setConfirm({
-    what: `Save ${w.name}`, files: [`src/products/detail/blocks/saved/${w.name}.tsx`, ...(w.css.trim() ? [`src/products/detail/blocks/saved/${w.name}.css`] : []), 'src/products/detail/blocks/saved/index.ts'],
-    warn: 'This becomes real code in your repository. It runs on the site and in Node during the build, outside any sandbox. Read it before you commit it.',
+    what: `Save ${w.name}`, files: [`src/products/detail/blocks/saved/${w.name}.tsx`, ...(w.css.trim() ? [`src/products/detail/blocks/saved/${w.name}.css`] : []), 'src/products/detail/blocks/saved/index.ts', 'src/products/detail/blocks/saved/names.ts'],
+    warn: 'This becomes real code in your repository, and it runs as soon as it is written: on every page of this dev server that uses it, outside the sandbox, with the dev server’s reach. Read every line before you write it.',
     body: { kind: 'block', name: w.name, code: w.code, css: w.css },
   });
 
@@ -513,7 +513,7 @@ function Write({ written, setWritten, built, armed, onRun, onAdd, onSave }: {
           <div className="pg-acts pg-acts--wrap">
             <button type="button" className="pg-pill pg-pill--solid" onClick={onRun}>Run <kbd>⌘↵</kbd></button>
             <button type="button" className="pg-pill" onClick={() => onAdd(w)}>Add to the page</button>
-            {onSave && <button type="button" className="pg-pill" onClick={() => onSave(w)} disabled={!!built[w.name]} title="Write this block into the repository">Save block</button>}
+            {onSave && <button type="button" className="pg-pill" onClick={() => onSave(w)} disabled={built[w.name] !== null} title={built[w.name] === null ? 'Write this block into the repository' : 'Run it first: only a block that compiled and drew in the canvas can be saved'}>Save block</button>}
             <button type="button" className="pg-pill pg-pill--quiet" onClick={() => { setWritten(all => spliced(all, at, 1)); setAt(0); }}>Delete</button>
           </div>
           <p className="pg-status pp-mono" role="status">{!armed ? 'Not running. Press Run.' : built[w.name] === undefined ? 'Running…' : built[w.name] ? 'Does not compile: see the marked line.' : 'Compiled and drawn in the canvas.'}</p>

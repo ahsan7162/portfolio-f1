@@ -78,7 +78,8 @@ void test('a saved block lands only in saved/, by a component name', () => {
   const wrote = writeBlock(root, 'Pricing', "import './Pricing.css';\nexport function Pricing() { return null; }", '.cx { color: red }');
   assert.deepEqual(wrote.map(f => f.slice(root.length)), ['/src/products/detail/blocks/saved/Pricing.tsx', '/src/products/detail/blocks/saved/Pricing.css']);
   assert.match(readFileSync(join(root, 'src/products/detail/blocks/saved/index.ts'), 'utf8'), /Pricing: b0\.Pricing/);
+  assert.match(readFileSync(join(root, 'src/products/detail/blocks/saved/names.ts'), 'utf8'), /savedNames: string\[\] = \['Pricing'\];/);
   for (const name of ['../Evil', 'evil', 'Evil/x', 'Evil.tsx', '', 'A'.repeat(41), 'Ünï']) assert.throws(() => writeBlock(root, name, 'x', ''), SaveError, name);
   assert.throws(() => writeBlock(root, 'Styled', 'export function Styled() {}', '.a{}'), SaveError);
-  assert.deepEqual(readdirSync(join(root, 'src/products/detail/blocks/saved')).sort(), ['Pricing.css', 'Pricing.tsx', 'index.ts']);
+  assert.deepEqual(readdirSync(join(root, 'src/products/detail/blocks/saved')).sort(), ['Pricing.css', 'Pricing.tsx', 'index.ts', 'names.ts']);
 });

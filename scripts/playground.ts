@@ -118,6 +118,7 @@ export function writeBlock(root: string, name: unknown, code: unknown, css: unkn
   put(wrote[0], code.endsWith('\n') ? code : `${code}\n`);
   if (css.trim()) { wrote.push(inside(dir, `${name}.css`)); put(wrote[1], css.endsWith('\n') ? css : `${css}\n`); }
   const names = readdirSync(dir).filter(f => f.endsWith('.tsx')).map(f => f.slice(0, -4)).filter(n => NAME.test(n)).sort();
+  put(join(dir, 'names.ts'), `${HEAD}// The names of the blocks saved from the playground. The editor reads only these: it never imports a saved block,\n// so a block's code runs nowhere near the page that holds the Save token.\nexport const savedNames: string[] = [${names.map(n => `'${n}'`).join(', ')}];\n`);
   put(join(dir, 'index.ts'), `${HEAD}// Every block saved from the playground, by name. Each is a component in this folder.\nimport type { ComponentType } from 'react';\nimport type { BlockProps } from '../shared';\n${names.map((n, i) => `import * as b${i} from './${n}';\n`).join('')}\nexport const saved: Record<string, ComponentType<BlockProps<'custom'>>> = {${names.map((n, i) => `\n  ${n}: b${i}.${n} as ComponentType<BlockProps<'custom'>>,`).join('')}${names.length ? '\n' : ''}};\n`);
   return wrote;
 }
