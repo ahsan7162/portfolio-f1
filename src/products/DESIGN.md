@@ -24,6 +24,8 @@ The section has its own identity. It shares nothing visual with the portfolio at
 15. [Check your work](#15-check-your-work)
 16. [Known gaps](#16-known-gaps)
 17. [Before publishing](#17-before-publishing)
+18. [The design system page](#18-the-design-system-page)
+19. [The playground](#19-the-playground)
 
 ---
 
@@ -53,6 +55,11 @@ Each of these came from a decision the owner made after seeing the alternative. 
 
 ```
 products/index.html              the page's HTML entry (second Vite entry beside the portfolio's)
+products/playground/index.html   the playground's editor (a third entry; section 19)
+public/products/playground/frame.html  the playground's canvas: a locked sandbox (section 19)
+vite.frame.config.ts             builds the canvas as one classic script, fonts inlined
+scripts/playground.ts            the canvas's headers, its dev build, and the dev-only Save
+scripts/playground-check/        headless-Chrome checks of the sandbox, the editor and Save (section 15)
 public/products-media/<slug>/    a product's screenshots, thumb, poster and film
 src/products/
   main.tsx                       mounts <App />, loads styles/base.css (which loads styles/tokens.css first)
@@ -127,6 +134,18 @@ src/products/
     blocks/MediaView.tsx         a Media value in the frame its product's kind calls for
   styles/                        plain CSS, one file per area
   products.test.ts               routes and product integrity
+  system/System.tsx              /products/system, the design system drawn from tokens.css (section 18)
+  playground/                    /products/playground (section 19)
+    catalog.ts                   every block's group, use, glyph and starting content; the templates
+    doc.ts                       the page being built: blocks, keys, undo; kept in this browser only
+    literal.ts                   reads and writes the page as code: plain data, never run
+    protocol.ts                  what the editor and the canvas say to each other, and the checks on it
+    editor/                      the editor: Playground, Canvas, Fields, CodeEditor, written.ts (the starter block)
+    frame/                       the canvas: main.tsx, compile.ts (TSX with sucrase), loopGuard.ts
+  pages/                         pages saved from the playground, by slug; each replaces its product's blocks in data.ts
+  detail/blocks/Custom.tsx       the custom block: a component written in the playground, by name
+  detail/blocks/saved/           blocks saved from the playground, and their index
+  styles/tokens.css              every token (section 3); tokens.test.ts holds the page CSS to it
 ```
 
 Routing: `/products/<slug>` has no file. `productsFallback()` in `vite.config.ts` serves the products page for it in dev and preview, and the `rewrites` entry in `vercel.json` does the same in production. A new product needs no routing change.
@@ -476,7 +495,8 @@ These are starting points, not templates. Reorder them.
 
 ### See it
 
-- `/products/block-library` shows every block type once, in one page. Use it to pick.
+- `/products/system` lists every block with what it is for (section 18).
+- `/products/playground` builds a page from them, live, starting from a shape or a real product's page (section 19). Its Page code tab is the `blocks` array to paste into `data.ts`; on the dev server, Save page writes it for you.
 - The eight other products each use a different order. Read their `blocks` in `data.ts` as worked examples.
 - To see all pages side by side as images, see [section 15](#15-check-your-work).
 
@@ -557,22 +577,22 @@ A block is a general component. It must make sense for any product of any kind a
 ```tsx
 // Prices side by side; the picked plan takes the product's colour.
 import { useId, useRef } from 'react';
-import { gsap } from '../../motion';
+import { gsap, MOTION } from '../../motion';
 import { Label, useBlockMotion, type BlockProps } from './shared';
 import '../../styles/blocks-content.css';
 
-export function Pricing({ block, n }: BlockProps<'pricing'>) {
+export function Pricing({ block }: BlockProps<'pricing'>) {
   const root = useRef<HTMLElement>(null);
   const id = useId();
 
   useBlockMotion(root, ({ q, qa, enter }) => {
     const grid = q('.bc-plans');
-    if (grid) gsap.from(qa('.bc-plan'), { y: 28, autoAlpha: 0, duration: 0.5, stagger: 0.05, scrollTrigger: enter(grid) });
+    if (grid) gsap.from(qa('.bc-plan'), { y: 28, autoAlpha: 0, duration: MOTION.enter, stagger: MOTION.stagger, scrollTrigger: enter(grid) });
   });
 
   return (
     <section className="dt-block dt-sec pp-wrap" ref={root} aria-labelledby={id}>
-      <Label n={n} id={id}>{block.label}</Label>
+      <Label id={id}>{block.label}</Label>
       <ul className="bc-plans">
         {block.plans.map(p => (
           <li key={p.name} className="bc-plan" data-pick={p.pick ? '' : undefined}>
@@ -591,16 +611,16 @@ export function Pricing({ block, n }: BlockProps<'pricing'>) {
 
 **Step 4. Style it** in `blocks-content.css` (words and data) or `blocks-visual.css` (pictures), with that file's prefix.
 
-**Step 5. Show it.** Use it on a real product's page and look at it in the browser. (There is no sample page any more: the sample products, Block Library among them, were removed on 2026-11-11.)
+**Step 5. Show it.** Use it on a real product's page and look at it in the browser, and add it to `CATALOG` in `playground/catalog.ts` (its group, its use, a glyph and, if it fits any product, sample content), so the playground and the system page offer it. `doc.test.ts` fails for a block in the catalogue with nothing to start from.
 
-**Step 6. If it has no label,** add its name to `UNLABELLED` in `Detail.tsx`. Otherwise the outline shows its raw type.
+**Or write it in the playground first.** Write a block (section 19) gives you a starter in TSX and CSS, runs it in the canvas on any page, and on the dev server saves it as `detail/blocks/saved/<Name>.tsx`, used through the `custom` block. Move it to its own block type, as above, once it has earned one.
 
 ### Contract every block must meet
 
 - Numbers that count up use `countUp()` from `shared.tsx`; do not write another.
 - The root element has the class `dt-block`, exactly once, with no `dt-block` nested inside. The outline scrolls to blocks by counting these.
 - Sections add `dt-sec pp-wrap`. A full-bleed block leaves `pp-wrap` off the root and puts it on an inner element (see `Get.tsx`).
-- A labelled block renders `<Label n={n} id={id}>` and sets `aria-labelledby={id}` on its `<section>`. The label is the `h2`; headings inside are `h3`.
+- A labelled block renders `<Label id={id}>` (with an optional `aside`) and sets `aria-labelledby={id}` on its `<section>`. The label is the `h2`; headings inside are `h3`.
 - Motion goes through `useBlockMotion`, using `enter()` for entrances. See [Motion](#6-motion).
 - Colour comes from tokens only. Use `--acc` and `--on-acc` for the product's colour; never a hex, never `--brand` directly.
 - Pictures go through `MediaView`. Images inside use `loading="lazy"`; if they pin or slide, call `usePreload(root)`.
@@ -698,6 +718,14 @@ Then look at it. Start the dev server (`npm run dev`, port 5174) and open `/prod
 | `npx tsx pages.ts`, then open `overview.html` | Every detail page side by side with its block list, to check the pages differ. |
 | `node perf.mjs /products /products/<slug>` | Scrolls a page and reports frame times. Frames should land about every 16.7 ms, with none over 25 ms. |
 | `node transition.mjs` | Times a page change, from click to fully revealed. About 0.95 s today. |
+
+**Playground checks** are in `scripts/playground-check/`, in the repository. They drive headless Chrome too. Run them after any change to the playground, the canvas, `scripts/playground.ts` or `vercel.json`, against the dev server and against `npm run build && npm run preview` (port 4174):
+
+| Check | What must hold |
+|---|---|
+| `node scripts/playground-check/sandbox.mjs http://localhost:5174` | A hostile block, written through the editor, tries every escape (the editor's DOM, cookies, storage, fetch and every other way to the network, popups, frames, workers, module imports, scripts from elsewhere, forms, fonts, the clipboard, WebRTC, the Save endpoint): each must be refused. The canvas's origin is opaque; opened on its own it refuses to run; another site cannot frame it. |
+| `node scripts/playground-check/trouble.mjs http://localhost:5174` | Page code that is not a page is refused with where and why, and never run; an endless loop is stopped by its guard (also one built with `new Function`); a hung canvas is taken down with the way out; a block that navigates the canvas is caught and the written blocks stop; the editor never navigates and logs no errors. |
+| `node scripts/playground-check/save.mjs 5174` | Save refuses a missing or wrong token, another Origin, cross-site fetch metadata, a rebound Host, a GET, a non-JSON body, names and slugs that climb out, unknown block types, prototype keys, CSS without its import, and an oversized body. Nothing is written. |
 | `node steptest.mjs` | Featured: one gesture moves one product, in both directions. Catalogue: the list's bottom edge does not jump on a filter change. |
 | `node picktest.mjs` | Car hero: hover is steady, one click pins, and each area picks only its own part. |
 
@@ -741,6 +769,9 @@ Things an agent will hit. Fix the one you need, as part of the work that needs i
 - **One demo is still in the products bundle.** The Jira Board, OpenUI, Markwright and PR Dashboard demos are their own chunks, each behind a placeholder of its exact size (`Stage.tsx`). Any products page fetches the Jira chunk once it is idle. The OpenUI kit is fetched by its own page and by the main page, at load, because the featured section mounts every featured stage, OpenUI's among them; other product pages never load it. Mounting a featured stage only as it nears the screen would keep the kit off the main page too. The bb Dashboards demo sizes itself by its content, so an empty box would jump when it arrives; and the Dashboards and Markwright kits are also used by live screens (`dash:*`, `md:tpl-*`) that `live.tsx` imports directly, so they stay in the bundle either way.
 - **The Jira Board demo's panes do not scroll by wheel**, for the same reason as Markwright's: it keeps the ring and an open menu in view itself.
 - **The Markwright demo's panes do not scroll by wheel.** On the featured section a scrolling pane would catch the page's scroll, so the demo scrolls its panes itself to keep each change in view; a long inserted template is seen in full in the template deck instead.
+- **The playground cannot free a hung canvas in place.** Loops a block writes, or builds at run time, are guarded, so this needs something like a runaway regular expression. Chrome keeps every sandboxed frame of the site in one process and does not end a hung one while its tab is open, so a new canvas would hang too: the canvas is taken down and the visitor closes the tab and opens the playground again (the page is kept). Headless Chrome does not always free the process even then.
+- **A block can still navigate its own canvas away.** No policy stops a frame navigating itself, so a written block can send the canvas, and what the visitor put on it, to another site. There is nothing of the site's in it (no cookies, no storage, no token), the editor replaces the canvas at once and stops the written blocks, and the visitor must have written or pasted that code themselves.
+- **The playground is checked in Chrome only.** Safari and Firefox treat sandboxed frames and their processes differently; check the canvas and drag in both before relying on them. On touch, a block is added by a tap (after the picked one), not dragged.
 - **Not yet checked on real devices:** trackpad and mouse feel on the featured section, tablet widths, 1920 wide, and a real pointer drag on the compare handle. The car is small on phones.
 
 ---
@@ -751,3 +782,43 @@ Things an agent will hit. Fix the one you need, as part of the work that needs i
 - Check every link in `links` and every `get` target opens the right place.
 - Confirm every film's `duration` against the file.
 - Run the full checklist in [section 15](#15-check-your-work) once more.
+
+---
+
+## 18. The design system page
+
+`/products/system` (`system/System.tsx`, `styles/system.css`, prefix `sy-`) shows the system to a person: each family opens as a specimen set large (the width axis to drag, the three headline levels, the space grid, the corners, the layers, the two eases drawn from their tokens with a dot that runs them), with its tokens as rows under it: the value as written, the value as this browser reads it (colours with their contrast on the ground, fluid sizes in px at this width), and what it is for. A brand switch tries the components in every product's colour and in a pale, a dark and a vivid test colour. It lists every block, and the values still off the scales.
+
+Nothing on it is typed in by hand. It reads `tokens.css` itself (`styles/tokenList.ts`, the same reader the tests use), `OFF_SCALE` (`styles/offScale.ts`), `MOTION` and `CATALOG`, so a token added or removed shows on the page at once. A token's note is the comment on its line in `tokens.css`, or the comment line above it; its family is the `/* ---- Name ---- */` heading it sits under. Keep both when you add a token.
+
+It is lazy-loaded (its own chunk), prerendered by `scripts/products-seo.ts` and in the sitemap. `system` and `playground` are reserved paths (`RESERVED` in `router.tsx`); a product can never have either as its slug.
+
+---
+
+## 19. The playground
+
+`/products/playground` builds a detail page from the system. It is public: anyone can use it, and nothing they do leaves their browser. On the dev server it can also write into the repository.
+
+**Using it**
+
+- **Start from** a shape (eight, after the starting points in section 9) or a real product's page to remix. Starting again can be undone, like every change. The page is kept in this browser (`localStorage`), never sent anywhere.
+- **Left:** the page's blocks, to drag into a new order (or Alt and an arrow key; Delete removes one), and under them every block there is, by group, to drag onto the page or click to add after the picked one. A block that needs a live demo with scenes is offered only on a product that has one.
+- **Middle:** the page as the site draws it, at 1440, 900 or 390 wide, in the product's colour (the swatch in the top bar changes it). Click a block to pick it.
+- **Right:** the picked block's fields (built from the block's own data; fields it may have but doesn't yet are under Add a field) and the block as code; nothing picked, the page's own settings. Page code is the whole `blocks` array, both ways: edit it and the page follows, change the page and it follows. Write a block makes a new block in TSX, with its CSS and the props a new copy starts with. Run (⌘↵) draws it in the canvas.
+- **Copy code** copies the page's `blocks` array, ready for `data.ts`.
+
+**On the dev server only**, Save page writes a real product's page to `src/products/pages/<slug>.ts` (which replaces that product's `blocks` in `data.ts`; delete the file to go back), and Save block writes `src/products/detail/blocks/saved/<Name>.tsx` and `.css`, listed in `saved/index.ts` and used by `{ type: 'custom', name }`. Each asks first and lists the files. A saved block is real code that runs on the site and in Node during the build, outside any sandbox: read it before you commit it, and run `npm run check`.
+
+**How it is kept safe.** Everything a visitor writes runs in one place only, the canvas, and the canvas can reach nothing. Do not weaken any of this without asking.
+
+1. **The canvas is a sandbox with an opaque origin.** `frame.html` is served with `Content-Security-Policy: … sandbox allow-scripts` (`FRAME_HEADERS` in `scripts/playground.ts`, the same in `vercel.json`, a test keeps them equal) and embedded with `sandbox="allow-scripts"`: no cookies, no storage, no access to the editor or the site, no popups, no forms, no top navigation.
+2. **It has no network.** The same policy has `connect-src 'none'`, scripts, images, media and fonts from the site only, no frames, no workers, `form-action 'none'`, `base-uri 'none'`, and `frame-ancestors 'self'`, so no other site can embed it. WebRTC, which the policy does not cover, and `sendBeacon` are removed before any code runs.
+3. **It loads nothing over CORS.** The canvas is built as one classic script with its fonts inlined (`vite.frame.config.ts`), in dev as in the build. An opaque-origin page could load a module or a font only with a CORS header, and the site sends none, so a written block cannot `import()` anything from the server either.
+4. **It refuses to run anywhere else.** `frame/main.tsx` starts only when its origin is opaque, it is framed, and its parent is the site; opened on its own or framed by another page, it shows a refusal.
+5. **Written blocks import only an allowlist** (`IMPORTS` in `frame/compile.ts`: react, the motion and format helpers, the block helpers, their own CSS), each by the path it would have in `detail/blocks/saved/`, so a saved block builds unchanged. Every loop gets a guard, so an endless one throws instead of freezing the canvas; so does code built at run time (`new Function`, `eval`, a timer given a string).
+6. **The editor never runs code.** Page code and props are read by `literal.ts` (`parse()`), which knows only plain values and refuses anything else (with where and why), prototype keys among them. Everything shown is React text: no HTML from data, anywhere. Its own page has a strict policy too (`script-src 'self'`, `frame-ancestors 'none'`, `Cross-Origin-Opener-Policy: same-origin`).
+7. **Every message is checked.** The editor takes only the few messages in `protocol.ts` from the canvas's own window, rebuilt fresh, with numbers in range and text capped, at most 240 a second. A canvas that stops answering is taken down; one that navigates away is replaced and the written blocks stop.
+8. **Save is dev-only and narrow.** It exists only in `configureServer`; a build and `vite preview` have none (the editor offers Save only when the dev server put its token on the page). It answers a POST from this machine (loopback) to `localhost` on the dev port, from the playground's own origin (Origin and `Sec-Fetch-Site`), as JSON, with this run's random token, under 400 KB. It chooses every path itself: a slug of a product in `data.ts`, a component name (`NAME`), resolved and proven to stay in its folder; files are written whole or not at all. A saved page is written by `print()` from plain data, so no text in it can become code.
+
+**Checks.** `literal.test.ts`, `protocol.test.ts`, `doc.test.ts`, `frame/loopGuard.test.ts`, `scripts/playground.test.ts` and `styles/tokens.test.ts` run with `npm test`; the browser checks are in section 15.
+
