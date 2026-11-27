@@ -9,6 +9,7 @@ import { CATALOG, entry, fits, GROUPS, remix, sample, STARTERS, type BlockType, 
 import { act, recall, remember, spliced, start, swapped, type State } from '../doc';
 import { LiteralError, parse, print, type Literal } from '../literal';
 import { NAME } from '../protocol';
+import { saved as savedBlocks } from '../../detail/blocks/saved';
 import { Glyph } from '../Glyph';
 import { Canvas, type CanvasApi } from './Canvas';
 import { CodeEditor } from './CodeEditor';
@@ -183,7 +184,8 @@ export function Playground() {
   };
   const savePage = () => {
     if (!real) return;
-    const unsaved = doc.blocks.filter((b): b is Extract<Block, { type: 'custom' }> => b.type === 'custom').map(b => b.name).filter(n => written.some(w => w.name === n));
+    // blocks this page uses that exist only here: not yet in detail/blocks/saved
+    const unsaved = [...new Set(doc.blocks.filter((b): b is Extract<Block, { type: 'custom' }> => b.type === 'custom').map(b => b.name))].filter(n => !Object.hasOwn(savedBlocks, n));
     setConfirm({
       what: `Save ${real.name}’s page`, files: [`src/products/pages/${real.slug}.ts`, 'src/products/pages/index.ts'],
       warn: `This page replaces the blocks data.ts lists for ${real.name}.${unsaved.length ? ` It uses ${unsaved.join(', ')}, written here: save ${unsaved.length > 1 ? 'those' : 'that'} too, or the page shows nothing in ${unsaved.length > 1 ? 'their places' : 'its place'}.` : ''}`,
@@ -230,7 +232,7 @@ export function Playground() {
         <button type="button" className="pg-icon" onClick={() => dispatch({ do: 'undo' })} disabled={!s.past.length} aria-label="Undo" title="Undo (⌘Z)">↶</button>
         <button type="button" className="pg-icon" onClick={() => dispatch({ do: 'redo' })} disabled={!s.future.length} aria-label="Redo" title="Redo (⇧⌘Z)">↷</button>
         <button type="button" className="pg-pill" onClick={copy}>{copied ? 'Copied' : 'Copy code'}</button>
-        {TOKEN && <button type="button" className="pg-pill pg-pill--solid" onClick={savePage} disabled={!real} title={real ? undefined : 'Save writes a real product’s page: remix one to save it'}>Save to repo</button>}
+        {TOKEN && <button type="button" className="pg-pill pg-pill--solid" onClick={savePage} disabled={!real} title={real ? `Write ${real.name}’s page into the repository` : 'Save writes a real product’s page: remix one to save it'}>Save page</button>}
       </header>
 
       <nav className="pg-panes pp-mono" aria-label="Panes">
@@ -511,7 +513,7 @@ function Write({ written, setWritten, built, armed, onRun, onAdd, onSave }: {
           <div className="pg-acts pg-acts--wrap">
             <button type="button" className="pg-pill pg-pill--solid" onClick={onRun}>Run <kbd>⌘↵</kbd></button>
             <button type="button" className="pg-pill" onClick={() => onAdd(w)}>Add to the page</button>
-            {onSave && <button type="button" className="pg-pill" onClick={() => onSave(w)} disabled={!!built[w.name]}>Save to repo</button>}
+            {onSave && <button type="button" className="pg-pill" onClick={() => onSave(w)} disabled={!!built[w.name]} title="Write this block into the repository">Save block</button>}
             <button type="button" className="pg-pill pg-pill--quiet" onClick={() => { setWritten(all => spliced(all, at, 1)); setAt(0); }}>Delete</button>
           </div>
           <p className="pg-status pp-mono" role="status">{!armed ? 'Not running. Press Run.' : built[w.name] === undefined ? 'Running…' : built[w.name] ? 'Does not compile: see the marked line.' : 'Compiled and drawn in the canvas.'}</p>
