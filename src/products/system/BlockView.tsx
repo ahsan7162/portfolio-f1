@@ -1,7 +1,7 @@
 // The inside of the system page's block frame: /products/system?view=block, shown in a same-origin iframe. It draws one
 // block at a time, on a page of its own at desktop width, so the block lays out, pins and enters exactly as on a
 // product's page. The frame around it (BlockFrame.tsx) says which block to draw; nothing here runs anyone's code.
-import { Component, useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { Component, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { markRevealed } from '../arrive';
 import { brandVars } from '../brand';
 import { gsap, MOTION, reducedMotion } from '../motion';
@@ -60,8 +60,16 @@ export function BlockView() {
     else gsap.set(el, { y: 0, opacity: 1, overwrite: true });
   }, [show]);
 
-  if (!show) return null;
-  const { block, from } = sampleSource(show.type);
+  // Sample data that names the demo product's own colour (the palette's swatch) names the one picked instead. A copy:
+  // the samples are shared. Made once per block and colour, so a block keeps the same data between renders.
+  const drawn = useMemo(() => {
+    if (!show) return null;
+    const { block, from } = sampleSource(show.type);
+    return { from, block: from ? block : JSON.parse(JSON.stringify(block).replace(new RegExp(ACME.brand, 'gi'), show.brand)) as typeof block };
+  }, [show]);
+
+  if (!show || !drawn) return null;
+  const { block, from } = drawn;
   const product: Product = from ?? { ...ACME, brand: show.brand, blocks: [block] };
   return (
     <div className="dt pp-branded" ref={page} style={brandVars(product.brand)}>
