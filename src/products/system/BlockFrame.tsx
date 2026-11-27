@@ -32,7 +32,9 @@ export function BlockFrame({ brand, brands }: { brand: string; brands: { name: s
   const entry = ORDER[at];
   const { from } = sampleSource(entry.type);
 
-  const go = useCallback((i: number) => { const j = Math.max(0, Math.min(ORDER.length - 1, i)); if (j !== atRef.current) { setStatus('drawing'); setAt(j); } }, []);
+  /** Which way the last step went: the block page moves the next block in from that side. */
+  const dirRef = useRef<-1 | 0 | 1>(0);
+  const go = useCallback((i: number) => { const j = Math.max(0, Math.min(ORDER.length - 1, i)); if (j !== atRef.current) { dirRef.current = j > atRef.current ? 1 : -1; setStatus('drawing'); setAt(j); } }, []);
 
   // keep the list's current item in view inside the list (a column, or a row on a phone), without moving the page
   useEffect(() => {
@@ -68,7 +70,8 @@ export function BlockFrame({ brand, brands }: { brand: string; brands: { name: s
   // tell the block page what to draw
   useEffect(() => {
     if (!ready) return;
-    frame.current?.contentWindow?.postMessage({ t: 'show', type: entry.type, brand: tint, n } satisfies FrameMsg, location.origin);
+    frame.current?.contentWindow?.postMessage({ t: 'show', type: entry.type, brand: tint, n, dir: dirRef.current } satisfies FrameMsg, location.origin);
+    dirRef.current = 0; // a colour or a replay is not a step
   }, [ready, entry.type, tint, n]);
 
   // One push over the frame steps one block, while the whole frame is on screen and it has blocks left that way.

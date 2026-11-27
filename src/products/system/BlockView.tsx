@@ -1,23 +1,25 @@
 // The inside of the system page's block frame: /products/system?view=block, shown in a same-origin iframe. It draws one
 // block at a time, on a page of its own at desktop width, so the block lays out, pins and enters exactly as on a
 // product's page. The frame around it (BlockFrame.tsx) says which block to draw; nothing here runs anyone's code.
-import { Component, useCallback, useEffect, useState, type ReactNode } from 'react';
+import { Component, useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { markRevealed } from '../arrive';
 import { brandVars } from '../brand';
+import { gsap, MOTION, reducedMotion } from '../motion';
 import { One } from '../detail/blocks';
 import { ACME, CATALOG, sampleSource, type BlockType } from '../playground/catalog';
 import type { Product } from '../types';
 import '../styles/system.css';
 
 export type FrameMsg =
-  | { t: 'show'; type: BlockType; brand: string; n: number }
+  | { t: 'show'; type: BlockType; brand: string; n: number; dir: -1 | 0 | 1 }
   | { t: 'ready' }
   | { t: 'drawn'; type: BlockType; n: number; error: string | null };
 
 const TYPES = new Set<string>(CATALOG.map(e => e.type));
 
 export function BlockView() {
-  const [show, setShow] = useState<{ type: BlockType; brand: string; n: number } | null>(null);
+  const [show, setShow] = useState<{ type: BlockType; brand: string; n: number; dir: -1 | 0 | 1 } | null>(null);
+  const page = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     markRevealed();
@@ -26,7 +28,12 @@ export function BlockView() {
     const onMessage = (e: MessageEvent<FrameMsg>) => {
       if (e.origin !== location.origin || e.source !== window.parent) return;
       const m = e.data;
-      if (m?.t === 'show' && TYPES.has(m.type) && /^#[0-9a-fA-F]{6}$/.test(m.brand)) setShow({ type: m.type, brand: m.brand, n: m.n });
+      if (m?.t !== 'show' || !TYPES.has(m.type) || !/^#[0-9a-fA-F]{6}$/.test(m.brand)) return;
+      const next = { type: m.type, brand: m.brand, n: m.n, dir: m.dir === 1 || m.dir === -1 ? m.dir : 0 } as const;
+      // a step: the block on screen leaves the way the scroll goes, then the next one comes in (below)
+      const el = page.current;
+      if (el && next.dir && !reducedMotion()) gsap.to(el, { y: -next.dir * 36, opacity: 0, duration: 0.18, ease: MOTION.easeIn, overwrite: true, onComplete: () => setShow(next) });
+      else setShow(next);
     };
     addEventListener('message', onMessage);
     // listening now: the frame may send the first block (it loads this page before this code arrives)
@@ -45,11 +52,19 @@ export function BlockView() {
     return () => ro.disconnect();
   }, []);
 
+  // ...and comes in from the side the scroll came from, as a page scrolls
+  useLayoutEffect(() => {
+    const el = page.current;
+    if (!el || !show) return;
+    if (show.dir && !reducedMotion()) gsap.fromTo(el, { y: show.dir * 48, opacity: 0 }, { y: 0, opacity: 1, duration: MOTION.enter, ease: MOTION.ease, overwrite: true });
+    else gsap.set(el, { y: 0, opacity: 1, overwrite: true });
+  }, [show]);
+
   if (!show) return null;
   const { block, from } = sampleSource(show.type);
   const product: Product = from ?? { ...ACME, brand: show.brand, blocks: [block] };
   return (
-    <div className="dt pp-branded" style={brandVars(product.brand)}>
+    <div className="dt pp-branded" ref={page} style={brandVars(product.brand)}>
       {/* a new key each time: the block mounts fresh, and its entrance plays */}
       <div className="dt-blocks sy-view-blocks" key={`${show.type}-${show.n}`} ref={fit} style={{ transform: scale < 1 ? `scale(${scale})` : undefined }}>
         <Drawn type={show.type} n={show.n}><One block={block} product={product} /></Drawn>
