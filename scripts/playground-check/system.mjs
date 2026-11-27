@@ -52,6 +52,17 @@ try {
   check('all on screen, the next gesture steps one block and the page stays', (await state())[0] === 'statement' && (await t.evaluate('scrollY')) === y3, `${(await state())[0]}, page moved ${Math.round((await t.evaluate('scrollY')) - y3)}px`);
   await wheelAt(await near(), -60);
 
+  // a trackpad flick: a push, its momentum fading out for most of a second, and a second flick before that tail has
+  // died. The tail steps nothing; the second flick steps one more.
+  const flick = [12, 30, 60, 90, 80, 64, 50, 40, 32, 25, 20, 16, 13, 10, 8, 7, 6, 5, 4, 4, 3, 3, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+  await sleep(600);
+  const from = (await state())[0], fp = await near();
+  for (const d of [...flick, ...flick]) { await t.send('Input.dispatchMouseEvent', { type: 'mouseWheel', x: fp.x, y: fp.y, deltaX: 0, deltaY: d }); await sleep(16); }
+  await sleep(800);
+  check('two flicks, the second in the first one\'s tail, step two blocks', from === 'stage' && (await state())[0] === 'text', `${from} to ${(await state())[0]}`);
+  await t.evaluate(`document.querySelector('.sy-bf-list button[data-at="0"]').click()`);
+  await sleep(800);
+
   // every block, picked from the list
   const types = await t.evaluate(`[...document.querySelectorAll('.sy-bf-list button')].map(b => b.dataset.at)`);
   const bad = [];

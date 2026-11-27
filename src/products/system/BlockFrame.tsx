@@ -15,8 +15,6 @@ export const ORDER: Entry[] = GROUPS.flatMap(g => CATALOG.filter(e => e.group ==
 /** The screen the blocks are drawn on inside the frame: a laptop, or on a narrow screen a phone, so each block lays out as a product's page lays it out there. */
 const LAPTOP = { w: 1440, h: 900 };
 const PHONE = { w: 390, h: 780 };
-/** A wheel gesture moves one block; the next can start once the wheel has been still this long. */
-const GESTURE_GAP = 220;
 
 export function BlockFrame({ brand, brands }: { brand: string; brands: { name: string; hex: string }[] }) {
   const [at, setAt] = useState(0);
@@ -73,9 +71,13 @@ export function BlockFrame({ brand, brands }: { brand: string; brands: { name: s
     frame.current?.contentWindow?.postMessage({ t: 'show', type: entry.type, brand: tint, n } satisfies FrameMsg, location.origin);
   }, [ready, entry.type, tint, n]);
 
-  // A wheel gesture over the frame steps one block, while the whole frame is on screen and it has blocks left that way.
+  // One push over the frame steps one block, while the whole frame is on screen and it has blocks left that way.
   // Otherwise the frame moves the page itself: a wheel inside the block page never reaches the page's smooth scroller.
-  const wheel = useRef({ acc: 0, last: 0, moved: false });
+  // A push is told from momentum as the featured section on /products tells it (Featured.tsx): momentum arrives without
+  // a pause and only ever shrinks; a hand starts after a pause, or grows, or holds steady. So a trackpad's long tail
+  // never steps a block, and a new push steps one at once, without waiting for the tail to die out.
+  // shortcut: the detector is copied from Featured.tsx, not shared, because Featured's own test (steptest.mjs) is not in the repo; share it when that test is.
+  const wheel = useRef({ lastAt: 0, lastSize: 0, hand: 0, movedAt: 0, carried: false });
   const onWheel = useCallback((e: WheelEvent) => {
     if (e.ctrlKey) return; // a pinch zooms
     const dy = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? innerHeight : 1);
@@ -86,23 +88,32 @@ export function BlockFrame({ brand, brands }: { brand: string; brands: { name: s
     const w = wheel.current;
     // this page's clock: a wheel inside the block page carries that page's own timeStamp
     const now = performance.now();
+    const size = Math.abs(dy);
+    if (now - w.lastAt > 110) { w.hand = 2; w.carried = false; }
+    else if (size > w.lastSize * 1.15 + 1) w.hand += 2;
+    // after a step, only a growing push counts: a tail's last deltas hold steady (1, 1, 1 ...) and must not step again
+    else if (size >= w.lastSize && !w.carried) w.hand += 1;
+    else w.hand = Math.max(0, w.hand - 1);
+    w.lastAt = now; w.lastSize = size;
     const i = atRef.current;
     // on screen means below the page's sticky bar, too
     const bar = document.querySelector<HTMLElement>('[data-sticky]')?.offsetHeight ?? 0;
     const whole = r.top >= bar - 4 && r.bottom <= innerHeight + 4;
-    if (!whole || (dir > 0 && i >= ORDER.length - 1) || (dir < 0 && i <= 0)) {
-      // coming in, the page stops with the whole frame on screen, and the gesture that brought it there steps no block
+    // a push still going after its step has to keep going a good while longer before it counts again
+    const push = w.hand >= 2 && now - w.movedAt > (w.carried ? 600 : 120);
+    if (!whole) {
+      // coming in, the page stops with the whole frame on screen, and the push that brought it there steps no block
       const coming = dir > 0 ? r.top > bar && r.bottom > innerHeight : r.bottom < innerHeight && r.top < bar;
       const dock = scrollY + (dir > 0 ? r.bottom - innerHeight : r.top - bar);
       const y = targetY() + dy;
       wheelToY(coming ? (dir > 0 ? Math.min(y, dock) : Math.max(y, dock)) : y);
-      w.last = now; w.moved = true;
+      w.movedAt = now; w.carried = true;
       return;
     }
-    if (now - w.last > GESTURE_GAP) { w.acc = 0; w.moved = false; }
-    w.last = now;
-    w.acc += dy;
-    if (!w.moved && Math.abs(w.acc) > 40) { w.moved = true; go(i + dir); }
+    const to = i + dir;
+    // past the first or the last block a new push hands the wheel back to the page; the tail of the one that got there does not
+    if (to < 0 || to >= ORDER.length) { if (push) wheelToY(targetY() + dy); return; }
+    if (push) { w.carried = true; w.movedAt = now; w.hand = 0; go(to); }
   }, [go]);
   const onKey = useCallback((e: KeyboardEvent) => {
     if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { e.preventDefault(); go(atRef.current + 1); }
