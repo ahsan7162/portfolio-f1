@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
 import { parse } from '../src/products/playground/literal';
-import { EDITOR_CSP, FRAME_HEADERS, refuse, SaveError, writeBlock, writePage } from './playground';
+import { EDITOR_CSP, FRAME_HEADERS, refuse, routeOf, SaveError, writeBlock, writePage } from './playground';
 
 const vercel = JSON.parse(readFileSync(new URL('../vercel.json', import.meta.url), 'utf8')) as { headers: { source: string; headers: { key: string; value: string }[] }[] };
 const rule = (source: string) => Object.fromEntries(vercel.headers.find(h => h.source === source)!.headers.map(h => [h.key, h.value]));
@@ -15,6 +15,12 @@ void test('Vercel sends the canvas the same lockdown headers the dev and preview
   assert.equal(rule('/products/playground(/|/index\\.html)?')['Cross-Origin-Opener-Policy'], 'same-origin');
   assert.match(FRAME_HEADERS['Content-Security-Policy'], /sandbox allow-scripts$/);
   assert.match(FRAME_HEADERS['Content-Security-Policy'], /connect-src 'none'/);
+});
+
+void test('every spelling of the canvas and the editor gets their headers', () => {
+  for (const u of ['/products/playground/frame.html', '/products/playground/frame', '/products/playground/frame%2Ehtml', '/products/playground/frame.html?x=1', '/products//playground/frame.html', '/products/playground/frame.html/', '/products/%70layground/frame.html']) assert.equal(routeOf(u), 'canvas', u);
+  for (const u of ['/products/playground', '/products/playground/', '/products/playground/index.html', '/products/playground/index', '/products/playground?x']) assert.equal(routeOf(u), 'editor', u);
+  for (const u of ['/products', '/products/playground/frame.js', '/products/playground-x', '/products/playground/%E0%A4%A']) assert.equal(routeOf(u), null, u);
 });
 
 void test('every page but the canvas still refuses to be framed', () => {

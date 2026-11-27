@@ -46,7 +46,23 @@ export const FRAME_HEADERS: Record<string, string> = {
 /** The editor's own page: its scripts only, frames only from the site, and nothing may embed it. */
 export const EDITOR_CSP = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; frame-src 'self'; worker-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'";
 
+/** The editor's policy on the dev server, where Vite's own inline scripts must run. */
+export const DEV_EDITOR_CSP = "frame-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'none'; form-action 'none'";
+
 const FRAME = '/products/playground/';
+
+/**
+ * Which playground page a request is for, read the way the servers read it: decoded, with or without .html, with
+ * or without a trailing slash. So no spelling of the canvas's path can reach it without its headers.
+ */
+export function routeOf(url: string | undefined): 'canvas' | 'editor' | null {
+  let path = (url ?? '').split(/[?#]/)[0];
+  try { path = decodeURIComponent(path); } catch { return null; }
+  path = path.replace(/\/{2,}/g, '/').replace(/\/+$/, '');
+  if (/^\/products\/playground\/frame(\.html)?$/.test(path)) return 'canvas';
+  if (/^\/products\/playground(\/index(\.html)?)?$/.test(path)) return 'editor';
+  return null;
+}
 const LOOPBACK = new Set(['127.0.0.1', '::1', '::ffff:127.0.0.1']);
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
@@ -151,13 +167,18 @@ export function playground(root: string): Plugin {
   const token = randomBytes(32).toString('hex');
   const page = resolve(root, 'public/products/playground/frame.html');
 
-  /** The canvas's headers, wherever it is served from; and, in a build, the editor's (dev injects inline scripts it would refuse). */
+  /** The canvas's headers, wherever it is served from, and the editor's. */
   const headers = (built: boolean) => (req: IncomingMessage, res: ServerResponse, next: () => void) => {
-    const path = req.url?.split('?')[0];
-    if (path === `${FRAME}frame.html`) for (const [k, v] of Object.entries(FRAME_HEADERS)) res.setHeader(k, v);
-    if (built && /^\/products\/playground(\/|\/index\.html)?$/.test(path ?? '')) res.setHeader('Content-Security-Policy', EDITOR_CSP);
-    // no other window keeps a hold on the editor (and so on the page being built)
-    if (/^\/products\/playground(\/|\/index\.html)?$/.test(path ?? '')) res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+    const route = routeOf(req.url);
+    if (route === 'canvas') for (const [k, v] of Object.entries(FRAME_HEADERS)) res.setHeader(k, v);
+    if (route === 'editor') {
+      // Dev injects inline scripts the full policy would refuse, so it gets the parts that matter there: frames only
+      // from the site (the canvas cannot be navigated anywhere else) and no one may frame the editor (no clickjacked Save).
+      res.setHeader('Content-Security-Policy', built ? EDITOR_CSP : DEV_EDITOR_CSP);
+      res.setHeader('X-Frame-Options', 'DENY');
+      // no other window keeps a hold on the editor (and so on the page being built)
+      res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+    }
     next();
   };
 
@@ -186,10 +207,13 @@ export function playground(root: string): Plugin {
       server.middlewares.use(headers(false));
       server.middlewares.use((req, res, next) => {
         const path = req.url?.split('?')[0] ?? '';
-        if (path.startsWith(FRAME) || path === '/products/playground') void watch();
-        const m = /^\/products\/playground\/frame\.(html|js|css)$/.exec(path);
+        const route = routeOf(req.url);
+        if (route || path.startsWith(FRAME)) void watch();
+        // the canvas page, by any spelling, is served here with its headers (set above), never by the public folder
+        if (route === 'canvas') return frameFile(res, page, TYPES.html);
+        const m = /^\/products\/playground\/frame\.(js|css)$/.exec(path);
         if (!m) return next();
-        frameFile(res, m[1] === 'html' ? page : join(devOut, `frame.${m[1]}`), TYPES[m[1]]);
+        frameFile(res, join(devOut, `frame.${m[1]}`), TYPES[m[1]]);
       });
 
       server.middlewares.use('/__playground/save', (req, res) => {
