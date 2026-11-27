@@ -11,6 +11,7 @@ import { Cases } from './Cases';
 import { Chips } from './Chips';
 import { Checks } from './Checks';
 import { Compose } from './Compose';
+import { Custom } from './Custom';
 import { Code } from './Code';
 import { Deck } from './Deck';
 import { Diff } from './Diff';
@@ -80,9 +81,11 @@ const registry: { [K in Block['type']]: ComponentType<BlockProps<K>> } = {
   morph: Morph,
   prompts: Prompts,
   specimens: Specimens,
+  custom: Custom,
 };
 
-function One<K extends Block['type']>({ block, product }: { block: BlockOf<K>; product: Product }) {
+/** One block, drawn by the component its type names. */
+export function One<K extends Block['type']>({ block, product }: { block: BlockOf<K>; product: Product }) {
   const C: ComponentType<BlockProps<K>> = registry[block.type];
   return <C block={block} product={product} />;
 }

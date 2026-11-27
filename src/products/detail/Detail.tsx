@@ -1,5 +1,5 @@
 // A product's own page: the furniture (top bar, hero, next product) around the blocks the product lists.
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { onReveal } from '../arrive';
 import { BackToTop } from '../BackToTop';
 import { brandVars } from '../brand';
@@ -18,7 +18,8 @@ import { Stop } from '../stop';
 /** The letters of each line, keyed by position (the text never reorders). */
 const letters = (line: string) => [...new Intl.Segmenter().segment(line)].map(({ segment: ch, index }) => ({ ch, id: `${index}` }));
 
-export function Detail({ product }: { product: Product }) {
+/** `blocks` replaces the page's own blocks: the playground's canvas draws them itself, each behind its own error boundary. */
+export function Detail({ product, blocks }: { product: Product; blocks?: ReactNode }) {
   const root = useRef<HTMLDivElement>(null);
   const nameRef = useRef<HTMLHeadingElement>(null);
   const nextRef = useRef<HTMLSpanElement>(null);
@@ -168,7 +169,7 @@ export function Detail({ product }: { product: Product }) {
         </div>
       </header>
 
-      <Blocks product={product} />
+      {blocks ?? <Blocks product={product} />}
       </main>
 
       {/* The outline as a bar per section at the right edge, standing in for the scrollbar on wide screens (see detail.css). */}

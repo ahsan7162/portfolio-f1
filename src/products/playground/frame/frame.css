@@ -1,0 +1,5 @@
+/* The canvas only: the selected block's outline, a block that failed to draw, and the refusal outside the playground. */
+.dt-blocks > .dt-block[data-pg-sel] { outline: var(--stroke-2) solid var(--acc); outline-offset: calc(-1 * var(--sp-8)); }
+.pg-fault { color: var(--dim); }
+.pg-fault pre { margin-top: var(--sp-12); padding: var(--sp-16); border-radius: var(--r-12); background: var(--raise); color: var(--ink); font: var(--fs-13) / var(--lh-loose) var(--mono); white-space: pre-wrap; }
+.pg-refuse { padding: var(--sp-24); color: var(--dim); }

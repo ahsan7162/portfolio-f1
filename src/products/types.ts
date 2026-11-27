@@ -180,7 +180,12 @@ export type Block =
       events: { at: string; who: string; what: string }[];
       settings: { id: string; label: string; line: string; options: string[]; now: string; run?: boolean }[];
       runs: Record<string, { checks: { at: string; alerts: { kind: string; headline: string; detail: string }[]; push: { title: string; body: string } | null }[]; skipped: Record<number, string> }> }
-  | { type: 'get'; label: string; note: string; via: { kind: 'command'; command: string } | { kind: 'stores' } | { kind: 'link'; href: string; label: string } };
+  | { type: 'get'; label: string; note: string; via: { kind: 'command'; command: string } | { kind: 'stores' } | { kind: 'link'; href: string; label: string } }
+  /**
+   * A block written in the playground: `name` is its component in detail/blocks/saved/ (saved there by the
+   * playground's Save, or still being written in the playground), `props` its data, read only by that component.
+   */
+  | { type: 'custom'; name: string; label?: string; props: { [key: string]: unknown } };
 
 export type BlockOf<T extends Block['type']> = Extract<Block, { type: T }>;
 

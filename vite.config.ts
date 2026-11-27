@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { existsSync } from 'node:fs';
 import { fileURLToPath, URL } from 'node:url';
+import { playground } from './scripts/playground';
 
 /**
  * Preloads the fonts in src/assets/fonts, so they download with the HTML, not after the CSS.
@@ -38,7 +39,9 @@ function productsFallback(): Plugin {
     const slug = /^\/products(?:\/([^./]*))?\/?$/.exec(req.url?.split('?')[0] ?? '');
     if (slug) {
       const own = `/products/${slug[1]}/index.html`;
-      req.url = built && slug[1] && existsSync(fileURLToPath(new URL(`./dist${own}`, import.meta.url))) ? own : '/products/index.html';
+      // the playground is its own page (products/playground/index.html), in dev as in the build
+      if (slug[1] === 'playground') req.url = own;
+      else req.url = built && slug[1] && existsSync(fileURLToPath(new URL(`./dist${own}`, import.meta.url))) ? own : '/products/index.html';
     }
     next();
   };
@@ -54,13 +57,13 @@ export default defineConfig({
   // The build's year in both bundles, so the prerendered footer and the client always agree
   // (a live new Date() would differ once the year turns: a hydration error).
   define: { 'import.meta.env.BUILD_YEAR': JSON.stringify(String(new Date().getFullYear())) },
-  plugins: [productsFallback(), react(), tailwindcss(), preloadFonts(['hubot-sans.woff2', 'mona-sans.woff2', 'monaspace-krypton.woff2'])],
+  plugins: [productsFallback(), playground(fileURLToPath(new URL('.', import.meta.url)).replace(/\/$/, '')), react(), tailwindcss(), preloadFonts(['hubot-sans.woff2', 'mona-sans.woff2', 'monaspace-krypton.woff2'])],
   resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
   server: { port: 5174, strictPort: true },
   build: {
     rollupOptions: {
       // Two pages: the portfolio, and the products section with its own look and bundle.
-      input: { main: fileURLToPath(new URL('./index.html', import.meta.url)), products: fileURLToPath(new URL('./products/index.html', import.meta.url)) },
+      input: { main: fileURLToPath(new URL('./index.html', import.meta.url)), products: fileURLToPath(new URL('./products/index.html', import.meta.url)), playground: fileURLToPath(new URL('./products/playground/index.html', import.meta.url)) },
       output: {
         manualChunks(id) {
           if (id.includes('node_modules/three')) return 'three';

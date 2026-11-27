@@ -7,6 +7,7 @@ import { PR_MENU, PR_PROMPTS, PR_RUNS } from './stage/prData.gen';
 import { FINDINGS, MORNING, OPEN, PR } from './stage/prSample';
 import { OUI_UNDRAWN, type LiveName } from './stage/names';
 import type { Product } from './types';
+import { pages } from './pages';
 
 const pr = '/products-media/pr-dashboard';
 const jira = '/products-media/jira-board';
@@ -1079,3 +1080,6 @@ export const products: Product[] = [
     ],
   },
 ];
+
+// A page saved from the playground (src/products/pages/, written by its Save) replaces the blocks listed above.
+for (const p of products) if (Object.hasOwn(pages, p.slug)) p.blocks = pages[p.slug]!;

@@ -5,13 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port 5174 --strictPort",
-    "build": "tsx scripts/github.ts --build && tsc -b && vite build && vite build --ssr src/entry-server.tsx --outDir dist-ssr && tsx scripts/prerender.ts",
+    "build": "tsx scripts/github.ts --build && tsc -b && vite build && vite build --config vite.frame.config.ts && vite build --ssr src/entry-server.tsx --outDir dist-ssr && tsx scripts/prerender.ts",
     "preview": "vite preview --port 4174",
     "github": "tsx scripts/github.ts",
     "typecheck": "tsc -b",
     "lint": "oxlint --type-aware --deny-warnings",
     "lint:fix": "oxlint --type-aware --fix",
-    "test": "tsx --test 'src/**/*.test.ts'",
+    "test": "tsx --test 'src/**/*.test.ts' 'scripts/**/*.test.ts'",
     "check": "npm run typecheck && npm run lint && npm test"
   },
   "dependencies": {
@@ -40,6 +40,7 @@
     "@vitejs/plugin-react": "^6.1.1",
     "oxlint": "^1.86.0",
     "oxlint-tsgolint": "^7.0.2003",
+    "sucrase": "3.35.1",
     "svg-dotted-map": "^2.0.1",
     "tailwindcss": "^4.3.3",
     "tsx": "^4.23.15",

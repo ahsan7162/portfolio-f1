@@ -21,7 +21,7 @@ const NOT_COPY = new Set(['type', 'label', 'side', 'src', 'poster', 'hex', 'samp
     `from` and `to` are stop numbers, a morph's are its two sides in words; compose's `parts` and replay's `runs` are a
     drawing's name and worked-out data, anatomy's and route's are copy; a replay setting's `line` is config, a specimen's
     is what it does; the ids of Your turn's goals and of anatomy's parts tie them to code, a replay setting's is its name. */
-const NOT_COPY_IN: Partial<Record<string, string[]>> = { scenes: ['id'], anatomy: ['id'], route: ['from', 'to'], compose: ['parts'], replay: ['runs', 'line'] };
+const NOT_COPY_IN: Partial<Record<string, string[]>> = { scenes: ['id'], anatomy: ['id'], route: ['from', 'to'], compose: ['parts'], replay: ['runs', 'line'], custom: ['name'] };
 /** The words in a value, in order: a block's copy without knowing the block. `*accents*` and `` `code` `` lose their marks. */
 function words(value: unknown, skip = NOT_COPY): string {
   if (Array.isArray(value)) return value.map(v => words(v, skip)).filter(Boolean).join(' · ');
