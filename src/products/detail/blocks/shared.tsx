@@ -103,7 +103,9 @@ export function useBlockMotion(scope: RefObject<HTMLElement | null>, setup?: (m:
     if (!root) return;
     const mm = gsap.matchMedia();
     mm.add({ motion: '(prefers-reduced-motion: no-preference)', pin: PIN_QUERY }, ctx => {
-      const { motion, pin } = ctx.conditions as { motion: boolean; pin: boolean };
+      const { motion, pin: wide } = ctx.conditions as { motion: boolean; pin: boolean };
+      // the system page's block frame (html.sy-view) never scrolls, so nothing pins there: a pin could not move
+      const pin = wide && !document.documentElement.classList.contains('sy-view');
       if (!motion) return;
       const m: Motion = {
         pin,

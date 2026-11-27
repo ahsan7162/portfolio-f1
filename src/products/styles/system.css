@@ -213,6 +213,9 @@
 html.sy-view, html.sy-view body { overflow: hidden; }
 html.sy-view .dt { display: flex; flex-direction: column; min-height: 100svh; }
 html.sy-view .sy-view-blocks { margin-block: auto; }
+/* nothing pins in the frame (blocks/shared.tsx), so a screens gallery stays the native swipe row at every width */
+html.sy-view .dt-gal { overflow-x: auto; scroll-snap-type: x mandatory; }
+html.sy-view .dt-gal-progress { display: none; }
 html.sy-view .sy-view-blocks { --dt-gap: var(--sp-40); padding-bottom: var(--sp-40); transform-origin: top center; }
 
 @media (max-width: 1099px) {

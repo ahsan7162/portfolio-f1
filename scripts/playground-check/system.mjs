@@ -136,6 +136,16 @@ try {
   const live = await t.evaluate(ORANGE);
   check('a colour picked on a showing block recolours it at once', live.length === 0, live.slice(0, 2).join(' | '));
   await swatch(0);
+
+  // the screens gallery: nothing pins in the frame (a pin could not move there), so it is drawn whole, at full size
+  const at = await t.evaluate(`[...document.querySelectorAll('.sy-bf-list button')].find(b => b.textContent.trim() === 'Screens').dataset.at`);
+  await t.evaluate(`document.querySelector('.sy-bf-list button[data-at="${at}"]').click()`);
+  await waitDrawn();
+  await sleep(1500);
+  const inner = `document.querySelector('.sy-bf-stage iframe').contentDocument`;
+  const gal = await t.evaluate(`(() => { const f = document.querySelector('.sy-bf-stage iframe'), d = f.contentDocument, g = d.querySelector('.dt-gal'), w = d.querySelector('.sy-view-blocks'); if (!g) return null; const fr = f.getBoundingClientRect(), k = fr.width / f.offsetWidth, r = g.getBoundingClientRect(); return { x: fr.left + (r.left + r.width / 2) * k, y: fr.top + (r.top + r.height / 2) * k, pinned: !!d.querySelector('.pin-spacer'), scaled: /scale/.test(w.style.transform) }; })()`);
+  check('nothing pins in the frame, and the screens gallery is drawn at full size', !!gal && !gal.pinned && !gal.scaled, gal ? `pinned ${gal.pinned}, scaled ${gal.scaled}` : 'no gallery');
+
   await t.evaluate(`document.querySelector('.sy-bf-list button[data-at="${types.at(-1)}"]').click()`);
   await waitDrawn();
   await sleep(600);
