@@ -1,0 +1,189 @@
+/* The /products design tokens: every colour, size, space, corner, layer and duration the pages use.
+   This file is the system. The other stylesheets only read these; the reference page at /products/system
+   draws every one of them, and tokens.test.ts fails when a raw value creeps back into the page CSS.
+
+   Scales are named by what they hold (--sp-12 is 12px, --t-180 is 180 ms), so a value is read at a glance.
+   What each step is for is in DESIGN.md, section 3 onwards. Two rules a token cannot carry by itself:
+   - A token made from another (a mix, a ring) is resolved where it is declared, here on :root. Never wrap
+     --acc, --ink or --line in a composite token: a branded or paper surface swaps those, and the composite
+     would keep the page's. Write the composite at the use site from the pieces instead.
+   - The demo kits (pr-, jbd-, dsd-, mwd-, oud-, oui-, ued- and the room) draw other products' interfaces
+     in those products' own values; they keep local palettes and sizes on purpose. */
+
+:root {
+  /* ---- Colour: three raw colours, and everything else made from them ---- */
+  --black: #000000;
+  --bone: #ECE9DF;
+  --white: #FFFFFF;
+
+  --ground: var(--black);
+  --raise: #0E0E0D;
+  --raise-2: #181817;
+  --ink: var(--bone);
+  --dim: color-mix(in srgb, var(--ink) 58%, transparent);
+  --faint: color-mix(in srgb, var(--ink) 34%, transparent);
+  --line: color-mix(in srgb, var(--ink) 10%, transparent);
+  /* The page has no colour of its own: its highlight is bone. A product's surfaces swap in the product's colour (.pp-branded). */
+  --acc: var(--bone);
+  --on-acc: var(--black);
+  /* light product surfaces (a light-themed app shown on the dark page) */
+  --paper: #F1EFE6;
+  --paper-2: var(--white);
+  --paper-ink: #1B1C18;
+  --paper-dim: #77766C;
+  --paper-line: #DEDBCF;
+  /* status colours: only inside a product's own UI, never as page decoration */
+  --bad: #FF5A4C;
+  --warn: #F2C14E;
+  --shadow-faint: color-mix(in srgb, var(--black) 12%, transparent);
+  --shadow: color-mix(in srgb, var(--black) 50%, transparent);
+  --shadow-deep: color-mix(in srgb, var(--black) 72%, transparent);
+
+  /* ---- Type: families ---- */
+  --display: 'Archivo Variable', 'Arial Narrow', sans-serif;
+  --text: 'Archivo Variable', system-ui, sans-serif;
+  --mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+
+  /* weights */
+  --w-regular: 400;
+  --w-medium: 500;
+  --w-semibold: 600;
+  --w-bold: 700;
+  --w-heavy: 800;
+  --w-black: 900;
+
+  /* Archivo's width axis: narrow display names at 64, text at 100, the wide lede at 108 */
+  --wd-64: 64;
+  --wd-72: 72;
+  --wd-80: 80;
+  --wd-92: 92;
+  --wd-100: 100;
+  --wd-104: 104;
+  --wd-108: 108;
+  --wd-125: 125;
+
+  /* fixed sizes, named by their pixel size at the default 16px root; they are rem, so they follow the reader's setting */
+  --fs-9: 0.5625rem;
+  --fs-11: 0.6875rem;
+  --fs-12: 0.75rem;
+  --fs-13: 0.8125rem;
+  --fs-14: 0.875rem;
+  --fs-15: 0.9375rem;
+  --fs-16: 1rem;
+  --fs-17: 1.0625rem;
+  --fs-18: 1.125rem;
+  --fs-22: 1.375rem;
+  /* fluid: a block's headline */
+  --pp-head: clamp(1.75rem, 3.4vw, 3.25rem);
+
+  /* line heights */
+  --lh-crush: 0.8;
+  --lh-display: 0.84;
+  --lh-lede: 1.06;
+  --lh-none: 1;
+  --lh-snug: 1.35;
+  --lh-label: 1.4;
+  --lh-body: 1.5;
+  --lh-read: 1.55;
+  --lh-loose: 1.6;
+  --lh-code: 1.7;
+
+  /* tracking */
+  --tr-tightest: -0.05em;
+  --tr-tighter: -0.04em;
+  --tr-tight: -0.03em;
+  --tr-lede: -0.025em;
+  --tr-display: -0.02em;
+  --tr-none: 0;
+  --tr-wide: 0.02em;
+  --tr-wider: 0.04em;
+  --tr-caps: 0.06em;
+  --tr-mono: 0.08em;
+
+  /* ---- Space: a 2px grid, named by pixels ---- */
+  --sp-2: 2px;
+  --sp-4: 4px;
+  --sp-6: 6px;
+  --sp-8: 8px;
+  --sp-10: 10px;
+  --sp-12: 12px;
+  --sp-14: 14px;
+  --sp-16: 16px;
+  --sp-18: 18px;
+  --sp-20: 20px;
+  --sp-22: 22px;
+  --sp-24: 24px;
+  --sp-26: 26px;
+  --sp-28: 28px;
+  --sp-30: 30px;
+  --sp-32: 32px;
+  --sp-36: 36px;
+  --sp-40: 40px;
+  --sp-48: 48px;
+  --sp-56: 56px;
+  --sp-64: 64px;
+  --sp-96: 96px;
+
+  /* fluid rhythm: how far content sits from what introduces it */
+  --pad: clamp(20px, 3.6vw, 56px);                /* side padding of every page (.pp-wrap) */
+  --flow-label: clamp(32px, 4vw, 48px);          /* a block's numbered label to its content */
+  --flow-head: clamp(28px, 3.6vw, 44px);         /* a heading or bar to the list under it */
+  --flow-head-b: clamp(28px, 3.4vw, 44px);       /* the same in the visual blocks; to merge with --flow-head */
+  --flow-wide: clamp(40px, 5vw, 72px);           /* to a full-width piece: a timeline, the faces */
+  --flow-list: clamp(28px, 4.4vh, 46px);         /* the catalogue's filters and list */
+  --gap-split: clamp(32px, 6vw, 96px);           /* between the two sides of a split */
+  --gap-track: clamp(16px, 2vw, 28px);           /* between items in a row or track */
+  --gap-cols: clamp(24px, 3vw, 48px);            /* between grid columns */
+
+  /* ---- Corners ---- */
+  --r-2: 2px;
+  --r-3: 3px;
+  --r-4: 4px;
+  --r-6: 6px;
+  --r-8: 8px;
+  --r-10: 10px;
+  --r-12: 12px;
+  --r-14: 14px;
+  --r-16: 16px;
+  --r-18: 18px;
+  --r-20: 20px;
+  --r-pill: 999px;
+  --r-round: 50%;
+
+  /* ---- Lines: hairline widths for borders and inset rings ---- */
+  --stroke: 1px;
+  --stroke-2: 1.5px;
+
+  /* ---- Depth: drop shadows made only from black, so they are safe as composites ---- */
+  --drop-frame: 0 8em 14em -4em var(--shadow-deep), 0 2em 4em -1em var(--shadow);
+
+  /* ---- Layers: the page's global stacking order. Stacking inside one component stays 1 to 6. ---- */
+  --z-grain: 5;
+  --z-up: 30;
+  --z-float: 40;
+  --z-bar: 50;
+  --z-curtain: 80;
+  --z-cursor: 95;
+  --z-skip: 100;
+
+  /* ---- Motion: eases and durations for CSS. GSAP's live in motion.ts (MOTION). ---- */
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  /* overshoots a little: a pressed control springing back */
+  --spring: cubic-bezier(0.2, 1.6, 0.35, 1);
+  --t-70: 0.07s;
+  --t-100: 0.1s;
+  --t-150: 0.15s;
+  --t-160: 0.16s;
+  --t-180: 0.18s;
+  --t-200: 0.2s;
+  --t-220: 0.22s;
+  --t-250: 0.25s;
+  --t-300: 0.3s;
+  --t-320: 0.32s;
+  --t-350: 0.35s;
+  --t-360: 0.36s;
+  --t-400: 0.4s;
+  --t-450: 0.45s;
+  --t-500: 0.5s;
+  --t-700: 0.7s;
+}

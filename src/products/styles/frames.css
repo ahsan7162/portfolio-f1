@@ -14,18 +14,18 @@
 .frm-phone-screen { position: absolute; inset: 3em; border-radius: 12em; overflow: hidden; background: var(--ground); }
 .frm-phone-island {
   position: absolute; z-index: 2; top: 3.4em; left: 50%; width: 28em; height: 8em;
-  border-radius: 99em; background: var(--ground); transform: translateX(-50%);
+  border-radius: var(--r-pill); background: var(--ground); transform: translateX(-50%);
 }
 
 .frm-browser-body {
   border-radius: 2.4em; overflow: hidden; background: var(--raise);
   border: 0.2em solid var(--raise-2);
-  box-shadow: 0 8em 14em -4em var(--shadow-deep), 0 2em 4em -1em var(--shadow);
+  box-shadow: var(--drop-frame);
 }
 .frm-bar { display: flex; align-items: center; gap: 1.2em; height: 6em; padding: 0 2.4em; background: var(--raise-2); }
-.frm-dot { flex: none; width: 1.3em; height: 1.3em; border-radius: 50%; background: var(--line); }
+.frm-dot { flex: none; width: 1.3em; height: 1.3em; border-radius: var(--r-round); background: var(--line); }
 .frm-url {
-  flex: 1; min-width: 0; margin-left: 1.4em; height: 3.6em; padding: 0 2em; border-radius: 99em;
+  flex: 1; min-width: 0; margin-left: 1.4em; height: 3.6em; padding: 0 2em; border-radius: var(--r-pill);
   background: var(--ground); color: var(--dim); display: flex; align-items: center;
   font: 500 1.9em/1 var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
@@ -34,7 +34,7 @@
 
 .frm-window-body {
   border-radius: 2em; overflow: hidden; background: var(--raise); border: 0.2em solid var(--raise-2);
-  box-shadow: 0 8em 14em -4em var(--shadow-deep), 0 2em 4em -1em var(--shadow);
+  box-shadow: var(--drop-frame);
 }
 .frm-window-body .frm-bar { height: 4.6em; padding: 0 2em; }
 .frm-title { flex: 1; margin-right: 6em; text-align: center; color: var(--dim); font: 500 1.7em/1 var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -57,7 +57,7 @@
 .frm-app .frm-si { padding: 13em 6em 0; }
 .frm-site .frm-si { padding: 3.4em 4.4em; gap: 3em; }
 
-.frm-b { display: block; flex: none; height: 2.2em; border-radius: 99em; background: var(--bar); }
+.frm-b { display: block; flex: none; height: 2.2em; border-radius: var(--r-pill); background: var(--bar); }
 .frm-b--strong { background: var(--strong); }
 .frm-b--t { height: 3.8em; }
 .frm-b--h { height: 7.4em; border-radius: 1.6em; }
@@ -66,8 +66,8 @@
 .frm-grow { flex: 1; min-height: 0; }
 
 .frm-card { position: relative; flex: none; height: 40em; border-radius: 6em; background: var(--acc); overflow: hidden; }
-.frm-card::before { content: ''; position: absolute; right: -8em; top: -8em; width: 40em; height: 40em; border-radius: 50%; background: var(--on-acc); }
-.frm-card::after { content: ''; position: absolute; left: 5em; bottom: 5em; width: 34em; height: 7em; border-radius: 99em; background: var(--on-acc); }
+.frm-card::before { content: ''; position: absolute; right: -8em; top: -8em; width: 40em; height: 40em; border-radius: var(--r-round); background: var(--on-acc); }
+.frm-card::after { content: ''; position: absolute; left: 5em; bottom: 5em; width: 34em; height: 7em; border-radius: var(--r-pill); background: var(--on-acc); }
 
 .frm-row { display: flex; align-items: center; gap: 4em; flex: none; margin-top: 4.6em; }
 .frm-row > i { flex: none; width: 12em; height: 12em; border-radius: 3.6em; background: var(--tile); }
@@ -78,9 +78,9 @@
 .frm-chart > i.frm-on { background: var(--acc); }
 
 .frm-img { position: relative; flex: none; height: 78em; border-radius: 6em; background: var(--tile); overflow: hidden; }
-.frm-img::before { content: ''; position: absolute; left: 50%; top: 52%; width: 44em; height: 44em; border-radius: 50%; background: var(--bar); transform: translate(-50%, -50%); }
+.frm-img::before { content: ''; position: absolute; left: 50%; top: 52%; width: 44em; height: 44em; border-radius: var(--r-round); background: var(--bar); transform: translate(-50%, -50%); }
 .frm-img::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 24em; background: var(--bar); opacity: 0.6; border-radius: 40% 40% 0 0; }
-.frm-btn { flex: none; height: 13em; border-radius: 99em; background: var(--acc); margin-top: 6em; }
+.frm-btn { flex: none; height: 13em; border-radius: var(--r-pill); background: var(--acc); margin-top: 6em; }
 
 .frm-tabs {
   position: absolute; left: 0; right: 0; bottom: 0; height: 17em; display: flex; justify-content: space-around; align-items: center;
@@ -93,14 +93,14 @@
 .frm-nav { display: flex; align-items: center; gap: 3.6em; flex: none; }
 .frm-nav > i:first-child { width: 4em; height: 4em; border-radius: 1.2em; background: var(--strong); margin-right: auto; }
 .frm-nav > .frm-b { width: 7em; height: 1.4em; }
-.frm-pill { flex: none; width: 24em; height: 7.4em; border-radius: 99em; background: var(--acc); }
+.frm-pill { flex: none; width: 24em; height: 7.4em; border-radius: var(--r-pill); background: var(--acc); }
 .frm-tiles { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.6em; }
 .frm-tiles > i { border-radius: 2.4em; background: var(--tile); }
 .frm-tiles > i.frm-acc { background: var(--acc); }
 .frm-tiles > i.frm-dk { background: var(--strong); }
 .frm-grid { grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); }
 .frm-pills { display: flex; gap: 1.8em; flex: none; }
-.frm-pills > i { height: 4em; width: 10em; border-radius: 99em; background: var(--bar); }
+.frm-pills > i { height: 4em; width: 10em; border-radius: var(--r-pill); background: var(--bar); }
 .frm-pills > i:first-child { background: var(--strong); }
 .frm-edit { flex: 1; min-height: 0; display: grid; grid-template-columns: 1.1fr 1fr; gap: 5em; }
 .frm-edit > div { display: flex; flex-direction: column; gap: 2.2em; justify-content: center; }

@@ -55,7 +55,7 @@ Each of these came from a decision the owner made after seeing the alternative. 
 products/index.html              the page's HTML entry (second Vite entry beside the portfolio's)
 public/products-media/<slug>/    a product's screenshots, thumb, poster and film
 src/products/
-  main.tsx                       mounts <App />, loads styles/base.css
+  main.tsx                       mounts <App />, loads styles/base.css (which loads styles/tokens.css first)
   App.tsx                        the shell: route, smooth scroll, the page-change curtain
   router.tsx                     /products and /products/<slug>; Link, navigate
   data.ts                        EVERY PRODUCT. The only file you touch to add one.
@@ -135,7 +135,8 @@ CSS class prefixes, one per area. Keep to them so nothing collides:
 
 | Prefix | File | Area |
 |---|---|---|
-| `pp-` | `base.css`, `shell.css` | tokens, type, buttons, curtain, cursor |
+| (none) | `tokens.css` | every token; no classes |
+| `pp-` | `base.css`, `shell.css` | type, buttons, curtain, cursor |
 | `hd-`, `ft-`, `cat-`, `ftr-` | `home.css` | top bar, featured, catalogue, footer |
 | `hc-`, `r-`, `c-` | `hero-car.css` | car hero, its reveals, its paint |
 | `dt-` | `detail.css` | detail page furniture and the first ten blocks |
@@ -154,7 +155,12 @@ CSS class prefixes, one per area. Keep to them so nothing collides:
 
 ## 3. Colour
 
-All tokens are in `styles/base.css`.
+All tokens, of every kind, are in `styles/tokens.css`, which `base.css` loads first. That file is the design system: the stylesheets only read it. `/products/system` draws every token from it, and `styles/tokens.test.ts` fails when a raw value that has a token is written in the page CSS, or when a value off every scale appears that is not on its short list of known ones (`OFF_SCALE`, which may only shrink).
+
+The scales are named by what they hold: `--sp-12` is 12px, `--r-14` a 14px corner, `--fs-15` 15px type, `--t-180` 180 ms. A role (what a step is for) is written next to each scale below, not in its name, so a value can be read at a glance and a role can move to another step without renaming anything.
+
+One trap: a token made from another token is resolved where it is declared (`:root`). `--acc`, `--ink`, `--line` and `--ground` are swapped on branded and paper surfaces, so never put them inside a composite token (a ring, a gradient). Write the composite where it is used, from its pieces: `box-shadow: inset 0 0 0 var(--stroke-2) var(--acc)`.
+
 
 | Token | Value | Use |
 |---|---|---|
@@ -183,7 +189,7 @@ Where it is not: the hero, the catalogue chrome (filters, search, rows), the foo
 
 **Do not**
 
-- Write a hex or `rgb()` value anywhere outside the token block in `base.css`. The one exception is a drawing's own local palette, declared once as custom properties on its root (the car's greys on `.hc`, the room's night and day pairs on `.rm`). For a tint, use `color-mix()` on a token.
+- Write a hex or `rgb()` value anywhere outside `tokens.css`. The one exception is a drawing's own local palette, declared once as custom properties on its root (the car's greys on `.hc`, the room's night and day pairs on `.rm`). For a tint, use `color-mix()` on a token.
 - Add a hue to the page chrome.
 - Use `--bad` or `--warn` as decoration.
 - Put text on `--acc` in any colour except `--on-acc`.
@@ -213,11 +219,24 @@ Rules:
 - A name that must fill its line uses `useFit(ref, maxVh)` from `detail/fit.ts`. Do not hand-tune a font size per product.
 - Mono comes in two cases, chosen by the kind of thing, never by its length, so one kind never switches between them: capitals (`pp-mono`) for labels that name a place or an action, its own case (`pp-meta`) for phrases. A sentence is never mono: a caption or hint uses `pp-cap`. The one exception is the car's hint, a mono sentence kept in its own case.
 - Size type with `clamp()`, never a fixed pixel size above 20px.
+- Fixed sizes come from the type scale (below); a fluid size is the component's own `clamp()`, and a headline uses `--pp-head`.
 - Headlines come in three levels, each with one width and one weight:
   1. **Names and big figures**: `pp-display`, condensed (`wdth` 64), weight 900. The only very large type.
   2. **A short demo title** ("Ask for it."): extended (`wdth` 125), weight 800, one size, only above a demo. The live counters (tallies, the rules count, the replay clock) share this width.
   3. **Every sentence headline**: `pp-lede` at `--pp-head`, the one section size. The Why statement is the one step up, `clamp(36px, 5vw, 80px)`. Sub-heads (a step, a part, a stop) are `pp-lede` weight and width at their own smaller size.
   A new head takes one of these; it never sets its own weight, width or tracking. Buttons are weight 600; a pressed toggle keeps its weight, so its label doesn't widen.
+
+**Type tokens**
+
+| Scale | Steps | Roles |
+|---|---|---|
+| Weight `--w-*` | `regular` 400, `medium` 500, `semibold` 600, `bold` 700, `heavy` 800, `black` 900 | 900 names and figures, 800 the demo title, 600 ledes and buttons, 500 mono and ghost buttons |
+| Width `--wd-*` | 64, 72, 80, 92, 100, 104, 108, 125 | 64 display, 100 text, 108 lede, 125 the demo title and live counters |
+| Size `--fs-*` | 9, 11, 12, 13, 14, 15, 16, 17, 18, 22 (px at a 16px root, written in rem) | 12 `pp-mono`, 13 `pp-meta`, 15 `pp-cap` and buttons, 17 body |
+| Line height `--lh-*` | `crush` 0.8, `display` 0.84, `lede` 1.06, `none` 1, `snug` 1.35, `label` 1.4, `body` 1.5, `read` 1.55, `loose` 1.6, `code` 1.7 | |
+| Tracking `--tr-*` | `tightest` -0.05em, `tighter` -0.04em, `tight` -0.03em, `lede` -0.025em, `display` -0.02em, `none` 0, `wide` 0.02em, `wider` 0.04em, `caps` 0.06em, `mono` 0.08em | |
+
+The values still off these scales are listed in `OFF_SCALE` in `tokens.test.ts`. Merging one into a step changes how something looks, so it is done as its own change, shown as before and after renders.
 
 ---
 
@@ -228,6 +247,19 @@ Rules:
 - Controls come in three heights, each a `min-height` so a label can wrap: 48px (buttons, search, the view switch), 40px (tabs, filters, picks, Previous and Next), 32px (tags such as the cost tag). The large install button is the one exception.
 - Easing for CSS transitions is `--ease`; a pressed control dips to 97% and eases back over 0.16s. `--spring` is only for a goal ticking off.
 - Text for screen readers only uses the class `pp-sr`.
+
+**Space, corners, lines, depth and layers**
+
+| Scale | Steps | Roles |
+|---|---|---|
+| Space `--sp-*` | a 2px grid: 2 to 32 in steps of 2, then 36, 40, 48, 56, 64, 96 | 10 and 12 between controls, 16 to 24 inside cards, 28 the dot gutter |
+| Rhythm | `--pad` side padding; `--flow-label` a block's label to its content; `--flow-head` a heading or bar to the list under it (`--flow-head-b` is its visual-block twin, to merge); `--flow-wide` to a full-width piece; `--flow-list` the catalogue's filters; `--gap-split`, `--gap-track`, `--gap-cols` | all fluid, `clamp()` with vw |
+| Corners `--r-*` | 2, 3, 4, 6, 8, 10, 12, 14, 16, 18, 20, `pill`, `round` | 4 the focus ring, 6 an item inside a card, 8 a tag or small control, 12 a tile, 14 a card, 16 to 20 a panel or stage, `pill` every button |
+| Lines | `--stroke` 1px, `--stroke-2` 1.5px | hairline borders; a button or card ring is 1.5px |
+| Depth | `--shadow-faint`, `--shadow`, `--shadow-deep`; `--drop-frame` under a device frame | only black, so they are safe as composites |
+| Layers `--z-*` | `grain` 5, `up` 30, `float` 40, `bar` 50, `curtain` 80, `cursor` 95, `skip` 100 | the page's stacking order; inside a component, stack with plain 1 to 6 |
+
+Measures (`62ch`), container widths and drawings sized in `em` (the device frames, the car) are a component's own geometry and stay in its CSS.
 - A showcase (the `cases` and `scenes` blocks) fits one screen at any size. `useShowcaseFit` in `blocks/shared.tsx` narrows its screen until the headline or ask, the screen and the tabs fit the small viewport height. It refits on a viewport change, never on a content change, and it never shrinks a screen below half its width or 320px: there the page just scrolls. The tabs sit right under the screen, the caption and hint below them. On a phone the tabs are one row that scrolls sideways, with Pause or Play at its left.
 
 Breakpoints already in use. Reuse these, do not invent a new one without a reason:
@@ -253,6 +285,8 @@ import { gsap, ScrollTrigger, Flip, SplitText, useGSAP, reducedMotion } from '..
 ```
 
 It takes the GSAP setup both pages share, from `src/motion/gsap.ts`: the plugins, registered once, and the defaults (`ease: 'expo.out'`, `duration: 0.9`).
+
+**Motion tokens.** CSS transitions take their durations from `--t-*` in `tokens.css` (70, 100, 150, 160, 180, 200, 220, 250, 300, 320, 350, 360, 400, 450, 500 and 700 ms) and their curves from `--ease` and `--spring`. A press is `--t-70`, a hover 180 to 200, a panel 350, an entrance 450. GSAP code takes `MOTION` from `motion.ts` (`enter` 0.5 s, `enterLong` 0.7, `quick` 0.3, `stagger` 0.05, and the eases). Older blocks still write their numbers inline; new code uses `MOTION`.
 
 **Rules**
 
@@ -676,7 +710,7 @@ Measure timing with these scripts, not in a browser tab that is in the backgroun
 - [ ] Looked right with a pale brand, a dark brand and a vivid brand
 - [ ] Reduced motion: everything visible, nothing pinned
 - [ ] Keyboard: every control reachable, focus visible
-- [ ] No new colour on the page chrome, no hex in block CSS
+- [ ] No new colour on the page chrome, no hex in block CSS, no raw value where a token exists (`tokens.test.ts`)
 - [ ] Nothing jumps when content loads, filters change or fonts arrive
 - [ ] `perf.mjs` shows no slow frames on the page you touched
 - [ ] If you changed the featured section, `steptest.mjs` passes

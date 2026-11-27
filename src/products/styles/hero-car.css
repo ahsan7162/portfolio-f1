@@ -13,7 +13,7 @@
 /* the claim, enormous, behind the car: its size and place come from the car's width */
 .hc-words {
   position: absolute; left: 0; right: 0; bottom: 47%; text-align: center; white-space: nowrap; pointer-events: none;
-  font-size: 30cqw; line-height: 0.8; --wdth: 72; color: var(--ghost);
+  font-size: 30cqw; line-height: var(--lh-crush); --wdth: var(--wd-72); color: var(--ghost);
 }
 
 .hc-stage { position: relative; min-height: 0; container-type: size; display: grid; place-items: end center; padding-top: 14cqh; }
@@ -31,15 +31,15 @@
 .c-arm { fill: none; stroke: var(--k-arm); stroke-width: 5; stroke-linecap: round; }
 .c-helmet { fill: var(--c-mid); stroke: var(--k-0); stroke-width: 1; } .c-visor { fill: var(--k-0); } .c-helmet-line { fill: none; stroke: var(--k-0); stroke-width: 3; }
 .c-halo { fill: none; stroke: var(--k-2); stroke-width: 10; stroke-linecap: round; } .c-halo-hi { fill: none; stroke: var(--k-halo); stroke-width: 1.5; stroke-linecap: round; }
-.c-number { font-family: var(--display); font-weight: 900; font-size: 68px; font-variation-settings: 'wdth' 104; letter-spacing: -0.02em; fill: var(--k-0); }
+.c-number { font-family: var(--display); font-weight: var(--w-black); font-size: 68px; font-variation-settings: 'wdth' var(--wd-104); letter-spacing: var(--tr-display); fill: var(--k-0); }
 .c-number--nose { font-size: 25px; }
 .c-light { fill: var(--c-hi); }
 .c-tyre { fill: var(--tyre); } .c-tyre-edge { fill: none; stroke: var(--k-ring); stroke-width: 1.5; } .c-wall { fill: none; stroke: var(--c-mid); stroke-width: 5; }
 .c-rim { fill: var(--k-rim); } .c-rim-edge { fill: none; stroke: var(--k-edge); stroke-width: 1.5; } .c-rim-ring { fill: none; stroke: var(--k-ring); stroke-width: 1.5; }
 .c-nut { fill: var(--c-mid); } .c-nut-hex { fill: var(--k-0); }
 .hc-ground { fill: none; stroke: var(--line); stroke-width: 1; }
-.hc-start path { fill: var(--faint); transition: fill 0.25s; }
-.hc-start rect { fill: none; stroke: var(--faint); stroke-width: 1; transition: stroke 0.25s; }
+.hc-start path { fill: var(--faint); transition: fill var(--t-250); }
+.hc-start rect { fill: none; stroke: var(--faint); stroke-width: 1; transition: stroke var(--t-250); }
 .hc[data-picked='wheels'] .hc-start path { fill: var(--ink); }
 .hc[data-picked='wheels'] .hc-start rect { stroke: var(--ink); }
 .hc-streaks { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; opacity: 0; }
@@ -50,33 +50,33 @@
 .hc-hits { fill: transparent; pointer-events: all; cursor: pointer; }
 .hc-hits .hc-dead { cursor: default; }
 .hc-part, .hc-rv, .hc-lead, .hc-streaks { pointer-events: none; }
-.hc-part, .hc-pop { transition: transform 0.5s var(--ease), opacity 0.28s; }
-.hc-part :is(path, circle, rect, ellipse, text) { transition: fill 0.25s, stroke 0.25s; }
+.hc-part, .hc-pop { transition: transform var(--t-500) var(--ease), opacity 0.28s; }
+.hc-part :is(path, circle, rect, ellipse, text) { transition: fill var(--t-250), stroke var(--t-250); }
 .hc[data-picked] .hc-part { opacity: 0.16; }
 
 /* what a picked part reveals: hidden until then; lines draw themselves in */
-.hc-rv { opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0s 0.3s; }
-.hc-rv [pathLength], .hc-lead [pathLength] { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 0s 0.3s; }
+.hc-rv { opacity: 0; visibility: hidden; transition: opacity var(--t-300), visibility 0s var(--t-300); }
+.hc-rv [pathLength], .hc-lead [pathLength] { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 0s var(--t-300); }
 .hc[data-picked='wing'] .hc-rv[data-for='wing'], .hc[data-picked='body'] .hc-rv[data-for='body'], .hc[data-picked='driver'] .hc-rv[data-for='driver'],
 .hc[data-picked='floor'] .hc-rv[data-for='floor'], .hc[data-picked='power'] .hc-rv[data-for='power'], .hc[data-picked='wheels'] .hc-rv[data-for='wheels'] {
-  opacity: 1; visibility: visible; transition: opacity 0.3s, visibility 0s;
+  opacity: 1; visibility: visible; transition: opacity var(--t-300), visibility 0s;
 }
 .hc[data-picked='body'] .hc-rv[data-for='body'] [pathLength], .hc[data-picked='power'] .hc-rv[data-for='power'] [pathLength],
-.hc[data-picked='driver'] .hc-rv[data-for='driver'] [pathLength] { stroke-dashoffset: 0; transition: stroke-dashoffset 0.7s var(--ease) 0.1s; }
+.hc[data-picked='driver'] .hc-rv[data-for='driver'] [pathLength] { stroke-dashoffset: 0; transition: stroke-dashoffset var(--t-700) var(--ease) var(--t-100); }
 
 /* the line from the label up to the part */
-.hc-lead { opacity: 0; transition: opacity 0.2s; }
+.hc-lead { opacity: 0; transition: opacity var(--t-200); }
 .hc-lead path { fill: none; stroke: var(--ink); stroke-width: 1; }
 .hc-lead circle { fill: var(--ground); stroke: var(--ink); stroke-width: 1.5; }
 .hc[data-picked='wing'] .hc-lead[data-for='wing'], .hc[data-picked='body'] .hc-lead[data-for='body'], .hc[data-picked='driver'] .hc-lead[data-for='driver'],
 .hc[data-picked='floor'] .hc-lead[data-for='floor'], .hc[data-picked='power'] .hc-lead[data-for='power'], .hc[data-picked='wheels'] .hc-lead[data-for='wheels'] { opacity: 1; }
-.hc[data-picked] .hc-lead [pathLength] { stroke-dashoffset: 0; transition: stroke-dashoffset 0.45s var(--ease); }
+.hc[data-picked] .hc-lead [pathLength] { stroke-dashoffset: 0; transition: stroke-dashoffset var(--t-450) var(--ease); }
 
 /* 05 Front end: the wing comes forward, and the air runs over the whole car */
 .hc[data-picked='wing'] .hc-part { opacity: 0.55; }
 .hc[data-picked='wing'] [data-part='wing'] { opacity: 1; transform: translate(46px, 0); }
 .r-air { fill: none; stroke: var(--ink); stroke-width: 1.4; stroke-linecap: round; stroke-dasharray: 12 16; opacity: 0.8; }
-.hc[data-picked='wing'] .r-air { @media (prefers-reduced-motion: no-preference) { animation: hc-flow 0.7s linear infinite; } }
+.hc[data-picked='wing'] .r-air { @media (prefers-reduced-motion: no-preference) { animation: hc-flow var(--t-700) linear infinite; } }
 @keyframes hc-flow { to { stroke-dashoffset: -28; } }
 
 /* 01 Design: the whole car becomes its own drawing, on a sheet, with its dimensions */
@@ -86,15 +86,15 @@
 .hc[data-picked='body'] .hc-pool { opacity: 0; }
 .b-grid { fill: none; stroke: var(--ghost); stroke-width: 1; }
 .b-dim path { fill: none; stroke: var(--dim); stroke-width: 1; }
-.b-dim text { font-family: var(--mono); font-size: 0.875rem; letter-spacing: 0.06em; fill: var(--ink); text-transform: uppercase; }
+.b-dim text { font-family: var(--mono); font-size: var(--fs-14); letter-spacing: var(--tr-caps); fill: var(--ink); text-transform: uppercase; }
 .b-gap { fill: var(--ground); }
 
 /* 04 AI: the driver rises, with the radio in one ear and eyes far down the road */
 .hc[data-picked='driver'] [data-part='driver'] { opacity: 1; transform: translate(0, -62px); }
 .r-signal { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; }
 .hc[data-picked='driver'] .r-signal path { @media (prefers-reduced-motion: no-preference) { animation: hc-ping 1.5s ease-out infinite; } }
-.r-signal path:nth-child(2) { animation-delay: 0.18s !important; }
-.r-signal path:nth-child(3) { animation-delay: 0.36s !important; }
+.r-signal path:nth-child(2) { animation-delay: var(--t-180) !important; }
+.r-signal path:nth-child(3) { animation-delay: var(--t-360) !important; }
 @keyframes hc-ping { 0% { opacity: 0; } 25% { opacity: 1; } 100% { opacity: 0; } }
 .r-sight { fill: none; stroke: var(--ink); stroke-width: 1.2; }
 .r-reticle { fill: none; stroke: var(--ink); stroke-width: 1.5; stroke-linecap: round; }
@@ -141,36 +141,36 @@
 /* labels: 01 Design to 05 Front end along the car, each under its part, then 06 Launch on the start line ahead of it */
 .hc-tags { position: absolute; left: 0; right: 0; top: 87%; height: 0; }
 .hc-tag {
-  position: absolute; left: var(--at); top: 0; transform: translateX(calc(-50% + var(--nudge, 0px))); display: inline-flex; gap: 8px; white-space: nowrap;
-  padding: 8px 12px; border-radius: 999px; color: var(--dim); font-size: 0.6875rem; transition: color 0.15s, background-color 0.15s;
+  position: absolute; left: var(--at); top: 0; transform: translateX(calc(-50% + var(--nudge, 0px))); display: inline-flex; gap: var(--sp-8); white-space: nowrap;
+  padding: var(--sp-8) var(--sp-12); border-radius: var(--r-pill); color: var(--dim); font-size: var(--fs-11); transition: color var(--t-150), background-color var(--t-150);
 }
 .hc-tag::after { content: ''; position: absolute; inset: -8px -4px; }
 /* 05 hangs to the left of its leader, so it never runs into 06 on a narrow desktop.
    Part of the transform, not `translate`: the minifier folds `translate: none` into the phone rule's `transform` and drops it. */
 .hc-tag:nth-child(5) { --nudge: calc(-50% + 10px); }
-.hc-tag b { color: var(--dim); font-weight: 500; transition: color 0.15s; }
+.hc-tag b { color: var(--dim); font-weight: var(--w-medium); transition: color var(--t-150); }
 .hc-tag:hover { color: var(--ink); }
 .hc-tag[data-on] { color: var(--ground); background: var(--ink); }
 .hc-tag[data-on] b { color: var(--ground); }
 
 /* the lower band: statement and actions on the left, the picked layer and the facts on the right */
 .hc-band { position: relative; z-index: 2; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: clamp(20px, 4vw, 64px); align-items: end; }
-.hc-name { color: var(--dim); margin-bottom: 10px; font-weight: 500; }
+.hc-name { color: var(--dim); margin-bottom: var(--sp-10); font-weight: var(--w-medium); }
 .hc-line { font-size: clamp(1.5rem, 3.1vw, 2.75rem); max-width: 15em; text-wrap: balance; }
-.hc-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: clamp(14px, 2.4svh, 24px); }
-.hc-note { min-height: 3.2em; color: var(--dim); text-transform: none; letter-spacing: 0.02em; font-size: 0.8125rem; line-height: 1.6; margin-bottom: 14px; }
-.hc-note b { color: var(--ink); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-right: 6px; }
+.hc-cta { display: flex; flex-wrap: wrap; gap: var(--sp-12); margin-top: clamp(14px, 2.4svh, 24px); }
+.hc-note { min-height: 3.2em; color: var(--dim); text-transform: none; letter-spacing: var(--tr-wide); font-size: var(--fs-13); line-height: var(--lh-loose); margin-bottom: var(--sp-14); }
+.hc-note b { color: var(--ink); font-weight: var(--w-bold); text-transform: uppercase; letter-spacing: var(--tr-mono); margin-right: var(--sp-6); }
 .hc-cue { color: var(--dim); }
-.hc-facts { padding-top: 16px; border-top: 1px solid var(--line); font-size: 0.9375rem; line-height: 1.5; color: var(--dim); text-wrap: balance; }
+.hc-facts { padding-top: var(--sp-16); border-top: var(--stroke) solid var(--line); font-size: var(--fs-15); line-height: var(--lh-body); color: var(--dim); text-wrap: balance; }
 
 @media (max-width: 899px), (max-aspect-ratio: 4 / 5) {
   .hc-words { bottom: auto; top: -22cqw; font-size: 31cqw; }
-  .hc-tags { position: static; height: auto; display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 2px; margin-top: 10px; }
-  .hc-tags .hc-tag { position: static; transform: none; padding: 6px 8px; }
+  .hc-tags { position: static; height: auto; display: flex; flex-wrap: wrap; justify-content: center; gap: var(--sp-4) var(--sp-2); margin-top: var(--sp-10); }
+  .hc-tags .hc-tag { position: static; transform: none; padding: var(--sp-6) var(--sp-8); }
   /* the labels sit in rows here, not under their parts, so there is no line to draw up to them */
   .hc-lead { display: none; }
   .hc-tag::after { inset: -4px -2px; }
-  .hc-band { grid-template-columns: minmax(0, 1fr); gap: 18px; }
-  .hc-note { min-height: 0; margin-bottom: 10px; }
+  .hc-band { grid-template-columns: minmax(0, 1fr); gap: var(--sp-18); }
+  .hc-note { min-height: 0; margin-bottom: var(--sp-10); }
 }
 @media (hover: none), (pointer: coarse) { .hc-cue { display: none; } }

@@ -3,19 +3,19 @@
 
 /* The top bar stays at the top of the screen (frosted below where the browser can blur). Its height, --dt-bar,
    places the jump list under it; scrollToEl() lands jumps below it ([data-sticky]). Solid ground without blur. */
-.dt-top { position: sticky; top: 0; z-index: 50; min-height: var(--dt-bar); display: flex; justify-content: space-between; align-items: center; gap: 16px; background: var(--ground); }
+.dt-top { position: sticky; top: 0; z-index: var(--z-bar); min-height: var(--dt-bar); display: flex; justify-content: space-between; align-items: center; gap: var(--sp-16); background: var(--ground); }
 .dt-top-right { display: flex; align-items: center; gap: clamp(14px, 2vw, 24px); color: var(--dim); }
-.dt-top-link { transition: color 0.2s; }
+.dt-top-link { transition: color var(--t-200); }
 .dt-top-link:hover { color: var(--acc); }
 .dt-pos { color: inherit; cursor: pointer; }
 /* Jump to a product: a list of every product under the top bar. Fixed, like the bar (a popover sits in the top layer). */
-.dt-jump { position: fixed; inset: auto var(--pad) auto auto; top: calc(var(--dt-bar) - 6px); margin: 0; padding: 8px; width: min(380px, calc(100vw - 2 * var(--pad))); max-height: min(70svh, 560px); overflow-y: auto; overscroll-behavior: contain; background: var(--raise); color: var(--ink); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 30px 60px var(--shadow-deep); }
+.dt-jump { position: fixed; inset: auto var(--pad) auto auto; top: calc(var(--dt-bar) - 6px); margin: 0; padding: var(--sp-8); width: min(380px, calc(100vw - 2 * var(--pad))); max-height: min(70svh, 560px); overflow-y: auto; overscroll-behavior: contain; background: var(--raise); color: var(--ink); border: var(--stroke) solid var(--line); border-radius: var(--r-14); box-shadow: 0 30px 60px var(--shadow-deep); }
 /* Without the Popover API the list would sit open over the page; Prev and Next still work there. */
 @supports not selector(:popover-open) { .dt-jump { display: none; } }
 .dt-jump ol { list-style: none; margin: 0; padding: 0; }
-.dt-jump-item { display: grid; grid-template-columns: 28px 1fr auto; align-items: center; gap: 12px; padding: 12px; border-radius: 6px; color: var(--dim); transition: background-color 0.15s, color 0.15s; }
+.dt-jump-item { display: grid; grid-template-columns: 28px 1fr auto; align-items: center; gap: var(--sp-12); padding: var(--sp-12); border-radius: var(--r-6); color: var(--dim); transition: background-color var(--t-150), color var(--t-150); }
 .dt-jump-item b { color: var(--brand); }
-.dt-jump-name { font-family: var(--display); font-weight: 600; font-variation-settings: 'wdth' 108; font-size: 1rem; color: var(--ink); }
+.dt-jump-name { font-family: var(--display); font-weight: var(--w-semibold); font-variation-settings: 'wdth' var(--wd-108); font-size: var(--fs-16); color: var(--ink); }
 .dt-jump-item:hover, .dt-jump-item:focus-visible { background: var(--raise-2); }
 .dt-jump-item[aria-current] { background: var(--brand); color: var(--on-brand); }
 .dt-jump-item[aria-current] b, .dt-jump-item[aria-current] .dt-jump-name { color: inherit; }
@@ -36,7 +36,7 @@
 .dt-hero { padding-top: clamp(40px, 6vw, 64px); }
 .dt-meta { color: var(--dim); }
 .dt-name {
-  --wdth: 64;
+  --wdth: var(--wd-64);
   /* a fallback until fit.ts measures; it then sets the exact size inline */
   font-size: clamp(64px, 17vw, 300px);
   margin: clamp(12px, 1.6vw, 22px) 0 0 -0.02em;
@@ -53,17 +53,17 @@
   .dt-name-line { display: block; }
 }
 
-.dt-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 520px); gap: clamp(32px, 6vw, 96px); margin-top: clamp(28px, 4vw, 48px); align-items: start; }
+.dt-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 520px); gap: var(--gap-split); margin-top: clamp(28px, 4vw, 48px); align-items: start; }
 .dt-pitch { font-size: clamp(26px, 3.2vw, 46px); max-width: 22ch; }
-.dt-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: clamp(24px, 3vw, 34px); }
-.dt-links { display: flex; flex-wrap: wrap; gap: 0 24px; margin-top: 12px; }
-.dt-link { padding-block: 8px; color: var(--dim); text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 0.3em; transition: color 0.18s, text-decoration-color 0.18s; }
+.dt-cta { display: flex; flex-wrap: wrap; gap: var(--sp-12); margin-top: clamp(24px, 3vw, 34px); }
+.dt-links { display: flex; flex-wrap: wrap; gap: 0 var(--sp-24); margin-top: var(--sp-12); }
+.dt-link { padding-block: var(--sp-8); color: var(--dim); text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 0.3em; transition: color var(--t-180), text-decoration-color var(--t-180); }
 .dt-link:hover { color: var(--ink); text-decoration-color: currentColor; }
 .dt-cta .pp-btn:disabled, .dt-get-btn:disabled { cursor: not-allowed; opacity: 0.55; }
-.dt-cta .pp-btn:disabled:hover { color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--line); }
-.dt-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 24px 32px; border-top: 1px solid var(--line); padding-top: 24px; }
-.dt-facts dt { color: var(--dim); margin-bottom: 8px; }
-.dt-facts dd { font-weight: 600; font-size: 1.125rem; line-height: 1.35; }
+.dt-cta .pp-btn:disabled:hover { color: var(--ink); box-shadow: inset 0 0 0 var(--stroke-2) var(--line); }
+.dt-facts { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-24) var(--sp-32); border-top: var(--stroke) solid var(--line); padding-top: var(--sp-24); }
+.dt-facts dt { color: var(--dim); margin-bottom: var(--sp-8); }
+.dt-facts dd { font-weight: var(--w-semibold); font-size: var(--fs-18); line-height: var(--lh-snug); }
 
 .dt-stage-wrap { position: relative; }
 .dt-stage-wrap::before {
@@ -78,8 +78,8 @@
 .dt-stage--jira-demo { max-width: 1120px; }
 .dt-stage--openui-demo { max-width: 1000px; }
 .dt-stage--usage-demo { max-width: 1040px; }
-.dt-hint { position: relative; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px 14px; margin-top: 28px; color: var(--dim); text-align: center; }
-.dt-live { width: 8px; height: 8px; border-radius: 50%; background: var(--acc); box-shadow: 0 0 0 4px color-mix(in srgb, var(--acc) 22%, transparent); }
+.dt-hint { position: relative; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: var(--sp-10) var(--sp-14); margin-top: var(--sp-28); color: var(--dim); text-align: center; }
+.dt-live { width: 8px; height: 8px; border-radius: var(--r-round); background: var(--acc); box-shadow: 0 0 0 4px color-mix(in srgb, var(--acc) 22%, transparent); }
 .dt-tally { color: var(--acc); }
 
 /* blocks: one rhythm whatever the order. The first block sits closer to the hero; when the page
@@ -89,51 +89,51 @@
 .dt-block { padding-top: var(--dt-gap); }
 .dt-blocks > .dt-block:first-child { --dt-gap: clamp(56px, 6vw, 96px); }
 .dt-sec--stats { --dt-gap: clamp(56px, 7vw, 104px); }
-.dt-label { display: flex; align-items: center; gap: 16px; font-weight: 500; }
+.dt-label { display: flex; align-items: center; gap: var(--sp-16); font-weight: var(--w-medium); }
 .dt-label-line { flex: 1; height: 1px; background: var(--line); transform-origin: left center; }
 .dt-label-aside { color: var(--dim); }
 /* on a phone the tag drops under the rule */
-@media (max-width: 639px) { .dt-label:has(.dt-label-aside) { flex-wrap: wrap; row-gap: 8px; } .dt-label-aside { flex-basis: 100%; } }
+@media (max-width: 639px) { .dt-label:has(.dt-label-aside) { flex-wrap: wrap; row-gap: var(--sp-8); } .dt-label-aside { flex-basis: 100%; } }
 
-.dt-why { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 400px); gap: clamp(32px, 6vw, 96px); margin-top: clamp(32px, 4vw, 48px); align-items: end; }
-.dt-why-head { font-size: clamp(36px, 5vw, 80px); line-height: 1; text-wrap: balance; }
+.dt-why { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 400px); gap: var(--gap-split); margin-top: var(--flow-label); align-items: end; }
+.dt-why-head { font-size: clamp(36px, 5vw, 80px); line-height: var(--lh-none); text-wrap: balance; }
 .dt-w { display: inline-block; }
 .dt-why-head em { font-style: normal; color: var(--acc); }
-.dt-why-body { color: var(--dim); font-size: clamp(1.0625rem, 1.4vw, 1.25rem); line-height: 1.55; }
+.dt-why-body { color: var(--dim); font-size: clamp(1.0625rem, 1.4vw, 1.25rem); line-height: var(--lh-read); }
 /* the Why's points: an index of plain columns, each under a hairline (no pills, no bullets); --cols comes from the count */
-.dt-points { list-style: none; display: grid; grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr)); gap: clamp(16px, 2vw, 24px) clamp(16px, 2vw, 32px); margin-top: clamp(32px, 4vw, 48px); }
-.dt-point { padding-top: 14px; border-top: 1px solid var(--line); font-size: 1.0625rem; line-height: 1.35; }
+.dt-points { list-style: none; display: grid; grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr)); gap: clamp(16px, 2vw, 24px) clamp(16px, 2vw, 32px); margin-top: var(--flow-label); }
+.dt-point { padding-top: var(--sp-14); border-top: var(--stroke) solid var(--line); font-size: var(--fs-17); line-height: var(--lh-snug); }
 @media (max-width: 720px) { .dt-points { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
-.dt-how { list-style: none; display: grid; grid-template-columns: repeat(var(--steps, 3), minmax(0, 1fr)); gap: 0; margin-top: clamp(32px, 4vw, 48px); }
+.dt-how { list-style: none; display: grid; grid-template-columns: repeat(var(--steps, 3), minmax(0, 1fr)); gap: 0; margin-top: var(--flow-label); }
 .dt-how-item { position: relative; display: flex; }
 .dt-how-item + .dt-how-item { padding-left: clamp(40px, 5vw, 80px); }
-.dt-node { flex: 1; border: 1.5px solid var(--line); border-radius: 16px; padding: clamp(22px, 2.2vw, 30px); }
+.dt-node { flex: 1; border: var(--stroke-2) solid var(--line); border-radius: var(--r-16); padding: clamp(22px, 2.2vw, 30px); }
 .dt-node--mid { border-color: var(--acc); background: color-mix(in srgb, var(--acc) 7%, transparent); }
-.dt-node h3 { font-family: var(--display); font-weight: 600; font-variation-settings: 'wdth' 108; font-size: clamp(1.375rem, 2vw, 1.75rem); letter-spacing: -0.02em; line-height: 1.1; margin: 12px 0 10px; }
-.dt-node p { color: var(--dim); font-size: 0.9688rem; line-height: 1.5; }
+.dt-node h3 { font-family: var(--display); font-weight: var(--w-semibold); font-variation-settings: 'wdth' var(--wd-108); font-size: clamp(1.375rem, 2vw, 1.75rem); letter-spacing: var(--tr-display); line-height: 1.1; margin: var(--sp-12) 0 var(--sp-10); }
+.dt-node p { color: var(--dim); font-size: 0.9688rem; line-height: var(--lh-body); }
 /* the connector: a line with an arrowhead, drawn by clip-path */
 .dt-conn {
   position: absolute; top: 50%; height: 1.5px; background: var(--acc);
   width: clamp(24px, 3.2vw, 56px); left: calc((clamp(40px, 5vw, 80px) - clamp(24px, 3.2vw, 56px)) / 2);
 }
-.dt-conn::after { content: ''; position: absolute; right: 0; top: -4px; width: 8px; height: 8px; border-top: 1.5px solid var(--acc); border-right: 1.5px solid var(--acc); transform: rotate(45deg); transform-origin: 100% 0; }
+.dt-conn::after { content: ''; position: absolute; right: 0; top: -4px; width: 8px; height: 8px; border-top: var(--stroke-2) solid var(--acc); border-right: var(--stroke-2) solid var(--acc); transform: rotate(45deg); transform-origin: 100% 0; }
 
 /* as many even columns as there are numbers: two or three */
-.dt-stats { list-style: none; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 30px; }
-.dt-stat-num { --wdth: 64; display: block; font-size: clamp(96px, 12vw, 190px); line-height: 0.8; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.dt-stats { list-style: none; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: var(--sp-30); }
+.dt-stat-num { --wdth: var(--wd-64); display: block; font-size: clamp(96px, 12vw, 190px); line-height: var(--lh-crush); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .dt-stat-num [data-count] { display: inline-block; }
 .dt-stat-num small { font-size: 0.42em; color: var(--acc); margin-left: 0.08em; }
-.dt-stat-label { display: block; margin-top: 18px; max-width: 30ch; line-height: 1.6; }
+.dt-stat-label { display: block; margin-top: var(--sp-18); max-width: 30ch; line-height: var(--lh-loose); }
 
 /* screens: a native swipe row by default */
 .dt-gal {
-  margin: clamp(32px, 4vw, 48px) calc(-1 * var(--pad)) 0;
+  margin: var(--flow-label) calc(-1 * var(--pad)) 0;
   overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scroll-padding-inline: var(--pad);
   scrollbar-width: none;
 }
 .dt-gal::-webkit-scrollbar { display: none; }
-.dt-track { list-style: none; display: flex; gap: clamp(16px, 2vw, 28px); width: max-content; padding-inline: var(--pad); }
+.dt-track { list-style: none; display: flex; gap: var(--gap-track); width: max-content; padding-inline: var(--pad); }
 .dt-shot { flex: none; scroll-snap-align: start; }
 .dt-shot--plugin { width: min(820px, 84vw, 100vh); }
 .dt-shot--site { width: min(860px, 84vw, 100vh); }
@@ -142,8 +142,8 @@
 .dt-shot-img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; object-position: left top; }
 /* phone and browser frames size their screen; the window frame takes its height from the image */
 .dt-shot--app .dt-shot-img, .dt-shot--site .dt-shot-img { height: 100%; aspect-ratio: auto; }
-.dt-shot figcaption { margin-top: 16px; line-height: 1.6; }
-.dt-gal-progress { display: none; height: 1px; margin-top: 32px; background: var(--line); }
+.dt-shot figcaption { margin-top: var(--sp-16); line-height: var(--lh-loose); }
+.dt-gal-progress { display: none; height: 1px; margin-top: var(--sp-32); background: var(--line); }
 .dt-gal-bar { display: block; height: 100%; background: var(--acc); transform-origin: left center; }
 /* desktop with a mouse: the track is pinned and moved by the scroll (blocks/shared.tsx PIN_QUERY) */
 @media (min-width: 900px) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
@@ -153,98 +153,98 @@
   .dt-gal-progress { display: block; }
 }
 
-.dt-film { position: relative; margin-top: clamp(32px, 4vw, 48px); aspect-ratio: 16 / 9; border-radius: 18px; overflow: hidden; background: var(--raise); box-shadow: inset 0 0 0 1px var(--line); }
+.dt-film { position: relative; margin-top: var(--flow-label); aspect-ratio: 16 / 9; border-radius: var(--r-18); overflow: hidden; background: var(--raise); box-shadow: inset 0 0 0 var(--stroke) var(--line); }
 .dt-film-media { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .dt-play {
   position: absolute; left: 50%; top: 50%; width: clamp(84px, 10vw, 150px); aspect-ratio: 1; translate: -50% -50%;
-  display: grid; place-items: center; border-radius: 50%; background: var(--acc);
+  display: grid; place-items: center; border-radius: var(--r-round); background: var(--acc);
   box-shadow: 0 24px 60px -16px color-mix(in srgb, var(--ground) 80%, transparent);
-  transition: transform 0.16s var(--ease), background-color 0.18s;
+  transition: transform var(--t-160) var(--ease), background-color var(--t-180);
 }
 .dt-play:hover { background: color-mix(in srgb, var(--acc) 88%, var(--ink)); }
 .dt-play:active { transform: scale(0.97); }
 .dt-play-icon { width: 0; height: 0; margin-left: 9%; border-left: 0.28em solid var(--on-acc); border-block: 0.17em solid transparent; font-size: clamp(84px, 10vw, 150px); }
-.dt-film-cap { display: flex; justify-content: space-between; gap: 16px; margin-top: 16px; }
-.dt-credit { margin-top: 8px; font-size: 0.8125rem; color: var(--dim); }
+.dt-film-cap { display: flex; justify-content: space-between; gap: var(--sp-16); margin-top: var(--sp-16); }
+.dt-credit { margin-top: var(--sp-8); font-size: var(--fs-13); color: var(--dim); }
 
 /* get it: the last frame of a trailer, on the black page. The name as a poster in the product's colour (fitted to the
    width, capped at a third of the screen's height), the hook, the install as one wide ticket, and a credits line. */
 .dt-get { margin-top: var(--dt-gap); padding-block: clamp(56px, 8vw, 128px); }
-.dt-poster { margin: clamp(24px, 3vw, 40px) 0 0 -0.03em; color: var(--acc); line-height: 0.84; }
-.dt-poster-hook { font-size: var(--pp-head); margin-top: clamp(16px, 2vw, 28px); }
+.dt-poster { margin: clamp(24px, 3vw, 40px) 0 0 -0.03em; color: var(--acc); line-height: var(--lh-display); }
+.dt-poster-hook { font-size: var(--pp-head); margin-top: var(--gap-track); }
 .dt-get-main { margin-top: clamp(32px, 4vw, 56px); }
 .dt-cmd {
   display: flex; justify-content: space-between; align-items: center; gap: clamp(18px, 3vw, 40px);
   padding: clamp(12px, 1.4vw, 16px) clamp(12px, 1.4vw, 16px) clamp(12px, 1.4vw, 16px) clamp(24px, 3vw, 40px);
-  border-radius: 999px; background: var(--raise); box-shadow: inset 0 0 0 1px var(--line);
+  border-radius: var(--r-pill); background: var(--raise); box-shadow: inset 0 0 0 var(--stroke) var(--line);
 }
 /* sized so the longest install URL (66 characters) fits one line in the ticket on a desktop */
-.dt-cmd-text { font-family: var(--mono); font-weight: 700; font-size: clamp(0.9375rem, 1.5vw, 1.5rem); letter-spacing: -0.03em; line-height: 1.3; min-width: 0; max-width: 100%; overflow-x: auto; }
+.dt-cmd-text { font-family: var(--mono); font-weight: var(--w-bold); font-size: clamp(0.9375rem, 1.5vw, 1.5rem); letter-spacing: var(--tr-tight); line-height: 1.3; min-width: 0; max-width: 100%; overflow-x: auto; }
 /* the URL's parts are inline blocks: unbreakable themselves (not even at a hyphen), and the URL breaks between them only on phones (below) */
 .dt-cmd-arg { white-space: nowrap; }
 .dt-cmd-arg > span { display: inline-block; }
-.dt-get-row { display: flex; flex-wrap: wrap; gap: 14px; }
+.dt-get-row { display: flex; flex-wrap: wrap; gap: var(--sp-14); }
 .dt-get-btn {
-  flex: none; display: inline-flex; align-items: center; gap: 10px; white-space: nowrap;
-  min-height: 48px; padding: 0 24px; border-radius: 999px; background: var(--acc); color: var(--on-acc);
-  font-family: var(--display); font-variation-settings: 'wdth' 108; font-weight: 600; font-size: 1rem;
-  transition: transform 0.2s var(--ease);
+  flex: none; display: inline-flex; align-items: center; gap: var(--sp-10); white-space: nowrap;
+  min-height: 48px; padding: 0 var(--sp-24); border-radius: var(--r-pill); background: var(--acc); color: var(--on-acc);
+  font-family: var(--display); font-variation-settings: 'wdth' var(--wd-108); font-weight: var(--w-semibold); font-size: var(--fs-16);
+  transition: transform var(--t-200) var(--ease);
 }
 .dt-get-btn:not(:disabled):hover { transform: translateY(-2px); }
 .dt-get-btn:not(:disabled):active { transform: scale(0.97); }
 .dt-get-btn--lg { padding: clamp(18px, 2vw, 26px) clamp(28px, 3vw, 44px); font-size: clamp(1.125rem, 2vw, 1.625rem); }
-.dt-credits { margin-top: 20px; color: var(--dim); }
+.dt-credits { margin-top: var(--sp-20); color: var(--dim); }
 .dt-get-note { margin-top: clamp(16px, 2vw, 24px); max-width: 60ch; color: var(--dim); }
-@media (max-width: 720px) { .dt-cmd { border-radius: 16px; } }
+@media (max-width: 720px) { .dt-cmd { border-radius: var(--r-16); } }
 
 /* text: a heading, then paragraphs in a readable measure in the right-hand column */
 .dt-text { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: clamp(28px, 6vw, 96px); align-items: start; }
-.dt-label + .dt-text { margin-top: clamp(32px, 4vw, 48px); }
+.dt-label + .dt-text { margin-top: var(--flow-label); }
 .dt-text-head { font-size: var(--pp-head); text-wrap: balance; }
-.dt-text-body { grid-column: 2; display: grid; gap: 1.1em; max-width: 62ch; font-size: clamp(1.0625rem, 1.45vw, 1.3125rem); line-height: 1.6; color: var(--dim); }
+.dt-text-body { grid-column: 2; display: grid; gap: 1.1em; max-width: 62ch; font-size: clamp(1.0625rem, 1.45vw, 1.3125rem); line-height: var(--lh-loose); color: var(--dim); }
 .dt-text-body p:first-child { color: var(--ink); }
 
 /* features: a grid split by hairlines, no boxes */
-.dt-feats { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: clamp(24px, 3vw, 48px); margin-top: clamp(32px, 4vw, 48px); }
+.dt-feats { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: var(--gap-cols); margin-top: var(--flow-label); }
 .dt-feat { position: relative; padding: clamp(22px, 2.4vw, 32px) 0 clamp(36px, 4vw, 56px); }
 .dt-feat-rule { position: absolute; inset: 0 0 auto; height: 1px; background: var(--line); transform-origin: left center; }
 .dt-feat-n { color: var(--acc); }
-.dt-feat-title { font-size: clamp(1.5rem, 2.4vw, 2.25rem); margin: clamp(16px, 2vw, 26px) 0 12px; text-wrap: balance; }
-.dt-feat-body { color: var(--dim); font-size: 1rem; line-height: 1.55; max-width: 38ch; }
+.dt-feat-title { font-size: clamp(1.5rem, 2.4vw, 2.25rem); margin: clamp(16px, 2vw, 26px) 0 var(--sp-12); text-wrap: balance; }
+.dt-feat-body { color: var(--dim); font-size: var(--fs-16); line-height: var(--lh-read); max-width: 38ch; }
 
 /* keys: keycaps on the left, what they do on the right. A cap is its face over a lighter side;
    the face sinks into the side when its row is hovered (translate, so GSAP's transform is left alone). */
-.dt-keys-note { margin-top: 18px; max-width: 62ch; color: var(--dim); }
-.dt-keys { list-style: none; margin-top: clamp(28px, 3.6vw, 44px); border-bottom: 1px solid var(--line); }
-.dt-keys-row { display: grid; grid-template-columns: minmax(220px, 1fr) minmax(0, 2fr); gap: 12px 24px; align-items: center; padding-block: clamp(14px, 1.6vw, 22px); border-top: 1px solid var(--line);
+.dt-keys-note { margin-top: var(--sp-18); max-width: 62ch; color: var(--dim); }
+.dt-keys { list-style: none; margin-top: var(--flow-head); border-bottom: var(--stroke) solid var(--line); }
+.dt-keys-row { display: grid; grid-template-columns: minmax(220px, 1fr) minmax(0, 2fr); gap: var(--sp-12) var(--sp-24); align-items: center; padding-block: clamp(14px, 1.6vw, 22px); border-top: var(--stroke) solid var(--line);
   --hit: 0; background: linear-gradient(90deg, color-mix(in srgb, var(--acc) calc(var(--hit) * 16%), transparent), transparent 70%); }
-.dt-keys-caps { display: flex; flex-wrap: wrap; gap: 10px; }
-.dt-keys-does { font-family: var(--display); font-weight: 600; font-variation-settings: 'wdth' 108; font-size: clamp(1.1875rem, 2vw, 1.875rem); letter-spacing: -0.02em; line-height: 1.2; }
+.dt-keys-caps { display: flex; flex-wrap: wrap; gap: var(--sp-10); }
+.dt-keys-does { font-family: var(--display); font-weight: var(--w-semibold); font-variation-settings: 'wdth' var(--wd-108); font-size: clamp(1.1875rem, 2vw, 1.875rem); letter-spacing: var(--tr-display); line-height: 1.2; }
 .dt-key { --cap: clamp(46px, 4.4vw, 64px); display: inline-block; padding-bottom: calc(var(--cap) * 0.11); border-radius: calc(var(--cap) * 0.24); background: color-mix(in srgb, var(--ink) 12%, var(--ground)); font: inherit; }
 .dt-key-face {
   display: grid; place-items: center; min-width: var(--cap); height: var(--cap); padding: 0 calc(var(--cap) * 0.28); border-radius: calc(var(--cap) * 0.22);
-  background: var(--raise-2); color: var(--ink); font-family: var(--mono); font-weight: 600; font-size: calc(var(--cap) * 0.34);
-  box-shadow: inset 0 0 0 1px var(--line), inset 0 1px 0 color-mix(in srgb, var(--ink) 14%, transparent);
-  transition: translate 0.18s var(--ease), box-shadow 0.2s;
+  background: var(--raise-2); color: var(--ink); font-family: var(--mono); font-weight: var(--w-semibold); font-size: calc(var(--cap) * 0.34);
+  box-shadow: inset 0 0 0 var(--stroke) var(--line), inset 0 1px 0 color-mix(in srgb, var(--ink) 14%, transparent);
+  transition: translate var(--t-180) var(--ease), box-shadow var(--t-200);
 }
 /* the row of a shortcut the visitor just pressed: lit, its caps ringed in the product's colour */
-.dt-keys-row .dt-key-face { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--acc) calc(var(--hit) * 100%), var(--line)), inset 0 1px 0 color-mix(in srgb, var(--ink) 14%, transparent); }
-.dt-keys-row:hover .dt-key-face { translate: 0 3px; box-shadow: inset 0 0 0 1px var(--acc); }
+.dt-keys-row .dt-key-face { box-shadow: inset 0 0 0 var(--stroke) color-mix(in srgb, var(--acc) calc(var(--hit) * 100%), var(--line)), inset 0 1px 0 color-mix(in srgb, var(--ink) 14%, transparent); }
+.dt-keys-row:hover .dt-key-face { translate: 0 3px; box-shadow: inset 0 0 0 var(--stroke) var(--acc); }
 
 /* next: a cross-sell on the black page, in the next product's colour. The name is fitted to the left part of the band,
    the hook under it, and a picture of the product rises from the bottom edge at the right and fades out. */
-.dt-next { position: relative; display: block; overflow: hidden; color: var(--ink); border-top: 1px solid var(--line); }
+.dt-next { position: relative; display: block; overflow: hidden; color: var(--ink); border-top: var(--stroke) solid var(--line); }
 .dt-next-in { position: relative; z-index: 1; display: block; padding-block: clamp(48px, 6vw, 72px) clamp(52px, 6vw, 76px); }
-.dt-next-name { --wdth: 64; display: block; font-size: clamp(56px, 16vw, 300px); margin: clamp(14px, 2vw, 22px) 0 0 -0.02em; white-space: nowrap; }
-.dt-next-text, .dt-arrow { display: inline-block; transition: transform 0.35s var(--ease); }
+.dt-next-name { --wdth: var(--wd-64); display: block; font-size: clamp(56px, 16vw, 300px); margin: clamp(14px, 2vw, 22px) 0 0 -0.02em; white-space: nowrap; }
+.dt-next-text, .dt-arrow { display: inline-block; transition: transform var(--t-350) var(--ease); }
 .dt-arrow { color: var(--acc); }
 .dt-next:hover .dt-next-text { transform: translateX(-0.06em); }
 .dt-next:hover .dt-arrow { transform: translateX(0.04em); }
 .dt-next:focus-visible { outline-offset: -6px; outline-color: var(--acc); }
-.dt-next-hook { display: block; margin-top: 12px; font-size: clamp(1.25rem, 2.2vw, 2.25rem); color: var(--dim); }
+.dt-next-hook { display: block; margin-top: var(--sp-12); font-size: clamp(1.25rem, 2.2vw, 2.25rem); color: var(--dim); }
 .dt-next-thumb {
   position: absolute; right: var(--pad); bottom: 0; height: 82%; width: auto; max-width: 40%; object-fit: cover; object-position: left top;
-  border-radius: 12px 12px 0 0; box-shadow: 0 0 0 1px var(--line); mask-image: linear-gradient(#000 55%, transparent);
+  border-radius: var(--r-12) var(--r-12) 0 0; box-shadow: 0 0 0 var(--stroke) var(--line); mask-image: linear-gradient(#000 55%, transparent);
 }
 @media (min-width: 721px) { .dt-next-name, .dt-next-hook { max-width: 54%; } }
 @media (max-width: 720px) { .dt-next-thumb { position: static; display: block; width: calc(100% - 2 * var(--pad)); height: auto; max-width: none; aspect-ratio: 16 / 7; margin: 0 var(--pad); } }
@@ -253,11 +253,11 @@
 @media (max-width: 899px) {
   .dt-row, .dt-why { grid-template-columns: minmax(0, 1fr); }
   .dt-how { grid-template-columns: minmax(0, 1fr); }
-  .dt-how-item + .dt-how-item { padding-left: 0; padding-top: 48px; }
-  .dt-conn { left: clamp(28px, 6vw, 40px); top: 10px; width: 1.5px; height: 28px; }
+  .dt-how-item + .dt-how-item { padding-left: 0; padding-top: var(--sp-48); }
+  .dt-conn { left: clamp(28px, 6vw, 40px); top: var(--sp-10); width: 1.5px; height: 28px; }
   .dt-conn::after { right: auto; top: auto; left: -3.5px; bottom: 0; transform: rotate(135deg); transform-origin: 50% 50%; }
   /* one compact row per number, the labels lined up beside the widest number */
-  .dt-stats { grid-auto-flow: row; grid-template-columns: auto minmax(0, 1fr); gap: 22px 20px; align-items: end; }
+  .dt-stats { grid-auto-flow: row; grid-template-columns: auto minmax(0, 1fr); gap: var(--sp-22) var(--sp-20); align-items: end; }
   .dt-stats li { display: grid; grid-column: span 2; grid-template-columns: subgrid; align-items: end; }
   .dt-stat-num { font-size: clamp(56px, 16vw, 96px); }
   .dt-stat-label { margin-top: 0; padding-bottom: 0.3em; }
@@ -275,18 +275,18 @@
   .dt-cmd { flex-direction: column; align-items: flex-start; }
   .dt-cmd-arg { white-space: normal; }
   .dt-cmd-text { letter-spacing: 0; }
-  .dt-facts dd { font-size: 1rem; }
+  .dt-facts dd { font-size: var(--fs-16); }
 }
 
 /* The outline as a bar per section at the right edge, in place of the scrollbar (from 1024px): the section you are in is a
    longer bar in the product's colour; a bar's section name shows beside it on hover or focus, and a click scrolls there. */
-.dt-rail { position: fixed; z-index: 40; right: max(8px, calc(var(--pad) / 2 - 12px)); top: 50%; translate: 0 -50%; display: none; }
+.dt-rail { position: fixed; z-index: var(--z-float); right: max(8px, calc(var(--pad) / 2 - 12px)); top: 50%; translate: 0 -50%; display: none; }
 .dt-rail ol { display: grid; justify-items: end; list-style: none; }
 .dt-rail-item { position: relative; display: block; width: 28px; height: 12px; }
-.dt-rail-item::before { content: ''; position: absolute; right: 0; top: 5px; width: 24px; height: 2px; border-radius: 1px; background: var(--faint); transform: scaleX(0.5); transform-origin: right center; transition: transform 0.25s var(--ease), background-color 0.2s; }
+.dt-rail-item::before { content: ''; position: absolute; right: 0; top: 5px; width: 24px; height: 2px; border-radius: 1px; background: var(--faint); transform: scaleX(0.5); transform-origin: right center; transition: transform var(--t-250) var(--ease), background-color var(--t-200); }
 .dt-rail-item:is(:hover, :focus-visible)::before { background: var(--dim); }
 .dt-rail-item[aria-current]::before { background: var(--acc); transform: none; }
-.dt-rail-label { position: absolute; right: calc(100% + 12px); top: 50%; translate: 0 -50%; padding: 4px 8px; border-radius: 6px; background: var(--ground); box-shadow: inset 0 0 0 1px var(--line); color: var(--ink); font-size: 0.6875rem; letter-spacing: 0.04em; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.15s; }
+.dt-rail-label { position: absolute; right: calc(100% + 12px); top: 50%; translate: 0 -50%; padding: var(--sp-4) var(--sp-8); border-radius: var(--r-6); background: var(--ground); box-shadow: inset 0 0 0 var(--stroke) var(--line); color: var(--ink); font-size: var(--fs-11); letter-spacing: var(--tr-wider); white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity var(--t-150); }
 .dt-rail-item:is(:hover, :focus-visible) .dt-rail-label { opacity: 1; }
 @media (min-width: 1024px) {
   .dt-rail { display: block; }
@@ -296,11 +296,11 @@
 
 /* a label that slides to its other text (SwapLabel): one grid cell, so the button keeps its width */
 .dt-swap { display: inline-grid; overflow: hidden; vertical-align: top; }
-.dt-swap > span { grid-area: 1 / 1; text-align: center; transition: transform 0.2s var(--ease), opacity 0.15s; }
+.dt-swap > span { grid-area: 1 / 1; text-align: center; transition: transform var(--t-200) var(--ease), opacity var(--t-150); }
 .dt-swap-b { transform: translateY(105%); opacity: 0; }
 .dt-swap--on .dt-swap-a { transform: translateY(-105%); opacity: 0; }
 .dt-swap--on .dt-swap-b { transform: none; opacity: 1; }
 
 /* the film: the video fades in over the poster it replaces */
-.dt-film-video { background: var(--ground); @media (prefers-reduced-motion: no-preference) { animation: dt-fade-in 0.22s ease-out both; } }
+.dt-film-video { background: var(--ground); @media (prefers-reduced-motion: no-preference) { animation: dt-fade-in var(--t-220) ease-out both; } }
 @keyframes dt-fade-in { from { opacity: 0; } }

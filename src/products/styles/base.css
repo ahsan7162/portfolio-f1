@@ -4,51 +4,14 @@
 @import '@fontsource-variable/archivo/wdth.css';
 @import '@fontsource-variable/jetbrains-mono';
 @import 'lenis/dist/lenis.css';
+@import './tokens.css';
 
-:root {
-  --pp-head: clamp(1.75rem, 3.4vw, 3.25rem);
-  /* The raw colours. Every other token, here and in the other stylesheets, is made from these. */
-  --black: #000000;
-  --bone: #ECE9DF;
-  --white: #FFFFFF;
-
-  --ground: var(--black);
-  --raise: #0E0E0D;
-  --raise-2: #181817;
-  --ink: var(--bone);
-  --dim: color-mix(in srgb, var(--ink) 58%, transparent);
-  --faint: color-mix(in srgb, var(--ink) 34%, transparent);
-  --line: color-mix(in srgb, var(--ink) 10%, transparent);
-  /* The page has no colour of its own: its highlight is bone. A product's surfaces swap in the product's colour (.pp-branded). */
-  --acc: var(--bone);
-  --on-acc: var(--black);
-  /* light product surfaces (a light-themed app shown on the dark page) */
-  --paper: #F1EFE6;
-  --paper-2: var(--white);
-  --paper-ink: #1B1C18;
-  --paper-dim: #77766C;
-  --paper-line: #DEDBCF;
-  /* status colours: only inside a product's own UI, never as page decoration */
-  --bad: #FF5A4C;
-  --warn: #F2C14E;
-
-  --pad: clamp(20px, 3.6vw, 56px);
-  --display: 'Archivo Variable', 'Arial Narrow', sans-serif;
-  --text: 'Archivo Variable', system-ui, sans-serif;
-  --mono: 'JetBrains Mono Variable', ui-monospace, monospace;
-  --ease: cubic-bezier(0.16, 1, 0.3, 1);
-  /* overshoots a little: a pressed control springing back */
-  --spring: cubic-bezier(0.2, 1.6, 0.35, 1);
-  --shadow-faint: color-mix(in srgb, var(--black) 12%, transparent);
-  --shadow: color-mix(in srgb, var(--black) 50%, transparent);
-  --shadow-deep: color-mix(in srgb, var(--black) 72%, transparent);
-}
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { background: var(--ground); color-scheme: dark; -webkit-text-size-adjust: 100%; }
 body {
   background: var(--ground); color: var(--ink);
-  font-family: var(--text); font-size: 1.0625rem; line-height: 1.5; font-variation-settings: 'wdth' 100;
+  font-family: var(--text); font-size: var(--fs-17); line-height: var(--lh-body); font-variation-settings: 'wdth' var(--wd-100);
   -webkit-font-smoothing: antialiased; overflow-x: clip;
 }
 a { color: inherit; text-decoration: none; }
@@ -57,24 +20,24 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 a, button, summary, input { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 img, video, svg { display: block; max-width: 100%; }
 ::selection { background: var(--acc); color: var(--on-acc); }
-:focus-visible { outline: 2px solid var(--acc); outline-offset: 3px; border-radius: 4px; }
+:focus-visible { outline: 2px solid var(--acc); outline-offset: 3px; border-radius: var(--r-4); }
 
 /* type */
-.pp-display { font-family: var(--display); font-weight: 900; text-transform: uppercase; letter-spacing: -0.02em; line-height: 0.84; font-variation-settings: 'wdth' var(--wdth, 64); }
-.pp-mono { font-family: var(--mono); font-size: 0.75rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; line-height: 1.4; }
+.pp-display { font-family: var(--display); font-weight: var(--w-black); text-transform: uppercase; letter-spacing: var(--tr-display); line-height: var(--lh-display); font-variation-settings: 'wdth' var(--wdth, 64); }
+.pp-mono { font-family: var(--mono); font-size: var(--fs-12); font-weight: var(--w-medium); letter-spacing: var(--tr-mono); text-transform: uppercase; line-height: var(--lh-label); }
 /* a sentence under a demo, a picture or a film: body text, never mono capitals */
-.pp-cap { font-size: 0.9375rem; line-height: 1.5; color: var(--dim); text-wrap: pretty; }
+.pp-cap { font-size: var(--fs-15); line-height: var(--lh-body); color: var(--dim); text-wrap: pretty; }
 .pp-cap code { font-family: var(--mono); font-size: 0.9em; }
 /* code in a label keeps its case: `- [x]` must not read as `- [X]` */
 .pp-mono code { font: inherit; text-transform: none; }
 /* mono in its own case: a label longer than three words, or the phrase under a big figure */
-.pp-meta { font-family: var(--mono); font-size: 0.8125rem; font-weight: 400; letter-spacing: 0.01em; line-height: 1.5; text-transform: none; }
+.pp-meta { font-family: var(--mono); font-size: var(--fs-13); font-weight: var(--w-regular); letter-spacing: 0.01em; line-height: var(--lh-body); text-transform: none; }
 /* every sentence headline; --pp-head is the one size a section headline takes */
-.pp-lede { font-family: var(--display); font-weight: 600; font-variation-settings: 'wdth' 108; letter-spacing: -0.025em; line-height: 1.06; }
+.pp-lede { font-family: var(--display); font-weight: var(--w-semibold); font-variation-settings: 'wdth' var(--wd-108); letter-spacing: var(--tr-lede); line-height: var(--lh-lede); }
 .pp-dim { color: var(--dim); }
 /* for screen readers only */
 /* Shown only when reached by the Tab key: jumps past the top bar to the page's heading. */
-.pp-skip { position: fixed; left: 12px; top: 12px; z-index: 100; padding: 12px 16px; border-radius: 8px; background: var(--ink); color: var(--ground); transform: translateY(-200%); }
+.pp-skip { position: fixed; left: var(--sp-12); top: var(--sp-12); z-index: var(--z-skip); padding: var(--sp-12) var(--sp-16); border-radius: var(--r-8); background: var(--ink); color: var(--ground); transform: translateY(-200%); }
 .pp-skip:focus-visible { transform: none; }
 /* A heading or section that was given focus by a jump is not a control: no ring around it. */
 :is(h1, section, main, .dt-block)[tabindex='-1']:focus-visible { outline: none; }
@@ -85,16 +48,16 @@ img, video, svg { display: block; max-width: 100%; }
 
 /* controls */
 .pp-btn {
-  display: inline-flex; align-items: center; gap: 10px; white-space: nowrap;
-  font-family: var(--display); font-variation-settings: 'wdth' 108; font-weight: 600; font-size: 0.9375rem;
-  min-height: 48px; padding: 0 24px; border-radius: 999px; background: var(--ink); color: var(--ground);
+  display: inline-flex; align-items: center; gap: var(--sp-10); white-space: nowrap;
+  font-family: var(--display); font-variation-settings: 'wdth' var(--wd-108); font-weight: var(--w-semibold); font-size: var(--fs-15);
+  min-height: 48px; padding: 0 var(--sp-24); border-radius: var(--r-pill); background: var(--ink); color: var(--ground);
   user-select: none;
   /* pressing (below) is immediate; releasing eases back */
-  transition: transform 0.16s var(--ease), background-color 0.18s, color 0.18s, box-shadow 0.18s;
+  transition: transform var(--t-160) var(--ease), background-color var(--t-180), color var(--t-180), box-shadow var(--t-180);
 }
-.pp-btn:hover { background: var(--ground); color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); }
-.pp-btn:active { transform: scale(0.97); transition-duration: 0.07s, 0.18s, 0.18s, 0.18s; }
-.pp-btn--ghost { background: none; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--line); font-weight: 500; }
+.pp-btn:hover { background: var(--ground); color: var(--ink); box-shadow: inset 0 0 0 var(--stroke-2) var(--ink); }
+.pp-btn:active { transform: scale(0.97); transition-duration: var(--t-70), var(--t-180), var(--t-180), var(--t-180); }
+.pp-btn--ghost { background: none; color: var(--ink); box-shadow: inset 0 0 0 var(--stroke-2) var(--line); font-weight: var(--w-medium); }
 .pp-btn--ghost:hover { background: var(--ink); color: var(--ground); box-shadow: none; }
 .pp-btn--acc { background: var(--acc); color: var(--on-acc); }
 .pp-btn--acc:hover { background: var(--on-acc); color: var(--acc); box-shadow: none; }
@@ -102,20 +65,20 @@ img, video, svg { display: block; max-width: 100%; }
 .pp-branded { --acc: var(--brand); --on-acc: var(--on-brand); }
 /* the house mark: a display line's full stop in the product's colour (stop.tsx) */
 .pp-stop { color: var(--brand, var(--acc)); }
-.pp-tag { display: inline-flex; align-items: center; gap: 8px; padding: 4px 8px; background: var(--acc); color: var(--on-acc); font-weight: 700; }
-.pp-sample { display: inline-flex; padding: 4px 8px; border: 1px dashed var(--faint); border-radius: 4px; color: var(--dim); }
+.pp-tag { display: inline-flex; align-items: center; gap: var(--sp-8); padding: var(--sp-4) var(--sp-8); background: var(--acc); color: var(--on-acc); font-weight: var(--w-bold); }
+.pp-sample { display: inline-flex; padding: var(--sp-4) var(--sp-8); border: var(--stroke) dashed var(--faint); border-radius: var(--r-4); color: var(--dim); }
 /* A row of items with a dot between them (.pp-dot next to .pp-dot). Every item keeps a 28px strip on its left
    for its dot, and the row's own first 28px are clipped away, so a line that wraps never starts with a dot. */
-.pp-dots { display: flex; flex-wrap: wrap; align-items: center; row-gap: 8px; margin-left: -28px; clip-path: inset(-8px -8px -8px 28px); }
-.pp-dots > * { margin-left: 14px; }
-.pp-dots > :first-child, .pp-dot + .pp-dot { margin-left: 28px; }
+.pp-dots { display: flex; flex-wrap: wrap; align-items: center; row-gap: var(--sp-8); margin-left: -28px; clip-path: inset(-8px -8px -8px 28px); }
+.pp-dots > * { margin-left: var(--sp-14); }
+.pp-dots > :first-child, .pp-dot + .pp-dot { margin-left: var(--sp-28); }
 .pp-dot + .pp-dot { position: relative; }
 .pp-dot + .pp-dot::before { content: '·'; position: absolute; right: 100%; width: 28px; text-align: center; color: var(--faint); }
 
 /* film grain, very light, on the car hero only (HeroCar.tsx); it scrolls away with the hero */
 .pp-grain {
   /* plain opacity, no blend mode: a blended full-screen layer is recomposited on every scroll frame */
-  position: absolute; inset: 0; pointer-events: none; z-index: 5; opacity: 0.06;
+  position: absolute; inset: 0; pointer-events: none; z-index: var(--z-grain); opacity: 0.06;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
