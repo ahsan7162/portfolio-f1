@@ -36,6 +36,8 @@ export const Canvas = forwardRef<CanvasApi, Props>(function Canvas(p, ref) {
   const [mount, setMount] = useState(0);
   /** The canvas is stuck in a loop: it is taken down and stays down until the playground reloads. */
   const [stuck, setStuck] = useState(false);
+  /** The canvas never said it was ready: some embedded browsers refuse sandboxed frames outright. */
+  const [late, setLate] = useState(false);
   const [layout, setLayout] = useState<Layout>({ tops: [], heights: [] });
   const tick = useRef(0);
   const loads = useRef(0);
@@ -96,6 +98,12 @@ export const Canvas = forwardRef<CanvasApi, Props>(function Canvas(p, ref) {
     return () => clearInterval(t);
   }, [ready]);
 
+  useEffect(() => {
+    if (ready || stuck || mount < 0) return;
+    const t = setTimeout(() => setLate(true), 6000);
+    return () => { clearTimeout(t); setLate(false); };
+  }, [ready, stuck, mount]);
+
   // a dev rebuild of the canvas reloads it on purpose
   useEffect(() => {
     if (!import.meta.hot) return;
@@ -151,7 +159,12 @@ export const Canvas = forwardRef<CanvasApi, Props>(function Canvas(p, ref) {
           </div>
         )}
       </div>
-      {!ready && !stuck && <p className="pg-canvas-wait pp-mono" role="status">Drawing the page…</p>}
+      {!ready && !stuck && (
+        <div className="pg-canvas-wait" role="status">
+          <p className="pp-mono">Drawing the page…</p>
+          {late && <p className="pg-cap">The canvas has not started. Some browsers built into other apps refuse sandboxed frames; open this page in Chrome, Safari or Firefox.</p>}
+        </div>
+      )}
       {stuck && (
         <div className="pg-canvas-stuck" role="alert">
           <p className="pg-title">The canvas is stuck.</p>

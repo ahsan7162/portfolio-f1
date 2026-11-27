@@ -82,7 +82,8 @@
 .pg-canvas-in { position: relative; overflow: hidden; border-radius: var(--r-14); box-shadow: 0 0 0 var(--stroke) var(--line), 0 40px 80px -30px var(--shadow-deep); background: var(--ground); }
 .pg-frame { display: block; border: 0; transform-origin: 0 0; background: var(--ground); }
 .pg-canvas-stuck { position: absolute; inset: 0; display: grid; place-content: center; justify-items: start; gap: var(--sp-12); padding: var(--sp-32); max-width: 52ch; margin: auto; }
-.pg-canvas-wait { position: absolute; inset: 0; display: grid; place-items: center; color: var(--dim); pointer-events: none; }
+.pg-canvas-wait { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: var(--sp-12); padding: var(--sp-32); text-align: center; color: var(--dim); pointer-events: none; }
+.pg-canvas-wait .pg-cap { max-width: 44ch; }
 .pg-drop { position: absolute; left: 3%; right: 3%; height: 3px; border-radius: var(--r-2); background: var(--ink); box-shadow: 0 0 0 4px color-mix(in srgb, var(--ink) 18%, transparent); pointer-events: none; }
 .pg-drop span { position: absolute; left: 50%; top: -30px; translate: -50% 0; padding: var(--sp-4) var(--sp-10); border-radius: var(--r-pill); background: var(--ink); color: var(--ground); white-space: nowrap; font-size: var(--fs-11); }
 .pg-shield { position: fixed; inset: 0; z-index: var(--z-curtain); cursor: grabbing; }
