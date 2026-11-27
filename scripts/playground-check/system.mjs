@@ -18,6 +18,17 @@ try {
   const waitDrawn = async () => { for (let i = 0; i < 40; i++) { const [, s] = await state(); if (s !== 'drawing') return s; await sleep(150); } return 'timeout'; };
   check('the frame draws the first block', (await waitDrawn()) === 'drawn', (await state()).join(' '));
 
+  // the block list scrolls on its own under the wheel, down and back to its top, and the page stays
+  const ol = `document.querySelector('.sy-bf-list > ol')`;
+  const lp = await t.evaluate(`(() => { const r = ${ol}.getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2 }; })()`);
+  const ly = await t.evaluate('scrollY');
+  for (const dy of [80, -80]) {
+    for (let i = 0; i < (dy > 0 ? 6 : 14); i++) { await t.send('Input.dispatchMouseEvent', { type: 'mouseWheel', x: lp.x, y: lp.y, deltaX: 0, deltaY: dy }); await sleep(16); }
+    await sleep(700);
+    if (dy > 0) check('the block list scrolls on its own under the wheel', (await t.evaluate(`${ol}.scrollTop`)) > 0 && (await t.evaluate('scrollY')) === ly, `list at ${await t.evaluate(`${ol}.scrollTop`)}, page moved ${Math.round((await t.evaluate('scrollY')) - ly)}px`);
+    else check('...and back to its top, and the page stays', (await t.evaluate(`${ol}.scrollTop`)) === 0 && (await t.evaluate('scrollY')) === ly, `list at ${await t.evaluate(`${ol}.scrollTop`)}, page moved ${Math.round((await t.evaluate('scrollY')) - ly)}px`);
+  }
+
   // a wheel gesture over the frame: one block on
   const box = await t.evaluate(`(() => { const r = ${stage}.getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2 }; })()`);
   const wheel = async dy => { for (let i = 0; i < 6; i++) { await t.send('Input.dispatchMouseEvent', { type: 'mouseWheel', x: box.x, y: box.y, deltaX: 0, deltaY: dy }); await sleep(16); } await sleep(400); };

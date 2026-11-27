@@ -142,7 +142,8 @@ export function BlockFrame({ brand, brands }: { brand: string; brands: { name: s
   return (
     <div className="sy-bf">
       <nav className="sy-bf-list" aria-label="Blocks">
-        <ol ref={list}>
+        {/* data-lenis-prevent: the smooth scroller would take the wheel, and the list could not scroll on its own */}
+        <ol ref={list} data-lenis-prevent>
           {GROUPS.map(g => (
             <li key={g}>
               <p className="pp-mono sy-dim">{g}</p>
