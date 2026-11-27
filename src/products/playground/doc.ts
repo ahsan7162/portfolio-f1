@@ -1,9 +1,37 @@
 // The page being built: the product it belongs to, its blocks, and a key per block so the canvas keeps each
 // block's identity across edits. Every change goes through act(), which keeps undo and redo.
 import type { Block } from '../types';
+import { KINDS } from '../types';
 import { isLiteral } from './literal';
-import type { Meta, Template } from './catalog';
-import type { Source } from './protocol';
+import { CATALOG, type Meta, type Template } from './catalog';
+import { NAME, type Source } from './protocol';
+
+const TYPES = new Set<string>([...CATALOG.map(e => e.type), 'custom']);
+
+/**
+ * Why a value cannot be a block, or null when it can. Only what the editor itself shows is checked (the type, the
+ * label, a written block's name and props): anything else wrong only stops that block drawing, in the canvas.
+ */
+export function notABlock(b: unknown): string | null {
+  if (!b || typeof b !== 'object' || Array.isArray(b)) return 'a block is { type: …, … }';
+  const o = b as Record<string, unknown>;
+  if (typeof o.type !== 'string' || !TYPES.has(o.type)) return typeof o.type === 'string' ? `"${o.type}" is not a block type` : 'it needs a type';
+  if ('label' in o && typeof o.label !== 'string') return 'its label must be text';
+  if (o.type === 'custom') {
+    if (typeof o.name !== 'string' || !NAME.test(o.name)) return 'a written block needs a name like Plans';
+    if (!o.props || typeof o.props !== 'object' || Array.isArray(o.props)) return 'a written block needs props: { … }';
+  }
+  return null;
+}
+
+/** A product's own settings as the editor shows them: the fields it reads, of the right kinds. */
+function isMeta(m: unknown): m is Meta {
+  if (!m || typeof m !== 'object' || Array.isArray(m)) return false;
+  const o = m as Record<string, unknown>;
+  const texts = ['slug', 'name', 'line', 'hook', 'hint', 'stage'].every(k => typeof o[k] === 'string');
+  const lists = ['lines', 'facts', 'stack'].every(k => Array.isArray(o[k]) && (o[k] as unknown[]).every(x => typeof x === 'string'));
+  return texts && lists && typeof o.brand === 'string' && /^#[0-9a-fA-F]{6}$/.test(o.brand) && typeof o.kind === 'string' && o.kind in KINDS && Number.isInteger(o.year) && Array.isArray(o.links);
+}
 
 export interface Doc { meta: Meta; blocks: Block[]; keys: string[] }
 export interface State { doc: Doc; selected: number; past: Doc[]; future: Doc[]; template: string }
@@ -110,9 +138,12 @@ export function recall(): Saved | null {
     const v = JSON.parse(raw) as unknown;
     if (!isLiteral(v) || typeof v !== 'object' || v === null) return null;
     const s = v as Partial<Saved>;
-    if (s.v !== 1 || typeof s.template !== 'string' || !s.meta || !Array.isArray(s.blocks) || !Array.isArray(s.sources)) return null;
-    if (!s.blocks.every(b => b && typeof b === 'object' && typeof (b as { type?: unknown }).type === 'string')) return null;
-    const sources = s.sources.filter((x): x is Source => !!x && typeof x.name === 'string' && typeof x.code === 'string' && typeof x.css === 'string');
+    if (s.v !== 1 || typeof s.template !== 'string' || !isMeta(s.meta) || !Array.isArray(s.blocks) || !Array.isArray(s.sources)) return null;
+    if (!s.blocks.every(b => notABlock(b) === null)) return null;
+    const sources = (s.sources as unknown[]).filter((x): x is Source & { props: string } => {
+      const o = x as Record<string, unknown> | null;
+      return !!o && typeof o.name === 'string' && NAME.test(o.name) && typeof o.code === 'string' && typeof o.css === 'string' && (o.props === undefined || typeof o.props === 'string');
+    });
     return { ...(s as Saved), sources };
   } catch {
     return null;

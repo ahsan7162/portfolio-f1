@@ -62,3 +62,10 @@ void test('writes strings that cannot break out of their quotes or their line', 
   assert.deepEqual(parse(out), [tricky]);
   assert.ok(!isLiteral([() => 1]) && !isLiteral([undefined]) && !isLiteral([NaN]) && !isLiteral([new Date()]));
 });
+
+void test('a long run of spaces after a declaration is read quickly', () => {
+  const started = performance.now();
+  assert.throws(() => parse(`const a:${' '.repeat(200_000)}`));
+  assert.ok(performance.now() - started < 200, `${Math.round(performance.now() - started)} ms`);
+});
+

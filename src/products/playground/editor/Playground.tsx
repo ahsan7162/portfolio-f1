@@ -6,9 +6,9 @@ import { useEffect, useMemo, useReducer, useRef, useState, type PointerEvent as 
 import { products } from '../../data';
 import { KINDS, type Block, type Kind, type Product, type StageKind } from '../../types';
 import { CATALOG, entry, fits, GROUPS, remix, sample, STARTERS, type BlockType, type Template } from '../catalog';
-import { act, recall, remember, spliced, start, swapped, type State } from '../doc';
-import { LiteralError, parse, print, type Literal } from '../literal';
-import { NAME } from '../protocol';
+import { act, notABlock, recall, remember, spliced, start, swapped, type State } from '../doc';
+import { LiteralError, MAX_SOURCE, parse, print, type Literal } from '../literal';
+import { LIMITS, NAME } from '../protocol';
 import { savedNames } from '../../detail/blocks/saved/names';
 import { Glyph } from '../Glyph';
 import { Canvas, type CanvasApi } from './Canvas';
@@ -17,7 +17,6 @@ import { BlockFields, Field } from './Fields';
 import { starter, type WrittenBlock } from './written';
 
 const WIDTHS = [1440, 900, 390] as const;
-const TYPES = new Set<string>([...CATALOG.map(e => e.type), 'custom']);
 /** The token the dev server put on this page; a build has none, so Save is not offered there. */
 const TOKEN = document.querySelector<HTMLMetaElement>('meta[name="playground-save"]')?.content ?? '';
 const REAL = Object.fromEntries(products.map(p => [`real:${p.slug}`, p]));
@@ -37,16 +36,13 @@ function initial(): { state: State; written: WrittenBlock[]; fresh: boolean } {
 function readPage(text: string): Block[] {
   const v = parse(text);
   if (!Array.isArray(v)) throw new LiteralError('The page is a list of blocks: [ … ]', 1, 1);
-  v.forEach((b, i) => {
-    if (!b || typeof b !== 'object' || Array.isArray(b) || typeof b.type !== 'string' || !TYPES.has(b.type)) {
-      throw new LiteralError(`Block ${i + 1} needs a type the system has (${typeof b === 'object' && b && !Array.isArray(b) && typeof b.type === 'string' ? `"${b.type}" is not one` : 'none given'})`, 1, 1);
-    }
-  });
+  v.forEach((b, i) => { const why = notABlock(b); if (why) throw new LiteralError(`Block ${i + 1}: ${why}`, 1, 1); });
   return v as unknown as Block[];
 }
 function readBlock(text: string): Block {
   const v = parse(text);
-  if (!v || typeof v !== 'object' || Array.isArray(v) || typeof v.type !== 'string' || !TYPES.has(v.type)) throw new LiteralError('A block is { type: …, … } with a type the system has', 1, 1);
+  const why = notABlock(v);
+  if (why) throw new LiteralError(`This is not a block: ${why}`, 1, 1);
   return v as unknown as Block;
 }
 
@@ -205,7 +201,7 @@ export function Playground() {
   const setKind = (kind: Kind) => dispatch({ do: 'meta', meta: { kind, ...(doc.meta.sample ? { stage: STAGE_FOR[kind] } : {}) } });
 
   const found = (q: string) => CATALOG.filter(e => !q || `${e.name} ${e.use} ${e.type}`.toLowerCase().includes(q.toLowerCase()));
-  const nameOf = (b: Block) => ('label' in b && b.label) || (b.type === 'custom' ? b.name : entry(b.type)?.name ?? b.type);
+  const nameOf = (b: Block) => ('label' in b && typeof b.label === 'string' && b.label) || (b.type === 'custom' ? b.name : entry(b.type)?.name ?? b.type);
 
   return (
     <div className="pg" data-pane={pane}>
@@ -359,7 +355,7 @@ export function Playground() {
                 {entry(current.type) && <p className="pg-cap">{entry(current.type)!.use}.</p>}
                 <BlockFields block={current} onChange={b => edit(selected, b as unknown as Block)} />
                 <h3 className="pg-h pp-mono">As code</h3>
-                <CodeEditor label="The block as code" value={one.text} onChange={one.onChange} error={one.error} rows={12} />
+                <CodeEditor label="The block as code" value={one.text} onChange={one.onChange} error={one.error} rows={12} max={MAX_SOURCE} />
               </>
             ) : (
               <>
@@ -377,7 +373,7 @@ export function Playground() {
         {tab === 'page' && (
           <div className="pg-panel pg-panel--code" role="tabpanel" id="pg-panel-page" aria-labelledby="pg-tab-page">
             <p className="pg-cap">The whole page. Drop or edit a block and this follows; type here and the page follows.</p>
-            <CodeEditor label="The page as code" value={page.text} onChange={page.onChange} error={page.error} />
+            <CodeEditor label="The page as code" value={page.text} onChange={page.onChange} error={page.error} max={MAX_SOURCE} />
           </div>
         )}
 
@@ -507,9 +503,9 @@ function Write({ written, setWritten, built, armed, onRun, onAdd, onSave }: {
             <button type="button" role="tab" aria-selected={file === 'css'} onClick={() => setFile('css')}>{w.name}.css</button>
             <button type="button" role="tab" aria-selected={file === 'props'} onClick={() => setFile('props')}>Props</button>
           </div>
-          {file === 'code' && <CodeEditor label={`${w.name}.tsx`} value={w.code} onChange={code => set({ code })} onRun={onRun} error={built[w.name] ? { line: Number(/\((\d+):\d+\)/.exec(built[w.name]!)?.[1] ?? 1), message: built[w.name]! } : null} />}
-          {file === 'css' && <CodeEditor label={`${w.name}.css`} lang="css" value={w.css} onChange={css => set({ css })} onRun={onRun} />}
-          {file === 'props' && <CodeEditor label="The props a new copy starts with" value={w.props} onChange={props => set({ props })} error={propsError} />}
+          {file === 'code' && <CodeEditor label={`${w.name}.tsx`} value={w.code} onChange={code => set({ code })} onRun={onRun} max={LIMITS.code} error={built[w.name] ? { line: Number(/\((\d+):\d+\)/.exec(built[w.name]!)?.[1] ?? 1), message: built[w.name]! } : null} />}
+          {file === 'css' && <CodeEditor label={`${w.name}.css`} lang="css" value={w.css} onChange={css => set({ css })} onRun={onRun} max={LIMITS.css} />}
+          {file === 'props' && <CodeEditor label="The props a new copy starts with" value={w.props} onChange={props => set({ props })} error={propsError} max={LIMITS.code} />}
           <div className="pg-acts pg-acts--wrap">
             <button type="button" className="pg-pill pg-pill--solid" onClick={onRun}>Run <kbd>⌘↵</kbd></button>
             <button type="button" className="pg-pill" onClick={() => onAdd(w)}>Add to the page</button>

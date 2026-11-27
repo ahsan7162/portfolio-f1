@@ -5,12 +5,12 @@ import { useLayoutEffect, useMemo, useRef, type KeyboardEvent } from 'react';
 type Lang = 'ts' | 'css';
 type Tok = [kind: string, text: string];
 
-const TS = /(\/\/[^\n]*|\/\*[\s\S]*?(?:\*\/|$))|('(?:\\.|[^'\\\n])*'?|"(?:\\.|[^"\\\n])*"?|`(?:\\.|[^`\\])*`?)|(\b\d[\d_.]*(?:e[+-]?\d+)?\b)|(\b(?:import|from|export|const|let|var|function|return|if|else|for|while|of|in|as|type|interface|new|true|false|null|undefined|default|extends|typeof|keyof|async|await)\b)|(<\/?[A-Za-z][\w.]*|\/?>)|([A-Za-z_$][\w$]*(?=\s*:(?!:)))/g;
-const CSS = /(\/\*[\s\S]*?(?:\*\/|$))|('(?:\\.|[^'\\\n])*'?|"(?:\\.|[^"\\\n])*"?)|(-?\b\d[\d.]*(?:px|rem|em|s|ms|%|vw|vh|ch|fr)?\b)|(var\(--[\w-]+\)|--[\w-]+)|([.#][\w-]+|@[\w-]+)|([a-z-]+(?=\s*:))/g;
+const TS = /(\/\/[^\n]*|\/\*[\s\S]*?(?:\*\/|$))|('(?:\\.|[^'\\\n])*'?|"(?:\\.|[^"\\\n])*"?|`(?:\\.|[^`\\])*`?)|(\b\d[\d_.]*(?:e[+-]?\d+)?\b)|(\b(?:import|from|export|const|let|var|function|return|if|else|for|while|of|in|as|type|interface|new|true|false|null|undefined|default|extends|typeof|keyof|async|await)\b)|(<\/?[A-Za-z][\w.]*|\/?>)|((?<![\w$])[A-Za-z_$][\w$]*(?=\s*:(?!:)))/g;
+const CSS = /(\/\*[\s\S]*?(?:\*\/|$))|('(?:\\.|[^'\\\n])*'?|"(?:\\.|[^"\\\n])*"?)|(-?\b\d[\d.]*(?:px|rem|em|s|ms|%|vw|vh|ch|fr)?\b)|(var\(--[\w-]+\)|--[\w-]+)|([.#][\w-]+|@[\w-]+)|((?<![\w-])[a-z-]+(?=\s*:))/g;
 const KINDS: Record<Lang, string[]> = { ts: ['c', 's', 'n', 'k', 't', 'p'], css: ['c', 's', 'n', 'v', 't', 'p'] };
 
-/** The text cut into highlighted pieces; each keeps its offset, which is its key. */
-function tokens(src: string, lang: Lang): (Tok & { at: number })[] {
+/** The text cut into highlighted pieces; each keeps its offset, which is its key. Linear in the text's length. */
+export function tokens(src: string, lang: Lang): (Tok & { at: number })[] {
   const out: (Tok & { at: number })[] = [];
   let at = 0;
   const push = (kind: string, text: string, from: number) => out.push(Object.assign([kind, text] as Tok, { at: from }));
@@ -24,8 +24,10 @@ function tokens(src: string, lang: Lang): (Tok & { at: number })[] {
   return out;
 }
 
-export function CodeEditor({ value, onChange, lang = 'ts', label, error, onRun, rows }: {
+export function CodeEditor({ value, onChange, lang = 'ts', label, error, onRun, rows, max }: {
   value: string; onChange: (v: string) => void; lang?: Lang; label: string;
+  /** The most characters the pane takes: what the canvas or the parser would refuse anyway. */
+  max: number;
   /** The line to mark, and why. */
   error?: { line: number; message: string } | null;
   onRun?: () => void;
@@ -81,7 +83,7 @@ export function CodeEditor({ value, onChange, lang = 'ts', label, error, onRun, 
         </pre>
         <textarea
           ref={area} className="pg-code-area" value={value} spellCheck={false} autoCapitalize="off" autoComplete="off" autoCorrect="off"
-          aria-label={label} aria-invalid={error ? true : undefined} wrap="off"
+          aria-label={label} aria-invalid={error ? true : undefined} wrap="off" maxLength={max}
           onChange={e => onChange(e.target.value)} onScroll={sync} onKeyDown={onKey}
         />
       </div>

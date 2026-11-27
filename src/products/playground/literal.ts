@@ -157,7 +157,8 @@ export function parse(source: string): Literal {
   };
 
   skip();
-  const prefix = /^(?:export\s+)?(?:const|let)\s+[A-Za-z_$][\w$]*\s*(?::\s*[\w$<>[\]., ]+)?=|^[A-Za-z_$][\w$]*\s*:(?!:)/.exec(source.slice(i));
+  // read in the first 300 characters only: a declaration is short, and this pattern backtracks on long runs of spaces
+  const prefix = /^(?:export\s+)?(?:const|let)\s+[A-Za-z_$][\w$]*\s*(?::\s*[\w$<>[\]., ]+)?=|^[A-Za-z_$][\w$]*\s*:(?!:)/.exec(source.slice(i, i + 300));
   if (prefix) i += prefix[0].length;
   const out = value(0);
   skip();

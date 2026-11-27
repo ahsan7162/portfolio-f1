@@ -154,6 +154,9 @@ function ListField({ name, id, items, onChange, head }: { name: string; id: stri
   );
 }
 
+/** A value as text, only if it is text: anything else (even an object that names its own toString) shows as nothing. */
+const text = (v: V) => (typeof v === 'string' ? v : '');
+
 function MediaField({ id, media, onChange }: { id: string; media: Obj; onChange: (v: V) => void }) {
   const kind = 'live' in media ? 'live' : 'sample' in media ? 'sample' : 'src';
   return (
@@ -165,18 +168,18 @@ function MediaField({ id, media, onChange }: { id: string; media: Obj; onChange:
           </button>
         ))}
       </div>
-      {kind === 'src' && <input id={id} className="pg-input" value={String(media.src)} placeholder="/products-media/<slug>/<file>.jpg" onChange={e => onChange({ ...media, src: e.target.value })} />}
+      {kind === 'src' && <input id={id} className="pg-input" value={text(media.src)} placeholder="/products-media/<slug>/<file>.jpg" onChange={e => onChange({ ...media, src: e.target.value })} />}
       {kind === 'sample' && (
         <div className="pg-media-row">
-          <select id={id} className="pg-input" value={Number(media.sample)} onChange={e => onChange({ ...media, sample: Number(e.target.value) })}>
+          <select id={id} className="pg-input" value={typeof media.sample === 'number' ? media.sample : 0} onChange={e => onChange({ ...media, sample: Number(e.target.value) })}>
             {[0, 1, 2].map(n => <option key={n} value={n}>Sample screen {n + 1}</option>)}
           </select>
           <label className="pp-mono"><input type="checkbox" checked={media.dark === true} onChange={e => onChange({ ...media, dark: e.target.checked })} /> Dark</label>
         </div>
       )}
       {kind === 'live' && (
-        <select id={id} className="pg-input" value={String(media.live)} onChange={e => onChange({ ...media, live: e.target.value })}>
-          {[...new Set([String(media.live), ...LIVE_NAMES])].map(n => <option key={n} value={n}>{n}</option>)}
+        <select id={id} className="pg-input" value={text(media.live)} onChange={e => onChange({ ...media, live: e.target.value })}>
+          {[...new Set([text(media.live), ...LIVE_NAMES])].filter(Boolean).map(n => <option key={n} value={n}>{n}</option>)}
         </select>
       )}
       {kind !== 'sample' && <input className="pg-input" aria-label="What the picture shows" value={typeof media.alt === 'string' ? media.alt : ''} placeholder="What the screen shows" onChange={e => onChange({ ...media, alt: e.target.value })} />}

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { CATALOG, sample, STARTERS } from './catalog';
-import { act, start } from './doc';
+import { act, notABlock, start } from './doc';
 import { isLiteral } from './literal';
 
 const plugin = STARTERS[0];
@@ -67,3 +67,12 @@ void test('out-of-range actions change nothing', () => {
     assert.equal(act(s, a), s);
   }
 });
+
+void test('only something the editor can show passes as a block', () => {
+  assert.equal(notABlock({ type: 'faq', label: 'Questions', items: [] }), null);
+  assert.equal(notABlock({ type: 'custom', name: 'Plans', props: {} }), null);
+  for (const b of [null, [], 'faq', { type: 'nope' }, { label: 'x' }, { type: 'faq', label: { a: 1 } }, { type: 'custom', name: 'lower', props: {} }, { type: 'custom', name: 'Plans', props: [] }, { type: 'custom', name: 'Plans' }]) {
+    assert.notEqual(notABlock(b), null, JSON.stringify(b));
+  }
+});
+
