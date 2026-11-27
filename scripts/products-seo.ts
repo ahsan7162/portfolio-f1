@@ -162,6 +162,6 @@ export function writeProductPages(dist: string, site: string, builtAt: string) {
   mkdirSync(resolve(dist, 'products/system'), { recursive: true });
   writeFileSync(resolve(dist, 'products/system/index.html'), page(shell, systemMeta, site, [], systemBody()));
   const playground = resolve(dist, 'products/playground/index.html');
-  writeFileSync(playground, readFileSync(playground, 'utf8').replaceAll('"../', '"/'));
+  writeFileSync(playground, readFileSync(playground, 'utf8').replace(/"(?:\.\.\/)+/g, '"/'));
   return [homeMeta, systemMeta, ...real.map(productMeta)].map(m => m.path);
 }
