@@ -72,7 +72,6 @@ function start() {
   setInterval(() => send({ t: 'tick' }), 1000);
 
   root.render(<Canvas send={send} onDrawn={report} />);
-  send({ t: 'ready' });
 }
 
 /**
@@ -146,6 +145,8 @@ function Canvas({ send, onDrawn }: { send: (m: FromFrame) => void; onDrawn: () =
       else if (msg.t === 'nudge') scrollBy(0, msg.by);
     };
     addEventListener('message', onMessage);
+    // ready only now that it is listening, so the editor's first page is never sent into the void
+    send({ t: 'ready' });
     return () => removeEventListener('message', onMessage);
   }, [send]);
 
