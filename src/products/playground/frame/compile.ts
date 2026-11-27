@@ -11,6 +11,7 @@ import * as types from '../../types';
 import * as media from '../../detail/blocks/MediaView';
 import * as shared from '../../detail/blocks/shared';
 import type { BlockProps } from '../../detail/blocks/shared';
+import { guardLoops, makeGuard } from './loopGuard';
 
 /**
  * What a written block may import, each by the path it would use from detail/blocks/saved/, so a block saved
@@ -28,8 +29,12 @@ export const IMPORTS: Record<string, unknown> = {
 
 export type Written = ComponentType<BlockProps<'custom'>>;
 
+/** The real Function, taken before the canvas guards dynamic code: a block is guarded once, here. */
+const NativeFunction = Function;
+
 export function compile(name: string, code: string): Written {
-  const js = transform(code, { transforms: ['typescript', 'jsx', 'imports'], jsxRuntime: 'automatic', production: true, filePath: `${name}.tsx` }).code;
+  // every loop gets a guard, so one that never ends throws (and shows as the block's error) instead of freezing the canvas
+  const js = guardLoops(transform(code, { transforms: ['typescript', 'jsx', 'imports'], jsxRuntime: 'automatic', production: true, filePath: `${name}.tsx` }).code, '__loopGuard');
   const module = { exports: {} as Record<string, unknown> };
   const require = (spec: string) => {
     // the block's CSS is applied by the canvas from its CSS pane; the import line stays so the saved file finds it
@@ -38,7 +43,7 @@ export function compile(name: string, code: string): Written {
     return IMPORTS[spec];
   };
   // oxlint-disable-next-line typescript/no-implied-eval -- the point of the playground: it runs the visitor's own block, in the sandbox only
-  new Function('require', 'module', 'exports', js)(require, module, module.exports);
+  new NativeFunction('require', 'module', 'exports', '__loopGuard', js)(require, module, module.exports, makeGuard());
   const C = module.exports[name] ?? module.exports.default;
   if (typeof C !== 'function') throw new Error(`${name}.tsx must export a component named ${name}.`);
   return C as Written;

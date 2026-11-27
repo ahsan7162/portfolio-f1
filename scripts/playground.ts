@@ -156,6 +156,8 @@ export function playground(root: string): Plugin {
     const path = req.url?.split('?')[0];
     if (path === `${FRAME}frame.html`) for (const [k, v] of Object.entries(FRAME_HEADERS)) res.setHeader(k, v);
     if (built && /^\/products\/playground(\/|\/index\.html)?$/.test(path ?? '')) res.setHeader('Content-Security-Policy', EDITOR_CSP);
+    // no other window keeps a hold on the editor (and so on the page being built)
+    if (/^\/products\/playground(\/|\/index\.html)?$/.test(path ?? '')) res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
     next();
   };
 

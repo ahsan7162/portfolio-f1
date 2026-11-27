@@ -20,6 +20,8 @@ export type FromFrame =
   | { t: 'ready' }
   /** Sent every second, so the editor can tell a canvas stuck in a loop. */
   | { t: 'tick' }
+  /** The canvas is being navigated away (by something in it): the editor replaces it. */
+  | { t: 'leaving' }
   /** Where each block is, in the canvas's viewport: its top and height, the scroll, the viewport's height. */
   | { t: 'layout'; tops: number[]; heights: number[]; view: number }
   /** The visitor clicked block `i` in the canvas. */
@@ -47,6 +49,7 @@ export function readFromFrame(data: unknown, count: number): FromFrame | null {
   switch (data.t) {
     case 'ready':
     case 'tick':
+    case 'leaving':
       return { t: data.t };
     case 'layout': {
       const { tops, heights, view } = data;

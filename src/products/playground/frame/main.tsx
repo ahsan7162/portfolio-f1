@@ -15,6 +15,7 @@ import { Detail } from '../../detail/Detail';
 import type { Product } from '../../types';
 import { readToFrame, type FromFrame, type Source } from '../protocol';
 import { compile, type Written } from './compile';
+import { guardLoops, makeGuard } from './loopGuard';
 import './frame.css';
 
 const root = createRoot(document.getElementById('root')!);
@@ -39,9 +40,13 @@ function start() {
   }
   // the policy already refuses a beacon's request; this makes the call itself fail, so nothing is even queued
   Object.defineProperty(navigator, 'sendBeacon', { value: () => false, writable: false, configurable: false });
+  guardDynamicCode();
 
   const send = (msg: FromFrame) => window.parent.postMessage(msg, editor);
   markRevealed();
+  // Registered before any written code runs, so nothing can take it away: if the canvas is navigated off, say so.
+  // pagehide, not beforeunload or unload: those would stop the browser from ending a stuck canvas's process at once.
+  addEventListener('pagehide', () => send({ t: 'leaving' }));
 
   // The canvas never navigates: a link click selects its block instead of leaving.
   document.addEventListener('click', e => {
@@ -70,11 +75,45 @@ function start() {
   send({ t: 'ready' });
 }
 
+/**
+ * Code a block builds while it runs (new Function, eval, a timer given a string) gets the same loop guards as the
+ * block itself, so a loop made that way also throws instead of freezing the canvas.
+ */
+function guardDynamicCode() {
+  const guard = makeGuard();
+  Object.defineProperty(window, '__loopGuard', { value: guard, writable: false, configurable: false });
+  const guarded = (src: unknown) => guardLoops(String(src), '__loopGuard');
+  type Ctor = new (...args: string[]) => unknown;
+  const wrap = (Orig: Ctor) => {
+    const Wrapped = function (this: unknown, ...args: string[]) {
+      if (args.length) args[args.length - 1] = guarded(args.at(-1));
+      return Reflect.construct(Orig, args);
+    } as unknown as Ctor;
+    Object.defineProperty(Wrapped, 'prototype', { value: Orig.prototype });
+    Object.defineProperty(Orig.prototype, 'constructor', { value: Wrapped, writable: false, configurable: false });
+    return Wrapped;
+  };
+  const ctorOf = (f: object) => (Object.getPrototypeOf(f) as { constructor: Ctor }).constructor;
+  for (const f of [async function () {}, function* () {}, async function* () {}]) wrap(ctorOf(f));
+  Object.defineProperty(window, 'Function', { value: wrap(Function as unknown as Ctor), writable: false, configurable: false });
+  // eval stays what it was (the policy allows it in the canvas only); this adds the guards
+  // oxlint-disable-next-line no-eval -- reading window.eval, to wrap it
+  const nativeEval = window.eval;
+  const guardedEval = (src: unknown) => nativeEval(typeof src === 'string' ? guarded(src) : (src as string));
+  Object.defineProperty(window, 'eval', { value: guardedEval, writable: false, configurable: false });
+  for (const name of ['setTimeout', 'setInterval'] as const) {
+    const native = window[name] as (h: unknown, ...rest: unknown[]) => number;
+    Object.defineProperty(window, name, { value: (h: unknown, ...rest: unknown[]) => native(typeof h === 'string' ? () => guardedEval(h) : h, ...rest), writable: false, configurable: false });
+  }
+}
+
 type Page = { product: Product; keys: string[]; selected: number };
 
 function Canvas({ send, onDrawn }: { send: (m: FromFrame) => void; onDrawn: () => void }) {
   const [page, setPage] = useState<Page | null>(null);
   const [written, setWritten] = useState<Record<string, Written>>({});
+  /** Bumped by every Run, so a block that failed gets another try with the new code. */
+  const [run, setRun] = useState(0);
 
   useEffect(() => {
     const sheets = new Map<string, CSSStyleSheet>();
@@ -95,6 +134,7 @@ function Canvas({ send, onDrawn }: { send: (m: FromFrame) => void; onDrawn: () =
       for (const name of sheets.keys()) if (!sources.some(s => s.name === name)) sheets.delete(name);
       document.adoptedStyleSheets = [...sheets.values()];
       setWritten(out);
+      setRun(n => n + 1);
     };
     const onMessage = (e: MessageEvent) => {
       if (e.source !== window.parent || e.origin !== editor) return;
@@ -125,7 +165,7 @@ function Canvas({ send, onDrawn }: { send: (m: FromFrame) => void; onDrawn: () =
         product={product}
         blocks={(
           <div className="dt-blocks">
-            {product.blocks.map((b, i) => <Guard key={keys[i]} i={i} send={send} block={b}><One block={b} product={product} /></Guard>)}
+            {product.blocks.map((b, i) => <Guard key={keys[i]} i={i} send={send} block={b} run={run}><One block={b} product={product} /></Guard>)}
           </div>
         )}
       />
@@ -134,12 +174,14 @@ function Canvas({ send, onDrawn }: { send: (m: FromFrame) => void; onDrawn: () =
 }
 
 /** One block behind its own error boundary: a block that fails to draw shows why, and the page around it stays. */
-type GuardProps = { i: number; send: (m: FromFrame) => void; block: unknown; children: ReactNode };
-class Guard extends Component<GuardProps, { error: string | null; block: unknown }> {
-  override state = { error: null as string | null, block: this.props.block };
+type GuardProps = { i: number; send: (m: FromFrame) => void; block: unknown; run: number; children: ReactNode };
+class Guard extends Component<GuardProps, { error: string | null; block: unknown; run: number }> {
+  override state = { error: null as string | null, block: this.props.block, run: this.props.run };
   static getDerivedStateFromError(e: unknown) { return { error: e instanceof Error ? e.message : String(e) }; }
-  // new data for the block: try drawing it again
-  static getDerivedStateFromProps(props: GuardProps, state: { block: unknown }) { return props.block === state.block ? null : { error: null, block: props.block }; }
+  // new data for the block, or new code: try drawing it again
+  static getDerivedStateFromProps(props: GuardProps, state: { block: unknown; run: number }) {
+    return props.block === state.block && props.run === state.run ? null : { error: null, block: props.block, run: props.run };
+  }
   override componentDidCatch(e: unknown, _info: ErrorInfo) { this.props.send({ t: 'fault', i: this.props.i, message: e instanceof Error ? e.message : String(e) }); }
   override render() {
     if (this.state.error === null) return this.props.children;

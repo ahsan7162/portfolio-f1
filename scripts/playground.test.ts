@@ -12,6 +12,7 @@ const rule = (source: string) => Object.fromEntries(vercel.headers.find(h => h.s
 void test('Vercel sends the canvas the same lockdown headers the dev and preview servers do', () => {
   assert.deepEqual(rule('/products/playground/frame.html'), FRAME_HEADERS);
   assert.equal(rule('/products/playground(/|/index\\.html)?')['Content-Security-Policy'], EDITOR_CSP);
+  assert.equal(rule('/products/playground(/|/index\\.html)?')['Cross-Origin-Opener-Policy'], 'same-origin');
   assert.match(FRAME_HEADERS['Content-Security-Policy'], /sandbox allow-scripts$/);
   assert.match(FRAME_HEADERS['Content-Security-Policy'], /connect-src 'none'/);
 });
