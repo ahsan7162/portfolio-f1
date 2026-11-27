@@ -18,6 +18,8 @@ import { parseTokens, type Token } from '../styles/tokenList';
 import '../styles/detail.css';
 import '../styles/frames.css';
 import '../styles/system.css';
+import { LiveBlocks } from './LiveBlocks';
+import { MotionLive } from './MotionLive';
 
 const TOKENS = parseTokens(tokensCss);
 const inSection = (s: string) => TOKENS.filter(t => t.section.startsWith(s));
@@ -29,7 +31,30 @@ const BRANDS = [...products.map(p => ({ name: p.name, hex: p.brand })), { name: 
 const SECTIONS = [
   ['rules', 'Rules'], ['colour', 'Colour'], ['type', 'Type'], ['space', 'Space'], ['corners', 'Corners'], ['lines', 'Lines and depth'],
   ['layers', 'Layers'], ['motion', 'Motion'], ['layout', 'Layout'], ['components', 'Components'], ['blocks', 'Blocks'], ['off', 'Off the scale'], ['writing', 'Writing and access'],
+  ['live', 'Every block, live'],
 ] as const;
+
+/**
+ * Scroll to a section or a live block. Live blocks mount as they near the screen and change the page's height on the
+ * way down, so the jump looks again where its target is, twice, once those above it have drawn.
+ */
+function jump(id: string) {
+  const go = () => scrollToEl(document.getElementById(id), 24);
+  go();
+  setTimeout(go, 700);
+  setTimeout(go, 1500);
+}
+
+/** The colours to try, as round swatches. */
+function BrandPick({ brand, setBrand }: { brand: string; setBrand: (hex: string) => void }) {
+  return (
+    <div className="sy-brand-pick" role="radiogroup" aria-label="Try a product's colour">
+      {BRANDS.map(b => (
+        <button key={b.hex} type="button" role="radio" aria-checked={brand === b.hex} aria-label={`${b.name}, ${b.hex}`} title={`${b.name} · ${b.hex}`} onClick={() => setBrand(b.hex)} style={{ background: b.hex }} />
+      ))}
+    </div>
+  );
+}
 
 /** What the browser makes of a token here and now: a colour as rgb, a length in px. */
 function useResolved(names: string[], as: 'color' | 'length') {
@@ -156,7 +181,7 @@ export function System() {
           <p className="pp-lede sy-lede"><Stop text="Every colour, size, space, corner, layer and duration the products pages use, each a named step in one file. This page draws them from that file." /></p>
           <div className="sy-cta">
             <a className="pp-btn" href={`${HOME}/playground`}>Build a page with them</a>
-            <a className="pp-btn pp-btn--ghost" href="#blocks" onClick={e => { e.preventDefault(); scrollToEl(document.getElementById('blocks'), 24); }}>See every block</a>
+            <a className="pp-btn pp-btn--ghost" href="#live" onClick={e => { e.preventDefault(); jump('live'); }}>See every block, live</a>
           </div>
         </header>
 
@@ -165,7 +190,7 @@ export function System() {
             <ol>
               {SECTIONS.map(([id, name], i) => (
                 <li key={id}>
-                  <a href={`#${id}`} aria-current={here === id ? 'true' : undefined} onClick={e => { e.preventDefault(); scrollToEl(document.getElementById(id), 24); }}>
+                  <a href={`#${id}`} aria-current={here === id ? 'true' : undefined} onClick={e => { e.preventDefault(); jump(id); }}>
                     <span>{String(i + 1).padStart(2, '0')}</span>{name}
                   </a>
                 </li>
@@ -195,11 +220,7 @@ export function System() {
                 ))}
               </div>
               <div className="sy-brand">
-                <div className="sy-brand-pick" role="radiogroup" aria-label="Try a product's colour">
-                  {BRANDS.map(b => (
-                    <button key={b.hex} type="button" role="radio" aria-checked={brand === b.hex} aria-label={`${b.name}, ${b.hex}`} title={`${b.name} · ${b.hex}`} onClick={() => setBrand(b.hex)} style={{ background: b.hex }} />
-                  ))}
-                </div>
+                <BrandPick brand={brand} setBrand={setBrand} />
                 <div className="sy-brand-show pp-branded" style={branded}>
                   <span className="pp-tag pp-mono">03</span>
                   <button type="button" className="pp-btn pp-btn--acc">Copy install command</button>
@@ -270,6 +291,7 @@ export function System() {
 
             <Section id="motion" aside={`${inSection('Motion').length} tokens`} title="Motion" head="Brisk out, quick in. Nothing trails the hand.">
               <Motion />
+              <MotionLive brand={brand} />
               <Table tokens={prefixed('--ease').concat(prefixed('--spring'))} />
               <Table tokens={prefixed('--t-')} sample="duration" />
               <div className="sy-table" role="table" aria-label="GSAP motion">
@@ -312,7 +334,7 @@ export function System() {
                   <ul className="sy-blocks">
                     {CATALOG.filter(e => e.group === g).map(e => (
                       <li key={e.type}>
-                        <a href={`${HOME}/playground`} className="sy-block">
+                        <a href={`#block-${e.type}`} className="sy-block" onClick={ev => { ev.preventDefault(); jump(`block-${e.type}`); }}>
                           <Glyph rects={e.glyph} className="pg-glyph sy-glyph" />
                           <b>{e.name}</b>
                           <span>{e.use}.</span>
@@ -346,6 +368,17 @@ export function System() {
             </Section>
           </div>
         </div>
+
+        <section className="sy-live-all" id="live" aria-labelledby="sy-live-h">
+          <div className="sy-live-bar pp-wrap">
+            <div>
+              <h2 id="sy-live-h" className="pp-lede">Every block, live<span className="pp-stop">.</span></h2>
+              <p className="pp-cap">Each drawn by its real component, as on a product's page, with its own motion as it comes into view. Pick a colour to see the samples in it.</p>
+            </div>
+            <BrandPick brand={brand} setBrand={setBrand} />
+          </div>
+          <LiveBlocks brand={brand} />
+        </section>
       </main>
     </div>
   );

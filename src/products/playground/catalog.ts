@@ -135,8 +135,16 @@ const SAMPLES: Partial<Record<BlockType, Block>> = {
 
 /** A block to drop: the sample, or for a block that draws a real product (its rules, its demo), that product's own first one. */
 export function sample(type: BlockType): Block {
-  const own = SAMPLES[type] ?? products.flatMap(p => p.blocks).find(b => b.type === type);
-  return own ? structuredClone(own) : { type: 'custom', name: 'Block', props: {} };
+  return structuredClone(sampleSource(type).block);
+}
+
+/** Where a block's starting content comes from: the sample about Acme Notes, or the first real product that uses it. */
+export function sampleSource(type: BlockType): { block: Block; from?: Product } {
+  const own = SAMPLES[type];
+  if (own) return { block: own };
+  const from = products.find(p => p.blocks.some(b => b.type === type));
+  const block = from?.blocks.find(b => b.type === type);
+  return block && from ? { block, from } : { block: { type: 'custom', name: 'Block', props: {} } };
 }
 
 /** Whether a block can draw on this product: scenes need the product's own live demo. */
@@ -146,7 +154,8 @@ export function fits(e: Entry, product: Pick<Product, 'stage'>) {
 
 export type Meta = Omit<Product, 'blocks'>;
 
-const ACME: Meta = {
+/** The made-up product the samples are about. */
+export const ACME: Meta = {
   slug: 'acme-notes', brand: '#FF6B3D', name: 'Acme Notes', lines: ['Acme', 'Notes'], kind: 'plugin', year: 2026,
   facts: ['for bb', 'v1.0', 'MIT'], line: 'Notes that live beside your code, one per branch. A made-up product, to arrange a page around.',
   hook: 'Where did that note go?', hint: 'Sample screens: this product does not exist.', stack: ['TypeScript', 'React'],
