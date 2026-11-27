@@ -205,7 +205,6 @@
 .sy-bf-page { position: relative; overflow: hidden; }
 .sy-bf-page iframe { display: block; border: 0; transform-origin: 0 0; background: var(--ground); transition: opacity var(--t-150); }
 .sy-bf-stage[data-status='drawing'] iframe { opacity: 0.4; }
-.sy-bf-hint { position: absolute; left: 50%; bottom: var(--sp-12); translate: -50% 0; padding: var(--sp-6) var(--sp-12); border-radius: var(--r-pill); background: color-mix(in srgb, var(--raise-2) 88%, transparent); color: var(--dim); font-size: var(--fs-11); pointer-events: none; }
 /* the block page inside the frame: no scrollbars; a block shorter than the screen sits in its middle (an auto margin
    never pushes a taller one off the top: that one is scaled to fit, from the top) */
 html.sy-view, html.sy-view body { overflow: hidden; }

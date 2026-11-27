@@ -150,7 +150,8 @@ export function BlockFrame({ brand, brands }: { brand: string; brands: { name: s
       <div className="sy-bf-main">
         <header className="sy-bf-head">
           <div>
-            <p className="pp-mono sy-dim">{String(at + 1).padStart(2, '0')} / {ORDER.length} · {entry.group}</p>
+            {/* the hint lives up here, not on the frame, where it would cover the block's own bottom edge */}
+            <p className="pp-mono sy-dim">{String(at + 1).padStart(2, '0')} / {ORDER.length} · {entry.group}<span aria-hidden="true"> · {at === ORDER.length - 1 ? 'the last block' : touch ? '↓ for the next block' : 'scroll for the next block'}</span></p>
             <h3 className="sy-bf-name">{entry.name} <code>{entry.type}</code></h3>
             <p className="sy-bf-use">{entry.use}. <span className="sy-dim">{from ? `Shown on ${from.name}, with its own data and colour: this block draws that product.` : 'Demo content, on Acme Notes, a product that does not exist.'}</span></p>
           </div>
@@ -176,7 +177,6 @@ export function BlockFrame({ brand, brands }: { brand: string; brands: { name: s
               style={{ width: page.w, height: page.h, transform: `scale(${scale})` }} data-status={status}
             />
           </div>
-          <p className="sy-bf-hint pp-mono" aria-hidden="true">{at === ORDER.length - 1 ? 'The last block' : touch ? '↓ for the next block' : 'Scroll for the next block'}</p>
         </div>
       </div>
     </div>
