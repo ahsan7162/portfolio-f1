@@ -84,6 +84,7 @@ export function BlockFrame({ brand, brands }: { brand: string; brands: { name: s
   const wheel = useRef({ lastAt: 0, lastSize: 0, hand: 0, movedAt: 0, carried: false });
   const onWheel = useCallback((e: WheelEvent) => {
     if (e.ctrlKey) return; // a pinch zooms
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return; // a sideways swipe scrolls what is under it (a swipe row)
     const dy = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? innerHeight : 1);
     const dir = Math.sign(dy);
     const r = stage.current?.getBoundingClientRect();
