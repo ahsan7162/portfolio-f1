@@ -168,7 +168,7 @@ export const Canvas = forwardRef<CanvasApi, Props>(function Canvas(p, ref) {
       {stuck && (
         <div className="pg-canvas-stuck" role="alert">
           <p className="pg-title">The canvas is stuck.</p>
-          <p className="pg-cap">A written block never stopped running, and the browser keeps that process busy until this tab closes. Your page is saved: close this tab and open the playground again, and written blocks will wait for Run.</p>
+          <p className="pg-cap">A written block never stopped running, and the browser keeps that process busy until this tab closes. Your page is saved: close this tab and open the playground again, and written blocks will wait for Run. If it is still stuck, quit the browser and open it again.</p>
         </div>
       )}
     </div>
