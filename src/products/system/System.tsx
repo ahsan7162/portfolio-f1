@@ -5,20 +5,19 @@ import { useEffect, useId, useLayoutEffect, useState, type CSSProperties, type R
 import { brandVars } from '../brand';
 import { products } from '../data';
 import { Label } from '../detail/blocks/shared';
-import { MOTION, ScrollTrigger } from '../motion';
+import { MOTION } from '../motion';
 import { HOME, Link } from '../router';
 import { scrollToEl } from '../scroll';
 import { BrowserFrame, PhoneFrame, Shot, WindowFrame } from '../stage/Frames';
 import { Stop } from '../stop';
-import { CATALOG, GROUPS } from '../playground/catalog';
-import { Glyph } from '../playground/Glyph';
+import { CATALOG } from '../playground/catalog';
 import { OFF_SCALE } from '../styles/offScale';
 import tokensCss from '../styles/tokens.css?raw';
 import { parseTokens, type Token } from '../styles/tokenList';
 import '../styles/detail.css';
 import '../styles/frames.css';
 import '../styles/system.css';
-import { LIVE_ORDER, LiveBlocks } from './LiveBlocks';
+import { BlockFrame } from './BlockFrame';
 import { MotionLive } from './MotionLive';
 
 const TOKENS = parseTokens(tokensCss);
@@ -30,8 +29,8 @@ const BRANDS = [...products.map(p => ({ name: p.name, hex: p.brand })), { name: 
 
 const SECTIONS = [
   ['rules', 'Rules'], ['colour', 'Colour'], ['type', 'Type'], ['space', 'Space'], ['corners', 'Corners'], ['lines', 'Lines and depth'],
-  ['layers', 'Layers'], ['motion', 'Motion'], ['layout', 'Layout'], ['components', 'Components'], ['blocks', 'Blocks'], ['off', 'Off the scale'], ['writing', 'Writing and access'],
-  ['live', 'Every block, live'],
+  ['layers', 'Layers'], ['motion', 'Motion'], ['layout', 'Layout'], ['components', 'Components'], ['off', 'Off the scale'], ['writing', 'Writing and access'],
+  ['blocks', 'Every block, live'],
 ] as const;
 
 /** The colours to try, as round swatches. */
@@ -136,33 +135,7 @@ export function System() {
   const [brand, setBrand] = useState(BRANDS[0].hex);
   const [here, setHere] = useState<string>('rules');
   const [wdth, setWdth] = useState(64);
-  /** Live blocks drawn now up to this one, so a jump lands once, where its target really is. */
-  const [upTo, setUpTo] = useState(-1);
-
-  // A jump to a live block first draws every block above it, lets them measure, then scrolls once. A demo that loads
-  // its own drawing a moment later can still move it: then, and only for those, one more look.
-  const jump = (id: string) => {
-    const at = LIVE_ORDER.findIndex(e => `block-${e.type}` === id);
-    if (at < 0) { scrollToEl(document.getElementById(id), 24); return; }
-    setUpTo(n => Math.max(n, at));
-    // after the newly drawn blocks have measured their pins (LiveBlocks remeasures 250 ms after a block mounts)
-    setTimeout(() => {
-      ScrollTrigger.refresh();
-      const el = document.getElementById(id);
-      // clear the live section's own sticky bar as well as the page's
-      const gap = 16 + (document.querySelector('.sy-live-bar')?.getBoundingClientRect().height ?? 0);
-      const want = gap + (document.querySelector<HTMLElement>('[data-sticky]')?.offsetHeight ?? 0);
-      scrollToEl(el, gap);
-      // Once there, hold it there while the blocks above finish loading (a demo's drawing, a font): when they change
-      // height, the scroll makes up the difference at once, so the target stays put. Smooth scrolling turns off the
-      // browser's own scroll anchoring, which would do this.
-      const lives = document.querySelector('.sy-lives');
-      if (!el || !lives) return;
-      const hold = new ResizeObserver(() => { if (Math.abs(el.getBoundingClientRect().top - want) > 2) scrollToEl(el, gap, true); });
-      setTimeout(() => { if (Math.abs(el.getBoundingClientRect().top - want) > 40) scrollToEl(el, gap, true); hold.observe(lives); }, 1100);
-      setTimeout(() => hold.disconnect(), 4000);
-    }, 320);
-  };
+  const jump = (id: string) => scrollToEl(document.getElementById(id), 24);
 
   // the index marks the section in view
   useEffect(() => {
@@ -197,7 +170,7 @@ export function System() {
           <p className="pp-lede sy-lede"><Stop text="Every colour, size, space, corner, layer and duration the products pages use, each a named step in one file. This page draws them from that file." /></p>
           <div className="sy-cta">
             <a className="pp-btn" href={`${HOME}/playground`}>Build a page with them</a>
-            <a className="pp-btn pp-btn--ghost" href="#live" onClick={e => { e.preventDefault(); jump('live'); }}>See every block, live</a>
+            <a className="pp-btn pp-btn--ghost" href="#blocks" onClick={e => { e.preventDefault(); jump('blocks'); }}>See every block, live</a>
           </div>
         </header>
 
@@ -343,25 +316,6 @@ export function System() {
               </div>
             </Section>
 
-            <Section id="blocks" aside={`${CATALOG.length} blocks`} title="Blocks" head={`${CATALOG.length} blocks. Any order, any number of times.`}>
-              {GROUPS.map(g => (
-                <div key={g} className="sy-group">
-                  <h4 className="pp-mono sy-dim">{g}</h4>
-                  <ul className="sy-blocks">
-                    {CATALOG.filter(e => e.group === g).map(e => (
-                      <li key={e.type}>
-                        <a href={`#block-${e.type}`} className="sy-block" onClick={ev => { ev.preventDefault(); jump(`block-${e.type}`); }}>
-                          <Glyph rects={e.glyph} className="pg-glyph sy-glyph" />
-                          <b>{e.name}</b>
-                          <span>{e.use}.</span>
-                          <code>{e.type}</code>
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </Section>
 
             <Section id="off" title="Off the scale" head="What is left to merge into a step.">
               <p className="pp-cap">These raw values in the page CSS have no token yet. Each merge changes how something looks, so it is done on its own, shown as before and after renders. The tests allow only these, so the list can only shrink.</p>
@@ -385,15 +339,12 @@ export function System() {
           </div>
         </div>
 
-        <section className="sy-live-all" id="live" aria-labelledby="sy-live-h">
-          <div className="sy-live-bar pp-wrap">
-            <div>
-              <h2 id="sy-live-h" className="pp-lede">Every block, live<span className="pp-stop">.</span></h2>
-              <p className="pp-cap">Each drawn by its real component, as on a product's page, with its own motion as it comes into view. Pick a colour to see the samples in it.</p>
-            </div>
-            <BrandPick brand={brand} setBrand={setBrand} />
+        <section className="sy-blocks-all pp-wrap" id="blocks" aria-labelledby="sy-blocks-h">
+          <div className="sy-blocks-head">
+            <h2 id="sy-blocks-h" className="pp-lede">Every block, live<span className="pp-stop">.</span></h2>
+            <p className="pp-cap">{CATALOG.length} blocks, each drawn by its real component as on a product's page, with its own motion. Scroll over the frame for the next one, or pick one in the list.</p>
           </div>
-          <LiveBlocks brand={brand} upTo={upTo} />
+          <BlockFrame brand="#FF6B3D" brands={BRANDS} />
         </section>
       </main>
     </div>

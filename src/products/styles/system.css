@@ -116,18 +116,11 @@
 .sy-frames { display: grid; grid-template-columns: 1fr 1fr 0.45fr; gap: var(--sp-24); align-items: end; margin-top: var(--sp-24); }
 .sy-frames > div { display: grid; gap: var(--sp-12); }
 
-/* blocks */
-.sy-group { margin-top: var(--flow-head); }
-.sy-blocks { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--sp-12); margin-top: var(--sp-12); }
-.sy-block { display: grid; gap: var(--sp-6); height: 100%; padding: var(--sp-16); border-radius: var(--r-14); box-shadow: inset 0 0 0 var(--stroke) var(--line); transition: box-shadow var(--t-180), background-color var(--t-180); }
-.sy-block:hover { box-shadow: inset 0 0 0 var(--stroke-2) var(--ink); background: var(--raise); }
-.sy-block b { font-family: var(--display); font-variation-settings: 'wdth' var(--wd-108); font-weight: var(--w-semibold); font-size: var(--fs-16); margin-top: var(--sp-6); }
-.sy-block span { color: var(--dim); font-size: var(--fs-14); line-height: var(--lh-label); }
-.sy-block code { font: var(--fs-11) var(--mono); color: var(--faint); }
 .sy-glyph { width: 64px; height: 45px; border-radius: var(--r-8); box-shadow: inset 0 0 0 var(--stroke) var(--line); }
 .sy-glyph rect[data-k='0'] { fill: var(--faint); }
 .sy-glyph rect[data-k='1'] { fill: color-mix(in srgb, var(--ink) 20%, transparent); }
 .sy-glyph rect[data-k='2'] { fill: none; stroke: var(--faint); stroke-width: 1.2; }
+.sy-glyph--sm { width: 36px; height: 25px; border-radius: var(--r-6); }
 
 /* off the scale */
 .sy-off { display: grid; gap: var(--sp-16); margin-top: var(--sp-24); }
@@ -179,31 +172,55 @@
 .sy-m-curtain { position: absolute; inset: 0; display: grid; place-items: center; background: color-mix(in oklch, var(--brand) 46%, var(--black)); transform: translateY(100%); }
 .sy-m-curtain span { --wdth: var(--wd-64); font-size: clamp(40px, 5vw, 72px); white-space: nowrap; }
 
-/* every block, live: full width, as on a product's page */
-.sy-live-all { margin: var(--sp-96) calc(-1 * var(--pad)) 0; border-top: var(--stroke) solid var(--line); scroll-margin-top: 64px; }
-.sy-live-bar { position: sticky; top: var(--sp-64); z-index: var(--z-float); display: flex; justify-content: space-between; align-items: center; gap: var(--sp-24); padding-block: var(--sp-16); background: var(--ground); border-bottom: var(--stroke) solid var(--line); }
-.sy-live-bar h2 { font-size: var(--fs-22); }
-.sy-live-bar .sy-brand-pick { grid-template-columns: repeat(9, 28px); }
-.sy-live-bar .sy-brand-pick button { width: 28px; height: 28px; }
-.sy-lives-title { padding-top: var(--sp-64); color: var(--dim); }
-/* room after the last block, so a jump to it can bring it to the top like any other */
-.sy-lives { padding-bottom: 50svh; }
-.sy-live { scroll-margin-top: 140px; border-bottom: var(--stroke) solid var(--line); }
-.sy-live-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: var(--sp-16); align-items: center; padding-top: var(--sp-40); }
-.sy-live-name b { font-family: var(--display); font-variation-settings: 'wdth' var(--wd-108); font-weight: var(--w-semibold); font-size: var(--fs-18); }
-.sy-live-name code { font: var(--fs-12) var(--mono); color: var(--faint); margin-left: var(--sp-8); }
-.sy-live-use { color: var(--ink); font-size: var(--fs-14); line-height: var(--lh-label); }
-.sy-live-page { padding-bottom: var(--sp-64); }
-.sy-live-page--wait { min-height: 70svh; }
-.sy-live-page .dt-blocks { --dt-gap: var(--sp-32); padding-bottom: 0; }
-
 @media (max-width: 899px) {
   .sy-motion-live { grid-template-columns: minmax(0, 1fr); }
-  .sy-live-bar { position: static; flex-direction: column; align-items: start; }
-  .sy-live-bar .sy-brand-pick { grid-template-columns: repeat(5, 28px); }
-  .sy-live-head { grid-template-columns: auto minmax(0, 1fr); }
-  .sy-live-try { grid-column: 1 / -1; justify-self: start; }
 }
 @media (max-width: 639px) {
   .sy-m-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+/* every block, live: one frame, a scroll per block */
+.sy-blocks-all { padding-top: var(--sp-96); padding-bottom: var(--sp-96); margin-inline: calc(-1 * var(--pad)); border-top: var(--stroke) solid var(--line); scroll-margin-top: 64px; }
+.sy-blocks-head { display: grid; gap: var(--sp-8); max-width: 70ch; }
+.sy-blocks-head h2 { font-size: var(--pp-head); }
+.sy-bf { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: var(--sp-24); margin-top: var(--flow-head); }
+.sy-bf-list ol { list-style: none; }
+.sy-bf-list > ol { position: sticky; top: 80px; max-height: calc(100svh - 120px); overflow-y: auto; overscroll-behavior: contain; display: grid; gap: var(--sp-14); padding-right: var(--sp-6); }
+.sy-bf-list p { padding: 0 var(--sp-8) var(--sp-4); font-size: var(--fs-11); }
+.sy-bf-list button { width: 100%; display: grid; grid-template-columns: 36px 1fr; gap: var(--sp-10); align-items: center; padding: var(--sp-6) var(--sp-8); border-radius: var(--r-8); text-align: left; color: var(--dim); font-size: var(--fs-14); transition: background-color var(--t-150), color var(--t-150); }
+.sy-bf-list button:hover { color: var(--ink); background: var(--raise); }
+.sy-bf-list button[aria-current='true'] { background: var(--ink); color: var(--ground); }
+.sy-bf-list button[aria-current='true'] .sy-glyph { box-shadow: inset 0 0 0 var(--stroke) var(--ground); }
+.sy-bf-main { display: grid; grid-template-rows: auto 1fr; gap: var(--sp-16); min-width: 0; }
+/* one shape for every block, so the frame under it never moves as the blocks change */
+.sy-bf-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: var(--sp-24); min-height: 104px; }
+.sy-bf-name { margin-top: var(--sp-6); font-family: var(--display); font-variation-settings: 'wdth' var(--wd-108); font-weight: var(--w-semibold); font-size: var(--fs-22); }
+.sy-bf-name code { font: var(--fs-12) var(--mono); color: var(--faint); margin-left: var(--sp-8); }
+.sy-bf-use { margin-top: var(--sp-4); font-size: var(--fs-14); max-width: 70ch; line-height: var(--lh-label); min-height: calc(2 * var(--lh-label) * 1em); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.sy-bf-acts { display: flex; gap: var(--sp-8); align-items: center; }
+.sy-bf-acts .pp-btn { min-height: 40px; padding: 0 var(--sp-16); }
+.sy-bf-tints { grid-template-columns: repeat(9, 22px); gap: var(--sp-6); margin-right: var(--sp-8); }
+.sy-bf-tints button { width: 22px; height: 22px; }
+.sy-bf-stage { position: relative; max-height: 80svh; display: grid; place-items: center; overflow: hidden; border-radius: var(--r-20); background: var(--ground); box-shadow: inset 0 0 0 var(--stroke) var(--line), var(--drop-frame); outline-offset: 4px; }
+.sy-bf-page { position: relative; overflow: hidden; }
+.sy-bf-page iframe { display: block; border: 0; transform-origin: 0 0; background: var(--ground); transition: opacity var(--t-150); }
+.sy-bf-stage[data-status='drawing'] iframe { opacity: 0.4; }
+.sy-bf-hint { position: absolute; left: 50%; bottom: var(--sp-12); translate: -50% 0; padding: var(--sp-6) var(--sp-12); border-radius: var(--r-pill); background: color-mix(in srgb, var(--raise-2) 88%, transparent); color: var(--dim); font-size: var(--fs-11); pointer-events: none; }
+/* the block page inside the frame: no scrollbars, and blocks sit flush to its top */
+html.sy-view, html.sy-view body { overflow: hidden; }
+html.sy-view .sy-view-blocks { --dt-gap: var(--sp-40); padding-bottom: var(--sp-40); transform-origin: top center; }
+
+@media (max-width: 1099px) {
+  .sy-bf-head { grid-template-columns: minmax(0, 1fr); }
+  .sy-bf-acts { flex-wrap: wrap; }
+}
+@media (max-width: 899px) {
+  .sy-bf { grid-template-columns: minmax(0, 1fr); }
+  .sy-bf-list > ol { position: static; max-height: none; display: flex; gap: var(--sp-6); overflow-x: auto; padding-bottom: var(--sp-8); }
+  .sy-bf-list > ol > li { display: contents; }
+  .sy-bf-list p { display: none; }
+  .sy-bf-list ol ol { display: flex; gap: var(--sp-6); }
+  .sy-bf-list button { white-space: nowrap; grid-template-columns: auto; padding: var(--sp-8) var(--sp-12); box-shadow: inset 0 0 0 var(--stroke) var(--line); border-radius: var(--r-pill); }
+  .sy-bf-list .sy-glyph { display: none; }
+}
+

@@ -1,0 +1,162 @@
+// Every block in one frame. A list of all of them on the left; on the right, a frame that shows one at a time, drawn
+// by its real component at desktop width and scaled to fit. Scrolling over the frame steps to the next or the previous
+// block (one gesture, one block); at the first or the last, the scroll goes on to the page. Arrow keys and the
+// Previous and Next buttons step too, and a pick in the list jumps.
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { HOME } from '../router';
+import { GROUPS, CATALOG, sampleSource, type Entry } from '../playground/catalog';
+import { Glyph } from '../playground/Glyph';
+import type { FrameMsg } from './BlockView';
+
+/** Every block, in the order the list shows them. */
+export const ORDER: Entry[] = GROUPS.flatMap(g => CATALOG.filter(e => e.group === g));
+/** The screen the blocks are drawn on inside the frame: a laptop, or on a narrow screen a phone, so each block lays out as a product's page lays it out there. */
+const LAPTOP = { w: 1440, h: 900 };
+const PHONE = { w: 390, h: 780 };
+/** A wheel gesture moves one block; the next can start once the wheel has been still this long. */
+const GESTURE_GAP = 220;
+
+export function BlockFrame({ brand, brands }: { brand: string; brands: { name: string; hex: string }[] }) {
+  const [at, setAt] = useState(0);
+  const [tint, setTint] = useState(brand);
+  const [n, setN] = useState(0);
+  const [box, setBox] = useState({ w: 0, h: 0 });
+  const [status, setStatus] = useState<'drawing' | 'drawn' | 'failed'>('drawing');
+  const [ready, setReady] = useState(false);
+  const frame = useRef<HTMLIFrameElement>(null);
+  const stage = useRef<HTMLDivElement>(null);
+  const list = useRef<HTMLOListElement>(null);
+  const atRef = useRef(at);
+  useLayoutEffect(() => { atRef.current = at; }, [at]);
+  const entry = ORDER[at];
+  const { from } = sampleSource(entry.type);
+
+  const go = useCallback((i: number) => { const j = Math.max(0, Math.min(ORDER.length - 1, i)); if (j !== atRef.current) { setStatus('drawing'); setAt(j); } }, []);
+
+  // keep the list's current item in view inside the list (a column, or a row on a phone), without moving the page
+  useEffect(() => {
+    const el = list.current?.querySelector<HTMLElement>(`[data-at="${at}"]`);
+    const l = list.current;
+    if (!el || !l) return;
+    const across = l.scrollWidth > l.clientWidth;
+    const r = el.getBoundingClientRect(), lr = l.getBoundingClientRect();
+    l.scrollBy(across ? { left: r.left - lr.left - lr.width / 2 + r.width / 2, behavior: 'smooth' } : { top: r.top - lr.top - lr.height / 2 + r.height / 2, behavior: 'smooth' });
+  }, [at]);
+
+  // the frame's size, for the scale
+  useEffect(() => {
+    const el = stage.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([e]) => setBox({ w: e.contentRect.width, h: e.contentRect.height }));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  // what the block page says: its height, and whether the block drew
+  useEffect(() => {
+    const onMessage = (e: MessageEvent<FrameMsg>) => {
+      if (e.origin !== location.origin || e.source !== frame.current?.contentWindow) return;
+      const m = e.data;
+      if (m?.t === 'ready') setReady(true);
+      if (m?.t === 'drawn' && m.type === ORDER[atRef.current]?.type) setStatus(m.error ? 'failed' : 'drawn');
+    };
+    addEventListener('message', onMessage);
+    return () => removeEventListener('message', onMessage);
+  }, []);
+
+  // tell the block page what to draw
+  useEffect(() => {
+    if (!ready) return;
+    frame.current?.contentWindow?.postMessage({ t: 'show', type: entry.type, brand: tint, n } satisfies FrameMsg, location.origin);
+  }, [ready, entry.type, tint, n]);
+
+  // a wheel gesture over the frame steps one block, until the list ends
+  const wheel = useRef({ acc: 0, last: 0, moved: false });
+  const onWheel = useCallback((e: WheelEvent) => {
+    const dir = Math.sign(e.deltaY);
+    const i = atRef.current;
+    if (!dir || (dir > 0 && i >= ORDER.length - 1) || (dir < 0 && i <= 0)) return; // the page scrolls on
+    e.preventDefault();
+    const w = wheel.current;
+    if (e.timeStamp - w.last > GESTURE_GAP) { w.acc = 0; w.moved = false; }
+    w.last = e.timeStamp;
+    w.acc += e.deltaY;
+    if (!w.moved && Math.abs(w.acc) > 40) { w.moved = true; go(i + dir); }
+  }, [go]);
+  const onKey = useCallback((e: KeyboardEvent) => {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { e.preventDefault(); go(atRef.current + 1); }
+    if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') { e.preventDefault(); go(atRef.current - 1); }
+  }, [go]);
+
+  // the wheel lands inside the block page (it is the iframe's document), so the frame listens there too
+  const attach = () => {
+    const win = frame.current?.contentWindow;
+    win?.addEventListener('wheel', onWheel, { passive: false });
+    win?.addEventListener('keydown', onKey);
+  };
+  useEffect(() => {
+    const el = stage.current;
+    el?.addEventListener('wheel', onWheel, { passive: false });
+    return () => el?.removeEventListener('wheel', onWheel);
+  }, [onWheel]);
+
+  const page = box.w && box.w < 700 ? PHONE : LAPTOP;
+  const scale = box.w ? Math.min(box.w / page.w, box.h / page.h, 1) : 0.5;
+  const touch = typeof matchMedia === 'function' && matchMedia('(hover: none)').matches;
+
+  return (
+    <div className="sy-bf">
+      <nav className="sy-bf-list" aria-label="Blocks">
+        <ol ref={list}>
+          {GROUPS.map(g => (
+            <li key={g}>
+              <p className="pp-mono sy-dim">{g}</p>
+              <ol>
+                {ORDER.map((e, i) => e.group === g && (
+                  <li key={e.type}>
+                    <button type="button" data-at={i} aria-current={i === at ? 'true' : undefined} onClick={() => go(i)}>
+                      <Glyph rects={e.glyph} className="pg-glyph sy-glyph sy-glyph--sm" />
+                      <span>{e.name}</span>
+                    </button>
+                  </li>
+                ))}
+              </ol>
+            </li>
+          ))}
+        </ol>
+      </nav>
+
+      <div className="sy-bf-main">
+        <header className="sy-bf-head">
+          <div>
+            <p className="pp-mono sy-dim">{String(at + 1).padStart(2, '0')} / {ORDER.length} · {entry.group}</p>
+            <h3 className="sy-bf-name">{entry.name} <code>{entry.type}</code></h3>
+            <p className="sy-bf-use">{entry.use}. <span className="sy-dim">{from ? `Shown on ${from.name}, with its own data and colour: this block draws that product.` : 'Demo content, on Acme Notes, a product that does not exist.'}</span></p>
+          </div>
+          <div className="sy-bf-acts">
+            {!from && (
+              <div className="sy-brand-pick sy-bf-tints" role="radiogroup" aria-label="The demo product's colour">
+                {brands.map(b => <button key={b.hex} type="button" role="radio" aria-checked={tint === b.hex} aria-label={`${b.name}, ${b.hex}`} title={b.name} onClick={() => setTint(b.hex)} style={{ background: b.hex }} />)}
+              </div>
+            )}
+            <button type="button" className="pp-btn pp-btn--ghost" onClick={() => go(at - 1)} disabled={at === 0} aria-label="Previous block">↑</button>
+            <button type="button" className="pp-btn pp-btn--ghost" onClick={() => go(at + 1)} disabled={at === ORDER.length - 1} aria-label="Next block">↓</button>
+            <button type="button" className="pp-btn pp-btn--ghost" onClick={() => setN(x => x + 1)}>Replay</button>
+            <a className="pp-btn pp-btn--ghost" href={`${HOME}/playground`}>Try it</a>
+          </div>
+        </header>
+        <div className="sy-bf-stage" ref={stage} data-type={entry.type} data-status={status} style={{ aspectRatio: `${page.w} / ${page.h}` }}>
+          <div className="sy-bf-page" style={{ width: page.w * scale, height: page.h * scale }}>
+            {/* oxlint-disable-next-line react/iframe-missing-sandbox -- the site's own page, trusted, same origin on purpose: the frame listens for the wheel inside it */}
+            <iframe
+              ref={frame} title={`${entry.name}, drawn live. Scroll over it, or use the arrow keys inside it, for the next block.`}
+              src={`${HOME}/system?view=block`} onLoad={attach}
+              style={{ width: page.w, height: page.h, transform: `scale(${scale})` }} data-status={status}
+            />
+          </div>
+          <p className="sy-bf-hint pp-mono" aria-hidden="true">{at === ORDER.length - 1 ? 'The last block' : touch ? '↓ for the next block' : 'Scroll for the next block'}</p>
+        </div>
+      </div>
+    </div>
+  );
+}

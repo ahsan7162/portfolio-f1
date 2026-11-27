@@ -1,28 +1,50 @@
-// The system page's live blocks: scroll it all so each mounts, then count what drew, what failed, and any errors.
-// Every block on /products/system draws, live, with no errors: node scripts/playground-check/system.mjs http://localhost:5174
-// MOTION=1 runs it with motion on (the entrances play as the page is scrolled).
+// The system page's block frame: every block draws in it with no errors, a scroll over the frame moves exactly one
+// block, and at the last block the scroll goes on to the page.   node scripts/playground-check/system.mjs http://localhost:5174
+// MOTION=1 runs it with motion on.
 import { chrome, sleep } from './cdp.mjs';
+const O = process.argv[2] ?? 'http://localhost:5174';
 const motion = process.env.MOTION === '1';
 const c = await chrome(9397, motion ? [] : ['--force-prefers-reduced-motion']);
+let failed = 0;
+const check = (n, ok, d = '') => { if (!ok) failed++; console.log(`${ok ? 'PASS' : 'FAIL'}  ${n}${d ? `  (${d})` : ''}`); };
 try {
-  const t = await c.tab(`${process.argv[2] ?? 'http://localhost:5174'}/products/system`, { width: 1440, height: 900 });
+  const t = await c.tab(`${O}/products/system`, { width: 1440, height: 900 });
   await sleep(4000);
-  await t.evaluate(`(async () => { const wait = ms => new Promise(r => setTimeout(r, ms)); let last = 0;
-    for (let pass = 0; pass < 3; pass++) { for (let y = 0; y < document.documentElement.scrollHeight; y += 600) { scrollTo(0, y); await wait(120); }
-      const h = document.documentElement.scrollHeight; if (h === last) break; last = h; } scrollTo(0, 0); await wait(800); })()`);
-  const out = await t.evaluate(`(() => {
-    const lives = [...document.querySelectorAll('.sy-live')];
-    return { total: lives.length,
-      drawn: lives.filter(l => l.querySelector('.dt-blocks > *')).length,
-      failed: lives.filter(l => /could not draw/.test(l.textContent)).map(l => l.id + ': ' + l.querySelector('.dt-blocks')?.textContent.slice(0, 160)),
-      empty: lives.filter(l => { const b = l.querySelector('.dt-blocks'); return b && b.getBoundingClientRect().height < 60; }).map(l => l.id),
-      height: document.documentElement.scrollHeight };
-  })()`);
-  console.log(JSON.stringify(out, null, 1));
-  const errs = t.events.filter(e => e.method === 'Runtime.exceptionThrown' && !e.sessionId).map(e => e.params.exceptionDetails.exception?.description?.split('\n')[0]?.slice(0, 160));
-  const cons = t.events.filter(e => e.method === 'Runtime.consoleAPICalled' && e.params.type === 'error' && !e.sessionId).map(e => JSON.stringify(e.params.args.map(a => a.value ?? a.description)).slice(0, 200));
-  console.log('exceptions:', errs.length, errs.slice(0, 6), '\nconsole errors:', cons.length, cons.slice(0, 6));
-  const ok = out.total > 0 && out.drawn === out.total && !out.failed.length && !out.empty.length && !errs.length && !cons.length;
-  console.log(ok ? 'PASS  every block drew, with no errors' : 'FAIL');
-  process.exitCode = ok ? 0 : 1;
+  await t.evaluate(`document.getElementById('blocks').scrollIntoView()`);
+  await sleep(1500);
+  const stage = `document.querySelector('.sy-bf-stage')`;
+  const state = () => t.evaluate(`[${stage}.dataset.type, ${stage}.dataset.status]`);
+  const waitDrawn = async () => { for (let i = 0; i < 40; i++) { const [, s] = await state(); if (s !== 'drawing') return s; await sleep(150); } return 'timeout'; };
+  check('the frame draws the first block', (await waitDrawn()) === 'drawn', (await state()).join(' '));
+
+  // a wheel gesture over the frame: one block on
+  const box = await t.evaluate(`(() => { const r = ${stage}.getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2 }; })()`);
+  const wheel = async dy => { for (let i = 0; i < 6; i++) { await t.send('Input.dispatchMouseEvent', { type: 'mouseWheel', x: box.x, y: box.y, deltaX: 0, deltaY: dy }); await sleep(16); } await sleep(400); };
+  const y0 = await t.evaluate('scrollY');
+  await wheel(60);
+  const [afterOne] = await state();
+  check('one scroll over the frame moves one block, and the page stays', afterOne === 'statement' && (await t.evaluate('scrollY')) === y0, `${afterOne}, page moved ${Math.round((await t.evaluate('scrollY')) - y0)}px`);
+  await wheel(-60);
+  check('scrolling back returns', (await state())[0] === 'stage');
+
+  // every block, picked from the list
+  const types = await t.evaluate(`[...document.querySelectorAll('.sy-bf-list button')].map(b => b.dataset.at)`);
+  const bad = [];
+  for (const i of types) {
+    await t.evaluate(`document.querySelector('.sy-bf-list button[data-at="${i}"]').click()`);
+    await sleep(120);
+    const s = await waitDrawn();
+    if (s !== 'drawn') bad.push(`${(await state())[0]}: ${s}`);
+  }
+  check(`all ${types.length} blocks draw in the frame`, bad.length === 0, bad.join(', '));
+
+  // at the last block, the scroll goes on to the page
+  const y1 = await t.evaluate('scrollY');
+  await wheel(80);
+  check('past the last block, the page scrolls on', (await t.evaluate('scrollY')) > y1);
+
+  const errs = t.events.filter(e => e.method === 'Runtime.exceptionThrown').map(e => e.params.exceptionDetails.exception?.description?.split('\n')[0]?.slice(0, 160));
+  const cons = t.events.filter(e => e.method === 'Runtime.consoleAPICalled' && e.params.type === 'error').map(e => JSON.stringify(e.params.args.map(a => a.value ?? a.description)).slice(0, 200));
+  check('no errors, in the page or the frame', !errs.length && !cons.length, [...errs, ...cons].slice(0, 4).join(' | '));
 } finally { c.kill(); }
+process.exit(failed ? 1 : 0);
