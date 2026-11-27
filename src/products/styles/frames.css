@@ -39,6 +39,8 @@
 .frm-window-body .frm-bar { height: 4.6em; padding: 0 2em; }
 .frm-title { flex: 1; margin-right: 6em; text-align: center; color: var(--dim); font: 500 1.7em/1 var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .frm-window-content { overflow: hidden; }
+/* a sample screen holds the usual 16:10 in any window, as on a stage: a gallery or a split of samples, in the playground */
+.frm-window-content > .frm-s { position: relative; aspect-ratio: 16 / 10; }
 .frm-window-content > img, .frm-window-content > video, .frm-window-content > svg { display: block; width: 100%; height: auto; }
 /* Space is held before the image loads: its own width and height when given, else the usual 16:10. */
 .frm-window-content > img { aspect-ratio: auto 16 / 10; }
