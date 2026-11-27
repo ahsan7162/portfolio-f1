@@ -6,6 +6,32 @@ const O = process.argv[2] ?? 'http://localhost:5174';
 const motion = process.env.MOTION === '1';
 const c = await chrome(9397, motion ? [] : ['--force-prefers-reduced-motion']);
 let failed = 0;
+/** What in the block page is still Acme's orange: a warm, saturated colour drawn anywhere, or one of Acme's pictures. */
+const ORANGE = `(() => {
+  const d = document.querySelector('.sy-bf-stage iframe').contentDocument, root = d.querySelector('.sy-view-blocks');
+  if (!root) return ['no block'];
+  const warm = v => (v.match(/rgba?\\([^)]+\\)/g) || []).some(c => {
+    const [r, g, b, a = 1] = c.match(/[\\d.]+/g).map(Number);
+    if (a < 0.15) return false;
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b), dd = mx - mn, l = (mx + mn) / 510;
+    if (!dd) return false;
+    const sat = l > 0.5 ? dd / (510 - mx - mn) : dd / (mx + mn);
+    const h = mx === r ? ((g - b) / dd + 6) % 6 * 60 : mx === g ? ((b - r) / dd + 2) * 60 : ((r - g) / dd + 4) * 60;
+    return sat > 0.45 && l > 0.25 && l < 0.85 && (h < 32 || h > 348);
+  });
+  const out = [];
+  for (const el of root.querySelectorAll('*')) {
+    for (const pseudo of [null, '::before', '::after']) {
+      const cs = d.defaultView.getComputedStyle(el, pseudo);
+      if (cs.display === 'none' || cs.visibility === 'hidden' || (pseudo && (cs.content === 'none' || cs.content === 'normal'))) continue;
+      for (const p of ['color', 'background-color', 'border-top-color', 'border-left-color', 'fill', 'stroke', 'box-shadow', 'background-image', 'outline-color'])
+        if (warm(cs.getPropertyValue(p))) out.push(el.tagName.toLowerCase() + '.' + String(el.className.baseVal ?? el.className).split(' ')[0] + (pseudo || '') + ' ' + p);
+      if (/acme-notes\\/(?!poster)/.test(cs.backgroundImage)) out.push('background picture ' + cs.backgroundImage.slice(0, 80));
+    }
+  }
+  for (const m of root.querySelectorAll('img')) if (/acme-notes\\/(?!poster)/.test(m.currentSrc || m.src)) out.push('picture ' + (m.currentSrc || m.src).split('/').pop());
+  return [...new Set(out)];
+})()`;
 const check = (n, ok, d = '') => { if (!ok) failed++; console.log(`${ok ? 'PASS' : 'FAIL'}  ${n}${d ? `  (${d})` : ''}`); };
 try {
   const t = await c.tab(`${O}/products/system`, { width: 1440, height: 900 });
@@ -81,16 +107,38 @@ try {
   await t.evaluate(`document.querySelector('.sy-bf-list button[data-at="0"]').click()`);
   await sleep(800);
 
-  // every block, picked from the list
+  // every block, picked from the list. The demo product in blue: no block keeps Acme's orange (a colour drawn warm,
+  // or one of Acme's pictures, the film's poster aside, which is footage)
+  const swatch = n => t.evaluate(`document.querySelectorAll('.sy-bf-tints button')[${n}]?.click()`);
+  await t.evaluate(`document.querySelector('.sy-bf-list button[data-at="0"]').click()`);
+  await sleep(600);
+  const blue = await t.evaluate(`[...document.querySelectorAll('.sy-bf-tints button')].findIndex(b => b.style.background.replaceAll(' ', '') === 'rgb(47,129,247)')`);
+  await swatch(blue);
+  await sleep(1200);
   const types = await t.evaluate(`[...document.querySelectorAll('.sy-bf-list button')].map(b => b.dataset.at)`);
-  const bad = [];
+  const bad = [], kept = [];
   for (const i of types) {
     await t.evaluate(`document.querySelector('.sy-bf-list button[data-at="${i}"]').click()`);
     await sleep(120);
     const s = await waitDrawn();
     if (s !== 'drawn') bad.push(`${(await state())[0]}: ${s}`);
+    if (!(await t.evaluate(`!!document.querySelector('.sy-bf-tints')`))) continue; // a real product's block, in its own colour
+    await sleep(900);
+    const left = await t.evaluate(ORANGE);
+    if (left.length) kept.push(`${(await state())[0]}: ${left.slice(0, 2).join(' | ')}`);
   }
   check(`all ${types.length} blocks draw in the frame`, bad.length === 0, bad.join(', '));
+  check('in another colour, no demo block keeps Acme\'s orange', blue >= 0 && kept.length === 0, blue < 0 ? 'no blue swatch' : kept.slice(0, 4).join('; '));
+  // and a colour picked while a block shows recolours it at once
+  await t.evaluate(`document.querySelector('.sy-bf-list button[data-at="0"]').click()`);
+  await waitDrawn();
+  await swatch(0); await sleep(900); await swatch(blue); await sleep(900);
+  const live = await t.evaluate(ORANGE);
+  check('a colour picked on a showing block recolours it at once', live.length === 0, live.slice(0, 2).join(' | '));
+  await swatch(0);
+  await t.evaluate(`document.querySelector('.sy-bf-list button[data-at="${types.at(-1)}"]').click()`);
+  await waitDrawn();
+  await sleep(600);
 
   // at the last block, the scroll goes on to the page
   const y1 = await t.evaluate('scrollY');
