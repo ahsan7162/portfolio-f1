@@ -22,7 +22,8 @@ export function BlockFrame({ brand, brands }: { brand: string; brands: { name: s
   const [n, setN] = useState(0);
   const [box, setBox] = useState({ w: 0, h: 0 });
   const [status, setStatus] = useState<'drawing' | 'drawn' | 'failed'>('drawing');
-  const [ready, setReady] = useState(false);
+  // counts the block page's loads: each one, a reload included, is told the current block afresh
+  const [ready, setReady] = useState(0);
   const frame = useRef<HTMLIFrameElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const list = useRef<HTMLOListElement>(null);
@@ -57,7 +58,7 @@ export function BlockFrame({ brand, brands }: { brand: string; brands: { name: s
     const onMessage = (e: MessageEvent<FrameMsg>) => {
       if (e.origin !== location.origin || e.source !== frame.current?.contentWindow) return;
       const m = e.data;
-      if (m?.t === 'ready') setReady(true);
+      if (m?.t === 'ready') setReady(r => r + 1);
       if (m?.t === 'drawn' && m.type === ORDER[atRef.current]?.type) setStatus(m.error ? 'failed' : 'drawn');
     };
     addEventListener('message', onMessage);

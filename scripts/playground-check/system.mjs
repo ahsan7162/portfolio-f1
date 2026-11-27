@@ -27,6 +27,11 @@ try {
   await wheel(-60);
   check('scrolling back returns', (await state())[0] === 'stage');
 
+  // the block page reloads (a dev hot reload, say): the frame tells it the current block again
+  await t.evaluate(`document.querySelector('.sy-bf-stage iframe').contentWindow.location.reload()`);
+  await sleep(3000);
+  check('after the block page reloads, it draws the block again', await t.evaluate(`!!document.querySelector('.sy-bf-stage iframe').contentDocument.querySelector('.sy-view-blocks .dt-block')`));
+
   // every block, picked from the list
   const types = await t.evaluate(`[...document.querySelectorAll('.sy-bf-list button')].map(b => b.dataset.at)`);
   const bad = [];
