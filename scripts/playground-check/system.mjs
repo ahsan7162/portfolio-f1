@@ -1,5 +1,5 @@
 // The system page's block frame: every block draws in it with no errors, a scroll over the frame moves exactly one
-// block, and at the last block the scroll goes on to the page.   node scripts/playground-check/system.mjs http://localhost:5174
+// block once the frame is all on screen (not while it is half below the fold), and at the last block the scroll goes on.   node scripts/playground-check/system.mjs http://localhost:5174
 // MOTION=1 runs it with motion on.
 import { chrome, sleep } from './cdp.mjs';
 const O = process.argv[2] ?? 'http://localhost:5174';
@@ -10,7 +10,8 @@ const check = (n, ok, d = '') => { if (!ok) failed++; console.log(`${ok ? 'PASS'
 try {
   const t = await c.tab(`${O}/products/system`, { width: 1440, height: 900 });
   await sleep(4000);
-  await t.evaluate(`document.getElementById('blocks').scrollIntoView()`);
+  // the whole frame on screen (a frame half below the fold lets the page scroll: checked below)
+  await t.evaluate(`document.querySelector('.sy-bf-stage').scrollIntoView({ block: 'center' })`);
   await sleep(1500);
   const stage = `document.querySelector('.sy-bf-stage')`;
   const state = () => t.evaluate(`[${stage}.dataset.type, ${stage}.dataset.status]`);
@@ -31,6 +32,25 @@ try {
   await t.evaluate(`document.querySelector('.sy-bf-stage iframe').contentWindow.location.reload()`);
   await sleep(3000);
   check('after the block page reloads, it draws the block again', await t.evaluate(`!!document.querySelector('.sy-bf-stage iframe').contentDocument.querySelector('.sy-view-blocks .dt-block')`));
+
+  // arriving by scrolling down: while the frame is half below the fold the page scrolls and no block steps; once it is
+  // all on screen, a new gesture steps one block
+  await t.evaluate(`scrollTo(0, scrollY + ${stage}.getBoundingClientRect().top - innerHeight * 0.6)`);
+  await sleep(800);
+  const near = () => t.evaluate(`(() => { const r = ${stage}.getBoundingClientRect(); return { x: r.x + r.width / 2, y: Math.max(100, Math.min(innerHeight - 40, r.y + 60)), top: r.top, bottom: r.bottom }; })()`);
+  const wheelAt = async (p, dy, n = 6) => { for (let i = 0; i < n; i++) { await t.send('Input.dispatchMouseEvent', { type: 'mouseWheel', x: p.x, y: p.y, deltaX: 0, deltaY: dy }); await sleep(16); } await sleep(400); };
+  const y2 = await t.evaluate('scrollY');
+  await wheelAt(await near(), 60, 3);
+  check('half on screen, a scroll over the frame moves the page, not the block', (await t.evaluate('scrollY')) > y2 && (await state())[0] === 'stage', `${Math.round((await t.evaluate('scrollY')) - y2)}px, ${(await state())[0]}`);
+  // a long gesture on: the page stops with the whole frame on screen, still on the first block
+  await wheelAt(await near(), 60, 12);
+  await sleep(1200);
+  const docked = await near(), ih = await t.evaluate('innerHeight');
+  check('scrolling in, the page stops with the whole frame on screen', docked.top >= 0 && Math.abs(docked.bottom - ih) <= 6 && (await state())[0] === 'stage', `bottom ${Math.round(docked.bottom)} of ${ih}, ${(await state())[0]}`);
+  const y3 = await t.evaluate('scrollY');
+  await wheelAt(await near(), 60);
+  check('all on screen, the next gesture steps one block and the page stays', (await state())[0] === 'statement' && (await t.evaluate('scrollY')) === y3, `${(await state())[0]}, page moved ${Math.round((await t.evaluate('scrollY')) - y3)}px`);
+  await wheelAt(await near(), -60);
 
   // every block, picked from the list
   const types = await t.evaluate(`[...document.querySelectorAll('.sy-bf-list button')].map(b => b.dataset.at)`);

@@ -1,9 +1,11 @@
 // Every block in one frame. A list of all of them on the left; on the right, a frame that shows one at a time, drawn
 // by its real component at desktop width and scaled to fit. Scrolling over the frame steps to the next or the previous
-// block (one gesture, one block); at the first or the last, the scroll goes on to the page. Arrow keys and the
+// block (one gesture, one block) once the whole frame is on screen; scrolling in, the page stops there. Before that,
+// and past the first or the last block, the scroll goes on to the page. Arrow keys and the
 // Previous and Next buttons step too, and a pick in the list jumps.
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { HOME } from '../router';
+import { targetY, wheelToY } from '../scroll';
 import { GROUPS, CATALOG, sampleSource, type Entry } from '../playground/catalog';
 import { Glyph } from '../playground/Glyph';
 import type { FrameMsg } from './BlockView';
@@ -71,17 +73,35 @@ export function BlockFrame({ brand, brands }: { brand: string; brands: { name: s
     frame.current?.contentWindow?.postMessage({ t: 'show', type: entry.type, brand: tint, n } satisfies FrameMsg, location.origin);
   }, [ready, entry.type, tint, n]);
 
-  // a wheel gesture over the frame steps one block, until the list ends
+  // A wheel gesture over the frame steps one block, while the whole frame is on screen and it has blocks left that way.
+  // Otherwise the frame moves the page itself: a wheel inside the block page never reaches the page's smooth scroller.
   const wheel = useRef({ acc: 0, last: 0, moved: false });
   const onWheel = useCallback((e: WheelEvent) => {
-    const dir = Math.sign(e.deltaY);
-    const i = atRef.current;
-    if (!dir || (dir > 0 && i >= ORDER.length - 1) || (dir < 0 && i <= 0)) return; // the page scrolls on
+    if (e.ctrlKey) return; // a pinch zooms
+    const dy = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? innerHeight : 1);
+    const dir = Math.sign(dy);
+    const r = stage.current?.getBoundingClientRect();
+    if (!dir || !r) return;
     e.preventDefault();
     const w = wheel.current;
-    if (e.timeStamp - w.last > GESTURE_GAP) { w.acc = 0; w.moved = false; }
-    w.last = e.timeStamp;
-    w.acc += e.deltaY;
+    // this page's clock: a wheel inside the block page carries that page's own timeStamp
+    const now = performance.now();
+    const i = atRef.current;
+    // on screen means below the page's sticky bar, too
+    const bar = document.querySelector<HTMLElement>('[data-sticky]')?.offsetHeight ?? 0;
+    const whole = r.top >= bar - 4 && r.bottom <= innerHeight + 4;
+    if (!whole || (dir > 0 && i >= ORDER.length - 1) || (dir < 0 && i <= 0)) {
+      // coming in, the page stops with the whole frame on screen, and the gesture that brought it there steps no block
+      const coming = dir > 0 ? r.top > bar && r.bottom > innerHeight : r.bottom < innerHeight && r.top < bar;
+      const dock = scrollY + (dir > 0 ? r.bottom - innerHeight : r.top - bar);
+      const y = targetY() + dy;
+      wheelToY(coming ? (dir > 0 ? Math.min(y, dock) : Math.max(y, dock)) : y);
+      w.last = now; w.moved = true;
+      return;
+    }
+    if (now - w.last > GESTURE_GAP) { w.acc = 0; w.moved = false; }
+    w.last = now;
+    w.acc += dy;
     if (!w.moved && Math.abs(w.acc) > 40) { w.moved = true; go(i + dir); }
   }, [go]);
   const onKey = useCallback((e: KeyboardEvent) => {
@@ -146,7 +166,8 @@ export function BlockFrame({ brand, brands }: { brand: string; brands: { name: s
             <a className="pp-btn pp-btn--ghost" href={`${HOME}/playground`}>Try it</a>
           </div>
         </header>
-        <div className="sy-bf-stage" ref={stage} data-type={entry.type} data-status={status} style={{ aspectRatio: `${page.w} / ${page.h}` }}>
+        {/* data-lenis-prevent-wheel: the wheel over the frame is the frame's (see onWheel), not the smooth scroller's */}
+        <div className="sy-bf-stage" ref={stage} data-type={entry.type} data-status={status} data-lenis-prevent-wheel style={{ aspectRatio: `${page.w} / ${page.h}` }}>
           <div className="sy-bf-page" style={{ width: page.w * scale, height: page.h * scale }}>
             {/* oxlint-disable-next-line react/iframe-missing-sandbox -- the site's own page, trusted, same origin on purpose: the frame listens for the wheel inside it */}
             <iframe

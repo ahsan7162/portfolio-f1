@@ -25,6 +25,14 @@ export function scrollToY(y: number, immediate = false, done?: () => void) {
   }
 }
 
+/** Where the page is headed: the smooth scroller's target, else where it is. */
+export const targetY = () => (lenis ? lenis.targetScroll : scrollY);
+/** Moves the page as a wheel would, smoothly when the smooth scroller is on: for a wheel it never sees (one inside a frame). */
+export function wheelToY(y: number) {
+  if (lenis) lenis.scrollTo(y);
+  else window.scrollTo({ top: y, behavior: 'instant' });
+}
+
 /** Move keyboard focus to a place on the page that is not a control (a heading, a section), so Tab carries on from there. */
 export function focusOn(el: Element | null | undefined) {
   if (!(el instanceof HTMLElement)) return;
