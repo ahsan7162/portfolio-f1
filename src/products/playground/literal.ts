@@ -200,7 +200,8 @@ export function print(v: Literal, indent = '', width = 110): string {
     if (!flat.includes('\n') && indent.length + flat.length <= width) return flat;
     return `[\n${v.map(x => inner + print(x, inner, width)).join(',\n')},\n${indent}]`;
   }
-  const keys = Object.keys(v);
+  // a key data.ts gives no value (an optional field written as `x ? y : undefined`) is left out, as JSON does
+  const keys = Object.keys(v).filter(key => (v as Record<string, unknown>)[key] !== undefined);
   if (!keys.length) return '{}';
   const k = (s: string) => (IDENT.test(s) ? s : quote(s));
   const flat = `{ ${keys.map(key => `${k(key)}: ${print(v[key], inner, Infinity)}`).join(', ')} }`;

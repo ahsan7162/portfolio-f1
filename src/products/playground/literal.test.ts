@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { products } from '../data';
-import { isLiteral, LiteralError, parse, print } from './literal';
+import { isLiteral, LiteralError, parse, print, type Literal } from './literal';
 
 void test('every real page reads back exactly as it was written', () => {
   for (const p of products) {
@@ -9,6 +9,11 @@ void test('every real page reads back exactly as it was written', () => {
     assert.ok(isLiteral(blocks), `${p.slug}: blocks are plain data`);
     assert.deepEqual(parse(print(blocks)), blocks, p.slug);
   }
+});
+
+void test('every real page can be written as it is in data.ts, optional fields left undefined and all', () => {
+  for (const p of products) assert.doesNotThrow(() => print(p.blocks as unknown as Literal), p.slug);
+  assert.equal(print({ a: 1, b: undefined } as unknown as Literal), '{ a: 1 }');
 });
 
 void test('reads what data.ts writes: bare keys, single quotes, trailing commas, comments, a declaration around it', () => {
