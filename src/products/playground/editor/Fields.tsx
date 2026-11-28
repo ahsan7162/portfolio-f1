@@ -6,6 +6,7 @@ import { products } from '../../data';
 import { ACME_NAMES, LIVE_NAMES, PARTS_NAMES, RULE_SET_NAMES, SURFACES_NAMES } from '../../stage/names';
 import { CATALOG, sample } from '../catalog';
 import { spliced, swapped } from '../doc';
+import { Icon } from './icons';
 
 type V = unknown;
 type Obj = Record<string, V>;
@@ -74,7 +75,7 @@ export function Field({ name, value, onChange, onRemove }: { name: string; value
   const head = (
     <span className="pg-field-head">
       <label className="pp-mono" htmlFor={id}>{title(name)}</label>
-      {onRemove && <button type="button" className="pg-x" onClick={onRemove} aria-label={`Remove ${title(name)}`}>×</button>}
+      {onRemove && <button type="button" className="pg-x" onClick={onRemove} aria-label={`Remove ${title(name)}`} title="Remove this field"><Icon name="close" /></button>}
     </span>
   );
   if (typeof value === 'string') {
@@ -140,9 +141,9 @@ function ListField({ name, id, items, onChange, head }: { name: string; id: stri
                 <button type="button" className="pg-item-name" aria-expanded={open === i} onClick={() => setOpen(open === i ? -1 : i)}>{summary || `Item ${i + 1}`}</button>
               )}
               <span className="pg-item-acts">
-                <button type="button" className="pg-x" onClick={() => move(i, -1)} disabled={i === 0} aria-label="Move up">↑</button>
-                <button type="button" className="pg-x" onClick={() => move(i, 1)} disabled={i === items.length - 1} aria-label="Move down">↓</button>
-                <button type="button" className="pg-x" onClick={() => onChange(spliced(items, i, 1))} aria-label={`Remove item ${i + 1}`}>×</button>
+                <button type="button" className="pg-x" onClick={() => move(i, -1)} disabled={i === 0} aria-label="Move up" title="Move up"><Icon name="up" /></button>
+                <button type="button" className="pg-x" onClick={() => move(i, 1)} disabled={i === items.length - 1} aria-label="Move down" title="Move down"><Icon name="down" /></button>
+                <button type="button" className="pg-x" onClick={() => onChange(spliced(items, i, 1))} aria-label={`Remove item ${i + 1}`} title="Remove"><Icon name="close" /></button>
               </span>
             </div>
             {!simple && open === i && <div className="pg-item-body"><Field name={`${name.replace(/s$/, '')} ${i + 1}`} value={it} onChange={nv => onChange(swapped(items, i, nv))} /></div>}

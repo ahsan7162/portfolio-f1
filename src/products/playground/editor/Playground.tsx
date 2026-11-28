@@ -11,6 +11,7 @@ import { LiteralError, MAX_SOURCE, parse, print, type Literal } from '../literal
 import { LIMITS, NAME } from '../protocol';
 import { savedNames } from '../../detail/blocks/saved/names';
 import { Glyph } from '../Glyph';
+import { Icon, MOD } from './icons';
 import { Canvas, type CanvasApi } from './Canvas';
 import { CodeEditor } from './CodeEditor';
 import { BlockFields, Field } from './Fields';
@@ -225,8 +226,8 @@ export function Playground() {
           {WIDTHS.map(w => <button key={w} type="button" role="radio" aria-checked={width === w} onClick={() => setWidth(w)}>{w}</button>)}
         </div>
         <span className="pg-grow" />
-        <button type="button" className="pg-icon" onClick={() => dispatch({ do: 'undo' })} disabled={!s.past.length} aria-label="Undo" title="Undo (⌘Z)">↶</button>
-        <button type="button" className="pg-icon" onClick={() => dispatch({ do: 'redo' })} disabled={!s.future.length} aria-label="Redo" title="Redo (⇧⌘Z)">↷</button>
+        <button type="button" className="pg-icon" onClick={() => dispatch({ do: 'undo' })} disabled={!s.past.length} aria-label="Undo" title={`Undo (${MOD}Z)`}><Icon name="undo" /></button>
+        <button type="button" className="pg-icon" onClick={() => dispatch({ do: 'redo' })} disabled={!s.future.length} aria-label="Redo" title={`Redo (⇧${MOD}Z)`}><Icon name="redo" /></button>
         <button type="button" className="pg-pill" onClick={copy}>{copied ? 'Copied' : 'Copy code'}</button>
         {TOKEN && <button type="button" className="pg-pill pg-pill--solid" onClick={savePage} disabled={!real} title={real ? `Write ${real.name}’s page into the repository` : 'Save writes a real product’s page: remix one to save it'}>Save page</button>}
       </header>
@@ -235,7 +236,7 @@ export function Playground() {
         {(['blocks', 'canvas', 'edit'] as const).map(p => <button key={p} type="button" aria-pressed={pane === p} onClick={() => setPane(p)}>{p === 'blocks' ? 'Blocks' : p === 'canvas' ? 'Page' : 'Edit'}</button>)}
       </nav>
 
-      {notice && <p className="pg-notice" role="status">{notice}<button type="button" className="pg-x" onClick={() => setNotice(null)} aria-label="Dismiss">×</button></p>}
+      {notice && <p className="pg-notice" role="status">{notice}<button type="button" className="pg-x" onClick={() => setNotice(null)} aria-label="Dismiss" title="Dismiss"><Icon name="close" /></button></p>}
 
       <aside className="pg-left" aria-label="Blocks">
         <section className="pg-layers" aria-labelledby="pg-layers-h">
@@ -345,10 +346,10 @@ export function Playground() {
                     <h2 className="pg-title">{nameOf(current)}</h2>
                   </div>
                   <div className="pg-acts">
-                    <button type="button" className="pg-icon" onClick={() => dispatch({ do: 'move', from: selected, to: selected - 1 })} disabled={selected === 0} aria-label="Move up">↑</button>
-                    <button type="button" className="pg-icon" onClick={() => dispatch({ do: 'move', from: selected, to: selected + 1 })} disabled={selected === doc.blocks.length - 1} aria-label="Move down">↓</button>
-                    <button type="button" className="pg-icon" onClick={() => dispatch({ do: 'duplicate', i: selected })} aria-label="Duplicate">⧉</button>
-                    <button type="button" className="pg-icon" onClick={() => dispatch({ do: 'remove', i: selected })} aria-label="Remove">✕</button>
+                    <button type="button" className="pg-icon" onClick={() => dispatch({ do: 'move', from: selected, to: selected - 1 })} disabled={selected === 0} aria-label="Move up" title="Move up (Alt+↑ in the list)"><Icon name="up" /></button>
+                    <button type="button" className="pg-icon" onClick={() => dispatch({ do: 'move', from: selected, to: selected + 1 })} disabled={selected === doc.blocks.length - 1} aria-label="Move down" title="Move down (Alt+↓ in the list)"><Icon name="down" /></button>
+                    <button type="button" className="pg-icon" onClick={() => dispatch({ do: 'duplicate', i: selected })} aria-label="Duplicate" title="Duplicate"><Icon name="copy" /></button>
+                    <button type="button" className="pg-icon" onClick={() => dispatch({ do: 'remove', i: selected })} aria-label="Remove" title="Remove (Delete in the list)"><Icon name="remove" /></button>
                   </div>
                 </div>
                 {faults[doc.keys[selected]] && <p className="pg-fault" role="alert">It could not draw: {faults[doc.keys[selected]]}</p>}
@@ -397,7 +398,7 @@ export function Playground() {
         <div className="pg-dialog-in">
           <div className="pg-dialog-top">
             <h2 id="pg-start-h" className="pg-big">Start a page<span className="pg-stop">.</span></h2>
-            <button type="button" className="pg-icon" onClick={() => startDialog.current?.close()} aria-label="Close">✕</button>
+            <button type="button" className="pg-icon" onClick={() => startDialog.current?.close()} aria-label="Close" title="Close (Esc)"><Icon name="close" /></button>
           </div>
           <p className="pg-cap">Pick a shape to start from, or remix a real product’s page. Starting again can be undone.</p>
           <h3 className="pg-h pp-mono">Shapes</h3>
