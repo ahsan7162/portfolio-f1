@@ -21,6 +21,8 @@ type Props = {
   onBuilt: (name: string, error: string | null) => void;
   onFault: (i: number, message: string) => void;
   onTrouble: (why: 'stuck' | 'left') => void;
+  /** How large the page is drawn, for the canvas's bar. */
+  onScale?: (scale: number) => void;
 };
 
 const FRAME = '/products/playground/frame.html';
@@ -46,6 +48,7 @@ export const Canvas = forwardRef<CanvasApi, Props>(function Canvas(p, ref) {
   useLayoutEffect(() => { latest.current = p; });
 
   const scale = size.w ? Math.min(1, size.w / p.width) : 1;
+  useEffect(() => { latest.current.onScale?.(scale); }, [scale]);
   const send = useCallback((m: ToFrame) => frame.current?.contentWindow?.postMessage(m, '*'), []);
   // A new frame starts only once the old one is gone: a frame stuck in a loop holds its browser process, and a new
   // frame of the same site started at once would join that process and hang with it.

@@ -2,7 +2,7 @@
 // left (the page's own, to reorder, then every block there is, to add), the page is drawn in the middle by a
 // sandboxed canvas, and the right shows the picked block's fields and code, the page's code, and blocks being
 // written. Nothing here runs code: the page's code is read as data, and written blocks run only in the canvas.
-import { useEffect, useMemo, useReducer, useRef, useState, type PointerEvent as RPointerEvent } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState, type PointerEvent as RPointerEvent } from 'react';
 import { products } from '../../data';
 import { KINDS, type Block, type Kind, type Product, type StageKind } from '../../types';
 import { CATALOG, entry, fits, GROUPS, remix, sample, STARTERS, type BlockType, type Template } from '../catalog';
@@ -20,6 +20,7 @@ import { BlockFields, Field } from './Fields';
 import { starter, type WrittenBlock } from './written';
 
 const WIDTHS = [1440, 900, 390] as const;
+const WIDTH_NAMES: Record<(typeof WIDTHS)[number], string> = { 1440: 'A desktop, 1440 px wide', 900: 'A tablet, 900 px wide', 390: 'A phone, 390 px wide' };
 /** The token the dev server put on this page; a build has none, so Save is not offered there. */
 const TOKEN = document.querySelector<HTMLMetaElement>('meta[name="playground-save"]')?.content ?? '';
 const REAL = Object.fromEntries(products.map(p => [`real:${p.slug}`, p]));
@@ -82,6 +83,20 @@ export function Playground() {
   const [tab, setTab] = useState<'block' | 'page' | 'write'>('block');
   const [pane, setPane] = useState<'blocks' | 'canvas' | 'edit'>('canvas');
   const [notice, setNotice] = useState<string | null>(null);
+  const [scale, setScale] = useState(1);
+  // Full screen fills the screen with the canvas where the browser allows it, and the window where it doesn't.
+  const [full, setFull] = useState(false);
+  const enterFull = () => {
+    setFull(true);
+    document.documentElement.requestFullscreen().catch(() => { /* not allowed here: the canvas fills the window */ });
+  };
+  const exitFull = () => { setFull(false); if (document.fullscreenElement) void document.exitFullscreen(); };
+  useEffect(() => {
+    // Esc in the browser's own full screen leaves it without a key event here
+    const on = () => { if (!document.fullscreenElement) setFull(false); };
+    document.addEventListener('fullscreenchange', on);
+    return () => document.removeEventListener('fullscreenchange', on);
+  }, []);
   const [query, setQuery] = useState('');
   const canvas = useRef<CanvasApi>(null);
   const startDialog = useRef<HTMLDialogElement>(null);
@@ -101,15 +116,25 @@ export function Playground() {
   useEffect(() => { if (boot.fresh) startDialog.current?.showModal(); }, [boot.fresh]);
   useEffect(() => { const t = setTimeout(() => remember(s, written), 400); return () => clearTimeout(t); }, [s, written]);
 
-  // keys outside a field: undo and redo, the side panes, / to find a block
+  // what the keys below do with this render's state
+  const toggleFull = useRef(() => {});
+  const leave = useRef(() => {});
+  useLayoutEffect(() => {
+    toggleFull.current = () => (full ? exitFull() : enterFull());
+    leave.current = () => { if (full) exitFull(); };
+  });
+
+  // keys outside a field: undo and redo, the side panes, full screen, / to find a block
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const typing = e.target instanceof HTMLElement && e.target.closest('input, textarea, select, [contenteditable]');
-      if (typing) return;
+      if (typing || document.querySelector('dialog[open]')) return;
       const mod = e.metaKey || e.ctrlKey;
       if (mod && e.key.toLowerCase() === 'z') { e.preventDefault(); dispatch({ do: e.shiftKey ? 'redo' : 'undo' }); }
       // by the key's place, not its letter: Option changes the letter on a Mac
       else if (mod && e.code === 'KeyB') { e.preventDefault(); setLayout(l => (e.altKey ? { rightOpen: !l.rightOpen } : { leftOpen: !l.leftOpen })); }
+      else if (e.key === 'f' && !mod && !e.altKey) { e.preventDefault(); toggleFull.current(); }
+      else if (e.key === 'Escape') leave.current();
       else if (e.key === '/') {
         e.preventDefault(); setPane('blocks'); setLayout({ leftOpen: true });
         // the pane may have been closed: focus once it is drawn
@@ -222,7 +247,7 @@ export function Playground() {
 
   return (
     <div
-      className="pg" data-pane={pane} data-left={layout.leftOpen ? undefined : 'closed'} data-right={layout.rightOpen ? undefined : 'closed'}
+      className="pg" data-pane={pane} data-full={full ? '' : undefined} data-left={layout.leftOpen ? undefined : 'closed'} data-right={layout.rightOpen ? undefined : 'closed'}
       style={{ '--pg-left': `${leftWidth}px`, '--pg-right': `${rightWidth}px`, '--pg-split': `${layout.split * 100}%` } as React.CSSProperties}
     >
       <header className="pg-bar">
@@ -240,9 +265,6 @@ export function Playground() {
           {(Object.keys(KINDS) as Kind[]).map(k => (
             <button key={k} type="button" role="radio" aria-checked={doc.meta.kind === k} disabled={!doc.meta.sample && doc.meta.kind !== k} title={!doc.meta.sample ? 'A real product keeps its kind' : undefined} onClick={() => setKind(k)}>{KIND_NAMES[k]}</button>
           ))}
-        </div>
-        <div className="pg-seg pp-mono" role="radiogroup" aria-label="Canvas width">
-          {WIDTHS.map(w => <button key={w} type="button" role="radio" aria-checked={width === w} onClick={() => setWidth(w)}>{w}</button>)}
         </div>
         <span className="pg-grow" />
         <div className="pg-lay">
@@ -350,9 +372,17 @@ export function Playground() {
       )}
 
       <main className="pg-main" aria-label="The page">
+        <div className="pg-canvas-bar">
+          <div className="pg-seg pp-mono" role="radiogroup" aria-label="Canvas width">
+            {WIDTHS.map(w => <button key={w} type="button" role="radio" aria-checked={width === w} onClick={() => setWidth(w)} title={WIDTH_NAMES[w]}>{w}</button>)}
+          </div>
+          <span className="pg-scale pp-mono" title="How large the page is drawn here">{Math.round(scale * 100)}%</span>
+          <span className="pg-grow" />
+          <button type="button" className="pg-icon" aria-pressed={full} onClick={full ? exitFull : enterFull} aria-label="Full screen" title={full ? 'Leave full screen (Esc)' : 'Full screen (F)'}><Icon name={full ? 'unfull' : 'full'} /></button>
+        </div>
         <Canvas
           ref={canvas} product={product} keys={doc.keys} selected={selected} width={width}
-          sources={sources} armed={armed} dropAt={dropAt}
+          sources={sources} armed={armed} dropAt={dropAt} onScale={setScale}
           onPick={i => { dispatch({ do: 'select', i }); setTab('block'); }}
           onBuilt={(name, error) => setBuilt(b => ({ ...b, [name]: error }))}
           onFault={(i, message) => { const k = doc.keys[i]; if (k) setFaults(f => ({ ...f, [k]: message })); }}

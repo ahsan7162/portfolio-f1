@@ -87,8 +87,12 @@
 .pg-glyph rect[data-k='2'] { fill: none; stroke: var(--faint); stroke-width: 1.2; }
 
 /* middle: the canvas */
-.pg-main { grid-area: main; min-width: 0; min-height: 0; padding: var(--sp-16); background: color-mix(in srgb, var(--raise) 55%, var(--ground)); }
-.pg-canvas { position: relative; height: 100%; min-width: 0; overflow: hidden; display: grid; justify-items: center; }
+.pg-main { grid-area: main; display: grid; grid-template-rows: auto minmax(0, 1fr); gap: var(--sp-10); min-width: 0; min-height: 0; padding: var(--sp-10) var(--sp-16) var(--sp-16); background: color-mix(in srgb, var(--raise) 55%, var(--ground)); }
+.pg-canvas-bar { display: flex; align-items: center; gap: var(--sp-10); min-width: 0; }
+.pg-scale { color: var(--dim); font-size: var(--fs-11); }
+/* full screen: the canvas and its bar over everything, in the browser's full screen or, where it isn't allowed, the window */
+.pg[data-full] .pg-main { position: fixed; inset: 0; z-index: var(--z-bar); padding: var(--sp-10) var(--sp-12) var(--sp-12); }
+.pg-canvas { position: relative; height: 100%; min-width: 0; min-height: 0; overflow: hidden; display: grid; justify-items: center; }
 .pg-canvas-in { position: relative; overflow: hidden; border-radius: var(--r-14); box-shadow: 0 0 0 var(--stroke) var(--line), 0 40px 80px -30px var(--shadow-deep); background: var(--ground); }
 .pg-frame { display: block; border: 0; transform-origin: 0 0; background: var(--ground); }
 .pg-canvas-stuck { position: absolute; inset: 0; display: grid; place-content: center; justify-items: start; gap: var(--sp-12); padding: var(--sp-32); max-width: 52ch; margin: auto; }
@@ -214,12 +218,12 @@ select.pg-input { appearance: none; background-image: linear-gradient(45deg, tra
 @media (max-width: 899px) {
   .pg { grid-template: 'bar' var(--pg-bar) 'panes' auto 'note' auto 'one' 1fr / minmax(0, 1fr); }
   .pg-bar { gap: var(--sp-8); overflow-x: auto; }
-  .pg-bar .pg-seg[aria-label='Canvas width'], .pg-icon[aria-label='Redo'], .pg-lay, .pg-pane-x, .pg-split--x { display: none; }
+  .pg-icon[aria-label='Redo'], .pg-lay, .pg-pane-x, .pg-split--x { display: none; }
   .pg-panes { grid-area: panes; display: flex; gap: var(--sp-4); padding: var(--sp-8) var(--sp-12); border-bottom: var(--stroke) solid var(--line); }
   .pg-panes button { flex: 1; min-height: 36px; border-radius: var(--r-8); color: var(--dim); font-size: var(--fs-11); }
   .pg-panes button[aria-pressed='true'] { background: var(--ink); color: var(--ground); }
   .pg-left, .pg-main, .pg-right { grid-area: one; display: none; border: 0; }
   .pg[data-pane='blocks'] .pg-left, .pg[data-pane='canvas'] .pg-main, .pg[data-pane='edit'] .pg-right { display: grid; }
-  .pg-main { padding: var(--sp-8); }
+  .pg-main { padding: var(--sp-8); gap: var(--sp-8); }
 }
 .pg-crash { min-height: 100svh; display: grid; place-content: center; justify-items: start; gap: var(--sp-16); padding: var(--pad); max-width: 72ch; margin: 0 auto; }
