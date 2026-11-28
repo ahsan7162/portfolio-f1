@@ -15,6 +15,7 @@ import { ALT, Icon, MOD, SHIFT } from './icons';
 import { CANVAS_MIN, FRESH, LEFT, RIGHT, SPLIT, useLayout } from './layout';
 import { roving, stop } from './roving';
 import { Splitter } from './Splitter';
+import { Fold } from './Fold';
 import { Canvas, type CanvasApi } from './Canvas';
 import { CodeEditor } from './CodeEditor';
 import { BlockFields, Field } from './Fields';
@@ -126,7 +127,8 @@ export function Playground() {
   const startDialog = useRef<HTMLDialogElement>(null);
   const keysDialog = useRef<HTMLDialogElement>(null);
   const search = useRef<HTMLInputElement>(null);
-  const { layout, set: setLayout, vw, left: leftWidth, right: rightWidth } = useLayout();
+  const { layout, set: setLayout, fold, vw, left: leftWidth, right: rightWidth } = useLayout();
+  const opened = (id: string) => !layout.closed.includes(id);
   /** Shows or hides a side pane; a pane closed from inside hands the focus to its button in the top bar. */
   const toggle = (side: 'left' | 'right', from?: 'inside') => {
     setLayout(l => (side === 'left' ? { leftOpen: !l.leftOpen } : { rightOpen: !l.rightOpen }));
@@ -282,6 +284,8 @@ export function Playground() {
   const choose = (t: Template) => { dispatch({ do: 'template', t: structuredClone(t) }); startDialog.current?.close(); setTab('block'); };
   const setKind = (kind: Kind) => dispatch({ do: 'meta', meta: { kind, ...(doc.meta.sample ? { stage: STAGE_FOR[kind] } : {}) } });
 
+  const groupIds = [...GROUPS.map(g => `group:${g}`), ...(written.length ? ['group:written'] : [])];
+  const allFolded = groupIds.every(id => !opened(id));
   const found = (q: string) => CATALOG.filter(e => !q || `${e.name} ${e.use} ${e.type}`.toLowerCase().includes(q.toLowerCase()));
   const nameOf = (b: Block) => ('label' in b && typeof b.label === 'string' && b.label) || (b.type === 'custom' ? b.name : entry(b.type)?.name ?? b.type);
   const removeAt = (i: number) => {
@@ -338,13 +342,13 @@ export function Playground() {
         </p>
       )}
 
-      <aside className="pg-left" id="pg-left" aria-label="Blocks">
+      <aside className="pg-left" id="pg-left" aria-label="Blocks" data-layers={opened('layers') ? undefined : 'folded'}>
         <section className="pg-layers" id="pg-layers" aria-labelledby="pg-layers-h">
           <div className="pg-pane-head">
-            <h2 className="pg-h pp-mono" id="pg-layers-h">On this page · {doc.blocks.length}</h2>
+            <h2 className="pg-h pp-mono" id="pg-layers-h"><Fold open={opened('layers')} onToggle={() => fold('layers')} controls="pg-layer-list">On this page · {doc.blocks.length}</Fold></h2>
             <button type="button" className="pg-x pg-pane-x" onClick={() => toggle('left', 'inside')} aria-label="Hide the blocks" title="Hide the blocks ([)"><Icon name="close" /></button>
           </div>
-          <ol ref={layers} className="pg-layer-list">
+          <ol ref={layers} id="pg-layer-list" className="pg-layer-list" hidden={!opened('layers')}>
             {doc.blocks.map((b, i) => (
               <li key={doc.keys[i]} className="pg-layer" data-at={layerAt === i ? '' : undefined}>
                 <button
@@ -366,7 +370,7 @@ export function Playground() {
             ))}
             {layerAt === doc.blocks.length && <li className="pg-layer pg-layer--end" data-at="" aria-hidden="true" />}
           </ol>
-          {!doc.blocks.length && <p className="pg-empty">Drag a block onto the page, or pick one below.</p>}
+          {!doc.blocks.length && opened('layers') && <p className="pg-empty">Drag a block onto the page, or pick one below.</p>}
           <p id="pg-layer-keys" className="pp-sr">Alt and an arrow key moves a block; Delete removes it.</p>
         </section>
 
@@ -392,39 +396,50 @@ export function Playground() {
               : <kbd aria-hidden="true">/</kbd>}
           </label>
           <p id="pg-search-keys" className="pp-sr">Enter adds the first block found, after the picked one. Esc clears the search.</p>
+          {!query && (
+            <button type="button" className="pg-add pp-mono pg-fold-all" onClick={() => setLayout(l => ({ closed: allFolded ? l.closed.filter(x => !groupIds.includes(x)) : [...new Set([...l.closed, ...groupIds])] }))}>
+              {allFolded ? 'Open every group' : 'Fold every group'}
+            </button>
+          )}
           {query && !found(query).length && <p className="pg-empty pg-none" role="status">No block matches “{query}”. Try a word for what it shows, like screens or code.</p>}
           {GROUPS.map(g => {
             const items = found(query).filter(e => e.group === g);
             if (!items.length) return null;
+            // a search shows every group open, so nothing it finds is folded away
+            const id = `group:${g}`, open = !!query || opened(id), body = `pg-group-${g.toLowerCase().replace(/\W+/g, '-')}`;
             return (
               <div key={g} className="pg-group-list">
-                <h3 className="pg-h pp-mono">{g}</h3>
-                {items.map(e => {
-                  const ok = fits(e, doc.meta);
-                  return (
-                    <button
-                      key={e.type} type="button" className="pg-entry" disabled={!ok}
-                      title={ok ? `Add ${e.name} after the picked block, or drag it onto the page` : 'Needs a product whose stage is a live demo with scenes'}
-                      onPointerDown={ev => ok && beginDrag(ev, { add: e.type }, e.name)}
-                      onClick={() => { if (!dragged.current) add(sample(e.type)); }}
-                    >
-                      <Glyph rects={e.glyph} />
-                      <span><b>{e.name}</b><small>{ok ? e.use : 'Needs a live demo with scenes'}</small></span>
-                    </button>
-                  );
-                })}
+                <h3 className="pg-h pp-mono">{query ? g : <Fold open={open} onToggle={() => fold(id)} controls={body}>{g}<span className="pg-fold-n">{items.length}</span></Fold>}</h3>
+                <div id={body} hidden={!open}>
+                  {items.map(e => {
+                    const ok = fits(e, doc.meta);
+                    return (
+                      <button
+                        key={e.type} type="button" className="pg-entry" disabled={!ok}
+                        title={ok ? `Add ${e.name} after the picked block, or drag it onto the page` : 'Needs a product whose stage is a live demo with scenes'}
+                        onPointerDown={ev => ok && beginDrag(ev, { add: e.type }, e.name)}
+                        onClick={() => { if (!dragged.current) add(sample(e.type)); }}
+                      >
+                        <Glyph rects={e.glyph} />
+                        <span><b>{e.name}</b><small>{ok ? e.use : 'Needs a live demo with scenes'}</small></span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             );
           })}
           {written.length > 0 && (
             <div className="pg-group-list">
-              <h3 className="pg-h pp-mono">Written here</h3>
-              {written.map(w => (
-                <button key={w.name} type="button" className="pg-entry" onClick={() => { let props: Literal = {}; try { props = parse(w.props); } catch { /* the props pane shows the error */ } add({ type: 'custom', name: w.name, label: w.name, props: props as Record<string, unknown> }); }}>
-                  <Glyph rects={[[13, 7, 14, 14, 2], [17, 11, 6, 6, 1]]} />
-                  <span><b>{w.name}</b><small>{built[w.name] === undefined ? 'Press Run to draw it' : built[w.name] ? 'Does not compile' : 'Written here · TSX'}</small></span>
-                </button>
-              ))}
+              <h3 className="pg-h pp-mono"><Fold open={opened('group:written')} onToggle={() => fold('group:written')} controls="pg-group-written">Written here<span className="pg-fold-n">{written.length}</span></Fold></h3>
+              <div id="pg-group-written" hidden={!opened('group:written')}>
+                {written.map(w => (
+                  <button key={w.name} type="button" className="pg-entry" onClick={() => { let props: Literal = {}; try { props = parse(w.props); } catch { /* the props pane shows the error */ } add({ type: 'custom', name: w.name, label: w.name, props: props as Record<string, unknown> }); }}>
+                    <Glyph rects={[[13, 7, 14, 14, 2], [17, 11, 6, 6, 1]]} />
+                    <span><b>{w.name}</b><small>{built[w.name] === undefined ? 'Press Run to draw it' : built[w.name] ? 'Does not compile' : 'Written here · TSX'}</small></span>
+                  </button>
+                ))}
+              </div>
             </div>
           )}
         </section>

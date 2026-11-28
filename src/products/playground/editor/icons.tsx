@@ -13,6 +13,7 @@ const PATHS = {
   full: 'M3.5 7.5v-4h4M12.5 3.5h4v4M16.5 12.5v4h-4M7.5 16.5h-4v-4',
   unfull: 'M7.5 3.5v4h-4M16.5 7.5h-4v-4M12.5 16.5v-4h4M3.5 12.5h4v4',
   back: 'M12 4.5 6.5 10l5.5 5.5',
+  chevron: 'M8 5.5 12.5 10 8 14.5',
 } as const;
 
 export type IconName = keyof typeof PATHS;

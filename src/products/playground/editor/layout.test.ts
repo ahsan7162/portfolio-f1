@@ -29,4 +29,6 @@ void test('a stored layout is read field by field', () => {
   assert.deepEqual(readLayout('x'), FRESH);
   assert.deepEqual(readLayout({ left: '300', right: Infinity, split: 5, leftOpen: 'no', rightOpen: false }), { ...FRESH, split: 0.8, rightOpen: false });
   assert.deepEqual(readLayout({ left: 320, leftOpen: false }), { ...FRESH, left: 320, leftOpen: false });
+  assert.deepEqual(readLayout({ closed: ['layers', 7, 'x'.repeat(61), 'fields'] }).closed, ['layers', 'fields']);
+  assert.deepEqual(readLayout({ closed: 'layers' }).closed, []);
 });
