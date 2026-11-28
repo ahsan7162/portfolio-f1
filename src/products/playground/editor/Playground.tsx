@@ -121,7 +121,8 @@ export function Playground() {
   const leave = useRef(() => {});
   useLayoutEffect(() => {
     toggleFull.current = () => (full ? exitFull() : enterFull());
-    leave.current = () => { if (full) exitFull(); };
+    // Esc leaves full screen first, then lets go of the picked block
+    leave.current = () => { if (full) exitFull(); else if (selected >= 0) dispatch({ do: 'select', i: -1 }); };
   });
 
   // keys outside a field: undo and redo, the side panes, full screen, / to find a block
@@ -144,6 +145,9 @@ export function Playground() {
     addEventListener('keydown', onKey);
     return () => removeEventListener('keydown', onKey);
   }, [setLayout]);
+
+  // the picked block, however it was picked, is in view in the list
+  useEffect(() => { layers.current?.children[selected]?.scrollIntoView({ block: 'nearest' }); }, [selected]);
 
   const insertAt = selected >= 0 ? selected + 1 : doc.blocks.length;
   const add = (b: Block, at = insertAt) => { dispatch({ do: 'insert', block: b, at }); setTab('block'); };
@@ -417,6 +421,7 @@ export function Playground() {
           <div className="pg-panel" role="tabpanel" id="pg-panel-block" aria-labelledby="pg-tab-block">
             {current ? (
               <>
+                <button type="button" className="pg-back pp-mono" onClick={() => dispatch({ do: 'select', i: -1 })} title="Back to the page’s own settings (Esc)"><Icon name="back" />Page settings</button>
                 <div className="pg-block-head">
                   <div>
                     <p className="pp-mono pg-dim">{current.type === 'custom' ? `written here · ${current.name}` : entry(current.type)?.name}</p>

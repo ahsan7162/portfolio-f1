@@ -125,6 +125,9 @@
 .pg-panel { overflow-y: auto; overscroll-behavior: contain; padding: var(--sp-16) var(--sp-20) var(--sp-32); display: grid; align-content: start; gap: var(--sp-12); min-height: 0; }
 .pg-panel--code { grid-template-rows: auto 1fr; align-content: stretch; }
 .pg-panel .pg-h { padding: var(--sp-12) 0 0; }
+.pg-back { justify-self: start; display: inline-flex; align-items: center; gap: var(--sp-4); min-height: 28px; margin-left: calc(-1 * var(--sp-6)); padding: 0 var(--sp-10) 0 var(--sp-4); border-radius: var(--r-6); color: var(--dim); font-size: var(--fs-11); }
+.pg-back:hover { color: var(--ink); background: var(--raise-2); }
+.pg-back .pg-svg { width: 14px; height: 14px; }
 .pg-block-head { display: flex; justify-content: space-between; gap: var(--sp-12); align-items: start; }
 .pg-acts { display: flex; gap: var(--sp-6); }
 .pg-acts--wrap { flex-wrap: wrap; }
