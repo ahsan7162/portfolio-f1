@@ -1,6 +1,7 @@
 // Proves the playground's layout controls work with real input: the side panes hide and come back (buttons and keys)
 // and are remembered, the splitters resize by dragging across the canvas and by keys, the canvas goes full screen and
-// back, and the smaller controls (deselect, search, remove with undo, the save question, tabs, shortcuts) behave.
+// back, sections fold away and are remembered, and the smaller controls (deselect, search, remove with undo, the save
+// question, tabs, shortcuts) behave.
 //   node scripts/playground-check/layout.mjs http://localhost:5174
 import { chrome, sleep } from './cdp.mjs';
 
@@ -14,7 +15,13 @@ try {
   const ev = (x) => t.evaluate(x);
   const box = async sel => ev(`(() => { const r = document.querySelector(${JSON.stringify(sel)})?.getBoundingClientRect(); return r && r.width ? { x: r.x + r.width / 2, y: r.y + r.height / 2, w: r.width, h: r.height } : null; })()`);
   const mouse = (type, x, y, extra = {}) => t.send('Input.dispatchMouseEvent', { type, x, y, button: 'left', buttons: type === 'mouseReleased' ? 0 : 1, clickCount: 1, ...extra });
-  const click = async sel => { const b = await box(sel); if (!b) throw new Error(`nothing to click: ${sel}`); await mouse('mousePressed', b.x, b.y); await mouse('mouseReleased', b.x, b.y); await sleep(250); };
+  const click = async sel => {
+    // a real click lands only where the thing is on screen: bring it there first, as a visitor would scroll to it
+    await ev(`document.querySelector(${JSON.stringify(sel)})?.scrollIntoView({ block: 'nearest' })`);
+    const b = await box(sel);
+    if (!b) throw new Error(`nothing to click: ${sel}`);
+    await mouse('mousePressed', b.x, b.y); await mouse('mouseReleased', b.x, b.y); await sleep(250);
+  };
   // modifiers: 1 Alt, 2 Ctrl, 4 Meta, 8 Shift
   const key = async (k, code, modifiers = 0) => {
     // the browser's own handling (a modal dialog's Esc) goes by the key code
@@ -232,6 +239,51 @@ try {
   await click('.pg-keys-btn');
   check('so does its button in the top bar open it', await ev(`document.querySelector('.pg-keys').open`));
   await key('Escape', 'Escape');
+
+  // ---- folding sections away ----
+  const hidden = sel => ev(`(() => { const el = document.querySelector(${JSON.stringify(sel)}); return !!el && el.getBoundingClientRect().height === 0; })()`);
+  const paletteH = () => ev(`document.querySelector('.pg-palette').getBoundingClientRect().height`);
+  const p0 = await paletteH();
+  await click('[aria-controls="pg-layer-list"]');
+  check('the page\'s blocks fold away, and every block gets the room', (await hidden('#pg-layer-list')) && (await paletteH()) > p0 + 100 && (await hidden('.pg-split--y')), `${Math.round(p0)} → ${Math.round(await paletteH())}`);
+  await click('[aria-controls="pg-group-tell-it"]');
+  check('a group of blocks folds from its heading', (await hidden('#pg-group-tell-it')) && (await ev(`document.querySelector('[aria-controls="pg-group-tell-it"]').getAttribute('aria-expanded')`)) === 'false');
+  await ev(`location.reload()`);
+  await sleep(2500);
+  check('what is folded is remembered after a reload', (await hidden('#pg-layer-list')) && (await hidden('#pg-group-tell-it')) && !(await hidden('#pg-group-open-with')));
+  await click('.pg-fold-all');
+  check('one button folds every group', await ev(`[...document.querySelectorAll('.pg-palette .pg-group-list > div')].every(d => d.hidden)`));
+  await key('/', 'Slash');
+  await t.send('Input.insertText', { text: 'stat' });
+  await sleep(250);
+  check('a search shows what it finds, folded or not', await ev(`[...document.querySelectorAll('.pg-palette .pg-entry')].some(b => b.getBoundingClientRect().height > 0)`));
+  await key('Escape', 'Escape'); await key('Escape', 'Escape');
+  check('and the groups fold again once it is cleared', await ev(`[...document.querySelectorAll('.pg-palette .pg-group-list > div')].every(d => d.hidden)`));
+  await click('.pg-fold-all');
+  await click('[aria-controls="pg-layer-list"]');
+  check('the same button opens every group again', await ev(`[...document.querySelectorAll('.pg-palette .pg-group-list > div')].every(d => !d.hidden)`) && !(await hidden('#pg-layer-list')));
+  // the first block on the page with a list among its fields
+  await ev(`new Promise(ok => { const all = [...document.querySelectorAll('.pg-layer-btn')]; const next = i => { if (i >= all.length) return ok(false); all[i].click(); setTimeout(() => (document.querySelector('.pg-right fieldset.pg-list') ? ok(true) : next(i + 1)), 120); }; next(0); })`);
+  await sleep(200);
+  await click('[aria-controls="pg-block-code"]');
+  check('a block\'s code folds away', await hidden('#pg-block-code'));
+  await click('.pg-right fieldset.pg-list .pg-fold');
+  check('so does a list in its fields, keeping its count', (await ev(`document.querySelector('.pg-right fieldset.pg-list .pg-group-body').hidden`)) && /\d/.test(await ev(`document.querySelector('.pg-right fieldset.pg-list .pg-count').textContent`)));
+  await click('[aria-controls="pg-block-fields"]');
+  check('and the fields as a whole', await hidden('#pg-block-fields'));
+  await click('[aria-controls="pg-block-fields"]'); await click('[aria-controls="pg-block-code"]');
+  await ev(`document.querySelector('#pg-tab-write').click()`);
+  await sleep(200);
+  check('with nothing written, the new-block form always shows', !(await ev(`!!document.querySelector('[aria-controls="pg-new-block"]')`)) && !(await hidden('#pg-new-name')));
+  await ev(`(() => { const el = document.querySelector('#pg-new-name'); Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(el, 'Fold'); el.dispatchEvent(new Event('input', { bubbles: true })); })()`);
+  await sleep(150);
+  await ev(`document.querySelector('.pg-new button[type=submit]').click()`);
+  await sleep(250);
+  const codeH0 = await ev(`document.querySelector('.pg-write > .pg-code').getBoundingClientRect().height`);
+  await click('[aria-controls="pg-new-block"]');
+  const codeH1 = await ev(`document.querySelector('.pg-write > .pg-code').getBoundingClientRect().height`);
+  check('once a block is written, the form folds away and the code takes its room', (await hidden('#pg-new-block')) && codeH1 > codeH0, `${Math.round(codeH0)} → ${Math.round(codeH1)} px`);
+  await click('[aria-controls="pg-new-block"]');
 
   const errors = t.events.filter(e => e.method === 'Runtime.exceptionThrown' || (e.method === 'Log.entryAdded' && e.params.entry.level === 'error'));
   check('the editor logs no errors', errors.length === 0, errors.map(e => e.params.exceptionDetails?.exception?.description ?? e.params.entry?.text).join(' | ').slice(0, 300));
