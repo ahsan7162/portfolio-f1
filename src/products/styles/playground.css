@@ -214,7 +214,12 @@ select.pg-input { appearance: none; background-image: linear-gradient(45deg, tra
 .pg-t-p { color: var(--ink); }
 
 /* write a block */
-.pg-write { display: grid; gap: var(--sp-12); align-content: start; grid-template-rows: auto auto auto auto minmax(320px, 1fr) auto auto auto; height: 100%; }
+/* a column whose code pane takes the room left over, whichever optional rows show above and below it */
+.pg-panel--write { grid-template-rows: 1fr; }
+.pg-write { display: flex; flex-direction: column; gap: var(--sp-12); }
+.pg-write > .pg-code { flex: 1 0 320px; height: auto; }
+.pg-write > .pg-h { padding: 0; }
+.pg-new-block { display: grid; gap: var(--sp-12); }
 .pg-new { display: grid; grid-template-columns: 1fr auto; gap: var(--sp-8); align-items: center; }
 .pg-new small { grid-column: 1 / -1; font-size: var(--fs-12); }
 .pg-written { flex-wrap: wrap; border-radius: var(--r-12); }

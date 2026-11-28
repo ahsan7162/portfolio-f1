@@ -542,12 +542,13 @@ export function Playground() {
         )}
 
         {tab === 'write' && (
-          <div className="pg-panel pg-panel--code" role="tabpanel" id="pg-panel-write" aria-labelledby="pg-tab-write">
+          <div className="pg-panel pg-panel--code pg-panel--write" role="tabpanel" id="pg-panel-write" aria-labelledby="pg-tab-write">
             <Write
               written={written} setWritten={setWritten} built={built} armed={armed}
               onRun={() => { setBuilt({}); setArmed(false); requestAnimationFrame(() => setArmed(true)); }}
               onAdd={w => { let props: Literal = {}; try { props = parse(w.props); } catch { /* shown below */ } add({ type: 'custom', name: w.name, label: w.name, props: props as Record<string, unknown> }); }}
               onSave={TOKEN ? saveBlock : undefined}
+              intro={opened('new')} onIntro={() => fold('new')}
             />
           </div>
         )}
@@ -664,9 +665,11 @@ function Strip({ blocks }: { blocks: Block[] }) {
 }
 
 
-function Write({ written, setWritten, built, armed, onRun, onAdd, onSave }: {
+function Write({ written, setWritten, built, armed, onRun, onAdd, onSave, intro, onIntro }: {
   written: WrittenBlock[]; setWritten: (f: (w: WrittenBlock[]) => WrittenBlock[]) => void; built: Record<string, string | null>; armed: boolean;
   onRun: () => void; onAdd: (w: WrittenBlock) => void; onSave?: (w: WrittenBlock) => void;
+  /** Whether the intro and the new-block form show; with nothing written yet they always do. */
+  intro: boolean; onIntro: () => void;
 }) {
   const [at, setAt] = useState(0);
   const [file, setFile] = useState<'code' | 'css' | 'props'>('code');
@@ -683,13 +686,16 @@ function Write({ written, setWritten, built, armed, onRun, onAdd, onSave }: {
 
   return (
     <div className="pg-write">
-      <p className="pg-cap">A new block, in TSX, built from the system’s tokens and helpers. It runs only inside the sandboxed canvas, when you press Run.</p>
-      <form className="pg-new" onSubmit={e => { e.preventDefault(); if (!nameOk) return; setWritten(all => [...all, starter(name)]); setAt(written.length); setName(''); setFile('code'); }}>
-        <label className="pp-sr" htmlFor="pg-new-name">New block name</label>
-        <input id="pg-new-name" className="pg-input" value={name} placeholder="Name, e.g. Plans" onChange={e => setName(e.target.value.replace(/[^A-Za-z0-9]/g, ''))} aria-describedby="pg-new-hint" />
-        <button type="submit" className="pg-pill" disabled={!nameOk}>New block</button>
-        <small id="pg-new-hint" className="pg-dim">{name && !nameOk ? (written.some(x => x.name === name) ? 'That name is taken.' : 'A capital first, then letters and digits.') : 'A component name, like Plans.'}</small>
-      </form>
+      {written.length > 0 && <h3 className="pg-h pp-mono"><Fold open={intro} onToggle={onIntro} controls="pg-new-block">New block</Fold></h3>}
+      <div className="pg-new-block" id="pg-new-block" hidden={written.length > 0 && !intro}>
+        <p className="pg-cap">A new block, in TSX, built from the system’s tokens and helpers. It runs only inside the sandboxed canvas, when you press Run.</p>
+        <form className="pg-new" onSubmit={e => { e.preventDefault(); if (!nameOk) return; setWritten(all => [...all, starter(name)]); setAt(written.length); setName(''); setFile('code'); }}>
+          <label className="pp-sr" htmlFor="pg-new-name">New block name</label>
+          <input id="pg-new-name" className="pg-input" value={name} placeholder="Name, e.g. Plans" onChange={e => setName(e.target.value.replace(/[^A-Za-z0-9]/g, ''))} aria-describedby="pg-new-hint" />
+          <button type="submit" className="pg-pill" disabled={!nameOk}>New block</button>
+          <small id="pg-new-hint" className="pg-dim">{name && !nameOk ? (written.some(x => x.name === name) ? 'That name is taken.' : 'A capital first, then letters and digits.') : 'A component name, like Plans.'}</small>
+        </form>
+      </div>
       {written.length > 0 && (
         <div className="pg-seg pp-mono pg-written" role="tablist" aria-label="Written blocks">
           {written.map((x, i) => <button key={x.name} type="button" role="tab" aria-selected={i === at} tabIndex={stop(i === at)} onKeyDown={roving} onClick={() => { setAt(i); setSure(false); }}>{x.name}{built[x.name] ? ' !' : ''}</button>)}
