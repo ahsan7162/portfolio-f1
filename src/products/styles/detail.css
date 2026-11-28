@@ -4,10 +4,15 @@
 /* The top bar stays at the top of the screen (frosted below where the browser can blur). Its height, --dt-bar,
    places the jump list under it; scrollToEl() lands jumps below it ([data-sticky]). Solid ground without blur. */
 .dt-top { position: sticky; top: 0; z-index: var(--z-bar); min-height: var(--dt-bar); display: flex; justify-content: space-between; align-items: center; gap: var(--sp-16); background: var(--ground); }
-.dt-top-right { display: flex; align-items: center; gap: clamp(14px, 2vw, 24px); color: var(--dim); }
-.dt-top-link { transition: color var(--t-200); }
+.dt-top-right { display: flex; align-items: center; gap: var(--sp-4); margin-right: calc(-1 * var(--sp-10)); color: var(--dim); }
+.dt-top-link { transition: color var(--t-200), background-color var(--t-200), transform var(--t-160) var(--ease); }
 .dt-top-link:hover { color: var(--acc); }
-.dt-pos { color: inherit; cursor: pointer; }
+.dt-back, .dt-pos { display: inline-flex; align-items: center; gap: var(--sp-6); }
+.dt-pos { min-height: 40px; padding-inline: var(--sp-8); color: inherit; cursor: pointer; }
+.dt-top-link.pp-ib { border-radius: var(--r-round); }
+.dt-top-link.pp-ib:hover { background: color-mix(in srgb, var(--ink) 9%, transparent); }
+/* the list is open: its caret points back up */
+.dt-pos:has(+ .dt-jump:popover-open) > .pp-icon--caret { transform: rotate(180deg); }
 /* Jump to a product: a list of every product under the top bar. Fixed, like the bar (a popover sits in the top layer). */
 .dt-jump { position: fixed; inset: auto var(--pad) auto auto; top: calc(var(--dt-bar) - 6px); margin: 0; padding: var(--sp-8); width: min(380px, calc(100vw - 2 * var(--pad))); max-height: min(70svh, 560px); overflow-y: auto; overscroll-behavior: contain; background: var(--raise); color: var(--ink); border: var(--stroke) solid var(--line); border-radius: var(--r-14); box-shadow: 0 30px 60px var(--shadow-deep); }
 /* Without the Popover API the list would sit open over the page; Prev and Next still work there. */
@@ -309,6 +314,15 @@
 .pp-icon .pp-icon-tick { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset var(--t-350) var(--ease) var(--t-100), opacity var(--t-100); }
 .pp-icon .pp-icon-tick:not([data-on]) { transform: none; }
 .pp-icon .pp-icon-tick[data-on] { stroke-dashoffset: 0; }
+/* an arrow leans the way it leads under the pointer, and a step further while pressed; a cross turns a quarter */
+@media (hover: hover) {
+  :is(a, button):hover > :is(.pp-icon--prev, .pp-icon--back) { transform: translateX(-3px); }
+  :is(a, button):hover > .pp-icon--next { transform: translateX(3px); }
+  :is(a, button):hover > .pp-icon--out { transform: translate(2px, -2px); }
+  :is(a, button):hover > .pp-icon--close { transform: rotate(90deg); }
+}
+:is(a, button):active > .pp-icon--prev { transform: translateX(-6px); }
+:is(a, button):active > .pp-icon--next { transform: translateX(6px); }
 
 /* an icon-only button: square, named by its aria-label, and by a tip (data-tip) for a mouse or a keyboard */
 :is(button, a).pp-ib { width: var(--ib, 40px); min-width: var(--ib, 40px); height: var(--ib, 40px); min-height: var(--ib, 40px); padding: 0; display: inline-grid; place-items: center; }

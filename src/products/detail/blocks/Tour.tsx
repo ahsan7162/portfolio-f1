@@ -3,6 +3,7 @@ import { useEffect, useId, useRef } from 'react';
 import { pad } from '../../format';
 import { gsap, useGSAP } from '../../motion';
 import { PauseButton, HOLD } from './Cases';
+import { IconNext, IconPrev } from './icons';
 import { MediaView } from './MediaView';
 import { useRotate } from './rotate';
 import { Label, usePreload, type BlockProps } from './shared';
@@ -96,9 +97,10 @@ export function Tour({ block, product }: BlockProps<'tour'>) {
             </div>
           </div>
           <div className="bv-rot-bar bv-tour-bar">
-            <button type="button" className="bv-rot-btn pp-mono" onClick={() => r.go('prev')}>Previous</button>
-            <button type="button" className="bv-rot-btn pp-mono" onClick={() => r.go('next')}>Next</button>
+            {/* a player's order: back, pause, on */}
+            <button type="button" className="bv-rot-btn pp-ib" aria-label="Previous step" data-tip="Previous" onClick={() => r.go('prev')}><IconPrev /></button>
             <PauseButton r={r} />
+            <button type="button" className="bv-rot-btn pp-ib" aria-label="Next step" data-tip="Next" onClick={() => r.go('next')}><IconNext /></button>
           </div>
         </div>
         <div className="bv-rot-stack bv-tour-shots">

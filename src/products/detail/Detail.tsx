@@ -10,7 +10,7 @@ import { HOME, Link, productPath } from '../router';
 import { scrollToEl } from '../scroll';
 import { FILM_ID, findBlock, KINDS, type Product } from '../types';
 import { Blocks, listed } from './blocks';
-import { IconCopy } from './blocks/icons';
+import { IconBack, IconCaret, IconCopy, IconNext, IconPrev } from './blocks/icons';
 import { CopyStatus, Out, StoreButtons, SwapLabel, useCopy } from './blocks/shared';
 import { useFit } from './fit';
 import '../styles/detail.css';
@@ -95,11 +95,13 @@ export function Detail({ product, blocks }: { product: Product; blocks?: ReactNo
   return (
     <div className="dt pp-branded" ref={root} style={brandVars(product.brand)}>
       <nav className="dt-top pp-wrap pp-mono" aria-label="Products" data-sticky>
-        <Link to={HOME} className="dt-top-link"><span aria-hidden="true">←</span> All products</Link>
+        <Link to={HOME} className="dt-top-link dt-back"><IconBack /> All products</Link>
         {prev && next && (
           <span className="dt-top-right">
+            {/* a pager: back, where you are (it opens the list), on; the tips name the product either side */}
+            <Link to={productPath(prev.slug)} className="dt-top-link pp-ib" aria-label={`Previous: ${prev.name}`} data-tip={prev.name} data-tip-under=""><IconPrev /></Link>
             <button type="button" className="dt-top-link dt-pos pp-mono" popoverTarget="dt-jump" aria-label={`Product ${at + 1} of ${total}. Jump to a product`}>
-              {at + 1} / {total} <span aria-hidden="true">▾</span>
+              {at + 1} / {total} <IconCaret />
             </button>
             {/* A native popover: Escape and a click outside close it. data-lenis-prevent lets a long list scroll. */}
             <div id="dt-jump" popover="auto" className="dt-jump" ref={jump} data-lenis-prevent>
@@ -115,8 +117,7 @@ export function Detail({ product, blocks }: { product: Product; blocks?: ReactNo
                 ))}
               </ol>
             </div>
-            <Link to={productPath(prev.slug)} className="dt-top-link" aria-label={`Previous: ${prev.name}`}>Prev</Link>
-            <Link to={productPath(next.slug)} className="dt-top-link" aria-label={`Next: ${next.name}`}>Next</Link>
+            <Link to={productPath(next.slug)} className="dt-top-link pp-ib" aria-label={`Next: ${next.name}`} data-tip={next.name} data-tip-under=""><IconNext /></Link>
           </span>
         )}
       </nav>
