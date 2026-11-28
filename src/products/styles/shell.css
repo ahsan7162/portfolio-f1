@@ -20,10 +20,11 @@
 /* Curtain between pages, and the pointer dot. */
 .pp-curtain {
   position: fixed; inset: 0; z-index: var(--z-curtain); background: var(--raise-2); color: var(--ink);
-  display: grid; place-items: center; overflow: hidden; pointer-events: none; will-change: transform;
+  display: grid; place-items: center; padding-inline: var(--pad); overflow: hidden; pointer-events: none; will-change: transform;
 }
 /* opening onto a product: a deep shade of its colour */
 .pp-curtain[data-branded] { background: color-mix(in oklch, var(--brand) 46%, var(--black)); }
+/* the most a name grows to; a longer one is shrunk to fit between the gutters (fitLabel() in App.tsx) */
 .pp-curtain span { --wdth: var(--wd-64); font-size: clamp(64px, 17vw, 300px); white-space: nowrap; }
 
 .pp-cursor {

@@ -202,7 +202,7 @@ One trap: a token made from another token is resolved where it is declared (`:ro
 3. The surface adds the class `pp-branded`, which swaps `--acc` and `--on-acc` to the brand pair.
 4. Everything inside keeps using `--acc` and `--on-acc`. Never write a product's hex in CSS.
 
-Where the brand is allowed: a product's featured stage, its tile preview on the wall, its peek preview, its whole detail page (`<main class="dt pp-branded">`), and the page-change curtain, which takes a deep shade of the destination product (`color-mix(in oklch, <brand> 46%, #000000)`).
+Where the brand is allowed: a product's featured stage, its tile preview on the wall, its peek preview, its whole detail page (`<main class="dt pp-branded">`), and the page-change curtain, which takes a deep shade of the destination product (`color-mix(in oklch, <brand> 46%, #000000)`). The curtain carries the destination's name, at up to 17vw; a longer name is shrunk to fit between the page's gutters (`fitLabel()` in `App.tsx`), so no name runs off the screen.
 
 Where it is not: the hero, the catalogue chrome (filters, search, rows), the footer, the top bar.
 

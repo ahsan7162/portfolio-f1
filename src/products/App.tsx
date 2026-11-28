@@ -21,6 +21,21 @@ function tint(curtain: HTMLElement | null, brand?: string) {
   if (brand) curtain.style.setProperty('--brand', brand);
 }
 
+/**
+ * Shrinks the curtain's name to fit between the page's gutters (the curtain's padding): at the CSS size a long name
+ * ("OpenUI Live Replies") runs off both sides, while a short one keeps that size. Width scales with font-size, so one
+ * measurement gives the size that fits.
+ */
+function fitLabel(label: HTMLElement | null) {
+  const box = label?.parentElement;
+  if (!label || !box) return;
+  label.style.fontSize = '';
+  const cs = getComputedStyle(box);
+  const room = box.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  const width = label.getBoundingClientRect().width;
+  if (width > room) label.style.fontSize = `${Math.floor(((parseFloat(getComputedStyle(label).fontSize) * room) / width) * 10) / 10}px`;
+}
+
 /** The design system's reference page: its own chunk, so the main page and the product pages don't carry it. */
 const System = lazy(() => import('./system/System').then(m => ({ default: m.System })));
 
@@ -40,6 +55,16 @@ export function App() {
   /** The page the visit starts on: its name and colour go on the first curtain. */
   const [first] = useState(() => ({ name: product?.name ?? 'Products', brand: product?.brand }));
 
+  // The first name is on screen from the start: fit it now, again once the display font is in, and when the screen changes.
+  useLayoutEffect(() => {
+    const fit = () => fitLabel(label.current);
+    fit();
+    let live = true;
+    void document.fonts.ready.then(() => { if (live) fit(); });
+    addEventListener('resize', fit);
+    return () => { live = false; removeEventListener('resize', fit); };
+  }, []);
+
   useEffect(() => {
     if (reducedMotion()) return;
     // A light touch: enough to take the steps out of a mouse wheel without the page trailing behind the hand.
@@ -55,6 +80,7 @@ export function App() {
       const next = parseRoute(to.split('#')[0]);
       const target = next.page === 'detail' ? products.find(p => p.slug === next.slug) : undefined;
       if (label.current) label.current.textContent = target?.name ?? 'All products';
+      fitLabel(label.current);
       tint(curtain.current, target?.brand);
       covered.current = true;
       markCovered();
