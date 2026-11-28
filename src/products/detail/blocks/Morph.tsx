@@ -15,6 +15,8 @@ export function Morph({ block, product }: BlockProps<'morph'>) {
   useShowcaseFit(root, { stage: '.bv-morph-stage', top: '.bv-morph-bar', end: '.bv-morph-stage' });
   const id = useId();
   const [use, setUse] = useState(false);
+  // the switch shows the pick at once; the stage takes it when the flight lands
+  const [want, setWant] = useState(false);
   const busy = useRef(false);
   const lines = block.from.lines.map((l) => {
     const m = /^\{([\w-]+)\}/.exec(l);
@@ -34,6 +36,7 @@ export function Morph({ block, product }: BlockProps<'morph'>) {
   const flip = (to: boolean) => {
     const el = root.current;
     if (!el || busy.current || to === use) return;
+    setWant(to);
     if (reducedMotion()) { setUse(to); return; }
     busy.current = true;
     const [text, screen] = [el.querySelector('.bv-morph-text'), el.querySelector('.bv-morph-screen')];
@@ -83,8 +86,8 @@ export function Morph({ block, product }: BlockProps<'morph'>) {
       {block.head && <p className="bv-morph-head pp-lede">{bare(block.head)}</p>}
       <div className="bv-morph-bar" role="group" aria-label="Show the reply as">
         <Slide />
-        <Toggle className="pp-mono" pressed={!use} onPressedChange={() => flip(false)}>{block.from.name}</Toggle>
-        <Toggle className="pp-mono" pressed={use} onPressedChange={() => flip(true)}>{block.to.name}</Toggle>
+        <Toggle className="pp-mono" pressed={!want} onPressedChange={() => flip(false)}>{block.from.name}</Toggle>
+        <Toggle className="pp-mono" pressed={want} onPressedChange={() => flip(true)}>{block.to.name}</Toggle>
       </div>
       <div className="bv-morph-stage" data-use={use || undefined}>
         <div className="bv-morph-screen" inert={!use} aria-hidden={!use}>
