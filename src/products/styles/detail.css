@@ -301,6 +301,32 @@
 .dt-swap--on .dt-swap-a { transform: translateY(-105%); opacity: 0; }
 .dt-swap--on .dt-swap-b { transform: none; opacity: 1; }
 
+/* icons (blocks/icons.tsx): sized to the text beside them; a two-state icon's halves trade places with a quarter turn */
+.pp-icon { display: inline-block; width: 1.25em; height: 1.25em; flex: none; overflow: visible; vertical-align: -0.25em; transition: transform var(--t-200) var(--ease); }
+.pp-icon :is(.pp-icon-a, .pp-icon-b) { transform-box: fill-box; transform-origin: center; transition: opacity var(--t-150), transform var(--t-250) var(--ease); }
+.pp-icon :is(.pp-icon-a, .pp-icon-b):not([data-on]) { opacity: 0; transform: scale(0.4) rotate(-90deg); }
+/* copied: the tick draws itself in, just after the sheets go */
+.pp-icon .pp-icon-tick { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset var(--t-350) var(--ease) var(--t-100), opacity var(--t-100); }
+.pp-icon .pp-icon-tick:not([data-on]) { transform: none; }
+.pp-icon .pp-icon-tick[data-on] { stroke-dashoffset: 0; }
+
+/* an icon-only button: square, named by its aria-label, and by a tip (data-tip) for a mouse or a keyboard */
+:is(button, a).pp-ib { width: var(--ib, 40px); min-width: var(--ib, 40px); height: var(--ib, 40px); min-height: var(--ib, 40px); padding: 0; display: inline-grid; place-items: center; }
+:is(button, a).pp-ib > .pp-icon { width: 18px; height: 18px; }
+:is(button, a).pp-ib:active { transform: scale(0.92); }
+[data-tip] { position: relative; }
+@media (hover: hover) and (pointer: fine) {
+  [data-tip]::after {
+    content: attr(data-tip); position: absolute; z-index: 3; left: 50%; bottom: calc(100% + var(--sp-8)); translate: -50% var(--sp-4);
+    padding: var(--sp-4) var(--sp-8); border-radius: var(--r-4); background: var(--ink); color: var(--ground);
+    font-family: var(--mono); font-size: var(--fs-12); font-weight: var(--w-semibold); letter-spacing: 0; text-transform: none; white-space: nowrap;
+    opacity: 0; pointer-events: none; transition: opacity var(--t-150), translate var(--t-200) var(--ease);
+  }
+  /* under the button where above is off the screen (the top bar) */
+  [data-tip-under]::after { bottom: auto; top: calc(100% + var(--sp-8)); translate: -50% calc(-1 * var(--sp-4)); }
+  [data-tip]:is(:hover, :focus-visible)::after { opacity: 1; translate: -50% 0; transition-delay: var(--t-250); }
+}
+
 /* the film: the video fades in over the poster it replaces */
 .dt-film-video { background: var(--ground); @media (prefers-reduced-motion: no-preference) { animation: dt-fade-in var(--t-220) ease-out both; } }
 @keyframes dt-fade-in { from { opacity: 0; } }
