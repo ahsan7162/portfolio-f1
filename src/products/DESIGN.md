@@ -126,7 +126,8 @@ src/products/
     Detail.tsx                   top bar, hero, outline, the blocks, the Next band
     fit.ts                       useFit(): sizes a name to fill its width
     blocks/index.tsx             the registry: block type -> component; listed(), the blocks with their labels
-    blocks/shared.tsx            BlockProps, Label, useBlockMotion, countUp, useCopy, usePreload
+    blocks/shared.tsx            BlockProps, Label, useBlockMotion, countUp, useCopy, SwapLabel, CopyStatus, Slide, Out, usePreload
+    blocks/icons.tsx             the controls' icons (copy, play and pause, prev and next, back, caret, close, replay, link arrow) and spin()
     blocks/<Name>.tsx            one file per block type
     blocks/rotate.ts             the timer and index logic the cases, tour and scenes blocks share
     blocks/keyMatch.ts           which shortcut row a key press is (the keys block lights it)
@@ -313,14 +314,16 @@ It takes the GSAP setup both pages share, from `src/motion/gsap.ts`: the plugins
 2. **Blocks use `useBlockMotion`.** It handles reduced motion, the reveal, the pin query and cleanup. Do not build a bare `ScrollTrigger` in a block.
 3. **Every tween is a `from` or a `fromTo`.** CSS never hides content waiting for JavaScript. With reduced motion the block is simply its final state.
 4. **Entrances play once and never leave content hidden.** Use the `enter(el)` trigger from `useBlockMotion`: scrolled past fast, it lands on its end state.
-5. **Animate transforms, opacity and `clip-path`.** Not width, height, top or left. The one exception is the catalogue list's height during a filter change, which exists to stop its bottom edge jumping.
+5. **Animate transforms, opacity and `clip-path`.** Not width, height, top or left. The exceptions: the catalogue list's height during a filter change, which exists to stop its bottom edge jumping; the sliding fill's size (`Slide`), which is absolutely placed, so nothing reflows; and the compare line's width while it is held.
 6. **Keep it brisk.** Entrances run 0.45 to 0.75 s with staggers of 0.04 to 0.08 s. The page change is 0.45 s down and 0.55 s up. A reader should see content within about 0.8 s of the reveal.
 7. **Nothing trails the hand.** Smooth scrolling is Lenis at `lerp: 0.13`. Scrubbed animations use `scrub: true`, not a number, so they do not add a second layer of lag.
-8. **Scroll through the scroller.** Any programmatic scroll calls `scrollToY()` from `scroll.ts`. `window.scrollTo` fights Lenis.
+8. **Scroll through the scroller.** Any programmatic scroll calls `scrollToY()` from `scroll.ts`. `window.scrollTo` fights Lenis. `scrollToY()` rounds to whole pixels: Lenis never ends a smooth scroll whose target sits between two pixels, so its `done` would never run.
 9. **No blend modes or filters on full-screen layers.** They are recomposited on every scroll frame. The grain (on the car hero only, so the product screenshots sit on clean black) is plain opacity for this reason.
 10. **Decode images before they move.** A block with images that pin or slide calls `usePreload(root)`.
 11. **Layout changes use Flip.** Capture state, change the DOM with `flushSync`, then `Flip.from`. See `Catalogue.tsx` and `JiraDemo.tsx`.
 12. **Controls respond at once.** A press is immediate (about 0.07 s) and the release springs back (`.pp-btn`). Label swaps slide, they do not jump (`SwapLabel`).
+13. **Show what a press did.** Copy turns its sheets into a tick that draws itself in (`IconCopy`). Pause and Play trade places with a quarter turn (`IconPlayPause`). An again button's round arrow turns once (`spin()`, CSS declared only where motion is allowed). Arrows lean the way they lead under the pointer, a step further while pressed, and an × turns a quarter. A pick's fill slides to the next pick (`Slide`). A jump from the rail or Watch the film marks where it lands: the block's rule draws in in the product's colour and fades back, and the film's play button gives one beat (`landed()` in `Detail.tsx`). A switch shows its pick when it is clicked, even when what it drives takes a while to change (the morph).
+14. **Don't tween a transform on something centred with the CSS `translate` property.** GSAP folds `translate` into `transform` and sets it to `none`, so the element jumps. Drive a CSS variable instead: the film's play button beats through `--beat`, which feeds its `scale`, in a rule of its own so the minifier keeps it apart.
 
 Sections that take over the wheel do so through `setWheelGate()` in `scroll.ts` (the featured section is the only one; the system page's block frame takes the wheel over itself only, with its own listener, see section 18). Only wheel input is stepped; keys, the scrollbar and touch scroll freely. Do not add a second gate without checking it against `steptest.mjs`.
 
@@ -626,7 +629,7 @@ export function Pricing({ block }: BlockProps<'pricing'>) {
 - Pictures go through `MediaView`. Images inside use `loading="lazy"`; if they pin or slide, call `usePreload(root)`.
 - It works at 390 wide, with a pale, a dark and a vivid brand, with reduced motion, and by keyboard.
 - Non-trivial logic (a layout routine, a parser) lives in its own file with a test beside it. See `bentoLayout.ts` and `bentoLayout.test.ts`.
-- Reuse what exists: `pad` (`format.ts`), `scrollToEl` (`scroll.ts`), `KindFrame`, and from `shared.tsx` `Label`, `Out`, `countUp`, `useCopy`, `SwapLabel`, `CopyStatus`, `StoreButtons`, `usePreload`.
+- Reuse what exists: `pad` (`format.ts`), `scrollToEl` (`scroll.ts`), `KindFrame`, from `shared.tsx` `Label`, `Out`, `countUp`, `useCopy`, `SwapLabel`, `CopyStatus`, `Slide`, `StoreButtons`, `usePreload`, and the icons in `icons.tsx`. Controls follow the icon rules in [Accessibility](#14-accessibility).
 
 ---
 
@@ -685,6 +688,8 @@ export function Pricing({ block }: BlockProps<'pricing'>) {
 - Decorative elements carry `aria-hidden="true"`. Split letters are hidden and the heading carries the full text in `aria-label`.
 - Things that change announce themselves: copy confirmation (`CopyStatus`, `role="status"`), counts and tallies (`aria-live="polite"`).
 - Toggles use `aria-pressed`; the focused row in a demo uses `aria-current`.
+- **Icons on controls.** A button whose words are a verb (copy, pause, play, previous, next, again, close) is an icon from `icons.tsx`. A control whose words are the content (a tab's name, a part, a view, a setting, a prompt) keeps its words. The redrawn plugin screens inside the demos copy the real products' own UI: leave their controls as the product has them. The hero's install button, its film button and the get band's Copy keep their words beside the icon.
+- **Icon-only buttons** have the class `pp-ib` (square, 40 px unless `--ib` says otherwise, the icon at 18 px). Each carries an `aria-label` for screen readers and a `data-tip` that names it in a small tip for a mouse or a keyboard (no tip on touch, so the icon alone must be plain). In the top bar the tip goes under the button (`data-tip-under`). A copy button also has a `CopyStatus` (`role="status"`) that says what was copied. Don't put `data-cursor` on a small button: the pointer's 92 px label disc covers it.
 - Tabs, toggles, radio groups and checkboxes are ui-sdk components (`@ui-sdk/react/<name>`), which bring their keyboard handling, focus and ARIA. They render no styles: keep the classes and `data-on`, and style `aria-selected`, `aria-pressed` and `aria-checked` as before. Menus, popovers and the slash-command list in the demos stay hand-rolled: ui-sdk opens menus in the top layer, outside the film camera's transform.
 - Real images have `alt` that says what the screen shows. Posters and thumbs beside a text name use `alt=""`.
 - Text on a brand colour uses `--on-acc`, which `brandVars` picks for contrast. Secondary text and hints use `--dim`; `--faint` is never text.
@@ -765,7 +770,7 @@ The build gives every products URL its own HTML file (`scripts/products-seo.ts`,
 Things an agent will hit. Fix the one you need, as part of the work that needs it.
 
 - **The catalogue preview takes one image.** `home/Preview.tsx` shows `thumb`, or a sample screen without one. It does not read `shots`.
-- **Store buttons are disabled.** `StoreButtons` in `blocks/shared.tsx` has no URLs to link. When a real app ships, add the store links to the `get` block's `stores` variant and link them.
+- **Store buttons are disabled.** `StoreButtons` in `blocks/shared.tsx` has no URLs to link; for now they say Coming soon (a tip, and hidden words for a screen reader). When a real app ships, add the store links to the `get` block's `stores` variant and link them.
 - **Films have no captions.** The `film` block has no captions track. Add an optional captions path when a film has speech.
 - **Only PR Dashboard has a finish on the featured stage** (the flood and the Ready to merge stamp; the plugin itself never merges). It is tied to `stage === 'pr-demo'` in `Featured.tsx`. A second demo with an ending should turn that into something the demo reports, not a second special case.
 - **One demo is still in the products bundle.** The Jira Board, OpenUI, Markwright and PR Dashboard demos are their own chunks, each behind a placeholder of its exact size (`Stage.tsx`). Any products page fetches the Jira chunk once it is idle. The OpenUI kit is fetched by its own page and by the main page, at load, because the featured section mounts every featured stage, OpenUI's among them; other product pages never load it. Mounting a featured stage only as it nears the screen would keep the kit off the main page too. The bb Dashboards demo sizes itself by its content, so an empty box would jump when it arrives; and the Dashboards and Markwright kits are also used by live screens (`dash:*`, `md:tpl-*`) that `live.tsx` imports directly, so they stay in the bundle either way.
