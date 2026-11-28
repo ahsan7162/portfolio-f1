@@ -6,6 +6,7 @@ import { products } from '../../data';
 import { ACME_NAMES, LIVE_NAMES, PARTS_NAMES, RULE_SET_NAMES, SURFACES_NAMES } from '../../stage/names';
 import { CATALOG, sample } from '../catalog';
 import { spliced, swapped } from '../doc';
+import { Fold } from './Fold';
 import { Icon } from './icons';
 import { roving, stop } from './roving';
 
@@ -73,6 +74,8 @@ export function BlockFields({ block, onChange }: { block: Obj & { type: string }
 
 export function Field({ name, value, onChange, onRemove }: { name: string; value: V; onChange: (v: V) => void; onRemove?: () => void }) {
   const id = useId();
+  /** A group of fields (an object) folds away from its name. */
+  const [open, setOpen] = useState(true);
   const head = (
     <span className="pg-field-head">
       <label className="pp-mono" htmlFor={id}>{title(name)}</label>
@@ -113,10 +116,12 @@ export function Field({ name, value, onChange, onRemove }: { name: string; value
     if ('src' in value || 'sample' in value || 'live' in value) return <div className="pg-field">{head}<MediaField id={id} media={value} onChange={onChange} /></div>;
     return (
       <fieldset className="pg-group">
-        <legend>{head}</legend>
-        {Object.entries(value).map(([k, v]) => (
-          <Field key={k} name={k} value={v} onChange={nv => onChange({ ...value, [k]: nv })} />
-        ))}
+        <legend><Fold open={open} onToggle={() => setOpen(!open)} controls={`${id}-body`} label={`${open ? 'Fold' : 'Show'} ${title(name)}`} />{head}</legend>
+        <div className="pg-group-body" id={`${id}-body`} hidden={!open}>
+          {Object.entries(value).map(([k, v]) => (
+            <Field key={k} name={k} value={v} onChange={nv => onChange({ ...value, [k]: nv })} />
+          ))}
+        </div>
       </fieldset>
     );
   }
@@ -125,33 +130,37 @@ export function Field({ name, value, onChange, onRemove }: { name: string; value
 
 function ListField({ name, id, items, onChange, head }: { name: string; id: string; items: V[]; onChange: (v: V[]) => void; head: React.ReactNode }) {
   const [open, setOpen] = useState(0);
+  /** The whole list folds away from its name, leaving its count. */
+  const [shown, setShown] = useState(true);
   const move = (i: number, by: number) => { const j = i + by; if (j < 0 || j >= items.length) return; const n = [...items]; [n[i], n[j]] = [n[j], n[i]]; onChange(n); setOpen(j); };
   const simple = items.every(x => typeof x === 'string');
   return (
     <fieldset className="pg-group pg-list" id={id}>
-      <legend>{head}<span className="pg-count pp-mono">{items.length}</span></legend>
-      {items.map((it, i) => {
-        const summary = typeof it === 'string' ? it : isObj(it) ? (Object.values(it).find((x): x is string => typeof x === 'string') ?? `Item ${i + 1}`) : `Item ${i + 1}`;
-        return (
-          // oxlint-disable-next-line react/no-array-index-key -- list items have no identity of their own; the fields are controlled, so moving one moves its values
-          <div className="pg-item" key={i} data-open={simple || open === i ? '' : undefined}>
-            <div className="pg-item-bar">
-              {simple ? (
-                <input className="pg-input" aria-label={`${title(name)} ${i + 1}`} value={it as string} onChange={e => onChange(swapped(items, i, e.target.value))} />
-              ) : (
-                <button type="button" className="pg-item-name" aria-expanded={open === i} onClick={() => setOpen(open === i ? -1 : i)}>{summary || `Item ${i + 1}`}</button>
-              )}
-              <span className="pg-item-acts">
-                <button type="button" className="pg-x" onClick={() => move(i, -1)} disabled={i === 0} aria-label="Move up" title="Move up"><Icon name="up" /></button>
-                <button type="button" className="pg-x" onClick={() => move(i, 1)} disabled={i === items.length - 1} aria-label="Move down" title="Move down"><Icon name="down" /></button>
-                <button type="button" className="pg-x" onClick={() => onChange(spliced(items, i, 1))} aria-label={`Remove item ${i + 1}`} title="Remove"><Icon name="close" /></button>
-              </span>
+      <legend><Fold open={shown} onToggle={() => setShown(!shown)} controls={`${id}-body`} label={`${shown ? 'Fold' : 'Show'} ${title(name)}`} />{head}<span className="pg-count pp-mono">{items.length}</span></legend>
+      <div className="pg-group-body" id={`${id}-body`} hidden={!shown}>
+        {items.map((it, i) => {
+          const summary = typeof it === 'string' ? it : isObj(it) ? (Object.values(it).find((x): x is string => typeof x === 'string') ?? `Item ${i + 1}`) : `Item ${i + 1}`;
+          return (
+            // oxlint-disable-next-line react/no-array-index-key -- list items have no identity of their own; the fields are controlled, so moving one moves its values
+            <div className="pg-item" key={i} data-open={simple || open === i ? '' : undefined}>
+              <div className="pg-item-bar">
+                {simple ? (
+                  <input className="pg-input" aria-label={`${title(name)} ${i + 1}`} value={it as string} onChange={e => onChange(swapped(items, i, e.target.value))} />
+                ) : (
+                  <button type="button" className="pg-item-name" aria-expanded={open === i} onClick={() => setOpen(open === i ? -1 : i)}>{summary || `Item ${i + 1}`}</button>
+                )}
+                <span className="pg-item-acts">
+                  <button type="button" className="pg-x" onClick={() => move(i, -1)} disabled={i === 0} aria-label="Move up" title="Move up"><Icon name="up" /></button>
+                  <button type="button" className="pg-x" onClick={() => move(i, 1)} disabled={i === items.length - 1} aria-label="Move down" title="Move down"><Icon name="down" /></button>
+                  <button type="button" className="pg-x" onClick={() => onChange(spliced(items, i, 1))} aria-label={`Remove item ${i + 1}`} title="Remove"><Icon name="close" /></button>
+                </span>
+              </div>
+              {!simple && open === i && <div className="pg-item-body"><Field name={`${name.replace(/s$/, '')} ${i + 1}`} value={it} onChange={nv => onChange(swapped(items, i, nv))} /></div>}
             </div>
-            {!simple && open === i && <div className="pg-item-body"><Field name={`${name.replace(/s$/, '')} ${i + 1}`} value={it} onChange={nv => onChange(swapped(items, i, nv))} /></div>}
-          </div>
-        );
-      })}
-      <button type="button" className="pg-add pp-mono" onClick={() => { onChange([...items, items.length ? blank(items.at(-1)) : '']); setOpen(items.length); }}>+ Add</button>
+          );
+        })}
+        <button type="button" className="pg-add pp-mono" onClick={() => { onChange([...items, items.length ? blank(items.at(-1)) : '']); setOpen(items.length); }}>+ Add</button>
+      </div>
     </fieldset>
   );
 }

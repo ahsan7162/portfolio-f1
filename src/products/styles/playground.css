@@ -172,6 +172,8 @@ select.pg-input { appearance: none; background-image: linear-gradient(45deg, tra
 .pg-group legend { display: flex; align-items: center; gap: var(--sp-8); width: 100%; float: left; }
 .pg-group legend .pg-field-head { flex: 1; }
 .pg-group legend + * { clear: both; }
+.pg-group-body { display: grid; gap: var(--sp-10); min-width: 0; }
+.pg-group legend .pg-fold { order: -2; margin: 0; padding: var(--sp-2); color: var(--dim); }
 .pg-count { order: -1; color: var(--faint); font-size: var(--fs-11); }
 .pg-item { border-radius: var(--r-8); }
 .pg-item-bar { display: flex; gap: var(--sp-6); align-items: center; }

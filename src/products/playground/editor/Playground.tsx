@@ -512,9 +512,14 @@ export function Playground() {
                 </div>
                 {faults[doc.keys[selected]] && <p className="pg-fault" role="alert">It could not draw: {faults[doc.keys[selected]]}</p>}
                 {entry(current.type) && <p className="pg-cap">{entry(current.type)!.use}.</p>}
-                <BlockFields block={current} onChange={b => edit(selected, b as unknown as Block)} />
-                <h3 className="pg-h pp-mono">As code</h3>
-                <CodeEditor label="The block as code" value={one.text} onChange={one.onChange} error={one.error} rows={12} max={MAX_SOURCE} />
+                <h3 className="pg-h pp-mono"><Fold open={opened('fields')} onToggle={() => fold('fields')} controls="pg-block-fields">Fields</Fold></h3>
+                <div id="pg-block-fields" hidden={!opened('fields')}>
+                  <BlockFields block={current} onChange={b => edit(selected, b as unknown as Block)} />
+                </div>
+                <h3 className="pg-h pp-mono"><Fold open={opened('code')} onToggle={() => fold('code')} controls="pg-block-code">As code</Fold></h3>
+                <div id="pg-block-code" hidden={!opened('code')}>
+                  <CodeEditor label="The block as code" value={one.text} onChange={one.onChange} error={one.error} rows={12} max={MAX_SOURCE} />
+                </div>
               </>
             ) : (
               <>
