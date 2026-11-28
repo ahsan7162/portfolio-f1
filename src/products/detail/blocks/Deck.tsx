@@ -8,7 +8,7 @@ import { Shot } from '../../stage/Frames';
 import { gsap, reducedMotion, useGSAP } from '../../motion';
 import { holdScroll } from '../../scroll';
 import { IconClose } from './icons';
-import { Label, useBlockMotion, type BlockProps } from './shared';
+import { Label, Slide, useBlockMotion, type BlockProps } from './shared';
 import '../../styles/blocks-visual.css';
 import { bare } from '../../stop';
 
@@ -112,6 +112,7 @@ export function Deck({ block, product }: BlockProps<'deck'>) {
               <p className="pp-dim">{card.body}</p>
               {card.source && (
                 <div className="bv-deck-views" role="group" aria-label="View">
+                  <Slide />
                   {views.map((v, i) => <Toggle key={v} className="pp-mono" pressed={view === i} onPressedChange={() => setView(i)}>{v}</Toggle>)}
                 </div>
               )}

@@ -8,7 +8,7 @@ import { gsap, reducedMotion, useGSAP } from '../../motion';
 import { SURFACES } from '../../stage/pieces';
 import { Accented } from './Rules';
 import { IconCopy, IconReplay, spin } from './icons';
-import { CopyStatus, Label, useBlockMotion, useCopy, type BlockProps } from './shared';
+import { CopyStatus, Label, Slide, useBlockMotion, useCopy, type BlockProps } from './shared';
 import '../../styles/blocks-visual.css';
 import { bare } from '../../stop';
 
@@ -79,7 +79,7 @@ export function Replay({ block }: BlockProps<'replay'>) {
         ) : (
           <RadioGroup key={s.id} render={<span />} className="bv-rep-set bv-rep-set--seg" aria-label={s.label} value={String(s.options.indexOf(on[s.id]))} onValueChange={(k) => set(s.id, s.options[Number(k)])}>
             {/* onClick too: choosing the option already on replays the notification, and onValueChange skips it */}
-            {s.label}{s.options.map((o, k) => <Radio key={o} value={String(k)} onClick={() => set(s.id, o)}>{o || 'none'}</Radio>)}
+            <Slide />{s.label}{s.options.map((o, k) => <Radio key={o} value={String(k)} onClick={() => set(s.id, o)}>{o || 'none'}</Radio>)}
           </RadioGroup>
         )))}
         <button type="button" className="pp-btn pp-btn--ghost pp-ib bv-rep-again" aria-label="Replay" data-tip="Replay" onClick={(e) => { spin(e.currentTarget); play(); }}><IconReplay /></button>

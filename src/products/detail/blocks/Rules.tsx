@@ -5,7 +5,7 @@ import { Toggle } from '@ui-sdk/react/toggle';
 import { Radio, RadioGroup } from '@ui-sdk/react/radio';
 import { gsap } from '../../motion';
 import { RULES } from '../../stage/pieces';
-import { Label, useBlockMotion, type BlockProps } from './shared';
+import { Label, Slide, useBlockMotion, type BlockProps } from './shared';
 import '../../styles/blocks-visual.css';
 import { bare } from '../../stop';
 
@@ -50,7 +50,7 @@ export function Rules({ block }: BlockProps<'rules'>) {
           ) : (
             <RadioGroup key={inp.label} className="bv-rules-in bv-rules-in--seg" aria-label={inp.label} value={String(v[i])} onValueChange={(o) => choose(i, Number(o))}>
               <span className="pp-mono" aria-hidden="true">{inp.label}</span>
-              <span>{inp.options.map((o, j) => <Radio key={o} value={String(j)}>{o}</Radio>)}</span>
+              <span><Slide />{inp.options.map((o, j) => <Radio key={o} value={String(j)}>{o}</Radio>)}</span>
             </RadioGroup>
           );
         })}

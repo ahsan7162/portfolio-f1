@@ -171,6 +171,34 @@ export const SwapLabel = ({ on, off, onText }: { on: boolean; off: string; onTex
 );
 
 /**
+ * The picked option's fill, sliding to the next pick instead of jumping. It goes first inside the group, beside the
+ * options (buttons with aria-pressed or aria-checked), and follows whichever is on; the first placing does not slide.
+ * The group must be positioned. With Reduce Motion it simply sits under the pick.
+ */
+export function Slide() {
+  const ref = useRef<HTMLSpanElement>(null);
+  useLayoutEffect(() => {
+    const m = ref.current, group = m?.parentElement;
+    if (!m || !group) return;
+    const place = () => {
+      const on = group.querySelector<HTMLElement>(':scope > [aria-pressed="true"], :scope > [aria-checked="true"]');
+      m.hidden = !on?.offsetWidth;
+      if (!on || m.hidden) return;
+      m.style.cssText = `width: ${on.offsetWidth}px; height: ${on.offsetHeight}px; transform: translate(${on.offsetLeft}px, ${on.offsetTop}px)`;
+      requestAnimationFrame(() => m.setAttribute('data-ready', ''));
+    };
+    place();
+    // a new pick, or the group changing size without one (it wraps, or shows only on a wide screen)
+    const mo = new MutationObserver(place);
+    mo.observe(group, { attributes: true, subtree: true, attributeFilter: ['aria-pressed', 'aria-checked'] });
+    const ro = new ResizeObserver(place);
+    ro.observe(group);
+    return () => { mo.disconnect(); ro.disconnect(); };
+  }, []);
+  return <span className="pp-slide" ref={ref} aria-hidden="true" />;
+}
+
+/**
  * Starts loading and decoding the lazy images inside `ref` when it is within about one and a half
  * screens, so they are ready before a pin or an entrance moves them.
  */

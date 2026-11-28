@@ -335,6 +335,11 @@
 /* a link's arrow and the film's triangle sit at the text's size */
 .pp-icon--out, .pp-icon--play { width: 1em; height: 1em; }
 
+/* a group's sliding fill (Slide in blocks/shared.tsx), under its options; each group gives itself position */
+.pp-slide { position: absolute; left: 0; top: 0; border-radius: var(--r-pill); background: var(--acc); pointer-events: none; }
+.pp-slide[data-ready] { transition: transform var(--t-300) var(--ease), width var(--t-300) var(--ease), height var(--t-300) var(--ease); }
+.pp-slide ~ * { position: relative; }
+
 /* an icon-only button: square, named by its aria-label, and by a tip (data-tip) for a mouse or a keyboard */
 :is(button, a).pp-ib { width: var(--ib, 40px); min-width: var(--ib, 40px); height: var(--ib, 40px); min-height: var(--ib, 40px); padding: 0; display: inline-grid; place-items: center; }
 :is(button, a).pp-ib > .pp-icon { width: 18px; height: 18px; }

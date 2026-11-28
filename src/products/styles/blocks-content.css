@@ -134,9 +134,9 @@
 .bc-diff-edit { display: flex; flex-wrap: wrap; gap: var(--sp-6) var(--sp-14); margin-top: clamp(20px, 2.4vw, 30px); color: var(--dim); }
 .bc-diff-file { color: var(--ink); }
 .bc-diff-bar { display: flex; justify-content: space-between; align-items: center; gap: var(--sp-16); margin-top: clamp(22px, 2.6vw, 32px); }
-.bc-diff-tabs { display: none; gap: var(--sp-8); flex-wrap: wrap; }
+.bc-diff-tabs { position: relative; display: none; gap: var(--sp-8); flex-wrap: wrap; }
 .bc-diff-tabs button, .bc-diff-fold { padding: 9px var(--sp-14); border-radius: var(--r-pill); border: var(--stroke) solid var(--line); color: var(--dim); transition: background-color var(--t-200), color var(--t-200); }
-.bc-diff-tabs button[aria-pressed='true'] { background: var(--acc); border-color: var(--acc); color: var(--on-acc); }
+.bc-diff-tabs button[aria-pressed='true'] { border-color: var(--acc); color: var(--on-acc); }
 .bc-diff-fold { margin-left: auto; }
 .bc-diff-fold:hover, .bc-diff-tabs button:not([aria-pressed='true']):hover { color: var(--ink); border-color: color-mix(in srgb, var(--ink) 40%, transparent); }
 .bc-diff-ways { display: grid; grid-template-columns: repeat(var(--ways), minmax(0, 1fr)); gap: var(--gap-track); margin-top: var(--sp-18); align-items: start; }

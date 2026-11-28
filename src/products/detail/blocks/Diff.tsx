@@ -5,7 +5,7 @@ import { useId, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { Toggle } from '@ui-sdk/react/toggle';
 import { changed, diffRows, type Row } from '../../lineDiff';
 import { gsap } from '../../motion';
-import { countUp, Label, useBlockMotion, type BlockProps } from './shared';
+import { countUp, Label, Slide, useBlockMotion, type BlockProps } from './shared';
 import '../../styles/blocks-content.css';
 import { bare } from '../../stop';
 
@@ -61,6 +61,7 @@ export function Diff({ block }: BlockProps<'diff'>) {
       <p className="bc-diff-edit pp-cap"><code className="bc-diff-file">{block.file}</code><span className="bc-diff-edit-t">{block.edit}</span></p>
       <div className="bc-diff-bar">
         <div className="bc-diff-tabs" role="group" aria-label="Way of saving">
+          <Slide />
           {ways.map((w, i) => (
             <Toggle key={w.name} className="pp-mono" pressed={i === on} onPressedChange={() => setOn(i)}>{w.name} · {w.count}</Toggle>
           ))}
