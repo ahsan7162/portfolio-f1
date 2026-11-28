@@ -65,7 +65,8 @@
 .dt-link { padding-block: var(--sp-8); color: var(--dim); text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 0.3em; transition: color var(--t-180), text-decoration-color var(--t-180); }
 .dt-link:hover { color: var(--ink); text-decoration-color: currentColor; }
 .dt-cta .pp-btn:disabled, .dt-get-btn:disabled { cursor: not-allowed; opacity: 0.55; }
-.dt-cta .pp-btn:disabled:hover { color: var(--ink); box-shadow: inset 0 0 0 var(--stroke-2) var(--line); }
+/* a disabled ghost button keeps its look under the pointer: the ghost's hover fill would hide its words */
+.dt-cta .pp-btn:disabled:hover { background: none; color: var(--ink); box-shadow: inset 0 0 0 var(--stroke-2) var(--line); }
 .dt-facts { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-24) var(--sp-32); border-top: var(--stroke) solid var(--line); padding-top: var(--sp-24); }
 .dt-facts dt { color: var(--dim); margin-bottom: var(--sp-8); }
 .dt-facts dd { font-weight: var(--w-semibold); font-size: var(--fs-18); line-height: var(--lh-snug); }

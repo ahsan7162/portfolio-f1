@@ -223,7 +223,10 @@ export const CopyStatus = ({ copied, text = 'Install command copied' }: { copied
   <span className="pp-sr" role="status">{copied ? text : ''}</span>
 );
 
-/** Store buttons. shortcut: the data has no store URLs yet, so they are disabled; link them once `get` carries hrefs. */
+/**
+ * Store buttons. shortcut: the data has no store URLs yet, so they are disabled and say why (a tip for a mouse, hidden
+ * words for a screen reader); link them once `get` carries hrefs.
+ */
 export const StoreButtons = ({ className }: { className: string }) => ['App Store', 'Google Play'].map(s => (
-  <button key={s} type="button" className={className} disabled>{s}</button>
+  <button key={s} type="button" className={className} disabled data-tip="Coming soon">{s}<span className="pp-sr">, coming soon</span></button>
 ));
