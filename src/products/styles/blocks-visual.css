@@ -62,7 +62,7 @@
 }
 .bv-cmp-tag--before { left: 0; }
 .bv-cmp-tag--after { right: 0; }
-.bv-cmp-handle { position: absolute; top: 0; bottom: 0; left: var(--pos); width: 2px; translate: -50% 0; background: var(--acc); pointer-events: none; }
+.bv-cmp-handle { position: absolute; top: 0; bottom: 0; left: var(--pos); width: 2px; translate: -50% 0; background: var(--acc); pointer-events: none; transition: width var(--t-150) var(--ease); }
 .bv-cmp-knob {
   position: absolute; left: 50%; top: 50%; width: 52px; aspect-ratio: 1; translate: -50% -50%; border-radius: var(--r-round);
   background: var(--acc); box-shadow: 0 10px 30px -8px color-mix(in srgb, var(--ground) 80%, transparent);
@@ -71,10 +71,16 @@
 /* two chevrons, drawn in the text colour that reads on the accent */
 .bv-cmp-knob::before, .bv-cmp-knob::after {
   content: ''; position: absolute; top: 50%; width: 9px; height: 9px; border: solid var(--on-acc); border-width: 0 0 2px 2px;
+  transition: left var(--t-150) var(--ease), right var(--t-150) var(--ease);
 }
 .bv-cmp-knob::before { left: var(--sp-14); rotate: 45deg; translate: 0 -50%; }
 .bv-cmp-knob::after { right: var(--sp-14); rotate: -135deg; translate: 0 -50%; }
-.bv-cmp:active .bv-cmp-knob { scale: 1.1; }
+/* it can be taken (a mouse over the frame); taken, the knob grows, its chevrons part and the line thickens */
+@media (hover: hover) { .bv-cmp:hover .bv-cmp-knob { scale: 1.06; } }
+.bv-cmp[data-drag] .bv-cmp-knob { scale: 1.18; }
+.bv-cmp[data-drag] .bv-cmp-handle { width: 4px; }
+.bv-cmp[data-drag] .bv-cmp-knob::before { left: var(--sp-10); }
+.bv-cmp[data-drag] .bv-cmp-knob::after { right: var(--sp-10); }
 /* the range input is the keyboard and screen-reader handle; the pointer drags the frame itself */
 .bv-cmp-range { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 .bv-cmp-range:focus-visible ~ .bv-cmp-handle .bv-cmp-knob { outline: 2px solid var(--ink); outline-offset: 4px; }

@@ -47,10 +47,11 @@ export function Compare({ block, product }: BlockProps<'compare'>) {
         className={`bv-cmp bv-cmp--${product.kind}`}
         ref={frame}
         style={{ '--pos': `${pos}%` } as CSSProperties}
-        onPointerDown={e => { dragging.current = true; capture(e); fromPointer(e); }}
+        // data-drag, not :active, says it is held: :active is unreliable on touch and once the pointer is captured
+        onPointerDown={e => { dragging.current = true; e.currentTarget.dataset.drag = ''; capture(e); fromPointer(e); }}
         onPointerMove={e => { if (dragging.current) fromPointer(e); }}
-        onPointerUp={() => { dragging.current = false; }}
-        onPointerCancel={() => { dragging.current = false; }}
+        onPointerUp={e => { dragging.current = false; delete e.currentTarget.dataset.drag; }}
+        onPointerCancel={e => { dragging.current = false; delete e.currentTarget.dataset.drag; }}
         // A mouse drag that starts on a picture would otherwise pick the picture up and cancel the pointer.
         onDragStart={e => e.preventDefault()}
       >
