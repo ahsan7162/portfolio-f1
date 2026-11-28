@@ -123,6 +123,10 @@ export function Playground() {
   const sources = useMemo(() => written.map(({ name, code, css }) => ({ name, code, css })), [written]);
 
   useEffect(() => { if (boot.fresh) startDialog.current?.showModal(); }, [boot.fresh]);
+  useEffect(() => {
+    const off = [closeOnBackdrop(startDialog.current), closeOnBackdrop(confirmDialog.current)];
+    return () => off.forEach(f => f());
+  }, []);
   useEffect(() => { const t = setTimeout(() => remember(s, written), 400); return () => clearTimeout(t); }, [s, written]);
 
   // what the keys below do with this render's state
@@ -221,8 +225,13 @@ export function Playground() {
   // ---- saving to the repo (dev server only) ----
   const [confirm, setConfirm] = useState<{ what: string; files: string[]; warn?: string; body: object } | null>(null);
   const cancel = useRef<HTMLButtonElement>(null);
-  // the question takes focus, on its safe answer
-  useEffect(() => { if (confirm) cancel.current?.focus(); }, [confirm]);
+  const confirmDialog = useRef<HTMLDialogElement>(null);
+  // the question is a modal dialog (Esc cancels, the focus stays in it) and takes focus on its safe answer
+  useEffect(() => {
+    const d = confirmDialog.current;
+    if (!d) return;
+    if (confirm) { if (!d.open) d.showModal(); cancel.current?.focus(); } else if (d.open) d.close();
+  }, [confirm]);
   const save = async (body: object) => {
     setConfirm(null);
     try {
@@ -546,8 +555,8 @@ export function Playground() {
         </div>
       </dialog>
 
-      {confirm && (
-        <div className="pg-confirm" role="alertdialog" aria-modal="true" aria-labelledby="pg-confirm-h">
+      <dialog ref={confirmDialog} className="pg-confirm" role="alertdialog" aria-labelledby="pg-confirm-h" onClose={() => setConfirm(null)}>
+        {confirm && (
           <div className="pg-confirm-in">
             <h2 id="pg-confirm-h" className="pg-title">{confirm.what}?</h2>
             <p className="pg-cap">It writes:</p>
@@ -558,10 +567,24 @@ export function Playground() {
               <button type="button" className="pg-pill pg-pill--solid" onClick={() => void save(confirm.body)}>Write the files</button>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </dialog>
     </div>
   );
+}
+
+/**
+ * A click on a modal dialog's backdrop (which lands on the dialog itself, outside its content) closes it, as Esc
+ * does; one that began inside it, selecting text say, doesn't.
+ */
+function closeOnBackdrop(d: HTMLDialogElement | null) {
+  if (!d) return () => {};
+  let fromBackdrop = false;
+  const down = (e: PointerEvent) => { fromBackdrop = e.target === d; };
+  const click = (e: MouseEvent) => { if (fromBackdrop && e.target === d) d.close(); };
+  d.addEventListener('pointerdown', down);
+  d.addEventListener('click', click);
+  return () => { d.removeEventListener('pointerdown', down); d.removeEventListener('click', click); };
 }
 
 /** A name broken for the hero: one line, or two near the middle. */

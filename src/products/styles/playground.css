@@ -220,8 +220,9 @@ select.pg-input { appearance: none; background-image: linear-gradient(45deg, tra
 .pg-strip .pg-glyph { width: 28px; height: 20px; border-radius: var(--r-4); }
 
 /* save confirm */
-.pg-confirm { position: fixed; inset: 0; z-index: var(--z-skip); display: grid; place-items: center; background: color-mix(in srgb, var(--black) 72%, transparent); padding: var(--sp-24); }
-.pg-confirm-in { width: min(560px, 100%); display: grid; gap: var(--sp-12); padding: var(--sp-28); border-radius: var(--r-20); background: var(--raise); box-shadow: 0 0 0 var(--stroke) var(--line), 0 60px 120px var(--shadow-deep); }
+.pg-confirm { margin: auto; width: min(560px, calc(100vw - 2 * var(--sp-24))); padding: 0; border: 0; background: none; color: var(--ink); }
+.pg-confirm::backdrop { background: color-mix(in srgb, var(--black) 72%, transparent); }
+.pg-confirm-in { width: 100%; display: grid; gap: var(--sp-12); padding: var(--sp-28); border-radius: var(--r-20); background: var(--raise); box-shadow: 0 0 0 var(--stroke) var(--line), 0 60px 120px var(--shadow-deep); }
 .pg-files { list-style: none; display: grid; gap: var(--sp-4); font-size: var(--fs-12); text-transform: none; letter-spacing: 0; }
 .pg-warn { padding: var(--sp-12) var(--sp-14); border-radius: var(--r-10); box-shadow: inset 0 0 0 var(--stroke) var(--warn); font-size: var(--fs-14); line-height: var(--lh-body); }
 .pg-confirm .pg-acts { justify-content: end; margin-top: var(--sp-8); }
