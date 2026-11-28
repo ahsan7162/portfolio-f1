@@ -16,11 +16,14 @@ export const isJumping = () => jumping;
 
 /** `done` runs once the scroll has landed (a part hidden while off screen can take focus then). */
 export function scrollToY(y: number, immediate = false, done?: () => void) {
+  // Whole pixels: Lenis ends a smooth scroll when the rounded position meets the rounded target, and creeping up on a
+  // target like 3263.5 it never gets past 3263, so the scroll would never end (no done, and jumping stuck on).
+  const to = Math.round(y);
   if (lenis) {
     jumping = true;
-    lenis.scrollTo(y, { immediate, force: true, onComplete: () => { jumping = false; done?.(); } });
+    lenis.scrollTo(to, { immediate, force: true, onComplete: () => { jumping = false; done?.(); } });
   } else {
-    window.scrollTo({ top: y, behavior: immediate ? 'instant' : 'smooth' });
+    window.scrollTo({ top: to, behavior: immediate ? 'instant' : 'smooth' });
     done?.();
   }
 }
