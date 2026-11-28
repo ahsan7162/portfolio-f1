@@ -4,7 +4,7 @@ import { useCallback, useEffect, useId, useRef, useState, useSyncExternalStore }
 import { Toggle } from '@ui-sdk/react/toggle';
 import { gsap } from '../../motion';
 import { Shot } from '../../stage/Frames';
-import { IconCopy } from './icons';
+import { IconClose, IconCopy } from './icons';
 import { CopyStatus, Label, useBlockMotion, useCopy, type BlockProps } from './shared';
 import '../../styles/blocks-visual.css';
 import { bare } from '../../stop';
@@ -89,7 +89,7 @@ function Inspector({ item, group, product, sheet, onClose }: { item: Item; group
       <div className="bv-spec-insp-in">
         <p className="bv-spec-insp-top">
           <span className="pp-mono pp-dim">{group}</span>
-          <button type="button" className="bv-spec-close pp-mono" ref={close} onClick={onClose}>Close</button>
+          <button type="button" className="bv-spec-close pp-ib" ref={close} aria-label="Close" onClick={onClose}><IconClose /></button>
         </p>
         <h3 className="bv-spec-insp-name pp-lede" id={head}>{item.name}</h3>
         <p className="bv-spec-line">{item.line}</p>

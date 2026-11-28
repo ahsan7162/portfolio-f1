@@ -7,6 +7,7 @@ import { Toggle } from '@ui-sdk/react/toggle';
 import { Shot } from '../../stage/Frames';
 import { gsap, reducedMotion, useGSAP } from '../../motion';
 import { holdScroll } from '../../scroll';
+import { IconClose } from './icons';
 import { Label, useBlockMotion, type BlockProps } from './shared';
 import '../../styles/blocks-visual.css';
 import { bare } from '../../stop';
@@ -102,7 +103,11 @@ export function Deck({ block, product }: BlockProps<'deck'>) {
                 : <span className="bv-deck-face bv-deck-face--big"><Shot media={card.media} kind={product.kind} active /></span>}
             </div>
             <div className="bv-deck-side">
-              <p className="pp-mono pp-dim">{(open ?? 0) + 1} of {count}</p>
+              {/* the close sits where a dialog's always does, top right */}
+              <p className="bv-deck-top">
+                <span className="pp-mono pp-dim">{(open ?? 0) + 1} of {count}</span>
+                <button type="button" className="bv-deck-close pp-ib" aria-label="Close" onClick={hide}><IconClose /></button>
+              </p>
               <h3 className="bv-deck-open-t pp-lede" id={`${id}-t`}>{card.title}</h3>
               <p className="pp-dim">{card.body}</p>
               {card.source && (
@@ -110,7 +115,6 @@ export function Deck({ block, product }: BlockProps<'deck'>) {
                   {views.map((v, i) => <Toggle key={v} className="pp-mono" pressed={view === i} onPressedChange={() => setView(i)}>{v}</Toggle>)}
                 </div>
               )}
-              <button type="button" className="bv-deck-close pp-mono" onClick={hide}>Close</button>
             </div>
           </div>
         )}
