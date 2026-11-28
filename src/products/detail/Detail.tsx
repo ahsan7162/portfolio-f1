@@ -74,8 +74,23 @@ export function Detail({ product, blocks }: { product: Product; blocks?: ReactNo
   // The page's own outline: its labelled blocks in order, so the arrangement is visible (and reachable) from anywhere on the page.
   // A block with no label has no number on the page either, so it is left out; `place` is where it sits among all the blocks.
   const outline = listed(product.blocks).map((it, place) => ({ key: it.key, label: it.label, place })).filter(it => it.label);
-  const toBlock = (i: number) => scrollToEl(root.current?.querySelectorAll('.dt-block')[i], 24, reducedMotion());
-  const toFilm = () => scrollToEl(document.getElementById(FILM_ID), 24, reducedMotion());
+  // Where a jump lands, the block says so: its rule draws in again in the product's colour and fades back to a rule,
+  // and the film's play button gives one beat.
+  const landed = (el: Element) => {
+    if (reducedMotion()) return;
+    const line = el.querySelector('.dt-label-line'), play = el.querySelector('.dt-play');
+    if (line) {
+      // the colour is a class with a CSS fade back: the rule is a color-mix(), which GSAP cannot blend to
+      line.classList.add('dt-lit');
+      gsap.fromTo(line, { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: 'expo.out', clearProps: 'transform' });
+      gsap.delayedCall(1.1, () => line.classList.remove('dt-lit'));
+    }
+    // through --beat, not scale: a GSAP transform would drop the CSS translate that centres the button
+    if (play) gsap.fromTo(play, { '--beat': 1 }, { '--beat': 1.12, duration: 0.2, ease: 'power2.out', yoyo: true, repeat: 1, delay: 0.15, clearProps: '--beat' });
+  };
+  const jumpTo = (el: Element | null | undefined) => { if (el) scrollToEl(el, 24, reducedMotion(), () => landed(el)); };
+  const toBlock = (i: number) => jumpTo(root.current?.querySelectorAll('.dt-block')[i]);
+  const toFilm = () => jumpTo(document.getElementById(FILM_ID));
 
   // The rail marks the last labelled block whose top has passed the middle of the screen (none above the first).
   // Worked out from the scroll position each time, so a jump (Home, a rail click) lands on the right one.

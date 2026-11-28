@@ -95,7 +95,9 @@
 .dt-blocks > .dt-block:first-child { --dt-gap: clamp(56px, 6vw, 96px); }
 .dt-sec--stats { --dt-gap: clamp(56px, 7vw, 104px); }
 .dt-label { display: flex; align-items: center; gap: var(--sp-16); font-weight: var(--w-medium); }
-.dt-label-line { flex: 1; height: 1px; background: var(--line); transform-origin: left center; }
+.dt-label-line { flex: 1; height: 1px; background: var(--line); transform-origin: left center; transition: background-color var(--t-700) var(--ease); }
+/* where a jump landed: the rule in the product's colour for a moment (Detail.tsx landed()) */
+.dt-label-line.dt-lit { background: var(--acc); }
 .dt-label-aside { color: var(--dim); }
 /* on a phone the tag drops under the rule */
 @media (max-width: 639px) { .dt-label:has(.dt-label-aside) { flex-wrap: wrap; row-gap: var(--sp-8); } .dt-label-aside { flex-basis: 100%; } }
@@ -166,6 +168,8 @@
   box-shadow: 0 24px 60px -16px color-mix(in srgb, var(--ground) 80%, transparent);
   transition: transform var(--t-160) var(--ease), background-color var(--t-180);
 }
+/* the beat a jump to the film gives it (Detail.tsx landed()); its own selector, so no minifier folds it into the translate */
+.dt-film .dt-play { scale: var(--beat, 1); }
 .dt-play:hover { background: color-mix(in srgb, var(--acc) 88%, var(--ink)); }
 .dt-play:active { transform: scale(0.97); }
 .dt-play-icon { width: 0; height: 0; margin-left: 9%; border-left: 0.28em solid var(--on-acc); border-block: 0.17em solid transparent; font-size: clamp(84px, 10vw, 150px); }

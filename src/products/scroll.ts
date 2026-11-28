@@ -43,11 +43,11 @@ export function focusOn(el: Element | null | undefined) {
   el.focus({ preventScroll: true });
 }
 
-/** Scroll until `el` sits `gap` px below the top of the screen (below a sticky bar marked data-sticky), and take keyboard focus there. */
-export function scrollToEl(el: Element | null | undefined, gap = 0, immediate = false) {
+/** Scroll until `el` sits `gap` px below the top of the screen (below a sticky bar marked data-sticky), and take keyboard focus there; `done` runs once it has landed. */
+export function scrollToEl(el: Element | null | undefined, gap = 0, immediate = false, done?: () => void) {
   if (!el) return;
   const bar = document.querySelector<HTMLElement>('[data-sticky]')?.offsetHeight ?? 0;
-  scrollToY(el.getBoundingClientRect().top + window.scrollY - gap - bar, immediate);
+  scrollToY(el.getBoundingClientRect().top + window.scrollY - gap - bar, immediate, done);
   focusOn(el);
 }
 
