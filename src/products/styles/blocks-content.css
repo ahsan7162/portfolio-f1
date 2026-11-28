@@ -97,7 +97,7 @@
 .bc-code[data-pair] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .bc-code-panel { min-width: 0; background: var(--raise); border: var(--stroke) solid var(--line); border-radius: var(--r-14); overflow: hidden; }
 .bc-code-bar { display: flex; justify-content: space-between; align-items: center; gap: var(--sp-16); padding: var(--sp-12) var(--sp-12) var(--sp-12) var(--sp-18); border-bottom: var(--stroke) solid var(--line); color: var(--dim); }
-.bc-code-copy { padding: var(--sp-8) var(--sp-14); border-radius: var(--r-8); background: var(--raise-2); color: var(--ink); transition: background-color var(--t-200), color var(--t-200); }
+.bc-code-copy { --ib: 36px; border-radius: var(--r-8); background: var(--raise-2); color: var(--ink); transition: background-color var(--t-200), color var(--t-200); }
 .bc-code-copy:hover { background: var(--acc); color: var(--on-acc); }
 .bc-code-pre { margin: 0; padding: clamp(16px, 2vw, 24px) var(--sp-18); white-space: pre-wrap; overflow-wrap: anywhere; font-family: var(--mono); font-size: clamp(0.8125rem, 1.05vw, 0.9375rem); line-height: var(--lh-code); tab-size: 2; color: var(--ink); }
 .bc-code-result { min-width: 0; }

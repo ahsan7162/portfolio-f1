@@ -7,7 +7,8 @@ import { Radio, RadioGroup } from '@ui-sdk/react/radio';
 import { gsap, reducedMotion, useGSAP } from '../../motion';
 import { SURFACES } from '../../stage/pieces';
 import { Accented } from './Rules';
-import { Label, useBlockMotion, useCopy, type BlockProps } from './shared';
+import { IconCopy } from './icons';
+import { CopyStatus, Label, useBlockMotion, useCopy, type BlockProps } from './shared';
 import '../../styles/blocks-visual.css';
 import { bare } from '../../stop';
 
@@ -83,7 +84,8 @@ export function Replay({ block }: BlockProps<'replay'>) {
         )))}
         <button type="button" className="pp-btn pp-btn--ghost bv-rep-again" onClick={() => play()}>Replay</button>
       </div>
-      <p className="bv-rep-cmd pp-mono"><code>{line}</code><button type="button" onClick={() => copy(line)}>{copied ? 'Copied' : 'Copy'}</button></p>
+      <p className="bv-rep-cmd pp-mono"><code>{line}</code><button type="button" className="pp-ib" aria-label="Copy the command" data-tip={copied ? 'Copied' : 'Copy'} onClick={() => copy(line)}><IconCopy done={copied} /></button></p>
+      <CopyStatus copied={copied} text="Command copied" />
       {block.note && <p className="bc-note bv-rules-note">{block.note}</p>}
     </section>
   );

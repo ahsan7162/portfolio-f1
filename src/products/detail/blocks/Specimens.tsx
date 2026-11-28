@@ -4,7 +4,8 @@ import { useCallback, useEffect, useId, useRef, useState, useSyncExternalStore }
 import { Toggle } from '@ui-sdk/react/toggle';
 import { gsap } from '../../motion';
 import { Shot } from '../../stage/Frames';
-import { CopyStatus, Label, SwapLabel, useBlockMotion, useCopy, type BlockProps } from './shared';
+import { IconCopy } from './icons';
+import { CopyStatus, Label, useBlockMotion, useCopy, type BlockProps } from './shared';
 import '../../styles/blocks-visual.css';
 import { bare } from '../../stop';
 
@@ -101,7 +102,7 @@ function Inspector({ item, group, product, sheet, onClose }: { item: Item; group
           <details className="bv-spec-code">
             <summary className="pp-meta">The plugin’s own example</summary>
             <pre><code>{item.code}</code></pre>
-            <button type="button" className="bv-rot-btn pp-mono" onClick={() => copy(item.code!)}><SwapLabel on={copied} off="Copy" onText="Copied" /></button>
+            <button type="button" className="bv-rot-btn pp-ib" aria-label="Copy the example" data-tip={copied ? 'Copied' : 'Copy'} onClick={() => copy(item.code!)}><IconCopy done={copied} /></button>
             <CopyStatus copied={copied} text="Example copied" />
           </details>
         )}

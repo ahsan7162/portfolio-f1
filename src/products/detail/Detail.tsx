@@ -10,6 +10,7 @@ import { HOME, Link, productPath } from '../router';
 import { scrollToEl } from '../scroll';
 import { FILM_ID, findBlock, KINDS, type Product } from '../types';
 import { Blocks, listed } from './blocks';
+import { IconCopy } from './blocks/icons';
 import { CopyStatus, Out, StoreButtons, SwapLabel, useCopy } from './blocks/shared';
 import { useFit } from './fit';
 import '../styles/detail.css';
@@ -145,7 +146,7 @@ export function Detail({ product, blocks }: { product: Product; blocks?: ReactNo
             <div className="dt-cta" data-in>
               {via?.kind === 'command' && (
                 <button type="button" className="pp-btn pp-btn--acc" onClick={() => copy(via.command)}>
-                  <SwapLabel on={copied} off="Copy install command" onText="Copied" />
+                  <IconCopy done={copied} /><SwapLabel on={copied} off="Copy install command" onText="Copied" />
                 </button>
               )}
               {via?.kind === 'stores' && <StoreButtons className="pp-btn pp-btn--ghost" />}

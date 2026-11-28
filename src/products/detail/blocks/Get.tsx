@@ -5,6 +5,7 @@ import { ME } from '../../home/hero/shared';
 import { gsap } from '../../motion';
 import { findBlock, type Product } from '../../types';
 import { useFit } from '../fit';
+import { IconCopy } from './icons';
 import { CopyStatus, Label, Out, StoreButtons, SwapLabel, useBlockMotion, useCopy, type BlockProps } from './shared';
 import { Stop } from '../../stop';
 
@@ -54,7 +55,7 @@ export function Get({ block, product }: BlockProps<'get'>) {
           {via.kind === 'command' && (
             <div className="dt-cmd">
               <Command text={via.command} />
-              <button type="button" className="dt-get-btn" onClick={() => copy(via.command)}><SwapLabel on={copied} off="Copy" onText="Copied" /></button>
+              <button type="button" className="dt-get-btn" onClick={() => copy(via.command)}><IconCopy done={copied} /><SwapLabel on={copied} off="Copy" onText="Copied" /></button>
             </div>
           )}
           {via.kind === 'stores' && <div className="dt-get-row"><StoreButtons className="dt-get-btn dt-get-btn--lg" /></div>}

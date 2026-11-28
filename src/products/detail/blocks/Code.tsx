@@ -3,7 +3,8 @@
 import { useId, useRef } from 'react';
 import { gsap } from '../../motion';
 import { MediaView } from './MediaView';
-import { Coded, CopyStatus, Label, SwapLabel, useBlockMotion, useCopy, type BlockProps } from './shared';
+import { IconCopy } from './icons';
+import { Coded, CopyStatus, Label, useBlockMotion, useCopy, type BlockProps } from './shared';
 import '../../styles/blocks-content.css';
 
 export function Code({ block, product }: BlockProps<'code'>) {
@@ -24,7 +25,7 @@ export function Code({ block, product }: BlockProps<'code'>) {
         <figure className="bc-code-panel">
           <figcaption className="bc-code-bar pp-mono">
             <span>{block.title}</span>
-            <button type="button" className="bc-code-copy pp-mono" onClick={() => copy(block.code)}><SwapLabel on={copied} off="Copy" onText="Copied" /></button>
+            <button type="button" className="bc-code-copy pp-ib" aria-label="Copy the code" data-tip={copied ? 'Copied' : 'Copy'} onClick={() => copy(block.code)}><IconCopy done={copied} /></button>
           </figcaption>
           <pre className="bc-code-pre"><code>{block.code}</code></pre>
         </figure>
