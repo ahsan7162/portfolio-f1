@@ -13,6 +13,7 @@ import { savedNames } from '../../detail/blocks/saved/names';
 import { Glyph } from '../Glyph';
 import { ALT, Icon, MOD, SHIFT } from './icons';
 import { CANVAS_MIN, FRESH, LEFT, RIGHT, SPLIT, useLayout } from './layout';
+import { roving, stop } from './roving';
 import { Splitter } from './Splitter';
 import { Canvas, type CanvasApi } from './Canvas';
 import { CodeEditor } from './CodeEditor';
@@ -291,7 +292,7 @@ export function Playground() {
         </label>
         <div className="pg-seg pp-mono" role="radiogroup" aria-label="Kind">
           {(Object.keys(KINDS) as Kind[]).map(k => (
-            <button key={k} type="button" role="radio" aria-checked={doc.meta.kind === k} disabled={!doc.meta.sample && doc.meta.kind !== k} title={!doc.meta.sample ? 'A real product keeps its kind' : undefined} onClick={() => setKind(k)}>{KIND_NAMES[k]}</button>
+            <button key={k} type="button" role="radio" aria-checked={doc.meta.kind === k} tabIndex={stop(doc.meta.kind === k)} onKeyDown={roving} disabled={!doc.meta.sample && doc.meta.kind !== k} title={!doc.meta.sample ? 'A real product keeps its kind' : undefined} onClick={() => setKind(k)}>{KIND_NAMES[k]}</button>
           ))}
         </div>
         <span className="pg-grow" />
@@ -420,7 +421,7 @@ export function Playground() {
       <main className="pg-main" aria-label="The page">
         <div className="pg-canvas-bar">
           <div className="pg-seg pp-mono" role="radiogroup" aria-label="Canvas width">
-            {WIDTHS.map(w => <button key={w} type="button" role="radio" aria-checked={width === w} onClick={() => setWidth(w)} title={WIDTH_NAMES[w]}>{w}</button>)}
+            {WIDTHS.map(w => <button key={w} type="button" role="radio" aria-checked={width === w} tabIndex={stop(width === w)} onKeyDown={roving} onClick={() => setWidth(w)} title={WIDTH_NAMES[w]}>{w}</button>)}
           </div>
           <span className="pg-scale pp-mono" title="How large the page is drawn here">{Math.round(scale * 100)}%</span>
           <span className="pg-grow" />
@@ -453,7 +454,7 @@ export function Playground() {
         <div className="pg-pane-head pg-pane-head--tabs">
           <div className="pg-tabs pp-mono" role="tablist" aria-label="Edit">
             {([['block', selected >= 0 ? 'Block' : 'Page settings'], ['page', 'Page code'], ['write', 'Write a block']] as const).map(([id, label]) => (
-              <button key={id} type="button" role="tab" id={`pg-tab-${id}`} aria-selected={tab === id} aria-controls={`pg-panel-${id}`} onClick={() => setTab(id)}>{label}</button>
+              <button key={id} type="button" role="tab" id={`pg-tab-${id}`} aria-selected={tab === id} tabIndex={stop(tab === id)} onKeyDown={roving} aria-controls={`pg-panel-${id}`} onClick={() => setTab(id)}>{label}</button>
             ))}
           </div>
           <button type="button" className="pg-x pg-pane-x" onClick={() => toggle('right', 'inside')} aria-label="Hide the edit pane" title={`Hide the edit pane (${ALT}${MOD}B)`}><Icon name="close" /></button>
@@ -636,15 +637,15 @@ function Write({ written, setWritten, built, armed, onRun, onAdd, onSave }: {
       </form>
       {written.length > 0 && (
         <div className="pg-seg pp-mono pg-written" role="tablist" aria-label="Written blocks">
-          {written.map((x, i) => <button key={x.name} type="button" role="tab" aria-selected={i === at} onClick={() => { setAt(i); setSure(false); }}>{x.name}{built[x.name] ? ' !' : ''}</button>)}
+          {written.map((x, i) => <button key={x.name} type="button" role="tab" aria-selected={i === at} tabIndex={stop(i === at)} onKeyDown={roving} onClick={() => { setAt(i); setSure(false); }}>{x.name}{built[x.name] ? ' !' : ''}</button>)}
         </div>
       )}
       {w && (
         <>
           <div className="pg-seg pp-mono" role="tablist" aria-label="File">
-            <button type="button" role="tab" aria-selected={file === 'code'} onClick={() => setFile('code')}>{w.name}.tsx</button>
-            <button type="button" role="tab" aria-selected={file === 'css'} onClick={() => setFile('css')}>{w.name}.css</button>
-            <button type="button" role="tab" aria-selected={file === 'props'} onClick={() => setFile('props')}>Props</button>
+            <button type="button" role="tab" aria-selected={file === 'code'} tabIndex={stop(file === 'code')} onKeyDown={roving} onClick={() => setFile('code')}>{w.name}.tsx</button>
+            <button type="button" role="tab" aria-selected={file === 'css'} tabIndex={stop(file === 'css')} onKeyDown={roving} onClick={() => setFile('css')}>{w.name}.css</button>
+            <button type="button" role="tab" aria-selected={file === 'props'} tabIndex={stop(file === 'props')} onKeyDown={roving} onClick={() => setFile('props')}>Props</button>
           </div>
           {file === 'code' && <CodeEditor label={`${w.name}.tsx`} value={w.code} onChange={code => set({ code })} onRun={onRun} max={LIMITS.code} error={built[w.name] ? { line: Number(/\((\d+):\d+\)/.exec(built[w.name]!)?.[1] ?? 1), message: built[w.name]! } : null} />}
           {file === 'css' && <CodeEditor label={`${w.name}.css`} lang="css" value={w.css} onChange={css => set({ css })} onRun={onRun} max={LIMITS.css} />}

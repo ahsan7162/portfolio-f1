@@ -7,6 +7,7 @@ import { ACME_NAMES, LIVE_NAMES, PARTS_NAMES, RULE_SET_NAMES, SURFACES_NAMES } f
 import { CATALOG, sample } from '../catalog';
 import { spliced, swapped } from '../doc';
 import { Icon } from './icons';
+import { roving, stop } from './roving';
 
 type V = unknown;
 type Obj = Record<string, V>;
@@ -164,7 +165,7 @@ function MediaField({ id, media, onChange }: { id: string; media: Obj; onChange:
     <div className="pg-media">
       <div className="pg-seg pp-mono" role="radiogroup" aria-label="Picture">
         {(['src', 'sample', 'live'] as const).map(k => (
-          <button key={k} type="button" role="radio" aria-checked={kind === k} onClick={() => k !== kind && onChange(k === 'src' ? { src: '/products-media/', alt: '' } : k === 'sample' ? { sample: 0 } : { live: LIVE_NAMES[0], alt: '' })}>
+          <button key={k} type="button" role="radio" aria-checked={kind === k} tabIndex={stop(kind === k)} onKeyDown={roving} onClick={() => k !== kind && onChange(k === 'src' ? { src: '/products-media/', alt: '' } : k === 'sample' ? { sample: 0 } : { live: LIVE_NAMES[0], alt: '' })}>
             {k === 'src' ? 'Image' : k === 'sample' ? 'Sample' : 'Live'}
           </button>
         ))}
