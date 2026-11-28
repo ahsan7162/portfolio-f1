@@ -162,7 +162,7 @@ export function Playground() {
       if (mod && e.key.toLowerCase() === 'z') { e.preventDefault(); dispatch({ do: e.shiftKey ? 'redo' : 'undo' }); }
       // by the key's place, not its letter: Option changes the letter on a Mac
       else if (mod && e.code === 'KeyB') { e.preventDefault(); setLayout(l => (e.altKey ? { rightOpen: !l.rightOpen } : { leftOpen: !l.leftOpen })); }
-      else if (e.key === 'f' && !mod && !e.altKey) { e.preventDefault(); toggleFull.current(); }
+      else if (e.key.toLowerCase() === 'f' && !mod && !e.altKey) { e.preventDefault(); toggleFull.current(); }
       else if (e.key === 'Escape') leave.current();
       else if (e.key === '?') { e.preventDefault(); keysDialog.current?.showModal(); }
       else if (e.key === '/') {
