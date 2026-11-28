@@ -4,6 +4,7 @@ import { useEffect, useId, useRef, useState, type ReactNode, type RefObject } fr
 import { gsap, reducedMotion, SplitText, useGSAP } from '../../motion';
 import { Stage, tallyWords } from '../../stage/Stage';
 import { Ask, HOLD_SCENE, PauseButton, RotRoot, RotTabs } from './Cases';
+import { IconReplay } from './icons';
 import { useRotate } from './rotate';
 import { Coded, Label, useShowcaseFit, type BlockProps } from './shared';
 import '../../styles/blocks-visual.css';
@@ -167,7 +168,7 @@ export function Scenes({ block, product }: BlockProps<'scenes'>) {
         {/* One slot for both, so the row never changes size when the reader takes over. */}
         <div className="bv-rot-slot">
           <PauseButton r={r} />
-          <button type="button" className="bv-rot-btn pp-mono" onClick={r.restart} data-off={!r.stopped || undefined} disabled={!r.stopped}>Play again</button>
+          <button type="button" className="bv-rot-btn pp-ib" aria-label="Play the scenes again" data-tip="Play again" onClick={r.restart} data-off={!r.stopped || undefined} disabled={!r.stopped}><IconReplay /></button>
         </div>
       </div>
       <div className="bv-rot-stack bv-scenes-caps">

@@ -3,6 +3,7 @@
 // It runs once as it enters; Run again replays it. With reduced motion the wall is simply finished.
 import { useId, useRef } from 'react';
 import { gsap, reducedMotion, useGSAP } from '../../motion';
+import { IconReplay, spin } from './icons';
 import { Label, useBlockMotion, type BlockProps } from './shared';
 import '../../styles/blocks-content.css';
 import { bare } from '../../stop';
@@ -73,7 +74,7 @@ export function Checks({ block }: BlockProps<'checks'>) {
       </ol>
       <div className="bc-checks-foot">
         {block.total && <p className="bc-checks-total"><b className="pp-display" data-count={block.total.value}>{block.total.value}</b><span className="pp-meta pp-dim">{block.total.label}</span></p>}
-        <button type="button" className="bc-checks-again pp-mono" onClick={again}>Run again</button>
+        <button type="button" className="bc-checks-again pp-ib" aria-label="Run the checks again" data-tip="Run again" onClick={(e) => { spin(e.currentTarget); again(); }}><IconReplay /></button>
       </div>
     </section>
   );
