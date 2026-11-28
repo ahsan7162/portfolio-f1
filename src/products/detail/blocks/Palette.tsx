@@ -3,6 +3,7 @@
 import { useId, useRef, useState } from 'react';
 import { brandVars } from '../../brand';
 import { gsap } from '../../motion';
+import { IconCopy } from './icons';
 import { Label, SwapLabel, useBlockMotion, useCopy, type BlockProps } from './shared';
 import '../../styles/blocks-content.css';
 
@@ -41,7 +42,7 @@ export function Palette({ block }: BlockProps<'palette'>) {
               >
                 <span className="bc-swatch-fill pp-mono">
                   <span className="bc-swatch-name">{c.name}</span>
-                  <span className="bc-swatch-hex"><SwapLabel on={done} off={c.hex} onText="Copied" /></span>
+                  <span className="bc-swatch-hex"><IconCopy done={done} /><SwapLabel on={done} off={c.hex} onText="Copied" /></span>
                 </span>
               </button>
             </li>

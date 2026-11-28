@@ -70,7 +70,8 @@
 .bc-swatch:hover .bc-swatch-fill { transform: translateY(-6px); }
 .bc-swatch:active .bc-swatch-fill { transform: scale(0.98); }
 .bc-swatch-name { font-weight: var(--w-bold); }
-.bc-swatch-hex { opacity: 0.72; }
+.bc-swatch-hex { display: inline-flex; align-items: center; gap: var(--sp-6); opacity: 0.72; transition: opacity var(--t-200); }
+.bc-swatch:is(:hover, :focus-visible) .bc-swatch-hex { opacity: 1; }
 .bc-faces { list-style: none; display: grid; margin-top: var(--flow-wide); border-bottom: var(--stroke) solid var(--line); }
 .bc-face { display: grid; grid-template-columns: minmax(140px, 1fr) minmax(0, 4fr); gap: var(--sp-12) var(--sp-24); align-items: baseline; padding-block: clamp(20px, 2.4vw, 34px); border-top: var(--stroke) solid var(--line); }
 .bc-face-sample { font-family: var(--text); font-weight: var(--w-regular); font-size: clamp(40px, 6vw, 104px); line-height: var(--lh-none); letter-spacing: var(--tr-tight); overflow-wrap: anywhere; }
