@@ -27,6 +27,19 @@ const TOKEN = document.querySelector<HTMLMetaElement>('meta[name="playground-sav
 const REAL = Object.fromEntries(products.map(p => [`real:${p.slug}`, p]));
 const STAGE_FOR: Record<Kind, StageKind> = { plugin: 'window', app: 'phone', site: 'browser' };
 const KIND_NAMES: Record<Kind, string> = { plugin: 'Plugin', app: 'App', site: 'Website' };
+/** Every shortcut, by where it works, for the ? sheet. */
+const KEYS: [where: string, [keys: string, what: string][]][] = [
+  ['Anywhere outside a field', [
+    ['/', 'Find a block'], [`${MOD}Z`, 'Undo'], [`${SHIFT}${MOD}Z`, 'Redo'],
+    [`${MOD}B`, 'Show or hide the blocks'], [`${ALT}${MOD}B`, 'Show or hide the edit pane'],
+    ['F', 'Canvas full screen'], ['Esc', 'Leave full screen, then let go of the picked block'], ['?', 'These shortcuts'],
+  ]],
+  ['In the list of the page’s blocks', [[`${ALT}↑  ${ALT}↓`, 'Move the block'], ['Delete', 'Remove it']]],
+  ['In Find a block', [['Enter', 'Add the first block found'], ['Esc', 'Clear the search']]],
+  ['In code', [[`${MOD}↵`, 'Run the written blocks'], ['Tab', 'Indent'], ['Esc', 'Leave the code, so Tab moves on']]],
+  ['On tabs and choices', [['←  →', 'Move and choose'], ['Home  End', 'The first, the last']]],
+  ['On a handle between panes', [['←  →  ↑  ↓', `Resize (with ${SHIFT.replace('+', '')} for bigger steps)`], ['Double-click', 'Back to its width']]],
+];
 
 function initial(): { state: State; written: WrittenBlock[]; fresh: boolean } {
   const saved = recall();
@@ -110,6 +123,7 @@ export function Playground() {
   const [query, setQuery] = useState('');
   const canvas = useRef<CanvasApi>(null);
   const startDialog = useRef<HTMLDialogElement>(null);
+  const keysDialog = useRef<HTMLDialogElement>(null);
   const search = useRef<HTMLInputElement>(null);
   const { layout, set: setLayout, vw, left: leftWidth, right: rightWidth } = useLayout();
   /** Shows or hides a side pane; a pane closed from inside hands the focus to its button in the top bar. */
@@ -125,7 +139,7 @@ export function Playground() {
 
   useEffect(() => { if (boot.fresh) startDialog.current?.showModal(); }, [boot.fresh]);
   useEffect(() => {
-    const off = [closeOnBackdrop(startDialog.current), closeOnBackdrop(confirmDialog.current)];
+    const off = [closeOnBackdrop(startDialog.current), closeOnBackdrop(confirmDialog.current), closeOnBackdrop(keysDialog.current)];
     return () => off.forEach(f => f());
   }, []);
   useEffect(() => { const t = setTimeout(() => remember(s, written), 400); return () => clearTimeout(t); }, [s, written]);
@@ -150,6 +164,7 @@ export function Playground() {
       else if (mod && e.code === 'KeyB') { e.preventDefault(); setLayout(l => (e.altKey ? { rightOpen: !l.rightOpen } : { leftOpen: !l.leftOpen })); }
       else if (e.key === 'f' && !mod && !e.altKey) { e.preventDefault(); toggleFull.current(); }
       else if (e.key === 'Escape') leave.current();
+      else if (e.key === '?') { e.preventDefault(); keysDialog.current?.showModal(); }
       else if (e.key === '/') {
         e.preventDefault(); setPane('blocks'); setLayout({ leftOpen: true });
         // the pane may have been closed: focus once it is drawn
@@ -302,6 +317,7 @@ export function Playground() {
         </div>
         <button type="button" className="pg-icon" onClick={() => dispatch({ do: 'undo' })} disabled={!s.past.length} aria-label="Undo" title={`Undo (${MOD}Z)`}><Icon name="undo" /></button>
         <button type="button" className="pg-icon" onClick={() => dispatch({ do: 'redo' })} disabled={!s.future.length} aria-label="Redo" title={`Redo (${SHIFT}${MOD}Z)`}><Icon name="redo" /></button>
+        <button type="button" className="pg-icon pg-keys-btn" onClick={() => keysDialog.current?.showModal()} aria-label="Keyboard shortcuts" title="Keyboard shortcuts (?)">?</button>
         <button type="button" className="pg-pill" onClick={copy}>{copied ? 'Copied' : 'Copy code'}</button>
         {TOKEN && <button type="button" className="pg-pill pg-pill--solid" onClick={savePage} disabled={!real} title={real ? `Write ${real.name}’s page into the repository` : 'Save writes a real product’s page: remix one to save it'}>Save page</button>}
       </header>
@@ -553,6 +569,23 @@ export function Playground() {
               );
             })}
           </ul>
+        </div>
+      </dialog>
+
+      <dialog ref={keysDialog} className="pg-dialog pg-keys" aria-labelledby="pg-keys-h">
+        <div className="pg-dialog-in">
+          <div className="pg-dialog-top">
+            <h2 id="pg-keys-h" className="pg-title">Keyboard shortcuts</h2>
+            <button type="button" className="pg-icon" onClick={() => keysDialog.current?.close()} aria-label="Close" title="Close (Esc)"><Icon name="close" /></button>
+          </div>
+          {KEYS.map(([where, list]) => (
+            <section key={where} aria-label={where}>
+              <h3 className="pg-h pp-mono">{where}</h3>
+              <dl className="pg-keys-list">
+                {list.map(([k, what]) => <div key={k + what}><dt><kbd>{k}</kbd></dt><dd>{what}</dd></div>)}
+              </dl>
+            </section>
+          ))}
         </div>
       </dialog>
 

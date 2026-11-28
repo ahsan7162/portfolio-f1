@@ -219,6 +219,15 @@ select.pg-input { appearance: none; background-image: linear-gradient(45deg, tra
 .pg-strip { display: flex; flex-wrap: wrap; gap: 3px; min-height: 22px; margin-bottom: var(--sp-6); }
 .pg-strip .pg-glyph { width: 28px; height: 20px; border-radius: var(--r-4); }
 
+/* keyboard shortcuts */
+.pg-keys { width: min(640px, calc(100vw - 2 * var(--sp-24))); }
+.pg-keys .pg-dialog-in { padding: var(--sp-24) var(--sp-28) var(--sp-28); gap: 0; }
+.pg-keys .pg-h { padding: var(--sp-20) 0 var(--sp-6); }
+.pg-keys-list { display: grid; gap: var(--sp-2); }
+.pg-keys-list div { display: grid; grid-template-columns: 11em 1fr; gap: var(--sp-12); align-items: baseline; padding: var(--sp-4) 0; border-bottom: var(--stroke) solid var(--line); font-size: var(--fs-14); }
+.pg-keys-list kbd { white-space: pre; color: var(--ink); font-size: var(--fs-13); padding: var(--sp-2) var(--sp-8); }
+.pg-keys-btn { font-family: var(--display); font-weight: var(--w-semibold); font-size: var(--fs-16); }
+
 /* save confirm */
 .pg-confirm { margin: auto; width: min(560px, calc(100vw - 2 * var(--sp-24))); padding: 0; border: 0; background: none; color: var(--ink); }
 .pg-confirm::backdrop { background: color-mix(in srgb, var(--black) 72%, transparent); }
