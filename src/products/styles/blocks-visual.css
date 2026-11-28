@@ -381,7 +381,7 @@
   transition: color var(--t-200) var(--ease), box-shadow var(--t-200) var(--ease), background-color var(--t-200) var(--ease); }
 .bv-anat-states button:hover { color: var(--ink); }
 /* Pause / Play sits apart from the states, and pressed it is not a picked state */
-.bv-anat-states .bv-anat-play { margin-left: var(--sp-8); color: var(--ink); }
+.bv-anat-states .bv-anat-play { margin-left: var(--sp-8); padding: 0; color: var(--ink); }
 .bv-anat-states .bv-anat-play[aria-pressed='true'] { background: none; }
 .bv-anat-states button[aria-pressed='true'] { color: var(--ink); background: color-mix(in srgb, var(--acc-lit) 12%, transparent); box-shadow: inset 0 0 0 var(--stroke-2) var(--acc-lit); }
 .bv-anat-help { margin-top: var(--sp-22); }

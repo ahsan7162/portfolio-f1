@@ -8,7 +8,8 @@ import { Tabs, TabsList, TabsTab } from '@ui-sdk/react/tabs';
 import { pad } from '../../format';
 import { gsap, reducedMotion } from '../../motion';
 import { LiveScreen } from '../../stage/live';
-import { Label, SwapLabel, useBlockMotion, type BlockProps } from './shared';
+import { IconPlayPause } from './icons';
+import { Label, useBlockMotion, type BlockProps } from './shared';
 import '../../styles/blocks-visual.css';
 import { bare } from '../../stop';
 
@@ -129,8 +130,8 @@ export function Anatomy({ block }: BlockProps<'anatomy'>) {
             ))}
             {/* picking a state holds the cycle there; Play carries it on */}
             {!reducedMotion() && (
-              <Toggle className="pp-mono bv-anat-play" pressed={held} aria-label="Pause the states" onPressedChange={() => setHeld(h => !h)}>
-                <SwapLabel on={held} off="Pause" onText="Play" />
+              <Toggle className="bv-anat-play pp-ib" pressed={held} aria-label="Pause the states" data-tip={held ? 'Play' : 'Pause'} onPressedChange={() => setHeld(h => !h)}>
+                <IconPlayPause paused={held} />
               </Toggle>
             )}
           </div>

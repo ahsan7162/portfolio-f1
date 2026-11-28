@@ -3,7 +3,8 @@ import { useEffect, useId, useRef, type ComponentProps, type RefObject } from 'r
 import { Toggle } from '@ui-sdk/react/toggle';
 import { Tabs, TabsList, TabsTab } from '@ui-sdk/react/tabs';
 import { gsap, reducedMotion, SplitText, useGSAP } from '../../motion';
-import { Coded, Label, SwapLabel, usePreload, useShowcaseFit, type BlockProps } from './shared';
+import { IconPlayPause } from './icons';
+import { Coded, Label, usePreload, useShowcaseFit, type BlockProps } from './shared';
 import { MediaView } from './MediaView';
 import { useRotate, type Rot } from './rotate';
 import '../../styles/blocks-visual.css';
@@ -62,8 +63,8 @@ export function RotTabs({ tabs, r, id, keep, controls }: { tabs: string[]; r: Ro
 export function PauseButton({ r }: { r: Rot }) {
   const off = !r.rotating;
   return (
-    <Toggle className="bv-rot-btn pp-mono" pressed={r.paused} aria-label="Pause the rotation" onPressedChange={r.toggle} data-off={off || undefined} disabled={off}>
-      <SwapLabel on={r.paused} off="Pause" onText="Play" />
+    <Toggle className="bv-rot-btn pp-ib" pressed={r.paused} aria-label="Pause the rotation" data-tip={r.paused ? 'Play' : 'Pause'} onPressedChange={r.toggle} data-off={off || undefined} disabled={off}>
+      <IconPlayPause paused={r.paused} />
     </Toggle>
   );
 }
