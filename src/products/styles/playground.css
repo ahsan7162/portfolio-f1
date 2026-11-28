@@ -197,11 +197,12 @@ select.pg-input { appearance: none; background-image: linear-gradient(45deg, tra
 .pg-t-p { color: var(--ink); }
 
 /* write a block */
-.pg-write { display: grid; gap: var(--sp-12); align-content: start; grid-template-rows: auto auto auto auto minmax(320px, 1fr) auto auto; height: 100%; }
+.pg-write { display: grid; gap: var(--sp-12); align-content: start; grid-template-rows: auto auto auto auto minmax(320px, 1fr) auto auto auto; height: 100%; }
 .pg-new { display: grid; grid-template-columns: 1fr auto; gap: var(--sp-8); align-items: center; }
 .pg-new small { grid-column: 1 / -1; font-size: var(--fs-12); }
 .pg-written { flex-wrap: wrap; border-radius: var(--r-12); }
 .pg-status { color: var(--dim); font-size: var(--fs-11); }
+.pg-sure { display: grid; gap: var(--sp-10); }
 
 /* start dialog */
 .pg-dialog { margin: auto; width: min(1120px, calc(100vw - 2 * var(--sp-24))); max-height: calc(100svh - 2 * var(--sp-24)); padding: 0; border: 0; border-radius: var(--r-20); background: var(--raise); color: var(--ink); box-shadow: 0 0 0 var(--stroke) var(--line), 0 60px 120px var(--shadow-deep); }

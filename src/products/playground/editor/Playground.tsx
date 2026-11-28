@@ -592,6 +592,10 @@ function Write({ written, setWritten, built, armed, onRun, onAdd, onSave }: {
   const [at, setAt] = useState(0);
   const [file, setFile] = useState<'code' | 'css' | 'props'>('code');
   const [name, setName] = useState('');
+  /** Delete was pressed once: it asks before the code is gone, since Undo does not cover written blocks. */
+  const [sure, setSure] = useState(false);
+  const keep = useRef<HTMLButtonElement>(null);
+  useEffect(() => { if (sure) keep.current?.focus(); }, [sure]);
   const w = written[at];
   const set = (patch: Partial<WrittenBlock>) => setWritten(all => swapped(all, at, { ...all[at], ...patch }));
   const nameOk = NAME.test(name) && !written.some(x => x.name === name);
@@ -609,7 +613,7 @@ function Write({ written, setWritten, built, armed, onRun, onAdd, onSave }: {
       </form>
       {written.length > 0 && (
         <div className="pg-seg pp-mono pg-written" role="tablist" aria-label="Written blocks">
-          {written.map((x, i) => <button key={x.name} type="button" role="tab" aria-selected={i === at} onClick={() => setAt(i)}>{x.name}{built[x.name] ? ' !' : ''}</button>)}
+          {written.map((x, i) => <button key={x.name} type="button" role="tab" aria-selected={i === at} onClick={() => { setAt(i); setSure(false); }}>{x.name}{built[x.name] ? ' !' : ''}</button>)}
         </div>
       )}
       {w && (
@@ -626,8 +630,17 @@ function Write({ written, setWritten, built, armed, onRun, onAdd, onSave }: {
             <button type="button" className="pg-pill pg-pill--solid" onClick={onRun}>Run <kbd>⌘↵</kbd></button>
             <button type="button" className="pg-pill" onClick={() => onAdd(w)}>Add to the page</button>
             {onSave && <button type="button" className="pg-pill" onClick={() => onSave(w)} disabled={built[w.name] !== null} title={built[w.name] === null ? 'Write this block into the repository' : 'Run it first: only a block that compiled and drew in the canvas can be saved'}>Save block</button>}
-            <button type="button" className="pg-pill pg-pill--quiet" onClick={() => { setWritten(all => spliced(all, at, 1)); setAt(0); }}>Delete</button>
+            {!sure && <button type="button" className="pg-pill pg-pill--quiet" onClick={() => setSure(true)}>Delete</button>}
           </div>
+          {sure && (
+            <div className="pg-warn pg-sure" role="alert">
+              <p>Delete {w.name}, its CSS and its props? Undo can’t bring a written block back.</p>
+              <div className="pg-acts">
+                <button type="button" className="pg-pill" ref={keep} onClick={() => setSure(false)}>Keep it</button>
+                <button type="button" className="pg-pill pg-pill--solid" onClick={() => { setWritten(all => spliced(all, at, 1)); setAt(0); setSure(false); }}>Delete {w.name}</button>
+              </div>
+            </div>
+          )}
           <p className="pg-status pp-mono" role="status">{!armed ? 'Not running. Press Run.' : built[w.name] === undefined ? 'Running…' : built[w.name] ? 'Does not compile: see the marked line.' : 'Compiled and drawn in the canvas.'}</p>
         </>
       )}
