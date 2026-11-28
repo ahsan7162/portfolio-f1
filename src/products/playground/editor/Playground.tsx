@@ -329,9 +329,19 @@ export function Playground() {
           <h2 className="pp-sr" id="pg-palette-h">Add a block</h2>
           <label className="pg-search">
             <span className="pp-sr">Find a block</span>
-            <input ref={search} value={query} placeholder="Find a block" onChange={e => setQuery(e.target.value)} />
-            <kbd aria-hidden="true">/</kbd>
+            <input
+              ref={search} value={query} placeholder="Find a block" onChange={e => setQuery(e.target.value)} aria-describedby="pg-search-keys"
+              onKeyDown={e => {
+                if (e.key === 'Escape') { e.preventDefault(); if (query) setQuery(''); else e.currentTarget.blur(); }
+                else if (e.key === 'Enter') { e.preventDefault(); const first = found(query).find(x => fits(x, doc.meta)); if (first) add(sample(first.type)); }
+              }}
+            />
+            {query
+              ? <button type="button" className="pg-x" onClick={() => { setQuery(''); search.current?.focus(); }} aria-label="Clear the search" title="Clear (Esc)"><Icon name="close" /></button>
+              : <kbd aria-hidden="true">/</kbd>}
           </label>
+          <p id="pg-search-keys" className="pp-sr">Enter adds the first block found, after the picked one. Esc clears the search.</p>
+          {query && !found(query).length && <p className="pg-empty pg-none" role="status">No block matches “{query}”. Try a word for what it shows, like screens or code.</p>}
           {GROUPS.map(g => {
             const items = found(query).filter(e => e.group === g);
             if (!items.length) return null;
