@@ -111,7 +111,8 @@ export function Playground() {
   const [full, setFull] = useState(false);
   const enterFull = () => {
     setFull(true);
-    document.documentElement.requestFullscreen().catch(() => { /* not allowed here: the canvas fills the window */ });
+    // an iPhone has no such API at all, and the canvas just fills the window
+    if (document.fullscreenEnabled) document.documentElement.requestFullscreen().catch(() => { /* not allowed here: the window, then */ });
   };
   const exitFull = () => { setFull(false); if (document.fullscreenElement) void document.exitFullscreen(); };
   useEffect(() => {
