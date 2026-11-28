@@ -18,7 +18,7 @@ try {
   // modifiers: 1 Alt, 2 Ctrl, 4 Meta, 8 Shift
   const key = async (k, code, modifiers = 0) => {
     // the browser's own handling (a modal dialog's Esc) goes by the key code
-    const vk = { Escape: 27, Enter: 13, Delete: 46, Backspace: 8, Tab: 9, Home: 36, End: 35, ArrowLeft: 37, ArrowUp: 38, ArrowRight: 39, ArrowDown: 40, '/': 191, '?': 191 }[k] ?? k.toUpperCase().charCodeAt(0);
+    const vk = { '[': 219, ']': 221, Escape: 27, Enter: 13, Delete: 46, Backspace: 8, Tab: 9, Home: 36, End: 35, ArrowLeft: 37, ArrowUp: 38, ArrowRight: 39, ArrowDown: 40, '/': 191, '?': 191 }[k] ?? k.toUpperCase().charCodeAt(0);
     for (const type of ['rawKeyDown', 'keyUp']) await t.send('Input.dispatchKeyEvent', { type, key: k, code, modifiers, windowsVirtualKeyCode: vk });
     await sleep(250);
   };
@@ -37,16 +37,16 @@ try {
   const w1 = await canvasWidth();
   check('the blocks pane hides from its own button, and the canvas widens', !(await shown('.pg-left')) && w1 > w0, `${Math.round(w0)} → ${Math.round(w1)}`);
   check('its button in the top bar takes the focus and says it is off', await ev(`document.activeElement?.getAttribute('aria-controls') === 'pg-left' && document.activeElement.getAttribute('aria-pressed') === 'false'`));
-  await key('b', 'KeyB', 4);
-  check('⌘B shows it again', await shown('.pg-left'));
-  await key('b', 'KeyB', 4 | 1);
-  check('⌥⌘B hides the edit pane', !(await shown('.pg-right')));
+  await key('[', 'BracketLeft');
+  check('[ shows it again', await shown('.pg-left'));
+  await key(']', 'BracketRight');
+  check('] hides the edit pane', !(await shown('.pg-right')));
   await ev(`location.reload()`);
   await sleep(2500);
   check('the layout is remembered after a reload', (await shown('.pg-left')) && !(await shown('.pg-right')) && (await drawn()));
   await click('.pg-bar [aria-controls="pg-right"]');
   check('the top bar brings the edit pane back', await shown('.pg-right'));
-  await key('b', 'KeyB', 4);
+  await key('[', 'BracketLeft');
   await key('/', 'Slash');
   check('/ opens the closed blocks pane and focuses the search', (await shown('.pg-left')) && (await ev(`document.activeElement === document.querySelector('.pg-search input')`)));
   await ev(`document.activeElement.blur()`);

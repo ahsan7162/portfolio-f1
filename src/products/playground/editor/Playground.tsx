@@ -31,7 +31,7 @@ const KIND_NAMES: Record<Kind, string> = { plugin: 'Plugin', app: 'App', site: '
 const KEYS: [where: string, [keys: string, what: string][]][] = [
   ['Anywhere outside a field', [
     ['/', 'Find a block'], [`${MOD}Z`, 'Undo'], [`${SHIFT}${MOD}Z`, 'Redo'],
-    [`${MOD}B`, 'Show or hide the blocks'], [`${ALT}${MOD}B`, 'Show or hide the edit pane'],
+    ['[', 'Show or hide the blocks'], [']', 'Show or hide the edit pane'],
     ['F', 'Canvas full screen'], ['Esc', 'Leave full screen, then let go of the picked block'], ['?', 'These shortcuts'],
   ]],
   ['In the list of the page’s blocks', [[`${ALT}↑  ${ALT}↓`, 'Move the block'], ['Delete', 'Remove it']]],
@@ -154,15 +154,16 @@ export function Playground() {
     leave.current = () => { if (full) exitFull(); else if (selected >= 0) dispatch({ do: 'select', i: -1 }); };
   });
 
-  // keys outside a field: undo and redo, the side panes, full screen, / to find a block
+  // keys outside a field: undo and redo, the side panes, full screen, the shortcuts, / to find a block
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const typing = e.target instanceof HTMLElement && e.target.closest('input, textarea, select, [contenteditable]');
       if (typing || document.querySelector('dialog[open]')) return;
       const mod = e.metaKey || e.ctrlKey;
       if (mod && e.key.toLowerCase() === 'z') { e.preventDefault(); dispatch({ do: e.shiftKey ? 'redo' : 'undo' }); }
-      // by the key's place, not its letter: Option changes the letter on a Mac
-      else if (mod && e.code === 'KeyB') { e.preventDefault(); setLayout(l => (e.altKey ? { rightOpen: !l.rightOpen } : { leftOpen: !l.leftOpen })); }
+      // Brackets, not ⌘B and ⌥⌘B, which Chrome on a Mac keeps for its bookmarks. Some layouts type a bracket with
+      // Option or AltGr (Ctrl+Alt), so those pass; ⌘[ is the browser's Back and Ctrl+[ is left alone.
+      else if ((e.key === '[' || e.key === ']') && !e.metaKey && (!e.ctrlKey || e.altKey)) { e.preventDefault(); setLayout(l => (e.key === '[' ? { leftOpen: !l.leftOpen } : { rightOpen: !l.rightOpen })); }
       else if (e.key.toLowerCase() === 'f' && !mod && !e.altKey) { e.preventDefault(); toggleFull.current(); }
       else if (e.key === 'Escape') leave.current();
       else if (e.key === '?') { e.preventDefault(); keysDialog.current?.showModal(); }
@@ -313,8 +314,8 @@ export function Playground() {
         </div>
         <span className="pg-grow" />
         <div className="pg-lay">
-          <button type="button" className="pg-icon" aria-pressed={layout.leftOpen} aria-controls="pg-left" onClick={() => toggle('left')} aria-label="Blocks pane" title={`Show or hide the blocks (${MOD}B)`}><Icon name="left" /></button>
-          <button type="button" className="pg-icon" aria-pressed={layout.rightOpen} aria-controls="pg-right" onClick={() => toggle('right')} aria-label="Edit pane" title={`Show or hide the edit pane (${ALT}${MOD}B)`}><Icon name="right" /></button>
+          <button type="button" className="pg-icon" aria-pressed={layout.leftOpen} aria-controls="pg-left" onClick={() => toggle('left')} aria-label="Blocks pane" title="Show or hide the blocks ([)"><Icon name="left" /></button>
+          <button type="button" className="pg-icon" aria-pressed={layout.rightOpen} aria-controls="pg-right" onClick={() => toggle('right')} aria-label="Edit pane" title="Show or hide the edit pane (])"><Icon name="right" /></button>
         </div>
         <button type="button" className="pg-icon" onClick={() => dispatch({ do: 'undo' })} disabled={!s.past.length} aria-label="Undo" title={`Undo (${MOD}Z)`}><Icon name="undo" /></button>
         <button type="button" className="pg-icon" onClick={() => dispatch({ do: 'redo' })} disabled={!s.future.length} aria-label="Redo" title={`Redo (${SHIFT}${MOD}Z)`}><Icon name="redo" /></button>
@@ -341,7 +342,7 @@ export function Playground() {
         <section className="pg-layers" id="pg-layers" aria-labelledby="pg-layers-h">
           <div className="pg-pane-head">
             <h2 className="pg-h pp-mono" id="pg-layers-h">On this page · {doc.blocks.length}</h2>
-            <button type="button" className="pg-x pg-pane-x" onClick={() => toggle('left', 'inside')} aria-label="Hide the blocks" title={`Hide the blocks (${MOD}B)`}><Icon name="close" /></button>
+            <button type="button" className="pg-x pg-pane-x" onClick={() => toggle('left', 'inside')} aria-label="Hide the blocks" title="Hide the blocks ([)"><Icon name="close" /></button>
           </div>
           <ol ref={layers} className="pg-layer-list">
             {doc.blocks.map((b, i) => (
@@ -474,7 +475,7 @@ export function Playground() {
               <button key={id} type="button" role="tab" id={`pg-tab-${id}`} aria-selected={tab === id} tabIndex={stop(tab === id)} onKeyDown={roving} aria-controls={`pg-panel-${id}`} onClick={() => setTab(id)}>{label}</button>
             ))}
           </div>
-          <button type="button" className="pg-x pg-pane-x" onClick={() => toggle('right', 'inside')} aria-label="Hide the edit pane" title={`Hide the edit pane (${ALT}${MOD}B)`}><Icon name="close" /></button>
+          <button type="button" className="pg-x pg-pane-x" onClick={() => toggle('right', 'inside')} aria-label="Hide the edit pane" title="Hide the edit pane (])"><Icon name="close" /></button>
         </div>
 
         {tab === 'block' && (
