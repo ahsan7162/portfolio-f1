@@ -23,5 +23,8 @@ export const Icon = ({ name }: { name: IconName }) => (
   </svg>
 );
 
-/** The key that goes with a shortcut's letter here: ⌘ on Apple devices, Ctrl+ elsewhere. */
-export const MOD = /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl+';
+const MAC = /Mac|iPhone|iPad/.test(navigator.platform);
+/** The modifier keys as this device labels them: ⌘ ⌥ ⇧ on Apple devices, Ctrl+ Alt+ Shift+ elsewhere. */
+export const MOD = MAC ? '⌘' : 'Ctrl+';
+export const ALT = MAC ? '⌥' : 'Alt+';
+export const SHIFT = MAC ? '⇧' : 'Shift+';

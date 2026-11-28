@@ -11,7 +11,8 @@ import { LiteralError, MAX_SOURCE, parse, print, type Literal } from '../literal
 import { LIMITS, NAME } from '../protocol';
 import { savedNames } from '../../detail/blocks/saved/names';
 import { Glyph } from '../Glyph';
-import { Icon, MOD } from './icons';
+import { ALT, Icon, MOD, SHIFT } from './icons';
+import { useLayout } from './layout';
 import { Canvas, type CanvasApi } from './Canvas';
 import { CodeEditor } from './CodeEditor';
 import { BlockFields, Field } from './Fields';
@@ -84,6 +85,12 @@ export function Playground() {
   const canvas = useRef<CanvasApi>(null);
   const startDialog = useRef<HTMLDialogElement>(null);
   const search = useRef<HTMLInputElement>(null);
+  const { layout, set: setLayout, left: leftWidth, right: rightWidth } = useLayout();
+  /** Shows or hides a side pane; a pane closed from inside hands the focus to its button in the top bar. */
+  const toggle = (side: 'left' | 'right', from?: 'inside') => {
+    setLayout(l => (side === 'left' ? { leftOpen: !l.leftOpen } : { rightOpen: !l.rightOpen }));
+    if (from) requestAnimationFrame(() => document.querySelector<HTMLElement>(`.pg-bar [aria-controls="pg-${side}"]`)?.focus());
+  };
   const { doc, selected } = s;
   const real = REAL[s.template];
 
@@ -93,16 +100,24 @@ export function Playground() {
   useEffect(() => { if (boot.fresh) startDialog.current?.showModal(); }, [boot.fresh]);
   useEffect(() => { const t = setTimeout(() => remember(s, written), 400); return () => clearTimeout(t); }, [s, written]);
 
-  // keys: undo and redo outside a field, / to find a block
+  // keys outside a field: undo and redo, the side panes, / to find a block
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const typing = e.target instanceof HTMLElement && e.target.closest('input, textarea, select, [contenteditable]');
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z' && !typing) { e.preventDefault(); dispatch({ do: e.shiftKey ? 'redo' : 'undo' }); }
-      else if (e.key === '/' && !typing) { e.preventDefault(); setPane('blocks'); search.current?.focus(); }
+      if (typing) return;
+      const mod = e.metaKey || e.ctrlKey;
+      if (mod && e.key.toLowerCase() === 'z') { e.preventDefault(); dispatch({ do: e.shiftKey ? 'redo' : 'undo' }); }
+      // by the key's place, not its letter: Option changes the letter on a Mac
+      else if (mod && e.code === 'KeyB') { e.preventDefault(); setLayout(l => (e.altKey ? { rightOpen: !l.rightOpen } : { leftOpen: !l.leftOpen })); }
+      else if (e.key === '/') {
+        e.preventDefault(); setPane('blocks'); setLayout({ leftOpen: true });
+        // the pane may have been closed: focus once it is drawn
+        requestAnimationFrame(() => search.current?.focus());
+      }
     };
     addEventListener('keydown', onKey);
     return () => removeEventListener('keydown', onKey);
-  }, []);
+  }, [setLayout]);
 
   const insertAt = selected >= 0 ? selected + 1 : doc.blocks.length;
   const add = (b: Block, at = insertAt) => { dispatch({ do: 'insert', block: b, at }); setTab('block'); };
@@ -205,7 +220,10 @@ export function Playground() {
   const nameOf = (b: Block) => ('label' in b && typeof b.label === 'string' && b.label) || (b.type === 'custom' ? b.name : entry(b.type)?.name ?? b.type);
 
   return (
-    <div className="pg" data-pane={pane}>
+    <div
+      className="pg" data-pane={pane} data-left={layout.leftOpen ? undefined : 'closed'} data-right={layout.rightOpen ? undefined : 'closed'}
+      style={{ '--pg-left': `${leftWidth}px`, '--pg-right': `${rightWidth}px` } as React.CSSProperties}
+    >
       <header className="pg-bar">
         <a className="pg-mark" href="/products" aria-label="Back to products">Playground<span>.</span></a>
         <button type="button" className="pg-pill" onClick={() => startDialog.current?.showModal()}>
@@ -226,8 +244,12 @@ export function Playground() {
           {WIDTHS.map(w => <button key={w} type="button" role="radio" aria-checked={width === w} onClick={() => setWidth(w)}>{w}</button>)}
         </div>
         <span className="pg-grow" />
+        <div className="pg-lay">
+          <button type="button" className="pg-icon" aria-pressed={layout.leftOpen} aria-controls="pg-left" onClick={() => toggle('left')} aria-label="Blocks pane" title={`Show or hide the blocks (${MOD}B)`}><Icon name="left" /></button>
+          <button type="button" className="pg-icon" aria-pressed={layout.rightOpen} aria-controls="pg-right" onClick={() => toggle('right')} aria-label="Edit pane" title={`Show or hide the edit pane (${ALT}${MOD}B)`}><Icon name="right" /></button>
+        </div>
         <button type="button" className="pg-icon" onClick={() => dispatch({ do: 'undo' })} disabled={!s.past.length} aria-label="Undo" title={`Undo (${MOD}Z)`}><Icon name="undo" /></button>
-        <button type="button" className="pg-icon" onClick={() => dispatch({ do: 'redo' })} disabled={!s.future.length} aria-label="Redo" title={`Redo (⇧${MOD}Z)`}><Icon name="redo" /></button>
+        <button type="button" className="pg-icon" onClick={() => dispatch({ do: 'redo' })} disabled={!s.future.length} aria-label="Redo" title={`Redo (${SHIFT}${MOD}Z)`}><Icon name="redo" /></button>
         <button type="button" className="pg-pill" onClick={copy}>{copied ? 'Copied' : 'Copy code'}</button>
         {TOKEN && <button type="button" className="pg-pill pg-pill--solid" onClick={savePage} disabled={!real} title={real ? `Write ${real.name}’s page into the repository` : 'Save writes a real product’s page: remix one to save it'}>Save page</button>}
       </header>
@@ -238,9 +260,12 @@ export function Playground() {
 
       {notice && <p className="pg-notice" role="status">{notice}<button type="button" className="pg-x" onClick={() => setNotice(null)} aria-label="Dismiss" title="Dismiss"><Icon name="close" /></button></p>}
 
-      <aside className="pg-left" aria-label="Blocks">
+      <aside className="pg-left" id="pg-left" aria-label="Blocks">
         <section className="pg-layers" aria-labelledby="pg-layers-h">
-          <h2 className="pg-h pp-mono" id="pg-layers-h">On this page · {doc.blocks.length}</h2>
+          <div className="pg-pane-head">
+            <h2 className="pg-h pp-mono" id="pg-layers-h">On this page · {doc.blocks.length}</h2>
+            <button type="button" className="pg-x pg-pane-x" onClick={() => toggle('left', 'inside')} aria-label="Hide the blocks" title={`Hide the blocks (${MOD}B)`}><Icon name="close" /></button>
+          </div>
           <ol ref={layers} className="pg-layer-list">
             {doc.blocks.map((b, i) => (
               <li key={doc.keys[i]} className="pg-layer" data-at={layerAt === i ? '' : undefined}>
@@ -329,11 +354,14 @@ export function Playground() {
         />
       </main>
 
-      <aside className="pg-right" aria-label="Edit">
-        <div className="pg-tabs pp-mono" role="tablist" aria-label="Edit">
-          {([['block', selected >= 0 ? 'Block' : 'Page settings'], ['page', 'Page code'], ['write', 'Write a block']] as const).map(([id, label]) => (
-            <button key={id} type="button" role="tab" id={`pg-tab-${id}`} aria-selected={tab === id} aria-controls={`pg-panel-${id}`} onClick={() => setTab(id)}>{label}</button>
-          ))}
+      <aside className="pg-right" id="pg-right" aria-label="Edit">
+        <div className="pg-pane-head pg-pane-head--tabs">
+          <div className="pg-tabs pp-mono" role="tablist" aria-label="Edit">
+            {([['block', selected >= 0 ? 'Block' : 'Page settings'], ['page', 'Page code'], ['write', 'Write a block']] as const).map(([id, label]) => (
+              <button key={id} type="button" role="tab" id={`pg-tab-${id}`} aria-selected={tab === id} aria-controls={`pg-panel-${id}`} onClick={() => setTab(id)}>{label}</button>
+            ))}
+          </div>
+          <button type="button" className="pg-x pg-pane-x" onClick={() => toggle('right', 'inside')} aria-label="Hide the edit pane" title={`Hide the edit pane (${ALT}${MOD}B)`}><Icon name="close" /></button>
         </div>
 
         {tab === 'block' && (
