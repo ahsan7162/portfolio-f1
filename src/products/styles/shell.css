@@ -26,6 +26,7 @@
 .pp-curtain[data-branded] { background: color-mix(in oklch, var(--brand) 46%, var(--black)); }
 /* the most a name grows to; a longer one is shrunk to fit between the gutters (fitLabel() in App.tsx) */
 .pp-curtain span { --wdth: var(--wd-64); font-size: clamp(64px, 17vw, 300px); white-space: nowrap; }
+.pp-curtain span:not([data-fit]) { visibility: hidden; }
 
 .pp-cursor {
   position: fixed; left: 0; top: 0; z-index: var(--z-cursor); width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: var(--r-round);

@@ -24,7 +24,8 @@ function tint(curtain: HTMLElement | null, brand?: string) {
 /**
  * Shrinks the curtain's name to fit between the page's gutters (the curtain's padding): at the CSS size a long name
  * ("OpenUI Live Replies") runs off both sides, while a short one keeps that size. Width scales with font-size, so one
- * measurement gives the size that fits.
+ * measurement gives the size that fits. The name shows only once fitted (data-fit): on a first load the prerendered
+ * curtain is up before this script runs.
  */
 function fitLabel(label: HTMLElement | null) {
   const box = label?.parentElement;
@@ -34,6 +35,7 @@ function fitLabel(label: HTMLElement | null) {
   const room = box.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
   const width = label.getBoundingClientRect().width;
   if (width > room) label.style.fontSize = `${Math.floor(((parseFloat(getComputedStyle(label).fontSize) * room) / width) * 10) / 10}px`;
+  label.dataset.fit = '';
 }
 
 /** The design system's reference page: its own chunk, so the main page and the product pages don't carry it. */
