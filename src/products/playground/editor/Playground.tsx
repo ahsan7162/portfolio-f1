@@ -82,7 +82,16 @@ export function Playground() {
   const [width, setWidth] = useState<number>(() => (matchMedia('(max-width: 899px)').matches ? 390 : 1440));
   const [tab, setTab] = useState<'block' | 'page' | 'write'>('block');
   const [pane, setPane] = useState<'blocks' | 'canvas' | 'edit'>('canvas');
-  const [notice, setNotice] = useState<string | null>(null);
+  /**
+   * A line for the visitor. A passing one (a block removed, a page saved) floats and fades, and a removal carries
+   * the page as it was, so Undo is offered while that removal is still the last change.
+   */
+  const [notice, setNotice] = useState<{ text: string; passing?: boolean; before?: State['doc'] } | null>(null);
+  useEffect(() => {
+    if (!notice?.passing) return;
+    const t = setTimeout(() => setNotice(null), 6000);
+    return () => clearTimeout(t);
+  }, [notice]);
   const [scale, setScale] = useState(1);
   // Full screen fills the screen with the canvas where the browser allows it, and the window where it doesn't.
   const [full, setFull] = useState(false);
@@ -219,9 +228,9 @@ export function Playground() {
     try {
       const r = await fetch('/__playground/save', { method: 'POST', headers: { 'content-type': 'application/json', 'x-playground-token': TOKEN }, body: JSON.stringify(body) });
       const out = (await r.json()) as { wrote?: string[]; error?: string };
-      setNotice(r.ok ? `Saved: ${out.wrote?.join(', ')}` : `Not saved: ${out.error ?? r.status}`);
+      setNotice(r.ok ? { text: `Saved: ${out.wrote?.join(', ')}`, passing: true } : { text: `Not saved: ${out.error ?? r.status}` });
     } catch {
-      setNotice('Not saved: the dev server did not answer.');
+      setNotice({ text: 'Not saved: the dev server did not answer.' });
     }
   };
   const savePage = () => {
@@ -241,13 +250,19 @@ export function Playground() {
   });
 
   const [copied, setCopied] = useState(false);
-  const copy = () => navigator.clipboard.writeText(print(doc.blocks as unknown as Literal)).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1600); }, () => setNotice('Copy is blocked here: select the page code and copy it.'));
+  const copy = () => navigator.clipboard.writeText(print(doc.blocks as unknown as Literal)).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1600); }, () => setNotice({ text: 'Copy is blocked here: select the page code and copy it.' }));
 
   const choose = (t: Template) => { dispatch({ do: 'template', t: structuredClone(t) }); startDialog.current?.close(); setTab('block'); };
   const setKind = (kind: Kind) => dispatch({ do: 'meta', meta: { kind, ...(doc.meta.sample ? { stage: STAGE_FOR[kind] } : {}) } });
 
   const found = (q: string) => CATALOG.filter(e => !q || `${e.name} ${e.use} ${e.type}`.toLowerCase().includes(q.toLowerCase()));
   const nameOf = (b: Block) => ('label' in b && typeof b.label === 'string' && b.label) || (b.type === 'custom' ? b.name : entry(b.type)?.name ?? b.type);
+  const removeAt = (i: number) => {
+    const b = doc.blocks[i];
+    if (!b) return;
+    dispatch({ do: 'remove', i });
+    setNotice({ text: `Removed ${nameOf(b)}.`, passing: true, before: doc });
+  };
 
   return (
     <div
@@ -285,7 +300,15 @@ export function Playground() {
         {(['blocks', 'canvas', 'edit'] as const).map(p => <button key={p} type="button" aria-pressed={pane === p} onClick={() => setPane(p)}>{p === 'blocks' ? 'Blocks' : p === 'canvas' ? 'Page' : 'Edit'}</button>)}
       </nav>
 
-      {notice && <p className="pg-notice" role="status">{notice}<button type="button" className="pg-x" onClick={() => setNotice(null)} aria-label="Dismiss" title="Dismiss"><Icon name="close" /></button></p>}
+      {notice && (
+        <p className={`pg-notice${notice.passing ? ' pg-notice--toast' : ''}`} role="status">
+          <span>{notice.text}</span>
+          <span className="pg-acts">
+            {notice.before && s.past.at(-1) === notice.before && <button type="button" className="pg-pill pg-pill--small" onClick={() => { dispatch({ do: 'undo' }); setNotice(null); }}>Undo</button>}
+            <button type="button" className="pg-x" onClick={() => setNotice(null)} aria-label="Dismiss" title="Dismiss"><Icon name="close" /></button>
+          </span>
+        </p>
+      )}
 
       <aside className="pg-left" id="pg-left" aria-label="Blocks">
         <section className="pg-layers" id="pg-layers" aria-labelledby="pg-layers-h">
@@ -302,7 +325,7 @@ export function Playground() {
                   onClick={() => { if (dragged.current) return; dispatch({ do: 'select', i }); canvas.current?.scrollTo(i); setTab('block'); }}
                   onKeyDown={e => {
                     if (e.altKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) { e.preventDefault(); dispatch({ do: 'move', from: i, to: i + (e.key === 'ArrowUp' ? -1 : 1) }); }
-                    else if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); dispatch({ do: 'remove', i }); }
+                    else if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); removeAt(i); }
                   }}
                   aria-describedby="pg-layer-keys"
                 >
@@ -404,9 +427,9 @@ export function Playground() {
             setArmed(false);
             // keep the page now: a stuck canvas is left by closing the tab
             remember(s, written);
-            setNotice(why === 'stuck'
+            setNotice({ text: why === 'stuck'
               ? 'The canvas stopped answering: a written block never stops running. Your page is saved.'
-              : 'Something in the canvas tried to load another page, so the canvas was started again and written blocks were stopped. Press Run to draw them again.');
+              : 'Something in the canvas tried to load another page, so the canvas was started again and written blocks were stopped. Press Run to draw them again.' });
           }}
         />
       </main>
@@ -441,7 +464,7 @@ export function Playground() {
                     <button type="button" className="pg-icon" onClick={() => dispatch({ do: 'move', from: selected, to: selected - 1 })} disabled={selected === 0} aria-label="Move up" title="Move up (Alt+↑ in the list)"><Icon name="up" /></button>
                     <button type="button" className="pg-icon" onClick={() => dispatch({ do: 'move', from: selected, to: selected + 1 })} disabled={selected === doc.blocks.length - 1} aria-label="Move down" title="Move down (Alt+↓ in the list)"><Icon name="down" /></button>
                     <button type="button" className="pg-icon" onClick={() => dispatch({ do: 'duplicate', i: selected })} aria-label="Duplicate" title="Duplicate"><Icon name="copy" /></button>
-                    <button type="button" className="pg-icon" onClick={() => dispatch({ do: 'remove', i: selected })} aria-label="Remove" title="Remove (Delete in the list)"><Icon name="remove" /></button>
+                    <button type="button" className="pg-icon" onClick={() => removeAt(selected)} aria-label="Remove" title="Remove (Delete in the list)"><Icon name="remove" /></button>
                   </div>
                 </div>
                 {faults[doc.keys[selected]] && <p className="pg-fault" role="alert">It could not draw: {faults[doc.keys[selected]]}</p>}
