@@ -24,7 +24,8 @@ export function Label({ id, children, aside }: { id: string; children: ReactNode
   );
 }
 
-export const Out = () => <span aria-hidden="true">↗</span>;
+/** The arrow on a link that leaves the site. */
+export { IconOut as Out } from './icons';
 
 /**
  * Keeps a showcase on one screen at any size: narrows its screen (`stage`, inside `root`) until everything from `top` to

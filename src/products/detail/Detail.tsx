@@ -10,7 +10,7 @@ import { HOME, Link, productPath } from '../router';
 import { scrollToEl } from '../scroll';
 import { FILM_ID, findBlock, KINDS, type Product } from '../types';
 import { Blocks, listed } from './blocks';
-import { IconBack, IconCaret, IconCopy, IconNext, IconPrev } from './blocks/icons';
+import { IconBack, IconCaret, IconCopy, IconNext, IconPlay, IconPrev } from './blocks/icons';
 import { CopyStatus, Out, StoreButtons, SwapLabel, useCopy } from './blocks/shared';
 import { useFit } from './fit';
 import '../styles/detail.css';
@@ -152,7 +152,7 @@ export function Detail({ product, blocks }: { product: Product; blocks?: ReactNo
               )}
               {via?.kind === 'stores' && <StoreButtons className="pp-btn pp-btn--ghost" />}
               {via?.kind === 'link' && <a className="pp-btn pp-btn--acc" href={via.href} target="_blank" rel="noopener noreferrer">{via.label} <Out /></a>}
-              {film && <button type="button" className="pp-btn pp-btn--ghost" onClick={toFilm}>Watch the film · {film.duration}</button>}
+              {film && <button type="button" className="pp-btn pp-btn--ghost" onClick={toFilm}><IconPlay />Watch the film · {film.duration}</button>}
             </div>
             {/* two buttons at most, so they never wrap; the product's links sit under them as plain links */}
             {product.links.length > 0 && (

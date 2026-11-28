@@ -328,6 +328,8 @@
   [data-spin] > .pp-icon--replay { animation: pp-spin var(--t-700) var(--ease); }
   @keyframes pp-spin { to { transform: rotate(-360deg); } }
 }
+/* a link's arrow and the film's triangle sit at the text's size */
+.pp-icon--out, .pp-icon--play { width: 1em; height: 1em; }
 
 /* an icon-only button: square, named by its aria-label, and by a tip (data-tip) for a mouse or a keyboard */
 :is(button, a).pp-ib { width: var(--ib, 40px); min-width: var(--ib, 40px); height: var(--ib, 40px); min-height: var(--ib, 40px); padding: 0; display: inline-grid; place-items: center; }
