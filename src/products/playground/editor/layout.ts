@@ -18,8 +18,8 @@ export const FRESH: Layout = { left: null, right: null, split: 0.38, leftOpen: t
 export const LEFT = [220, 480] as const;
 export const RIGHT = [320, 760] as const;
 export const SPLIT = [0.15, 0.8] as const;
-/** The narrowest the canvas gets beside the open panes. */
-export const CANVAS_MIN = 360;
+/** The narrowest the canvas column gets beside the open panes (the page drawn in it, less its padding). */
+export const CANVAS_MIN = 400;
 
 const clamp = (v: number, [lo, hi]: readonly [number, number]) => Math.min(hi, Math.max(lo, v));
 const width = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? v : null);

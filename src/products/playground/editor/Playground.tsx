@@ -12,7 +12,8 @@ import { LIMITS, NAME } from '../protocol';
 import { savedNames } from '../../detail/blocks/saved/names';
 import { Glyph } from '../Glyph';
 import { ALT, Icon, MOD, SHIFT } from './icons';
-import { useLayout } from './layout';
+import { CANVAS_MIN, FRESH, LEFT, RIGHT, SPLIT, useLayout } from './layout';
+import { Splitter } from './Splitter';
 import { Canvas, type CanvasApi } from './Canvas';
 import { CodeEditor } from './CodeEditor';
 import { BlockFields, Field } from './Fields';
@@ -85,7 +86,7 @@ export function Playground() {
   const canvas = useRef<CanvasApi>(null);
   const startDialog = useRef<HTMLDialogElement>(null);
   const search = useRef<HTMLInputElement>(null);
-  const { layout, set: setLayout, left: leftWidth, right: rightWidth } = useLayout();
+  const { layout, set: setLayout, vw, left: leftWidth, right: rightWidth } = useLayout();
   /** Shows or hides a side pane; a pane closed from inside hands the focus to its button in the top bar. */
   const toggle = (side: 'left' | 'right', from?: 'inside') => {
     setLayout(l => (side === 'left' ? { leftOpen: !l.leftOpen } : { rightOpen: !l.rightOpen }));
@@ -222,7 +223,7 @@ export function Playground() {
   return (
     <div
       className="pg" data-pane={pane} data-left={layout.leftOpen ? undefined : 'closed'} data-right={layout.rightOpen ? undefined : 'closed'}
-      style={{ '--pg-left': `${leftWidth}px`, '--pg-right': `${rightWidth}px` } as React.CSSProperties}
+      style={{ '--pg-left': `${leftWidth}px`, '--pg-right': `${rightWidth}px`, '--pg-split': `${layout.split * 100}%` } as React.CSSProperties}
     >
       <header className="pg-bar">
         <a className="pg-mark" href="/products" aria-label="Back to products">Playground<span>.</span></a>
@@ -261,7 +262,7 @@ export function Playground() {
       {notice && <p className="pg-notice" role="status">{notice}<button type="button" className="pg-x" onClick={() => setNotice(null)} aria-label="Dismiss" title="Dismiss"><Icon name="close" /></button></p>}
 
       <aside className="pg-left" id="pg-left" aria-label="Blocks">
-        <section className="pg-layers" aria-labelledby="pg-layers-h">
+        <section className="pg-layers" id="pg-layers" aria-labelledby="pg-layers-h">
           <div className="pg-pane-head">
             <h2 className="pg-h pp-mono" id="pg-layers-h">On this page · {doc.blocks.length}</h2>
             <button type="button" className="pg-x pg-pane-x" onClick={() => toggle('left', 'inside')} aria-label="Hide the blocks" title={`Hide the blocks (${MOD}B)`}><Icon name="close" /></button>
@@ -291,6 +292,12 @@ export function Playground() {
           {!doc.blocks.length && <p className="pg-empty">Drag a block onto the page, or pick one below.</p>}
           <p id="pg-layer-keys" className="pp-sr">Alt and an arrow key moves a block; Delete removes it.</p>
         </section>
+
+        <Splitter
+          axis="y" percent sign={1} value={layout.split * 100} min={SPLIT[0] * 100} max={SPLIT[1] * 100}
+          onChange={v => setLayout({ split: v / 100 })} onReset={() => setLayout({ split: FRESH.split })}
+          label="Resize the page's blocks against every block" controls="pg-layers"
+        />
 
         <section className="pg-palette" aria-labelledby="pg-palette-h">
           <h2 className="pp-sr" id="pg-palette-h">Add a block</h2>
@@ -335,6 +342,12 @@ export function Playground() {
           )}
         </section>
       </aside>
+      {layout.leftOpen && (
+        <Splitter
+          axis="x" sign={1} value={leftWidth} min={LEFT[0]} max={Math.min(LEFT[1], vw - rightWidth - CANVAS_MIN)}
+          onChange={v => setLayout({ left: v })} onReset={() => setLayout({ left: null })} label="Resize the blocks pane" controls="pg-left"
+        />
+      )}
 
       <main className="pg-main" aria-label="The page">
         <Canvas
@@ -354,6 +367,12 @@ export function Playground() {
         />
       </main>
 
+      {layout.rightOpen && (
+        <Splitter
+          axis="x" sign={-1} value={rightWidth} min={RIGHT[0]} max={Math.min(RIGHT[1], vw - leftWidth - CANVAS_MIN)}
+          onChange={v => setLayout({ right: v })} onReset={() => setLayout({ right: null })} label="Resize the edit pane" controls="pg-right"
+        />
+      )}
       <aside className="pg-right" id="pg-right" aria-label="Edit">
         <div className="pg-pane-head pg-pane-head--tabs">
           <div className="pg-tabs pp-mono" role="tablist" aria-label="Edit">
